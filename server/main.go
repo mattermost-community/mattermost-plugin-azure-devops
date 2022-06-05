@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/mattermost/mattermost-server/v6/plugin"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/plugin"
+	mattermostPlugin "github.com/mattermost/mattermost-server/v6/plugin"
 )
 
 func main() {
-	plugin.ClientMain(&Plugin{})
+	mattermostPlugin.ClientMain(&plugin.Plugin{})
 }

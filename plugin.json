@@ -1,7 +1,7 @@
 {
-    "id": "com.mattermost.plugin-starter-template",
-    "name": "Plugin Starter Template",
-    "description": "This plugin serves as a starting point for writing a Mattermost plugin.",
+    "id": "mattermost-plugin-azure-devops",
+    "name": "Azure DevOps plugin",
+    "description": "This plugin provides services of Azure DevOps",
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-starter-template",
     "support_url": "https://github.com/mattermost/mattermost-plugin-starter-template/issues",
     "release_notes_url": "https://github.com/mattermost/mattermost-plugin-starter-template/releases/tag/v0.1.0",
@@ -23,6 +23,25 @@
     "settings_schema": {
         "header": "",
         "footer": "",
-        "settings": []
+        "settings": [
+            {
+                "key": "appId",
+                "display_name": "App ID",
+                "type": "text",
+                "help_text": "Enter Azure OAuth app ID"
+            },
+            {
+                "key": "clientSecret",
+                "display_name": "Client Secret",
+                "type": "text",
+                "help_text": "Enter Azure app OAuth client secret"
+            },
+            {
+                "key": "callbackUrl",
+                "display_name": "Callback URL",
+                "type": "text",
+                "help_text": "Enter Azure app OAuth callback URL"
+            }
+        ]
     }
 }

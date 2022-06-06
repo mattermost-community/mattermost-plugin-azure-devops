@@ -6,9 +6,12 @@ import (
 	"runtime/debug"
 	"sync"
 
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/command"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
 	"github.com/gorilla/mux"
-	"github.com/mattermost/mattermost-server/v6/plugin"
+	mattermostCommand "github.com/mattermost/mattermost-plugin-api/experimental/command"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+	"github.com/pkg/errors"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
@@ -63,6 +66,21 @@ func (p *Plugin) setConfiguration(configuration *config.Configuration) {
 	}
 
 	p.configuration = configuration
+}
+
+// Register slash commands
+func (p *Plugin) registerCommand() error {
+	iconData, err := mattermostCommand.GetIconData(p.API, "assets/azurebot.svg")
+	if err != nil {
+		return errors.Wrap(err, "failed to get icon data")
+	}
+
+	cmd := command.GetCommand(iconData)
+	if err := p.API.RegisterCommand(cmd); err != nil {
+		return errors.Wrap(err, "failed to register slash command: "+cmd.Trigger)
+	}
+
+	return nil
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

@@ -1,4 +1,4 @@
-package test
+package plugin
 
 import (
 	"io/ioutil"
@@ -6,13 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/plugin"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestServeHTTP(t *testing.T) {
 	assert := assert.New(t)
-	plugin := plugin.Plugin{}
+	plugin := Plugin{}
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 

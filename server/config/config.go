@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// configuration captures the plugin's external configuration as exposed in the Mattermost server
+// Configuration captures the plugin's external configuration as exposed in the Mattermost server
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 //
@@ -18,9 +18,7 @@ import (
 // copy appropriate for your types.
 type Configuration struct {
 	// TODO: Below configs are not final they are used as placeholder here
-	AzureOAuthAppId        string `json:"appId"`
-	AzureOAuthClientSecret string `json:"clientSecret"`
-	AzureOAuthCallbackUrl  string `json:"callbackUrl"`
+	AzureDevopsAPIBaseURL string `json:"azureDevopsAPIBaseURL"`
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -30,23 +28,18 @@ func (c *Configuration) Clone() *Configuration {
 	return &clone
 }
 
-// ProcessConfiguration is used for post-processing on the configuration.
+// Used for post-processing on the configuration.
 func (c *Configuration) ProcessConfiguration() error {
-	c.AzureOAuthAppId = strings.TrimSpace(c.AzureOAuthAppId)
+	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
 
 	return nil
 }
 
-// IsValid is used for config validations.
+// Used for config validations.
 func (c *Configuration) IsValid() error {
-	if c.AzureOAuthAppId == "" {
-		return fmt.Errorf("azure OAuth app id should not be empty")
+	if c.AzureDevopsAPIBaseURL == "" {
+		return fmt.Errorf("base URL of the Azure Devops API should not be empty")
 	}
-	if c.AzureOAuthClientSecret == "" {
-		return fmt.Errorf("azure OAuth client secret should not be empty")
-	}
-	if c.AzureOAuthCallbackUrl == "" {
-		return fmt.Errorf("azure OAuth callback URL should not be empty")
-	}
+
 	return nil
 }

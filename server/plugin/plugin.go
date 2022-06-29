@@ -2,21 +2,25 @@ package plugin
 
 import (
 	"net/http"
+	"path/filepath"
 	"reflect"
-	"runtime/debug"
 	"sync"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/command"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
 	"github.com/gorilla/mux"
-	mattermostCommand "github.com/mattermost/mattermost-plugin-api/experimental/command"
-	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mattermost/mattermost-server/v5/plugin"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
 type Plugin struct {
 	plugin.MattermostPlugin
+
+	Client Client
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -25,6 +29,9 @@ type Plugin struct {
 	// setConfiguration for usage.
 	configuration *config.Configuration
 	router        *mux.Router
+
+	// user ID of the bot account
+	botUserID string
 }
 
 // getConfiguration retrieves the active configuration under lock, making it safe to use
@@ -68,39 +75,23 @@ func (p *Plugin) setConfiguration(configuration *config.Configuration) {
 	p.configuration = configuration
 }
 
-// Register slash commands
-func (p *Plugin) registerCommand() error {
-	iconData, err := mattermostCommand.GetIconData(p.API, "assets/azurebot.svg")
+// Initializes a bot user
+func (p *Plugin) initBotUser() error {
+	botID, err := p.Helpers.EnsureBot(&model.Bot{
+		Username:    constants.BotUsername,
+		DisplayName: constants.BotDisplayName,
+		Description: constants.BotDescription,
+	}, plugin.ProfileImagePath(filepath.Join("assets", "azurebot.png")))
+
 	if err != nil {
-		return errors.Wrap(err, "failed to get icon data")
+		return errors.Wrap(err, "cannot create bot")
 	}
 
-	cmd := command.GetCommand(iconData)
-	if err := p.API.RegisterCommand(cmd); err != nil {
-		return errors.Wrap(err, "failed to register slash command: "+cmd.Trigger)
-	}
-
+	p.botUserID = botID
 	return nil
 }
 
-func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if x := recover(); x != nil {
-				p.API.LogError("Recovered from a panic",
-					"url", r.URL.String(),
-					"error", x,
-					"stack", string(debug.Stack()))
-			}
-		}()
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-// ServeHTTP demonstrates a plugin that handles HTTP requests by greeting the world.
+// ServeHTTP demonstrates a plugin that handles HTTP requests.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.router.ServeHTTP(w, r)
 }
-
-// See https://developers.mattermost.com/extend/plugins/server/reference/

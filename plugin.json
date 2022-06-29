@@ -1,6 +1,6 @@
 {
     "id": "mattermost-plugin-azure-devops",
-    "name": "Azure DevOps plugin",
+    "name": "Mattermost Azure Devops plugin",
     "description": "This plugin provides services of Azure DevOps such as Boards, Repos and Pipelines",
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-starter-template",
     "support_url": "https://github.com/mattermost/mattermost-plugin-starter-template/issues",
@@ -41,6 +41,12 @@
                 "display_name": "Callback URL",
                 "type": "text",
                 "help_text": "Enter Azure app OAuth callback URL"
+            },
+            {
+                "key": "azureDevopsAPIBaseURL",
+                "display_name": "Azure Devops API base URL",
+                "type": "text",
+                "help_text": "Enter Azure Devops API base URL"
             }
         ]
     }

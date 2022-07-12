@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 // Invoked when configuration changes may have been made.
@@ -50,6 +51,7 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to register command")
 	}
 
+	p.Store = store.NewStore(p.API)
 	p.router = p.InitAPI()
 	p.InitRoutes()
 	p.HandleStaticFiles()

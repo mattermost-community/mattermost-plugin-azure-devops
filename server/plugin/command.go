@@ -22,7 +22,9 @@ type Handler struct {
 
 var azuredevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"help": azuredevopsHelpCommand,
+		"help":       azuredevopsHelpCommand,
+		"connect":    azureDevopsConnectCommand,
+		"disconnect": azureDevopsDisconnectCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -38,10 +40,16 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, header *model.CommandArg
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
+
+	connect := model.NewAutocompleteData("connect", "", "connect to your Azure devops account")
+	azureDevops.AddCommand(connect)
+
+	disconnect := model.NewAutocompleteData("disconnect", "", "disconnect your Azure devops account")
+	azureDevops.AddCommand(disconnect)
 
 	return azureDevops
 }
@@ -63,11 +71,31 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 }
 
 func azuredevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	return p.sendEphemeralPost(header, constants.HelpText)
+	return p.sendEphemeralPostForCommand(header, constants.HelpText)
+}
+
+func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect, header.ChannelId)
+	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); isConnected {
+		message = constants.UserAlreadyConnected
+	}
+	return p.sendEphemeralPostForCommand(header, message)
+}
+
+func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := constants.UserDisconnected
+	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); !isConnected {
+		message = constants.ConnectAccountFirst
+	} else {
+		if isDeleted := p.Store.DeleteUser(header.UserId); !isDeleted {
+			message = constants.GenericErrorMessage
+		}
+	}
+	return p.sendEphemeralPostForCommand(header, message)
 }
 
 func executeDefault(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	return p.sendEphemeralPost(header, constants.InvalidCommand)
+	return p.sendEphemeralPostForCommand(header, constants.InvalidCommand)
 }
 
 // Handles executing a slash command
@@ -76,7 +104,7 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, commandArgs *model.CommandArg
 
 	if len(args) == 0 || args[0] != fmt.Sprintf("/%s", constants.CommandTriggerName) {
 		commandName := args[0][1:]
-		return p.sendEphemeralPost(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
+		return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
 	}
 
 	return azuredevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)

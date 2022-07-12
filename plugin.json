@@ -25,28 +25,55 @@
         "footer": "",
         "settings": [
             {
-                "key": "appId",
-                "display_name": "App ID",
-                "type": "text",
-                "help_text": "Enter Azure OAuth app ID"
-            },
-            {
-                "key": "clientSecret",
-                "display_name": "Client Secret",
-                "type": "text",
-                "help_text": "Enter Azure app OAuth client secret"
-            },
-            {
-                "key": "callbackUrl",
-                "display_name": "Callback URL",
-                "type": "text",
-                "help_text": "Enter Azure app OAuth callback URL"
-            },
-            {
                 "key": "azureDevopsAPIBaseURL",
                 "display_name": "Azure Devops API base URL",
                 "type": "text",
-                "help_text": "Enter Azure Devops API base URL"
+                "help_text": "Enter the base URL for Azure Devops API"
+            },
+            {
+                "key": "azureDevopsOAuthAppID",
+                "display_name": "Azure Devops OAuth App ID",
+                "type": "text",
+                "help_text": "Enter the app ID for the OAuth app registered with Azure Devops"
+            },
+            {
+                "key": "azureDevopsOAuthClientSecret",
+                "display_name": "Azure Devops OAuth Client Secret",
+                "type": "text",
+                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops.",
+                "placeholder": "",
+                "default": null
+            },
+            {
+                "key": "azureDevopsOAuthAuthorizationURL",
+                "display_name": "Azure Devops OAuth Authorization URL",
+                "type": "text",
+                "help_text": "Enter the authorization URL for the OAuth app registered with Azure Devops.",
+                "placeholder": "",
+                "default": "https://app.vssps.visualstudio.com/oauth2/authorize"
+            },
+            {
+                "key": "azureDevopsOAuthTokenURL",
+                "display_name": "Azure Devops OAuth Access Token URL",
+                "type": "text",
+                "help_text": "Enter the access token URL for the OAuth app registered with Azure Devops.",
+                "placeholder": "",
+                "default": "https://app.vssps.visualstudio.com/oauth2/token"
+            },
+            {
+                "key": "azureDevopsOAuthCallbackURL",
+                "display_name": "Azure Devops OAuth callback URL",
+                "type": "text",
+                "help_text": "Enter the callback URL for the OAuth app registered with Azure Devops.",
+                "placeholder": "",
+                "default": null
+            },
+            {
+                "key": "EncryptionSecret",
+                "display_name": "Encryption Secret:",
+                "type": "generated",
+                "help_text": "The secret key used to encrypt and decrpyt OAuth token.",
+                "default": null
             }
         ]
     }

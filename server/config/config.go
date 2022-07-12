@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 )
 
@@ -18,7 +18,17 @@ import (
 // copy appropriate for your types.
 type Configuration struct {
 	// TODO: Below configs are not final they are used as placeholder here
-	AzureDevopsAPIBaseURL string `json:"azureDevopsAPIBaseURL"`
+	AzureDevopsAPIBaseURL            string `json:"azureDevopsAPIBaseURL"`
+	AzureDevopsOAuthAppID            string `json:"azureDevopsOAuthAppID"`
+	AzureDevopsOAuthClientSecret     string `jso:"azureDevopsOAuthClientSecret"`
+	AzureDevopsOAuthAuthorizationURL string `json:"azureDevopsOAuthAuthorizationURL"`
+	AzureDevopsOAuthTokenURL         string `json:"azureDevopsOAuthTokenURL"`
+	AzureDevopsOAuthCallbackURL      string `json:"azureDevopsOAuthCallbackURL"`
+	EncryptionSecret                 string `json:"EncryptionSecret"`
+	MattermostSiteURL                string
+	PluginID                         string
+	PluginURL                        string
+	PluginURLPath                    string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -31,6 +41,11 @@ func (c *Configuration) Clone() *Configuration {
 // Used for post-processing on the configuration.
 func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
+	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)
+	c.AzureDevopsOAuthClientSecret = strings.TrimSpace(c.AzureDevopsOAuthClientSecret)
+	c.AzureDevopsOAuthAuthorizationURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsOAuthAuthorizationURL), "/")
+	c.AzureDevopsOAuthTokenURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsOAuthTokenURL), "/")
+	c.EncryptionSecret = strings.TrimSpace(c.EncryptionSecret)
 
 	return nil
 }
@@ -38,7 +53,25 @@ func (c *Configuration) ProcessConfiguration() error {
 // Used for config validations.
 func (c *Configuration) IsValid() error {
 	if c.AzureDevopsAPIBaseURL == "" {
-		return fmt.Errorf("base URL of the Azure Devops API should not be empty")
+		return errors.New("azure devops API base URL should not be empty")
+	}
+	if c.AzureDevopsOAuthAppID == "" {
+		return errors.New("azure devops OAuth app id should not be empty")
+	}
+	if c.AzureDevopsOAuthClientSecret == "" {
+		return errors.New("azure devops OAuth client secret should not be empty")
+	}
+	if c.AzureDevopsOAuthAuthorizationURL == "" {
+		return errors.New("azure devops OAuth authorization URL should not be empty")
+	}
+	if c.AzureDevopsOAuthTokenURL == "" {
+		return errors.New("azure devops OAuth token URL should not be empty")
+	}
+	if c.AzureDevopsOAuthCallbackURL == "" {
+		return errors.New("azure devops OAuth callback URL should not be empty")
+	}
+	if c.EncryptionSecret == "" {
+		return errors.New("encryption secret should not be empty")
 	}
 
 	return nil

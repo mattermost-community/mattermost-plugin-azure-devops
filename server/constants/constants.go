@@ -21,6 +21,15 @@ const (
 	PathOAuthConnect  = "/connect"
 	PathOAuthCallback = "/callback"
 
+	// Azure API Routes
+	GetProject = "/%s/_apis/projects?$top=%d&api-version=7.1-preview.4"
+	GetTasksID = "/%s/_apis/wit/wiql?$top=%d&api-version=5.1"
+	GetTasks   = "/%s/_apis/wit/workitems?ids=%s&api-version=6.0"
+
+	// Max tasks and projects per page
+	MaxProjectsPerPage = 10
+	MaxTasksPerPage    = 10
+
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end
 	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s?channel_id=%s)"
@@ -30,5 +39,13 @@ const (
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 
 	// Error messages
-	GenericErrorMessage = "something went wrong, please try again later"
+	GenericErrorMessage  = "something went wrong, please try again later"
+	NotAuthorized        = "not authorized"
+	InvalidPageNumber    = "invalid page number"
+	InvalidLimitNumber   = "invalid limit"
+	OrganizationRequired = "organization is required"
+	ProjectRequired      = "project is required"
+	InvalidStatus        = "invalid status"
+	InvalidAssignedTo    = "you can only see tasks assigned to yourself"
+	NoResultPresent      = "no results are present"
 )

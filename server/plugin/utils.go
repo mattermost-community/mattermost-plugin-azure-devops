@@ -7,6 +7,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -128,4 +130,35 @@ func (p *Plugin) GetPluginURLPath() string {
 
 func (p *Plugin) GetPluginURL() string {
 	return strings.TrimRight(p.GetSiteURL(), "/") + p.GetPluginURLPath()
+}
+
+// AddAuthorization function to add authorization to a request.
+func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) error {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		return err
+	}
+	decodedAccessToken, err := p.decode(user.AccessToken)
+	if err != nil {
+		return err
+	}
+	decryptedAccessToken, err := p.decrypt([]byte(decodedAccessToken), []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		return err
+	}
+	var bearer = "Bearer " + string(decryptedAccessToken)
+	r.Header.Add("Authorization", bearer)
+	return nil
+}
+
+// StringToInt function to convert string to int.
+func StringToInt(strVal string) (intVal int) {
+	if strVal == "" {
+		return 0
+	}
+	val, errs := strconv.ParseInt(strVal, 10, 64)
+	if errs != nil {
+		return 0
+	}
+	return int(val)
 }

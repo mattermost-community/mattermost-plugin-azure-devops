@@ -57,6 +57,7 @@ func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Wrap all query params.
 	queryParams := map[string]interface{}{
 		"organization": organization,
 		"page":         page,

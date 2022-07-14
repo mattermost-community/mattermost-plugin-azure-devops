@@ -38,11 +38,11 @@ func (azureDevops *client) GetProjectsList(queryParams map[string]interface{}, m
 	page := queryParams["page"].(int)
 
 	// Url to fetch projects list.
-	project := fmt.Sprintf(constants.GetProject, queryParams["organization"], page*constants.MaxProjectsPerPage)
+	project := fmt.Sprintf(constants.GetProject, queryParams["organization"], page * constants.MaxProjectsPerPage)
 	_, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, "", &projectsList)
 
 	// Check if new projects are present for current page.
-	if page*constants.MaxProjectsPerPage >= projectsList.Count+constants.MaxProjectsPerPage {
+	if page * constants.MaxProjectsPerPage >= projectsList.Count + constants.MaxProjectsPerPage {
 		return nil, errors.Errorf(constants.NoResultPresent)
 	}
 	if err != nil {
@@ -60,7 +60,7 @@ func (azureDevops *client) GetTasksList(queryParams map[string]interface{}, matt
 	page := queryParams["page"].(int)
 
 	// Url to fetch tasks IDs list.
-	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams["organization"], page*constants.MaxTasksPerPage)
+	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams["organization"], page * constants.MaxTasksPerPage)
 
 	// Query to fetch the tasks IDs list.
 	query := fmt.Sprintf(constants.TaskQuery, queryParams["project"])
@@ -73,6 +73,7 @@ func (azureDevops *client) GetTasksList(queryParams map[string]interface{}, matt
 		query += constants.TaskQueryAssignedToFilter
 	}
 
+	// Query payload.
 	taskQuery := map[string]string{
 		"query": query,
 	}
@@ -84,7 +85,7 @@ func (azureDevops *client) GetTasksList(queryParams map[string]interface{}, matt
 	}
 
 	// Check if new task Id are present for current page.
-	if page*constants.MaxTasksPerPage >= len(tasksIDList.TaskList)+constants.MaxTasksPerPage {
+	if page * constants.MaxTasksPerPage >= len(tasksIDList.TaskList) + constants.MaxTasksPerPage {
 		return nil, errors.Errorf(constants.NoResultPresent)
 	}
 

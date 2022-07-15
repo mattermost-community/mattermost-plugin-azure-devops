@@ -67,7 +67,7 @@ func (p *Plugin) InitRoutes() {
 // 	boards, err := p.Client.GetProjectList(queryParams, mattermostUserID)
 // 	if err != nil {
 // 		w.WriteHeader(http.StatusInternalServerError)
-// 		if _, err := w.Write([]byte(err.Error())); err != nil {
+// 		if _, err = w.Write([]byte(err.Error())); err != nil {
 // 			http.Error(w, err.Error(), http.StatusInternalServerError)
 // 		}
 // 		return
@@ -76,7 +76,7 @@ func (p *Plugin) InitRoutes() {
 // 	response, err := json.Marshal(boards)
 // 	if err != nil {
 // 		w.WriteHeader(http.StatusInternalServerError)
-// 		if _, err := w.Write([]byte(err.Error())); err != nil {
+// 		if _, err = w.Write([]byte(err.Error())); err != nil {
 // 			http.Error(w, err.Error(), http.StatusInternalServerError)
 // 		}
 // 		return

@@ -20,9 +20,9 @@ type Handler struct {
 	defaultHandler HandlerFunc
 }
 
-var azuredevopsCommandHandler = Handler{
+var azureDevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"help": azuredevopsHelpCommand,
+		"help": azureDevopsHelpCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -62,7 +62,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
-func azuredevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	return p.sendEphemeralPost(header, constants.HelpText)
 }
 
@@ -79,5 +79,5 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, commandArgs *model.CommandArg
 		return p.sendEphemeralPost(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
 	}
 
-	return azuredevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
+	return azureDevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
 }

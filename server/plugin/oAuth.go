@@ -203,6 +203,10 @@ func (p *Plugin) UserAlreadyConnected(mattermostUserID string, channelID string)
 	}
 
 	if user.AccessToken != "" {
+		abc, _ := p.decode(user.AccessToken)
+		aa, _ := p.decrypt([]byte(abc), []byte(p.getConfiguration().EncryptionSecret))
+
+		fmt.Printf("%+s token\n", string(aa))
 		return true
 	}
 

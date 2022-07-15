@@ -1,0 +1,35 @@
+.form-group {
+  &__control {
+    border-radius: 4px;
+    height: 50px;
+    border-width: 2px;
+    &::placeholder {
+      color: rgba(var(--center-channel-color-rgb), 0.4);
+    }
+    &:focus {
+      &::placeholder {
+        color: rgba(var(--center-channel-color-rgb), 0.7);
+      }
+    }
+  }
+
+  &__control--err {
+    color: var(--error-text) !important;
+    border-color: rgba(var(--error-text-color-rgb), 0.5) !important;
+    &::placeholder {
+      color: rgba(var(--error-text-color-rgb), 0.8) !important;
+    }
+    &:focus {
+      border-color: rgba(var(--error-text-color-rgb),.7) !important;
+      &::placeholder {
+        color: rgba(var(--error-text-color-rgb), 0.9) !important;
+      }
+    }
+  }
+
+  &__err-text {
+    color: var(--error-text);
+    font-size: 14px;
+    margin-top: 5px;
+  }
+}

@@ -1,0 +1,45 @@
+.details-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 1px 2px 5px 0px rgba(var(--center-channel-color-rgb), 0.2);
+  margin-bottom: 16px;
+
+  &__header {
+    padding: 12px 24px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-header-text-color);
+  }
+
+  &__header-text {
+    font-size: 16px;
+    line-height: 100%;
+    margin: 0;
+  }
+
+  &__delete-btn {
+    padding: 0;
+    outline: none;
+    background: transparent;
+    border: none;
+  }
+
+  &__body {
+    padding: 24px;
+    list-style-type: none;
+  }
+
+  .body-item {
+    &__text {
+      font-size: 14px;
+      max-width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    &__header {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+  }
+}

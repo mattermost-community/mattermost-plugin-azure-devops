@@ -1,0 +1,27 @@
+.no-data {
+  text-align: center;
+  height: 100%;
+  min-height: 350px;
+
+  &__icon {
+    width: 120px;
+    height: 120px;
+    background: rgba(var(--center-channel-color-rgb), 0.04);
+    border-radius: 100%;
+    margin-bottom: 24px;
+    font-size: 49px;
+  }
+
+  &__title {
+    font-weight: 500;
+    font-size: 20px;
+  }
+
+  &__subtitle {
+    margin-top: 16px;
+  }
+
+  &__btn {
+    margin-top: 24px;
+  }
+}

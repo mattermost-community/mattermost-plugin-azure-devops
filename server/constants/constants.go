@@ -40,7 +40,7 @@ const (
 	Bearer        = "Bearer %s"
 	Authorization = "Authorization"
 
-	// Max tasks and projects per page
+	// Limits
 	// TODO: Remove later if not needed.
 	// ProjectLimit = 10
 	TaskLimit = 10
@@ -71,6 +71,7 @@ const (
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 
 	// Error messages
+	Error                = "error"
 	GenericErrorMessage  = "something went wrong, please try again later"
 	NotAuthorized        = "not authorized"
 	InvalidPageNumber    = "invalid page number"

@@ -88,7 +88,7 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 
 	var taskIDList *serializers.TaskIDList
 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get Tasks ID list")
+		return nil, errors.Wrap(err, "failed to get Task ID list")
 	}
 
 	// Check if new task ID are present for current page.
@@ -110,7 +110,7 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 
 	var taskList *serializers.TaskList
 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get Tasks list")
+		return nil, errors.Wrap(err, "failed to get Task list")
 	}
 
 	return taskList, nil

@@ -8,7 +8,7 @@ const (
 
 	// Plugin configs
 	PluginID               = "mattermost-plugin-azure-devops"
-	HeaderMattermostUserID = "Mattermost-User-ID"
+	HeaderMattermostUserID = "User-ID"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
@@ -22,13 +22,27 @@ const (
 	PathOAuthCallback = "/callback"
 
 	// Azure API Routes
-	GetProject = "/%s/_apis/projects?$top=%d&api-version=7.1-preview.4"
-	GetTasksID = "/%s/_apis/wit/wiql?$top=%d&api-version=5.1"
-	GetTasks   = "/%s/_apis/wit/workitems?ids=%s&api-version=6.0"
+	// GetProjects = "/%s/_apis/projects"
+	GetTasksID = "/%s/_apis/wit/wiql"
+	GetTasks   = "/%s/_apis/wit/workitems"
+
+	// Azure API versions
+	// ProjectAPIVersion = "7.1-preview.4"
+	TasksIDAPIVersion = "5.1"
+	TasksAPIVersion   = "6.0"
+
+	// Authorization constants
+	Bearer        = "Bearer %s"
+	Authorization = "Authorization"
 
 	// Max tasks and projects per page
-	MaxProjectsPerPage = 10
-	MaxTasksPerPage    = 10
+	// ProjectLimit = 10
+	TaskLimit = 10
+
+	// Query params constants
+	PageQueryParam       = "$top"
+	APIVersionQueryParam = "api-version"
+	IDsQueryParam        = "ids"
 
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end
@@ -42,7 +56,7 @@ const (
 	GenericErrorMessage  = "something went wrong, please try again later"
 	NotAuthorized        = "not authorized"
 	InvalidPageNumber    = "invalid page number"
-	InvalidLimitNumber   = "invalid limit"
+	InvalidLimit         = "invalid limit"
 	OrganizationRequired = "organization is required"
 	ProjectRequired      = "project is required"
 	InvalidStatus        = "invalid status"

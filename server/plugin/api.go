@@ -30,59 +30,66 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-	s.HandleFunc("/projects", p.handleGetProjects).Methods(http.MethodGet)
+	// s.HandleFunc("/projects", p.handleGetProjects).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleGetTasks).Methods(http.MethodGet)
 
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
 
-// Api to get projects in an organization.
-func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get("User-ID")
-	if mattermostUserID == "" {
-		http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
-		return
-	}
+// Todo later.
+// API to get projects in an organization.
+// func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
+// 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+// 	if mattermostUserID == "" {
+// 		http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
+// 		return
+// 	}
 
-	organization := r.URL.Query().Get("organization")
-	if organization == "" {
-		http.Error(w, constants.OrganizationRequired, http.StatusBadRequest)
-		return
-	}
+// 	organization := r.URL.Query().Get("organization")
+// 	if organization == "" {
+// 		http.Error(w, constants.OrganizationRequired, http.StatusBadRequest)
+// 		return
+// 	}
 
-	page := StringToInt(r.URL.Query().Get("page"))
-	if page <= 0 {
-		http.Error(w, constants.InvalidPageNumber, http.StatusBadRequest)
-		return
-	}
+// 	page := StringToInt(r.URL.Query().Get("page"))
+// 	if page <= 0 {
+// 		http.Error(w, constants.InvalidPageNumber, http.StatusBadRequest)
+// 		return
+// 	}
 
-	// Wrap all query params.
-	queryParams := map[string]interface{}{
-		"organization": organization,
-		"page":         page,
-	}
+// 	// Wrap all query params.
+// 	queryParams := map[string]interface{}{
+// 		"organization": organization,
+// 		"page":         page,
+// 	}
 
-	boards, err := p.Client.GetProjectsList(queryParams, mattermostUserID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
+// 	boards, err := p.Client.GetProjectList(queryParams, mattermostUserID)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		if _, err := w.Write([]byte(err.Error())); err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		}
+// 		return
+// 	}
 
-	res, err := json.Marshal(boards)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
-}
+// 	response, err := json.Marshal(boards)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		if _, err := w.Write([]byte(err.Error())); err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		}
+// 		return
+// 	}
+// 	w.Header().Add("Content-Type", "application/json")
+// 	if _, err := w.Write(response); err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 	}
+// }
 
-// Api to get tasks of a projects in an organization.
+// API to get tasks of a projects in an organization.
 func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get("User-ID")
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	if mattermostUserID == "" {
 		http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
 		return
@@ -103,7 +110,7 @@ func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	status := r.URL.Query().Get("status")
-	if status != "" && (status != "to-do" && status != "done" && status != "doing") {
+	if status != "" && statusData[status] == "" {
 		http.Error(w, constants.InvalidStatus, http.StatusBadRequest)
 		return
 	}
@@ -127,21 +134,27 @@ func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 		"page":         page,
 	}
 
-	tasks, err := p.Client.GetTasksList(queryParams, mattermostUserID)
+	tasks, err := p.Client.GetTaskList(queryParams, mattermostUserID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		if _, err = w.Write([]byte(err.Error())); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 
-	res, err := json.Marshal(tasks)
+	response, err := json.Marshal(tasks)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		if _, err = w.Write([]byte(err.Error())); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

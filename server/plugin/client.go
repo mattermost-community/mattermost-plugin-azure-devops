@@ -18,8 +18,8 @@ import (
 
 type Client interface {
 	TestApi() (string, error)
-	GetProjectsList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectsList, error)
-	GetTasksList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TasksList, error)
+	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
+	GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 }
 
 type client struct {
@@ -32,35 +32,43 @@ func (azureDevops *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
+// Todo later.
 // Function to get the list of projects.
-func (azureDevops *client) GetProjectsList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectsList, error) {
-	var projectsList *serializers.ProjectsList
-	page := queryParams["page"].(int)
+// func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
+// 	var projectList *serializers.ProjectList
+// 	page := queryParams["page"].(int)
 
-	// Url to fetch projects list.
-	project := fmt.Sprintf(constants.GetProject, queryParams["organization"], page * constants.MaxProjectsPerPage)
-	_, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, "", &projectsList)
+// 	// Query params of URL.
+// 	params := url.Values{}
+// 	params.Add(constants.PageQueryParam, fmt.Sprint(page * constants.ProjectLimit))
+// 	params.Add(constants.APIVersionQueryParam, constants.ProjectAPIVersion)
 
-	// Check if new projects are present for current page.
-	if page * constants.MaxProjectsPerPage >= projectsList.Count + constants.MaxProjectsPerPage {
-		return nil, errors.Errorf(constants.NoResultPresent)
-	}
-	if err != nil {
-		errors.Wrap(err, "failed to get Projects list")
-		return nil, err
-	}
+// 	// URL to fetch projects list.
+// 	project := fmt.Sprintf(constants.GetProjects, queryParams["organization"])
+// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, nil, &projectList, params); err != nil {
+// 		return nil, errors.Wrap(err, "failed to get Projects list")
+// 	}
 
-	return projectsList, nil
-}
+// 	// Check if new projects are present for current page.
+// 	if page * constants.ProjectLimit >= projectList.Count + constants.ProjectLimit {
+// 		return nil, errors.Errorf(constants.NoResultPresent)
+// 	}
+// 	return projectList, nil
+// }
 
 // Function to get the list of tasks.
-func (azureDevops *client) GetTasksList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TasksList, error) {
-	var tasksIDList *serializers.TasksIDList
-	var tasksList *serializers.TasksList
+func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
+	var taskIDList *serializers.TaskIDList
+	var taskList *serializers.TaskList
 	page := queryParams["page"].(int)
 
-	// Url to fetch tasks IDs list.
-	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams["organization"], page * constants.MaxTasksPerPage)
+	// Query params of URL.
+	params := url.Values{}
+	params.Add(constants.PageQueryParam, fmt.Sprint(page * constants.TaskLimit))
+	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
+
+	// URL to fetch tasks IDs list.
+	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams["organization"])
 
 	// Query to fetch the tasks IDs list.
 	query := fmt.Sprintf(constants.TaskQuery, queryParams["project"])
@@ -77,48 +85,46 @@ func (azureDevops *client) GetTasksList(queryParams map[string]interface{}, matt
 	taskQuery := map[string]string{
 		"query": query,
 	}
-	_, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &tasksIDList)
-
-	if err != nil {
-		errors.Wrap(err, "failed to get Tasks Id list")
-		return nil, err
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params); err != nil {
+		return nil, errors.Wrap(err, "failed to get Tasks ID list")
 	}
 
 	// Check if new task Id are present for current page.
-	if page * constants.MaxTasksPerPage >= len(tasksIDList.TaskList) + constants.MaxTasksPerPage {
+	if page * constants.TaskLimit >= len(taskIDList.TaskList) + constants.TaskLimit {
 		return nil, errors.Errorf(constants.NoResultPresent)
 	}
 
 	Ids := ""
-	for i := 0; i < len(tasksIDList.TaskList); i++ {
-		Ids += strconv.Itoa(tasksIDList.TaskList[i].Id) + ","
+	for i := 0; i < len(taskIDList.TaskList); i++ {
+		Ids += strconv.Itoa(taskIDList.TaskList[i].ID) + ","
 	}
 
-	// Url to fetch tasks list.
-	task := fmt.Sprintf(constants.GetTasks, queryParams["organization"], strings.TrimSuffix(Ids, ","))
-	_, err = azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, "", &tasksList)
+	params = url.Values{}
+	params.Add(constants.IDsQueryParam, strings.TrimSuffix(Ids, ","))
+	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
 
-	if err != nil {
-		errors.Wrap(err, "failed to get Tasks list")
-		return nil, err
+	// URL to fetch tasks list.
+	task := fmt.Sprintf(constants.GetTasks, queryParams["organization"])
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params); err != nil {
+		return nil, errors.Wrap(err, "failed to get Tasks list")
 	}
 
-	return tasksList, nil
+	return taskList, nil
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (azureDevops *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
+func (azureDevops *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, params url.Values) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {
 		return nil, err
 	}
-	return azureDevops.call(url, method, path, contentType, mattermostUserID, buf, out)
+	return azureDevops.call(url, method, path, contentType, mattermostUserID, buf, out, params)
 }
 
 // Makes HTTP request to REST APIs
-func (azureDevops *client) call(basePath, method, path, contentType, mamattermostUserID string, inBody io.Reader, out interface{}) (responseData []byte, err error) {
+func (azureDevops *client) call(basePath, method, path, contentType, mamattermostUserID string, inBody io.Reader, out interface{}, params url.Values) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -145,9 +151,14 @@ func (azureDevops *client) call(basePath, method, path, contentType, mamattermos
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	err = azureDevops.plugin.AddAuthorization(req, mamattermostUserID)
-	if err != nil {
-		return nil, err
+	if mamattermostUserID != "" {
+		if err = azureDevops.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
+			return nil, err
+		}
+	}
+
+	if params != nil {
+		req.URL.RawQuery = params.Encode()
 	}
 
 	resp, err := azureDevops.HTTPClient.Do(req)

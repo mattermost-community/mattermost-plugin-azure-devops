@@ -31,6 +31,7 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+	// TODO: Remove later if not needed.	
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
@@ -51,7 +52,7 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 	}
 }
 
-// Todo later.
+// TODO: Remove later if not needed.
 // API to get projects in an organization.
 // func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 // 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
@@ -101,31 +102,31 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	statusData := map[string]string{
-		"doing": "doing",
-		"to-do": "To Do",
-		"done":  "done",
+		constants.Doing: "doing",
+		constants.Todo:  "To Do",
+		constants.Done:  "done",
 	}
-	organization := r.URL.Query().Get("organization")
+	organization := r.URL.Query().Get(constants.Organization)
 	if organization == "" {
 		http.Error(w, constants.OrganizationRequired, http.StatusBadRequest)
 		return
 	}
-	project := r.URL.Query().Get("project")
+	project := r.URL.Query().Get(constants.Project)
 	if project == "" {
 		http.Error(w, constants.ProjectRequired, http.StatusBadRequest)
 		return
 	}
-	status := r.URL.Query().Get("status")
+	status := r.URL.Query().Get(constants.Status)
 	if status != "" && statusData[status] == "" {
 		http.Error(w, constants.InvalidStatus, http.StatusBadRequest)
 		return
 	}
-	assignedTo := r.URL.Query().Get("assigned_to")
+	assignedTo := r.URL.Query().Get(constants.AssignedTo)
 	if assignedTo != "" && assignedTo != "me" {
 		http.Error(w, constants.InvalidAssignedTo, http.StatusBadRequest)
 		return
 	}
-	page := StringToInt(r.URL.Query().Get("page"))
+	page := StringToInt(r.URL.Query().Get(constants.Page))
 	if page <= 0 {
 		http.Error(w, constants.InvalidPageNumber, http.StatusBadRequest)
 		return
@@ -133,11 +134,11 @@ func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 
 	// Wrap all query params.
 	queryParams := map[string]interface{}{
-		"organization": organization,
-		"project":      project,
-		"status":       statusData[status],
-		"assignedTo":   assignedTo,
-		"page":         page,
+		constants.Organization: organization,
+		constants.Project:      project,
+		constants.Status:       statusData[status],
+		constants.AssignedTo:   assignedTo,
+		constants.Page:         page,
 	}
 
 	tasks, err := p.Client.GetTaskList(queryParams, mattermostUserID)

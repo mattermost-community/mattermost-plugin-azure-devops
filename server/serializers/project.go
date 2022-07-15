@@ -1,6 +1,6 @@
 package serializers
 
-// Todo later
+// TODO: Remove later if not needed.
 // import (
 // 	"time"
 // )

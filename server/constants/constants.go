@@ -7,7 +7,8 @@ const (
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID               = "mattermost-plugin-azure-devops"
+	PluginID = "mattermost-plugin-azure-devops"
+	// TODO: Change later according to the needs.
 	HeaderMattermostUserID = "User-ID"
 
 	// Command configs
@@ -22,12 +23,14 @@ const (
 	PathOAuthCallback = "/callback"
 
 	// Azure API Routes
+	// TODO: Remove later if not needed.
 	// GetProjects = "/%s/_apis/projects"
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s"
 
 	// Azure API versions
+	// TODO: Remove later if not needed.
 	// ProjectAPIVersion = "7.1-preview.4"
 	TasksIDAPIVersion    = "5.1"
 	TasksAPIVersion      = "6.0"
@@ -38,8 +41,21 @@ const (
 	Authorization = "Authorization"
 
 	// Max tasks and projects per page
+	// TODO: Remove later if not needed.
 	// ProjectLimit = 10
 	TaskLimit = 10
+
+	// URL filters
+	Organization = "organization"
+	Project      = "project"
+	Status       = "status"
+	AssignedTo   = "assigned_to"
+	Page         = "page"
+
+	// Tasks status
+	Doing = "doing"
+	Todo  = "to-do"
+	Done  = "done"
 
 	// Query params constants
 	PageQueryParam       = "$top"

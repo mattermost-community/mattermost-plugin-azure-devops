@@ -25,11 +25,13 @@ const (
 	// GetProjects = "/%s/_apis/projects"
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s"
 
 	// Azure API versions
 	// ProjectAPIVersion = "7.1-preview.4"
-	TasksIDAPIVersion = "5.1"
-	TasksAPIVersion   = "6.0"
+	TasksIDAPIVersion    = "5.1"
+	TasksAPIVersion      = "6.0"
+	CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Authorization constants
 	Bearer        = "Bearer %s"
@@ -61,4 +63,6 @@ const (
 	InvalidStatus        = "invalid status"
 	InvalidAssignedTo    = "you can only see tasks assigned to yourself"
 	NoResultPresent      = "no results are present"
+	TaskTypeRequired     = "task type is required"
+	TaskTitleRequired    = "task title is required"
 )

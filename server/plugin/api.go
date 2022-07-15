@@ -30,21 +30,30 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-	// s.HandleFunc("/projects", p.handleGetProjects).Methods(http.MethodGet)
-	s.HandleFunc("/tasks", p.handleGetTasks).Methods(http.MethodGet)
+	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
+	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
+}
+
+// handleAuthRequired verifies if provided request is performed by an authorized source.
+func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+		if mattermostUserID == "" {
+			http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
+			return
+		}
+
+		handleFunc(w, r)
+	}
 }
 
 // Todo later.
 // API to get projects in an organization.
 // func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 // 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-// 	if mattermostUserID == "" {
-// 		http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
-// 		return
-// 	}
 
 // 	organization := r.URL.Query().Get("organization")
 // 	if organization == "" {
@@ -90,10 +99,6 @@ func (p *Plugin) InitRoutes() {
 // API to get tasks of a projects in an organization.
 func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	if mattermostUserID == "" {
-		http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
-		return
-	}
 	statusData := map[string]string{
 		"doing": "doing",
 		"to-do": "To Do",

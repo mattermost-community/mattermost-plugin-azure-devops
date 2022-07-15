@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
 // Initializes the plugin REST API
@@ -30,6 +31,7 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+	// TODO: Remove later if not needed.
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 
@@ -42,7 +44,8 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 		if mattermostUserID == "" {
-			http.Error(w, constants.NotAuthorized, http.StatusUnauthorized)
+			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
+			p.handleError(w, r, &error)
 			return
 		}
 
@@ -50,7 +53,17 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 	}
 }
 
-// Todo later.
+func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(error.Code)
+	message := map[string]string{constants.Error: error.Message}
+	response, _ := json.Marshal(message)
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// TODO: Remove later if not needed.
 // API to get projects in an organization.
 // func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 // 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
@@ -100,60 +113,61 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	statusData := map[string]string{
-		"doing": "doing",
-		"to-do": "To Do",
-		"done":  "done",
+		constants.Doing: "doing",
+		constants.Todo:  "To Do",
+		constants.Done:  "done",
 	}
-	organization := r.URL.Query().Get("organization")
+	organization := r.URL.Query().Get(constants.Organization)
 	if organization == "" {
-		http.Error(w, constants.OrganizationRequired, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.OrganizationRequired}
+		p.handleError(w, r, &error)
 		return
 	}
-	project := r.URL.Query().Get("project")
+	project := r.URL.Query().Get(constants.Project)
 	if project == "" {
-		http.Error(w, constants.ProjectRequired, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.ProjectRequired}
+		p.handleError(w, r, &error)
 		return
 	}
-	status := r.URL.Query().Get("status")
+	status := r.URL.Query().Get(constants.Status)
 	if status != "" && statusData[status] == "" {
-		http.Error(w, constants.InvalidStatus, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidStatus}
+		p.handleError(w, r, &error)
 		return
 	}
-	assignedTo := r.URL.Query().Get("assigned_to")
+	assignedTo := r.URL.Query().Get(constants.AssignedTo)
 	if assignedTo != "" && assignedTo != "me" {
-		http.Error(w, constants.InvalidAssignedTo, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidAssignedTo}
+		p.handleError(w, r, &error)
 		return
 	}
-	page := StringToInt(r.URL.Query().Get("page"))
+	page := StringToInt(r.URL.Query().Get(constants.Page))
 	if page <= 0 {
-		http.Error(w, constants.InvalidPageNumber, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidPageNumber}
+		p.handleError(w, r, &error)
 		return
 	}
 
 	// Wrap all query params.
 	queryParams := map[string]interface{}{
-		"organization": organization,
-		"project":      project,
-		"status":       statusData[status],
-		"assignedTo":   assignedTo,
-		"page":         page,
+		constants.Organization: organization,
+		constants.Project:      project,
+		constants.Status:       statusData[status],
+		constants.AssignedTo:   assignedTo,
+		constants.Page:         page,
 	}
 
 	tasks, err := p.Client.GetTaskList(queryParams, mattermostUserID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if _, err = w.Write([]byte(err.Error())); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
 		return
 	}
 
 	response, err := json.Marshal(tasks)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if _, err = w.Write([]byte(err.Error())); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

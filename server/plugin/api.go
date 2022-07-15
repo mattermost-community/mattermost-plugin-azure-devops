@@ -183,29 +183,27 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
 		p.API.LogError("Error in decoding body", "Error", err.Error())
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
 		return
 	}
 
 	if err := body.IsValid(); err != "" {
-		http.Error(w, err, http.StatusBadRequest)
+		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
+		p.handleError(w, r, &error)
 		return
 	}
 
 	task, err := p.Client.CreateTask(body, mattermostUserID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if _, err = w.Write([]byte(err.Error())); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
 		return
 	}
 	response, err := json.Marshal(task)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		if _, err = w.Write([]byte(err.Error())); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")

@@ -18,6 +18,7 @@ import (
 
 type Client interface {
 	TestApi() (string, error)
+	// TODO: Remove later if not needed.
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
 	GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 }
@@ -32,7 +33,7 @@ func (azureDevops *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
-// Todo later.
+// TODO: Remove later if not needed.
 // Function to get the list of projects.
 // func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
 // 	var projectList *serializers.ProjectList
@@ -58,26 +59,21 @@ func (azureDevops *client) TestApi() (string, error) {
 
 // Function to get the list of tasks.
 func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
-	var taskIDList *serializers.TaskIDList
-	var taskList *serializers.TaskList
-	page := queryParams["page"].(int)
+	page := queryParams[constants.Page].(int)
 
 	// Query params of URL.
 	params := url.Values{}
 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
 
-	// URL to fetch tasks IDs list.
-	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams["organization"])
-
 	// Query to fetch the tasks IDs list.
-	query := fmt.Sprintf(constants.TaskQuery, queryParams["project"])
+	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
 
 	// Add filters to the query.
-	if queryParams["status"] != "" {
-		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams["status"])
+	if queryParams[constants.Status] != "" {
+		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
 	}
-	if queryParams["assignedTo"] == "me" {
+	if queryParams[constants.AssignedTo] == "me" {
 		query += constants.TaskQueryAssignedToFilter
 	}
 
@@ -85,26 +81,32 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 	taskQuery := map[string]string{
 		"query": query,
 	}
+	// URL to fetch tasks IDs list.
+	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
+
+	var taskIDList *serializers.TaskIDList
 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params); err != nil {
 		return nil, errors.Wrap(err, "failed to get Tasks ID list")
 	}
 
-	// Check if new task Id are present for current page.
+	// Check if new task ID are present for current page.
 	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
 		return nil, errors.Errorf(constants.NoResultPresent)
 	}
 
-	Ids := ""
+	var IDs string
 	for i := 0; i < len(taskIDList.TaskList); i++ {
-		Ids += strconv.Itoa(taskIDList.TaskList[i].ID) + ","
+		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
 	}
 
 	params = url.Values{}
-	params.Add(constants.IDsQueryParam, strings.TrimSuffix(Ids, ","))
+	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
 	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
 
 	// URL to fetch tasks list.
-	task := fmt.Sprintf(constants.GetTasks, queryParams["organization"])
+	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
+
+	var taskList *serializers.TaskList
 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params); err != nil {
 		return nil, errors.Wrap(err, "failed to get Tasks list")
 	}

@@ -1,20 +1,21 @@
 package serializers
 
-import (
-	"time"
-)
+// Todo later
+// import (
+// 	"time"
+// )
 
-type ProjectsList struct {
-	Count         int             `json:"count"`
-	ProjectsValue []ProjectsValue `json:"value"`
-}
+// type ProjectList struct {
+// 	Count        int            `json:"count"`
+// 	ProjectValue []ProjectValue `json:"value"`
+// }
 
-type ProjectsValue struct {
-	Id             string    `json:"id"`
-	Url            string    `json:"url"`
-	Name           string    `json:"name"`
-	State          string    `json:"state"`
-	Revision       int       `json:"revision"`
-	Visibility     string    `json:"visibility"`
-	LastUpdateTime time.Time `json:"lastUpdateTime"`
-}
+// type ProjectValue struct {
+// 	ID             string    `json:"id"`
+// 	URL            string    `json:"url"`
+// 	Name           string    `json:"name"`
+// 	State          string    `json:"state"`
+// 	Revision       int       `json:"revision"`
+// 	Visibility     string    `json:"visibility"`
+// 	LastUpdateTime time.Time `json:"lastUpdateTime"`
+// }

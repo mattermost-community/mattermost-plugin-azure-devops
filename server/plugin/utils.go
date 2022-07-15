@@ -142,22 +142,21 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	if err != nil {
 		return err
 	}
-	decryptedAccessToken, err := p.decrypt([]byte(decodedAccessToken), []byte(p.getConfiguration().EncryptionSecret))
+	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err
 	}
-	var bearer = "Bearer " + string(decryptedAccessToken)
-	r.Header.Add("Authorization", bearer)
+	r.Header.Add(constants.Authorization, fmt.Sprintf(constants.Bearer, string(decryptedAccessToken)))
 	return nil
 }
 
 // StringToInt function to convert string to int.
-func StringToInt(strVal string) (intVal int) {
-	if strVal == "" {
+func StringToInt(str string) int {
+	if str == "" {
 		return 0
 	}
-	val, errs := strconv.ParseInt(strVal, 10, 64)
-	if errs != nil {
+	val, err := strconv.ParseInt(str, 10, 64)
+	if err != nil {
 		return 0
 	}
 	return int(val)

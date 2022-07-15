@@ -20,6 +20,7 @@ type Client interface {
 	TestApi() (string, error)
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
 	GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
+	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error)
 }
 
 type client struct {
@@ -58,6 +59,7 @@ func (azureDevops *client) TestApi() (string, error) {
 
 // Function to get the list of tasks.
 func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
+	contentType := "application/json"
 	var taskIDList *serializers.TaskIDList
 	var taskList *serializers.TaskList
 	page := queryParams["page"].(int)
@@ -85,7 +87,7 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 	taskQuery := map[string]string{
 		"query": query,
 	}
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params); err != nil {
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to get Tasks ID list")
 	}
 
@@ -105,16 +107,49 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 
 	// URL to fetch tasks list.
 	task := fmt.Sprintf(constants.GetTasks, queryParams["organization"])
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params); err != nil {
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to get Tasks list")
 	}
 
 	return taskList, nil
 }
 
+// Function to create task of a project.
+func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
+	contentType := "application/json-patch+json"
+	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
+	params := url.Values{}
+	params.Add(constants.APIVersionQueryParam, constants.CreateTaskAPIVersion)
+
+	// Create payload body to send.
+	payload := []serializers.TaskCreateBodyPayload{}
+	payload = append(payload,
+		serializers.TaskCreateBodyPayload{
+			Operation: "add",
+			Path:      "/fields/System.Title",
+			From:      "",
+			Value:     body.Feilds.Title,
+		})
+
+	if body.Feilds.Description != "" {
+		payload = append(payload,
+			serializers.TaskCreateBodyPayload{
+				Operation: "add",
+				Path:      "/fields/System.Description",
+				From:      "",
+				Value:     body.Feilds.Description,
+			})
+	}
+	var task *serializers.TaskValue
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, params, contentType); err != nil {
+		return nil, errors.Wrap(err, "failed to get create Task")
+	}
+
+	return task, nil
+}
+
 // Wrapper to make REST API requests with "application/json" type content
-func (azureDevops *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, params url.Values) (responseData []byte, err error) {
-	contentType := "application/json"
+func (azureDevops *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, params url.Values, contentType string) (responseData []byte, err error) {
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {

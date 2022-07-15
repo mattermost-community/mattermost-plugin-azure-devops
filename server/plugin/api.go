@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
 // Initializes the plugin REST API
@@ -32,7 +33,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
-
+	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -149,6 +150,44 @@ func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := json.Marshal(tasks)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if _, err = w.Write([]byte(err.Error())); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	w.Header().Add("Content-Type", "application/json")
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// API to create task of a project in an organization.
+func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	var body *serializers.TaskCreateRequestPayload
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&body); err != nil {
+		p.API.LogError("Error in decoding body", "Error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := body.IsValid(); err != "" {
+		http.Error(w, err, http.StatusBadRequest)
+		return
+	}
+
+	task, err := p.Client.CreateTask(body, mattermostUserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		if _, err = w.Write([]byte(err.Error())); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	response, err := json.Marshal(task)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		if _, err = w.Write([]byte(err.Error())); err != nil {

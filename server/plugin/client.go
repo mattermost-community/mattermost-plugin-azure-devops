@@ -40,7 +40,7 @@ func (azureDevops *client) TestApi() (string, error) {
 
 // 	// Query params of URL.
 // 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page * constants.ProjectLimit))
+// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.ProjectLimit))
 // 	params.Add(constants.APIVersionQueryParam, constants.ProjectAPIVersion)
 
 // 	// URL to fetch projects list.
@@ -50,7 +50,7 @@ func (azureDevops *client) TestApi() (string, error) {
 // 	}
 
 // 	// Check if new projects are present for current page.
-// 	if page * constants.ProjectLimit >= projectList.Count + constants.ProjectLimit {
+// 	if page*constants.ProjectLimit >= projectList.Count+constants.ProjectLimit {
 // 		return nil, errors.Errorf(constants.NoResultPresent)
 // 	}
 // 	return projectList, nil
@@ -64,7 +64,7 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 
 	// Query params of URL.
 	params := url.Values{}
-	params.Add(constants.PageQueryParam, fmt.Sprint(page * constants.TaskLimit))
+	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
 
 	// URL to fetch tasks IDs list.
@@ -90,7 +90,7 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 	}
 
 	// Check if new task Id are present for current page.
-	if page * constants.TaskLimit >= len(taskIDList.TaskList) + constants.TaskLimit {
+	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
 		return nil, errors.Errorf(constants.NoResultPresent)
 	}
 

@@ -56,7 +56,6 @@ const (
 	GenericErrorMessage  = "something went wrong, please try again later"
 	NotAuthorized        = "not authorized"
 	InvalidPageNumber    = "invalid page number"
-	InvalidLimit         = "invalid limit"
 	OrganizationRequired = "organization is required"
 	ProjectRequired      = "project is required"
 	InvalidStatus        = "invalid status"

@@ -58,7 +58,7 @@ func pluginctl() error {
 func getClient() (*model.Client4, error) {
 	socketPath := os.Getenv("MM_LOCALSOCKETPATH")
 	if socketPath == "" {
-		socketPath = model.LocalModeSocketPath
+		socketPath = model.LOCAL_MODE_SOCKET_PATH
 	}
 
 	client, connected := getUnixClient(socketPath)
@@ -91,11 +91,10 @@ func getClient() (*model.Client4, error) {
 	if adminUsername != "" && adminPassword != "" {
 		client := model.NewAPIv4Client(siteURL)
 		log.Printf("Authenticating as %s against %s.", adminUsername, siteURL)
-		_, _, err := client.Login(adminUsername, adminPassword)
-		if err != nil {
-			return nil, fmt.Errorf("failed to login as %s: %w", adminUsername, err)
+		_, resp := client.Login(adminUsername, adminPassword)
+		if resp.Error != nil {
+			return nil, fmt.Errorf("failed to login as %s: %w", adminUsername, resp.Error)
 		}
-
 		return client, nil
 	}
 
@@ -121,15 +120,15 @@ func deploy(client *model.Client4, pluginID, bundlePath string) error {
 	defer pluginBundle.Close()
 
 	log.Print("Uploading plugin via API.")
-	_, _, err = client.UploadPluginForced(pluginBundle)
-	if err != nil {
-		return fmt.Errorf("failed to upload plugin bundle: %s", err.Error())
+	_, resp := client.UploadPluginForced(pluginBundle)
+	if resp.Error != nil {
+		return fmt.Errorf("failed to upload plugin bundle: %s", resp.Error.Error())
 	}
 
 	log.Print("Enabling plugin.")
-	_, err = client.EnablePlugin(pluginID)
-	if err != nil {
-		return fmt.Errorf("failed to enable plugin: %s", err.Error())
+	_, resp = client.EnablePlugin(pluginID)
+	if resp.Error != nil {
+		return fmt.Errorf("failed to enable plugin: %s", resp.Error.Error())
 	}
 
 	return nil
@@ -138,9 +137,9 @@ func deploy(client *model.Client4, pluginID, bundlePath string) error {
 // disablePlugin attempts to disable the plugin via the Client4 API.
 func disablePlugin(client *model.Client4, pluginID string) error {
 	log.Print("Disabling plugin.")
-	_, err := client.DisablePlugin(pluginID)
-	if err != nil {
-		return fmt.Errorf("failed to disable plugin: %w", err)
+	_, resp := client.DisablePlugin(pluginID)
+	if resp.Error != nil {
+		return fmt.Errorf("failed to disable plugin: %w", resp.Error)
 	}
 
 	return nil
@@ -149,9 +148,9 @@ func disablePlugin(client *model.Client4, pluginID string) error {
 // enablePlugin attempts to enable the plugin via the Client4 API.
 func enablePlugin(client *model.Client4, pluginID string) error {
 	log.Print("Enabling plugin.")
-	_, err := client.EnablePlugin(pluginID)
-	if err != nil {
-		return fmt.Errorf("failed to enable plugin: %w", err)
+	_, resp := client.EnablePlugin(pluginID)
+	if resp.Error != nil {
+		return fmt.Errorf("failed to enable plugin: %w", resp.Error)
 	}
 
 	return nil

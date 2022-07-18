@@ -54,6 +54,7 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 }
 
 func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(error.Code)
 	message := map[string]string{constants.Error: error.Message}
 	response, _ := json.Marshal(message)

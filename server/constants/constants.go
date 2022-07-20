@@ -23,42 +23,45 @@ const (
 	PathOAuthCallback = "/callback"
 
 	// Azure API Routes
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// GetProjects = "/%s/_apis/projects"
-	GetTasksID = "/%s/_apis/wit/wiql"
-	GetTasks   = "/%s/_apis/wit/workitems"
+	// GetTasksID = "/%s/_apis/wit/wiql"
+	// GetTasks   = "/%s/_apis/wit/workitems"
 
 	// Azure API versions
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// ProjectAPIVersion = "7.1-preview.4"
-	TasksIDAPIVersion = "5.1"
-	TasksAPIVersion   = "6.0"
+	// TasksIDAPIVersion = "5.1"
+	// TasksAPIVersion   = "6.0"
 
 	// Authorization constants
 	Bearer        = "Bearer %s"
 	Authorization = "Authorization"
 
 	// Limits
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// ProjectLimit = 10
-	TaskLimit = 10
+	// TaskLimit = 10
 
+	// TODO: WIP.
 	// URL filters
-	Organization = "organization"
-	Project      = "project"
-	Status       = "status"
-	AssignedTo   = "assigned_to"
-	Page         = "page"
+	// Organization = "organization"
+	// Project      = "project"
+	// Status       = "status"
+	// AssignedTo   = "assigned_to"
+	// Page         = "page"
 
+	// TODO: WIP.
 	// Tasks status
-	Doing = "doing"
-	Todo  = "to-do"
-	Done  = "done"
+	// Doing = "doing"
+	// Todo  = "to-do"
+	// Done  = "done"
 
+	// TODO: WIP.
 	// Query params constants
-	PageQueryParam       = "$top"
-	APIVersionQueryParam = "api-version"
-	IDsQueryParam        = "ids"
+	// PageQueryParam       = "$top"
+	// APIVersionQueryParam = "api-version"
+	// IDsQueryParam        = "ids"
 
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end
@@ -72,10 +75,11 @@ const (
 	Error                = "error"
 	GenericErrorMessage  = "something went wrong, please try again later"
 	NotAuthorized        = "not authorized"
-	InvalidPageNumber    = "invalid page number"
-	OrganizationRequired = "organization is required"
-	ProjectRequired      = "project is required"
-	InvalidStatus        = "invalid status"
-	InvalidAssignedTo    = "you can only see tasks assigned to yourself"
-	NoResultPresent      = "no results are present"
+	// TODO: WIP.
+	// InvalidPageNumber    = "invalid page number"
+	// OrganizationRequired = "organization is required"
+	// ProjectRequired      = "project is required"
+	// InvalidStatus        = "invalid status"
+	// InvalidAssignedTo    = "you can only see tasks assigned to yourself"
+	// NoResultPresent      = "no results are present"
 )

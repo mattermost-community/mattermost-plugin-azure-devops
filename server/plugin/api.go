@@ -31,9 +31,9 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-	// TODO: Remove later if not needed.
-	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
-	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
+	// TODO: WIP.
+	// s.HandleFunc("/projects", p.handleGetProjects).Methods(http.MethodGet)
+	// s.HandleFunc("/tasks", p.handleGetTasks).Methods(http.MethodGet)
 
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
@@ -57,13 +57,16 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(error.Code)
 	message := map[string]string{constants.Error: error.Message}
-	response, _ := json.Marshal(message)
+	response, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-// TODO: Remove later if not needed.
+// TODO: WIP.
 // API to get projects in an organization.
 // func (p *Plugin) handleGetProjects(w http.ResponseWriter, r *http.Request) {
 // 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
@@ -109,72 +112,78 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 // 	}
 // }
 
+// TODO: WIP.
 // API to get tasks of a projects in an organization.
-func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	statusData := map[string]string{
-		constants.Doing: "doing",
-		constants.Todo:  "To Do",
-		constants.Done:  "done",
-	}
-	organization := r.URL.Query().Get(constants.Organization)
-	if organization == "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.OrganizationRequired}
-		p.handleError(w, r, &error)
-		return
-	}
-	project := r.URL.Query().Get(constants.Project)
-	if project == "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.ProjectRequired}
-		p.handleError(w, r, &error)
-		return
-	}
-	status := r.URL.Query().Get(constants.Status)
-	if status != "" && statusData[status] == "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidStatus}
-		p.handleError(w, r, &error)
-		return
-	}
-	assignedTo := r.URL.Query().Get(constants.AssignedTo)
-	if assignedTo != "" && assignedTo != "me" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidAssignedTo}
-		p.handleError(w, r, &error)
-		return
-	}
-	page := StringToInt(r.URL.Query().Get(constants.Page))
-	if page <= 0 {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidPageNumber}
-		p.handleError(w, r, &error)
-		return
-	}
+// func (p *Plugin) handleGetTasks(w http.ResponseWriter, r *http.Request) {
+// 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+// 	if mattermostUserID == "" {
+// 		error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	statusData := map[string]string{
+// 		constants.Doing: "doing",
+// 		constants.Todo:  "To Do",
+// 		constants.Done:  "done",
+// 	}
+// 	organization := r.URL.Query().Get(constants.Organization)
+// 	if organization == "" {
+// 		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.OrganizationRequired}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	project := r.URL.Query().Get(constants.Project)
+// 	if project == "" {
+// 		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.ProjectRequired}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	status := r.URL.Query().Get(constants.Status)
+// 	if status != "" && statusData[status] == "" {
+// 		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidStatus}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	assignedTo := r.URL.Query().Get(constants.AssignedTo)
+// 	if assignedTo != "" && assignedTo != "me" {
+// 		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidAssignedTo}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	page := StringToInt(r.URL.Query().Get(constants.Page))
+// 	if page <= 0 {
+// 		error := serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidPageNumber}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
 
-	// Wrap all query params.
-	queryParams := map[string]interface{}{
-		constants.Organization: organization,
-		constants.Project:      project,
-		constants.Status:       statusData[status],
-		constants.AssignedTo:   assignedTo,
-		constants.Page:         page,
-	}
+// 	// Wrap all query params.
+// 	queryParams := map[string]interface{}{
+// 		constants.Organization: organization,
+// 		constants.Project:      project,
+// 		constants.Status:       statusData[status],
+// 		constants.AssignedTo:   assignedTo,
+// 		constants.Page:         page,
+// 	}
 
-	tasks, err := p.Client.GetTaskList(queryParams, mattermostUserID)
-	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
+// 	tasks, err := p.Client.GetTaskList(queryParams, mattermostUserID)
+// 	if err != nil {
+// 		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
 
-	response, err := json.Marshal(tasks)
-	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
-	w.Header().Add("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
+// 	response, err := json.Marshal(tasks)
+// 	if err != nil {
+// 		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+// 		p.handleError(w, r, &error)
+// 		return
+// 	}
+// 	w.Header().Add("Content-Type", "application/json")
+// 	if _, err := w.Write(response); err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 	}
+// }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

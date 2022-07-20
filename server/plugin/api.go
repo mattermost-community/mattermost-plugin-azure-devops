@@ -43,7 +43,10 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(error.Code)
 	message := map[string]string{constants.Error: error.Message}
-	response, _ := json.Marshal(message)
+	response, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

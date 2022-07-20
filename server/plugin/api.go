@@ -39,7 +39,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
 
-// handleAuthRequired verifies if provided request is performed by an authorized source.
+// handleAuthRequired verifies if the provided request is performed by an authorized source.
 func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)

@@ -1,6 +1,6 @@
 package serializers
 
-// TODO: Remove later if not needed.
+// TODO: WIP.
 // import (
 // 	"time"
 // )

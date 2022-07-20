@@ -116,14 +116,14 @@ func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, matte
 	return taskList, nil
 }
 
-// Function to create task of a project.
+// Function to create task for a project.
 func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
 	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 	params := url.Values{}
 	params.Add(constants.APIVersionQueryParam, constants.CreateTaskAPIVersion)
 
-	// Create payload body to send.
+	// Create request body.
 	payload := []serializers.TaskCreateBodyPayload{}
 	payload = append(payload,
 		serializers.TaskCreateBodyPayload{
@@ -142,9 +142,10 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 				Value:     body.Feilds.Description,
 			})
 	}
+
 	var task *serializers.TaskValue
 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, params, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get create Task")
+		return nil, errors.Wrap(err, "failed to create the Task")
 	}
 
 	return task, nil

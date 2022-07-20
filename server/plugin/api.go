@@ -182,14 +182,14 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	var body *serializers.TaskCreateRequestPayload
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
-		p.API.LogError("Error in decoding body", "Error", err.Error())
+		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
 		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
 		p.handleError(w, r, &error)
 		return
 	}
 
-	if err := body.IsValid(); err != "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
+	if err := body.IsValid(); err != nil {
+		error := serializers.Error{Code: http.StatusBadRequest, Message: err.Error()}
 		p.handleError(w, r, &error)
 		return
 	}

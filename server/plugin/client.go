@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -19,9 +18,9 @@ import (
 type Client interface {
 	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error)
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
-	GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
+	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error)
 }
 
@@ -50,7 +49,7 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 	return oAuthSuccessResponse, nil
 }
 
-// TODO: Remove later if not needed.
+// TODO: WIP.
 // Function to get the list of projects.
 // func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
 // 	var projectList *serializers.ProjectList
@@ -75,69 +74,67 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 // }
 
 // Function to get the list of tasks.
-func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
-	contentType := "application/json"
-	page := queryParams[constants.Page].(int)
+// func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
+// 	contentType := "application/json"
+// 	page := queryParams[constants.Page].(int)
 
-	// Query params of URL.
-	params := url.Values{}
-	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
-	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
+// 	// Query params of URL.
+// 	params := url.Values{}
+// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
+// 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
 
-	// Query to fetch the tasks IDs list.
-	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
+// 	// Query to fetch the tasks IDs list.
+// 	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
 
-	// Add filters to the query.
-	if queryParams[constants.Status] != "" {
-		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
-	}
-	if queryParams[constants.AssignedTo] == "me" {
-		query += constants.TaskQueryAssignedToFilter
-	}
+// 	// Add filters to the query.
+// 	if queryParams[constants.Status] != "" {
+// 		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
+// 	}
+// 	if queryParams[constants.AssignedTo] == "me" {
+// 		query += constants.TaskQueryAssignedToFilter
+// 	}
 
-	// Query payload.
-	taskQuery := map[string]string{
-		"query": query,
-	}
-	// URL to fetch tasks IDs list.
-	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
+// 	// Query payload.
+// 	taskQuery := map[string]string{
+// 		"query": query,
+// 	}
+// 	// URL to fetch tasks IDs list.
+// 	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
 
-	var taskIDList *serializers.TaskIDList
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get Task ID list")
-	}
+// 	var taskIDList *serializers.TaskIDList
+// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params, contentType); err != nil {
+// 		return nil, errors.Wrap(err, "failed to get Task ID list")
+// 	}
 
-	// Check if new task ID are present for current page.
-	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
-		return nil, errors.Errorf(constants.NoResultPresent)
-	}
+// 	// Check if new task ID are present for current page.
+// 	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
+// 		return nil, errors.Errorf(constants.NoResultPresent)
+// 	}
 
-	var IDs string
-	for i := 0; i < len(taskIDList.TaskList); i++ {
-		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
-	}
+// 	var IDs string
+// 	for i := 0; i < len(taskIDList.TaskList); i++ {
+// 		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
+// 	}
 
-	params = url.Values{}
-	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
-	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
+// 	params = url.Values{}
+// 	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
+// 	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
 
-	// URL to fetch tasks list.
-	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
+// 	// URL to fetch tasks list.
+// 	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
 
-	var taskList *serializers.TaskList
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get Task list")
-	}
+// 	var taskList *serializers.TaskList
+// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params, contentType); err != nil {
+// 		return nil, errors.Wrap(err, "failed to get Task list")
+// 	}
 
-	return taskList, nil
-}
+// 	return taskList, nil
+// }
 
 // Function to create task of a project.
 func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
 	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
-	params := url.Values{}
-	params.Add(constants.APIVersionQueryParam, constants.CreateTaskAPIVersion)
 
 	// Create payload body to send.
 	payload := []serializers.TaskCreateBodyPayload{}
@@ -159,7 +156,7 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 			})
 	}
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, params, contentType); err != nil {
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to get create Task")
 	}
 
@@ -208,12 +205,6 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	}
 
 	var req *http.Request
-	if mamattermostUserID != "" {
-		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
-			return nil, err
-		}
-	}
-
 	if formValues != nil {
 		req, err = http.NewRequest(method, path, strings.NewReader(formValues.Encode()))
 		if err != nil {
@@ -222,6 +213,12 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	} else {
 		req, err = http.NewRequest(method, path, inBody)
 		if err != nil {
+			return nil, err
+		}
+	}
+
+	if mamattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
 			return nil, err
 		}
 	}

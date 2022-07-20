@@ -1,0 +1,40 @@
+.linear-loader {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  background: rgba(var(--button-bg-rgb), 0.2);
+  height: 5px;
+  border-radius: 4px;
+  overflow: hidden;
+
+  &__bar {
+    background: var(--button-bg);
+    width: 40%;
+    height: 5px;
+    border-radius: 4px;
+    -webkit-animation: slide-right 1.3s ease-in-out infinite both;
+    animation: slide-right 1.3s ease-in-out infinite both;
+  }
+}
+
+@-webkit-keyframes slide-right {
+  0% {
+    -webkit-transform: translateX(-150%);
+    transform: translateX(-150%);
+  }
+  100% {
+    -webkit-transform: translateX(250%);
+    transform: translateX(250%);
+  }
+}
+@keyframes slide-right {
+  0% {
+    -webkit-transform: translateX(-150%);
+    transform: translateX(-150%);
+  }
+  100% {
+    -webkit-transform: translateX(250%);
+    transform: translateX(250%);
+  }
+}

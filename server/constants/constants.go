@@ -8,8 +8,9 @@ const (
 
 	// Plugin configs
 	PluginID = "mattermost-plugin-azure-devops"
-	// TODO: Change later according to the needs.
 	HeaderMattermostUserID = "Mattermost-User-ID"
+	// TODO: Change later according to the needs.
+	HeaderMattermostUserIDAPI = "User-ID"
 	ChannelID              = "channel_id"
 
 	// Command configs
@@ -18,17 +19,17 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Azure API Routes
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// GetProjects = "/%s/_apis/projects"
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s"
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 
 	// Azure API versions
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// ProjectAPIVersion = "7.1-preview.4"
-	TasksIDAPIVersion    = "5.1"
-	TasksAPIVersion      = "6.0"
+	// TasksIDAPIVersion    = "5.1"
+	// TasksAPIVersion      = "6.0"
 	CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Authorization constants
@@ -36,9 +37,9 @@ const (
 	Authorization = "Authorization"
 
 	// Limits
-	// TODO: Remove later if not needed.
+	// TODO: WIP.
 	// ProjectLimit = 10
-	TaskLimit = 10
+	// TaskLimit = 10
 
 	// URL filters
 	Organization = "organization"
@@ -53,9 +54,9 @@ const (
 	Done  = "done"
 
 	// Query params constants
-	PageQueryParam       = "$top"
-	APIVersionQueryParam = "api-version"
-	IDsQueryParam        = "ids"
+	// TODO: WIP.
+	// PageQueryParam       = "$top"
+	// IDsQueryParam        = "ids"
 
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end
@@ -64,18 +65,19 @@ const (
 	UserConnected        = "Your Azure Devops account is succesfully connected!"
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
-	CreatedTask          = "Link for new created task: %s"
+	CreatedTask          = "Link for newly created task: %s"
 
 	// Error messages
-	Error                = "error"
-	GenericErrorMessage  = "something went wrong, please try again later"
-	NotAuthorized        = "not authorized"
-	InvalidPageNumber    = "invalid page number"
+	Error               = "error"
+	GenericErrorMessage = "something went wrong, please try again later"
+	NotAuthorized       = "not authorized"
+	// TODO: WIP.
+	// InvalidPageNumber    = "invalid page number"
+	// InvalidStatus        = "invalid status"
+	// InvalidAssignedTo    = "you can only see tasks assigned to yourself"
+	// NoResultPresent      = "no results are present"
 	OrganizationRequired = "organization is required"
 	ProjectRequired      = "project is required"
-	InvalidStatus        = "invalid status"
-	InvalidAssignedTo    = "you can only see tasks assigned to yourself"
-	NoResultPresent      = "no results are present"
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
 )

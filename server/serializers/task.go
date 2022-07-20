@@ -22,7 +22,7 @@ type TaskList struct {
 type TaskValue struct {
 	ID     int            `json:"id"`
 	Fields TaskFieldValue `json:"fields"`
-	Link Link `json:"_links"`
+	Link   Link           `json:"_links"`
 }
 
 type TaskFieldValue struct {

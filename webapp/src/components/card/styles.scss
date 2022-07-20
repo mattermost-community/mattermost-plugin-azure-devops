@@ -14,32 +14,67 @@
     font-size: 16px;
     line-height: 100%;
     margin: 0;
+    font-weight: 500;
+    max-width: calc(100% - 40px);
   }
 
-  &__delete-btn {
+  &__sub-header {
+    opacity: 0.5;
+    margin-left: 6px;
+  }
+
+  &__action-btn {
     padding: 0;
     outline: none;
     background: transparent;
     border: none;
+
+    &--edit {
+      margin-right: 16px;
+    }
   }
 
-  &__body {
-    padding: 24px;
+  .text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.card-body {
+  padding: 4px 0;
+
+  &__section {
+    margin: 12px 24px;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), .2);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__section-heading {
+    font-weight: 600;
+    font-size: 14px;
+    color: rgba(var(--center-channel-color-rgb), .5);
+    margin: 0  0 4px;
+    max-width: 100%;
+  }
+
+  &__list {
     list-style-type: none;
+    padding: 0;
+    margin-bottom: 10px;
   }
 
   .body-item {
     &__text {
       font-size: 14px;
       max-width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
 
-    &__header {
-      font-weight: 600;
-      margin-right: 4px;
+    &__icon {
+      margin-right: 10px;
     }
   }
 }

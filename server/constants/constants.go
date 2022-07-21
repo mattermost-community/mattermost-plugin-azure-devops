@@ -69,6 +69,7 @@ const (
 	UserConnected        = "Your Azure Devops account is succesfully connected!"
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
+	CreatedTask = "Link for new created task: %s"
 
 	// Error messages
 	Error                = "error"

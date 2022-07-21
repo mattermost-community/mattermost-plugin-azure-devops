@@ -6,12 +6,14 @@ function usePluginApi() {
     const state = useSelector((pluginState: PluginState) => pluginState);
     const dispatch = useDispatch();
 
-    const makeApiRequest = (apiServiceName: string) => {
-        dispatch(services.endpoints[apiServiceName].initiate());
+    // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
+    const makeApiRequest = (serviceName: ApiServiceName, payload: CreateTaskPayload | void) => {
+        dispatch(services.endpoints[serviceName].initiate(payload));
     };
 
-    const getApiState = (apiServiceName: string) => {
-        const {data, isError, isLoading, isSuccess} = services.endpoints[apiServiceName].select()(state['plugins-mattermost-plugin-wellsite-witsml']);
+    // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
+    const getApiState = (serviceName: ApiServiceName, payload: CreateTaskPayload | void) => {
+        const {data, isError, isLoading, isSuccess} = services.endpoints[serviceName].select(payload)(state['plugins-mattermost-plugin-azure-devops']);
         return {data, isError, isLoading, isSuccess};
     };
 

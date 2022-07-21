@@ -48,6 +48,18 @@ func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (strin
 	return sentPost.Id, nil
 }
 
+func (p *Plugin) createPost(channelID string, text string) *model.AppError {
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+		Message:   text,
+	}
+	if _, err := p.API.CreatePost(post); err != nil {
+		return err
+	}
+	return nil
+}
+
 // encode encodes bytes into base64 string
 func (p *Plugin) encode(encrypted []byte) string {
 	encoded := make([]byte, base64.URLEncoding.EncodedLen(len(encrypted)))

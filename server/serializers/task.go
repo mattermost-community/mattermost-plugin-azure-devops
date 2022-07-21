@@ -22,6 +22,7 @@ type TaskList struct {
 type TaskValue struct {
 	ID     int            `json:"id"`
 	Fields TaskFieldValue `json:"fields"`
+	Link Link `json:"_links"`
 }
 
 type TaskFieldValue struct {
@@ -36,6 +37,14 @@ type TaskFieldValue struct {
 	UpdatedAt   time.Time       `json:"System.ChangedDate"`
 	UpdatedBy   TaskUserDetails `json:"System.ChangedBy"`
 	Description string          `json:"System.Description"`
+}
+
+type Link struct {
+	Html Href `json:"html"`
+}
+
+type Href struct {
+	Href string `json:"href"`
 }
 
 type TaskUserDetails struct {

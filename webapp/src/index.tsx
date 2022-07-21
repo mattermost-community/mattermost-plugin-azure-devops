@@ -6,9 +6,13 @@ import {GlobalState} from 'mattermost-redux/types/store';
 import reducer from 'reducers';
 
 import Rhs from 'containers/Rhs';
-import {ChannelHeaderBtn, ChannelIntroBtn} from 'containers/action_buttons';
+import {ChannelHeaderBtn} from 'containers/action_buttons';
 
 import Constants from 'plugin_constants';
+
+import Hooks from 'hooks';
+
+import TaskModal from 'containers/TaskModal/TaskModal';
 
 import manifest from './manifest';
 
@@ -22,8 +26,10 @@ export default class Plugin {
         // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
         registry.registerReducer(reducer);
         registry.registerRootComponent(App);
+        registry.registerRootComponent(TaskModal);
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
-
+        const hooks = new Hooks(store);
+        registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
         registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.AzureDevops);
     }
 }

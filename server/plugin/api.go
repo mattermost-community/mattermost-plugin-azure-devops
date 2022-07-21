@@ -31,7 +31,7 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-	// TODO: Remove later if not needed.	
+	// TODO: Remove later if not needed.
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
@@ -206,10 +206,15 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		p.handleError(w, r, &error)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	// channelID := "e4zyegem4pnb3mrsihtxdrpwba"
+	// message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
+	// p.createPost(channelID, message)
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

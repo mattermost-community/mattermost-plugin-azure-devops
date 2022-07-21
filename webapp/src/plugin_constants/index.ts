@@ -8,21 +8,26 @@ const pluginId = 'mattermost-plugin-azure-devops';
 const AzureDevops = 'Azure Devops';
 const RightSidebarHeader = 'Azure Devops';
 
+const MMUSERID = 'MMUSERID';
+const HeaderMattermostUserID = 'User-ID';
+
 // Plugin api service (RTK query) configs
 const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
-    fetchWellsList: {
-        path: '/wells',
-        method: 'GET',
-        apiServiceName: 'fetchWellsList',
+    createTask: {
+        path: '/tasks',
+        method: 'POST',
+        apiServiceName: 'createTask',
     },
-    fetchWell: {
-        path: '/wells',
+    testGet: {
+        path: '/test',
         method: 'GET',
-        apiServiceName: 'fetchWell',
+        apiServiceName: 'testGet',
     },
 };
 
 export default {
+    MMUSERID,
+    HeaderMattermostUserID,
     pluginId,
     pluginApiServiceConfigs,
     AzureDevops,

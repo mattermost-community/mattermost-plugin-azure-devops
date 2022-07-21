@@ -11,12 +11,19 @@ type InputFieldProps = {
     onChange?: (e: React.ChangeEvent) => void;
     error?: boolean | string;
     disabled?: boolean;
+    required?: boolean;
 }
 
-const Input = ({type = 'text', label, placeholder = '', value = '', onChange, error, disabled = false}: InputFieldProps) => {
+const Input = ({type = 'text', label, placeholder = '', value = '', onChange, error, disabled = false, required = false}: InputFieldProps) => {
     return (
         <div className='form-group'>
             {label && <label className='form-group__label'>{label}</label>}
+            {required && (
+                <span
+                    className='error-text'
+                    style={{marginLeft: '3px'}}
+                >{'*'}</span>)
+            }
             <FormControl
                 type={type}
                 value={value}

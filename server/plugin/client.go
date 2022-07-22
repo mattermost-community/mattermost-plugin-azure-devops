@@ -13,32 +13,36 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error)
+	TestApi() (string, error) // TODO: remove later
 }
 
 type client struct {
 	plugin     *Plugin
-	HTTPClient *http.Client
+	httpClient *http.Client
 }
 
-func (azureDevops *client) TestApi() (string, error) {
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
 
+// TODO: remove later
+func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (azureDevops *client) callJSON(url, path, method string, in, out interface{}) (responseData []byte, err error) {
+func (c *client) callJSON(url, path, method string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {
 		return nil, err
 	}
-	return azureDevops.call(url, method, path, contentType, buf, out)
+	return c.call(url, method, path, contentType, buf, out)
 }
 
 // Makes HTTP request to REST APIs
-func (azureDevops *client) call(basePath, method, path, contentType string, inBody io.Reader, out interface{}) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, inBody io.Reader, out interface{}) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -65,7 +69,7 @@ func (azureDevops *client) call(basePath, method, path, contentType string, inBo
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	resp, err := azureDevops.HTTPClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +98,9 @@ func (azureDevops *client) call(basePath, method, path, contentType string, inBo
 		return nil, nil
 
 	case http.StatusNotFound:
-		return nil, errors.Errorf("not found")
+		return nil, ErrNotFound
 	}
 
-	type ErrorResponse struct {
-		Message string `json:"message"`
-	}
 	errResp := ErrorResponse{}
 	err = json.Unmarshal(responseData, &errResp)
 	if err != nil {
@@ -111,6 +112,6 @@ func (azureDevops *client) call(basePath, method, path, contentType string, inBo
 func InitClient(p *Plugin) Client {
 	return &client{
 		plugin:     p,
-		HTTPClient: &http.Client{},
+		httpClient: &http.Client{},
 	}
 }

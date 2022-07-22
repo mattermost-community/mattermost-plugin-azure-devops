@@ -20,7 +20,7 @@ type Handler struct {
 	defaultHandler HandlerFunc
 }
 
-var azuredevopsCommandHandler = Handler{
+var azureDevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
 		"help":       azuredevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
@@ -29,6 +29,7 @@ var azuredevopsCommandHandler = Handler{
 	defaultHandler: executeDefault,
 }
 
+// TODO: add comments to explain the below code or refactor it
 func (ch *Handler) Handle(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
@@ -107,5 +108,5 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, commandArgs *model.CommandArg
 		return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
 	}
 
-	return azuredevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
+	return azureDevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
 }

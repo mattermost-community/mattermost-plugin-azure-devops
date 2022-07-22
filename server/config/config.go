@@ -38,7 +38,7 @@ func (c *Configuration) Clone() *Configuration {
 	return &clone
 }
 
-// Used for post-processing on the configuration.
+// ProcessConfiguration used for post-processing on the configuration.
 func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
 	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)

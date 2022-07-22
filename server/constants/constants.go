@@ -3,7 +3,7 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops Plugin"
+	BotDisplayName = "Azure Devops"
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
@@ -14,12 +14,6 @@ const (
 	CommandTriggerName = "azuredevops"
 	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
-
-	// Plugin API Routes
-	APIPrefix         = "/api/v1"
-	WildRoute         = "{anything:.*}"
-	PathOAuthConnect  = "/connect"
-	PathOAuthCallback = "/callback"
 
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end

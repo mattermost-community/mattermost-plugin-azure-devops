@@ -26,9 +26,6 @@ type Configuration struct {
 	AzureDevopsOAuthCallbackURL      string `json:"azureDevopsOAuthCallbackURL"`
 	EncryptionSecret                 string `json:"EncryptionSecret"`
 	MattermostSiteURL                string
-	PluginID                         string
-	PluginURL                        string
-	PluginURLPath                    string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if

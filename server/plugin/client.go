@@ -8,12 +8,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/pkg/errors"
 )
 
 type Client interface {
 	TestApi() (string, error) // TODO: remove later
+	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error)
 }
 
 type client struct {
@@ -30,6 +34,17 @@ func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
+func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error) {
+	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
+
+	_, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
+	if err != nil {
+		return nil, err
+	}
+
+	return oAuthSuccessResponse, nil
+}
+
 // Wrapper to make REST API requests with "application/json" type content
 func (c *client) callJSON(url, path, method string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
@@ -38,11 +53,22 @@ func (c *client) callJSON(url, path, method string, in, out interface{}) (respon
 	if err != nil {
 		return nil, err
 	}
-	return c.call(url, method, path, contentType, buf, out)
+	return c.call(url, method, path, contentType, buf, out, "")
+}
+
+// Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
+func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, err error) {
+	contentType := "application/x-www-form-urlencoded"
+	buf := &bytes.Buffer{}
+	err = json.NewEncoder(buf).Encode(in)
+	if err != nil {
+		return nil, err
+	}
+	return c.call(url, method, path, contentType, buf, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, inBody io.Reader, out interface{}) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -61,10 +87,19 @@ func (c *client) call(basePath, method, path, contentType string, inBody io.Read
 		path = baseURL.String() + path
 	}
 
-	req, err := http.NewRequest(method, path, inBody)
-	if err != nil {
-		return nil, err
+	var req *http.Request
+	if formValues != "" {
+		req, err = http.NewRequest(method, path, strings.NewReader(formValues))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		req, err = http.NewRequest(method, path, inBody)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
 	}

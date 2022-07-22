@@ -22,7 +22,7 @@ type Handler struct {
 
 var azureDevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"help":       azuredevopsHelpCommand,
+		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
 	},
@@ -71,7 +71,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
-func azuredevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	return p.sendEphemeralPostForCommand(header, constants.HelpText)
 }
 

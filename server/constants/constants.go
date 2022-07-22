@@ -9,6 +9,7 @@ const (
 	// Plugin configs
 	PluginID               = "mattermost-plugin-azure-devops"
 	HeaderMattermostUserID = "Mattermost-User-ID"
+	ChannelID              = "channel_id"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"

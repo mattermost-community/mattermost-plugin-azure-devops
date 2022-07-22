@@ -23,7 +23,6 @@ type Configuration struct {
 	AzureDevopsOAuthClientSecret     string `jso:"azureDevopsOAuthClientSecret"`
 	AzureDevopsOAuthAuthorizationURL string `json:"azureDevopsOAuthAuthorizationURL"`
 	AzureDevopsOAuthTokenURL         string `json:"azureDevopsOAuthTokenURL"`
-	AzureDevopsOAuthCallbackURL      string `json:"azureDevopsOAuthCallbackURL"`
 	EncryptionSecret                 string `json:"EncryptionSecret"`
 	MattermostSiteURL                string
 }
@@ -63,9 +62,6 @@ func (c *Configuration) IsValid() error {
 	}
 	if c.AzureDevopsOAuthTokenURL == "" {
 		return errors.New("azure devops OAuth token URL should not be empty")
-	}
-	if c.AzureDevopsOAuthCallbackURL == "" {
-		return errors.New("azure devops OAuth callback URL should not be empty")
 	}
 	if c.EncryptionSecret == "" {
 		return errors.New("encryption secret should not be empty")

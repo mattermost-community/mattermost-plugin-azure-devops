@@ -98,7 +98,7 @@ func (c *client) call(basePath, method, path, contentType string, inBody io.Read
 		return nil, nil
 
 	case http.StatusNotFound:
-		return nil, errors.Errorf(ErrNotFound.Error())
+		return nil, ErrNotFound
 	}
 
 	errResp := ErrorResponse{}

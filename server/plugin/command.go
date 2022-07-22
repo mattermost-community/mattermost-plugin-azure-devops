@@ -27,6 +27,7 @@ var azureDevopsCommandHandler = Handler{
 	defaultHandler: executeDefault,
 }
 
+// TODO: add comments to explain the below code or refactor it
 func (ch *Handler) Handle(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]

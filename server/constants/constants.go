@@ -7,11 +7,11 @@ const (
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID = "mattermost-plugin-azure-devops"
+	PluginID               = "mattermost-plugin-azure-devops"
 	HeaderMattermostUserID = "Mattermost-User-ID"
 	// TODO: Change later according to the needs.
 	HeaderMattermostUserIDAPI = "User-ID"
-	ChannelID              = "channel_id"
+	ChannelID                 = "channel_id"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"

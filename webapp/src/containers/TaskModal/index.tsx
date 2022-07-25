@@ -131,7 +131,7 @@ const TaskModal = () => {
             setTaskTitleError('Title is required');
         }
 
-        if (!taskOrganizationError || !taskProjectError || !taskTitleError || !taskTypeError) {
+        if (!state.taskOrganization || !state.taskProject || !state.taskTitle || !state.taskType) {
             return;
         }
 
@@ -152,7 +152,7 @@ const TaskModal = () => {
 
         // Make POST api request
         usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, payload);
-    }, [state, taskOrganizationError, taskProjectError, taskTitleError, taskTypeError]);
+    }, [state]);
 
     useEffect(() => {
         if (taskPayload) {

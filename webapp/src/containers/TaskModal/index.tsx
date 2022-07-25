@@ -9,7 +9,7 @@ import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
 import {hideModal} from 'reducers/taskModal';
 
-// TODO: fetch the organization and project options from API.
+// TODO: fetch the organization and project options from API later.
 const organizationOptions = [
     {
         value: 'bs-test',
@@ -48,12 +48,6 @@ const taskTypeOptions = [
 ];
 
 const TaskModal = () => {
-    const [error, setError] = useState({
-        taskOrganizationError: '',
-        taskProjectError: '',
-        taskTypeError: '',
-        taskTitleError: '',
-    });
     const [state, setState] = useState({
         taskOrganization: '',
         taskProject: '',
@@ -61,6 +55,10 @@ const TaskModal = () => {
         taskTitle: '',
         taskDescription: '',
     });
+    const [taskOrganizationError, setTaskOrganizationError] = useState('');
+    const [taskProjectError, setTaskProjectError] = useState('');
+    const [taskTypeError, setTaskTypeError] = useState('');
+    const [taskTitleError, setTaskTitleError] = useState('');
     const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openTaskModalReducer;
@@ -87,35 +85,33 @@ const TaskModal = () => {
             taskTitle: '',
             taskDescription: '',
         });
-        setError({
-            taskOrganizationError: '',
-            taskProjectError: '',
-            taskTypeError: '',
-            taskTitleError: '',
-        });
+        setTaskOrganizationError('');
+        setTaskProjectError('');
+        setTaskTitleError('');
+        setTaskTypeError('');
         setTaskPayload(null);
         dispatch(hideModal());
     }, []);
 
     const onOrganizationChange = useCallback((value: string) => {
-        setError({...error, taskOrganizationError: ''});
+        setTaskOrganizationError('');
         setState({...state, taskOrganization: value});
-    }, [error, state]);
+    }, [state]);
 
     const onProjectChange = useCallback((value: string) => {
-        setError({...error, taskProjectError: ''});
+        setTaskProjectError('');
         setState({...state, taskProject: value});
-    }, [error, state]);
+    }, [state]);
 
     const onTaskTypeChange = useCallback((value: string) => {
-        setError({...error, taskTypeError: ''});
+        setTaskTypeError('');
         setState({...state, taskType: value});
-    }, [error, state]);
+    }, [state]);
 
     const onTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setError({...error, taskTitleError: ''});
+        setTaskTitleError('');
         setState({...state, taskTitle: (e.target as HTMLInputElement).value});
-    }, [error, state]);
+    }, [state]);
 
     const onDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setState({...state, taskDescription: (e.target as HTMLInputElement).value});
@@ -123,19 +119,19 @@ const TaskModal = () => {
 
     const onConfirm = useCallback(() => {
         if (state.taskOrganization === '') {
-            setError({...error, taskOrganizationError: 'Organization is required'});
-            return;
+            setTaskOrganizationError('Organization is required');
         }
         if (state.taskProject === '') {
-            setError({...error, taskProjectError: 'Project is required'});
-            return;
+            setTaskProjectError('Project is required');
         }
         if (state.taskType === '') {
-            setError({...error, taskTypeError: 'Task type is required'});
-            return;
+            setTaskTypeError('Work item type is required');
         }
         if (state.taskTitle === '') {
-            setError({...error, taskTitleError: 'Title is required'});
+            setTaskTitleError('Title is required');
+        }
+
+        if (!taskOrganizationError || !taskProjectError || !taskTitleError || !taskTypeError) {
             return;
         }
 
@@ -156,7 +152,7 @@ const TaskModal = () => {
 
         // Make POST api request
         usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, payload);
-    }, [state, error]);
+    }, [state, taskOrganizationError, taskProjectError, taskTitleError, taskTypeError]);
 
     useEffect(() => {
         if (taskPayload) {
@@ -179,40 +175,40 @@ const TaskModal = () => {
             >
                 <>
                     <Dropdown
-                        placeholder='Select organization'
+                        placeholder='Organization name'
                         value={state.taskOrganization}
                         onChange={(newValue) => onOrganizationChange(newValue)}
                         options={organizationOptions}
                         required={true}
-                        error={error.taskOrganizationError}
+                        error={taskOrganizationError}
                     />
                     <Dropdown
-                        placeholder='Select project'
+                        placeholder='Project name'
                         value={state.taskProject}
                         onChange={(newValue) => onProjectChange(newValue)}
                         options={projectOptions}
                         required={true}
-                        error={error.taskProjectError}
+                        error={taskProjectError}
                     />
                     <Dropdown
-                        placeholder='Select work item'
+                        placeholder='Work item type'
                         value={state.taskType}
                         onChange={(newValue) => onTaskTypeChange(newValue)}
                         options={taskTypeOptions}
                         required={true}
-                        error={error.taskTypeError}
+                        error={taskTypeError}
                     />
                     <Input
                         type='text'
-                        placeholder='Enter title'
+                        placeholder='Title'
                         value={state.taskTitle}
                         onChange={onTitleChange}
-                        error={error.taskTitleError}
+                        error={taskTitleError}
                         required={true}
                     />
                     <Input
                         type='text'
-                        placeholder='Enter description'
+                        placeholder='Description'
                         value={state.taskDescription}
                         onChange={onDescriptionChange}
                     />

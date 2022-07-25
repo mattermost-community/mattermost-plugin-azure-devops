@@ -213,10 +213,10 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	// TODO: generalize the channel ID.
-	channelID := "e4zyegem4pnb3mrsihtxdrpwba"
 	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
-	p.createPost(channelID, message)
+
+	// Send message to DM.
+	p.DM(mattermostUserID, message)
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

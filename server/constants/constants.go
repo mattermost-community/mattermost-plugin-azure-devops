@@ -21,8 +21,8 @@ const (
 	// Azure API Routes
 	// TODO: WIP.
 	// GetProjects = "/%s/_apis/projects"
-	GetTasksID = "/%s/_apis/wit/wiql"
-	GetTasks   = "/%s/_apis/wit/workitems"
+	// GetTasksID = "/%s/_apis/wit/wiql"
+	// GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 
 	// Azure API versions
@@ -30,7 +30,7 @@ const (
 	// ProjectAPIVersion = "7.1-preview.4"
 	// TasksIDAPIVersion    = "5.1"
 	// TasksAPIVersion      = "6.0"
-	CreateTaskAPIVersion = "7.1-preview.3"
+	// CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Authorization constants
 	Bearer        = "Bearer %s"
@@ -41,17 +41,19 @@ const (
 	// ProjectLimit = 10
 	// TaskLimit = 10
 
+	// TODO: WIP.
 	// URL filters
-	Organization = "organization"
-	Project      = "project"
-	Status       = "status"
-	AssignedTo   = "assigned_to"
-	Page         = "page"
+	// Organization = "organization"
+	// Project      = "project"
+	// Status       = "status"
+	// AssignedTo   = "assigned_to"
+	// Page         = "page"
 
+	// TODO: WIP.
 	// Tasks status
-	Doing = "doing"
-	Todo  = "to-do"
-	Done  = "done"
+	// Doing = "doing"
+	// Todo  = "to-do"
+	// Done  = "done"
 
 	// Query params constants
 	// TODO: WIP.

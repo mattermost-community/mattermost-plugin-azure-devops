@@ -121,7 +121,7 @@ func (c *client) TestApi() (string, error) {
 // }
 
 // Function to create task for a project.
-func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
+func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
 	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
@@ -146,7 +146,7 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 	}
 
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, contentType); err != nil {
+	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to create the Task")
 	}
 

@@ -23,12 +23,8 @@ type Configuration struct {
 	AzureDevopsOAuthClientSecret     string `jso:"azureDevopsOAuthClientSecret"`
 	AzureDevopsOAuthAuthorizationURL string `json:"azureDevopsOAuthAuthorizationURL"`
 	AzureDevopsOAuthTokenURL         string `json:"azureDevopsOAuthTokenURL"`
-	AzureDevopsOAuthCallbackURL      string `json:"azureDevopsOAuthCallbackURL"`
 	EncryptionSecret                 string `json:"EncryptionSecret"`
 	MattermostSiteURL                string
-	PluginID                         string
-	PluginURL                        string
-	PluginURLPath                    string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -38,7 +34,7 @@ func (c *Configuration) Clone() *Configuration {
 	return &clone
 }
 
-// Used for post-processing on the configuration.
+// ProcessConfiguration used for post-processing on the configuration.
 func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
 	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)
@@ -66,9 +62,6 @@ func (c *Configuration) IsValid() error {
 	}
 	if c.AzureDevopsOAuthTokenURL == "" {
 		return errors.New("azure devops OAuth token URL should not be empty")
-	}
-	if c.AzureDevopsOAuthCallbackURL == "" {
-		return errors.New("azure devops OAuth callback URL should not be empty")
 	}
 	if c.EncryptionSecret == "" {
 		return errors.New("encryption secret should not be empty")

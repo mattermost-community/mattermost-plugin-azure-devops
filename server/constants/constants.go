@@ -3,11 +3,12 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops Plugin"
+	BotDisplayName = "Azure Devops"
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID = "mattermost-plugin-azure-devops"
+	PluginID  = "mattermost-plugin-azure-devops"
+	ChannelID = "channel_id"
 	// TODO: Change later according to the needs.
 	HeaderMattermostUserID = "User-ID"
 
@@ -15,12 +16,6 @@ const (
 	CommandTriggerName = "azuredevops"
 	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
-
-	// Plugin API Routes
-	APIPrefix         = "/api/v1"
-	WildRoute         = "{anything:.*}"
-	PathOAuthConnect  = "/connect"
-	PathOAuthCallback = "/callback"
 
 	// Azure API Routes
 	// TODO: WIP.
@@ -72,9 +67,9 @@ const (
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 
 	// Error messages
-	Error                = "error"
-	GenericErrorMessage  = "something went wrong, please try again later"
-	NotAuthorized        = "not authorized"
+	Error               = "error"
+	GenericErrorMessage = "something went wrong, please try again later"
+	NotAuthorized       = "not authorized"
 	// TODO: WIP.
 	// InvalidPageNumber    = "invalid page number"
 	// OrganizationRequired = "organization is required"

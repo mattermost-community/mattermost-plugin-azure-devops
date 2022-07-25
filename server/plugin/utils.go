@@ -15,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var ErrNotFound = errors.New("not found")
+
 // sendEphemeralPostForCommand sends an ephermal message
 func (p *Plugin) sendEphemeralPostForCommand(args *model.CommandArgs, text string) (*model.CommandResponse, *model.AppError) {
 	post := &model.Post{
@@ -41,7 +43,7 @@ func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (strin
 	}
 	sentPost, err := p.API.CreatePost(post)
 	if err != nil {
-		p.API.LogError("error occurred while creating post", "error", err.Error())
+		p.API.LogError("Error occurred while creating post", "error", err.Error())
 		return "", err
 	}
 	return sentPost.Id, nil
@@ -57,11 +59,11 @@ func (p *Plugin) encode(encrypted []byte) string {
 // decode decodes a base64 string into bytes
 func (p *Plugin) decode(encoded string) ([]byte, error) {
 	decoded := make([]byte, base64.URLEncoding.DecodedLen(len(encoded)))
-	n, err := base64.URLEncoding.Decode(decoded, []byte(encoded))
+	noOfBytes, err := base64.URLEncoding.Decode(decoded, []byte(encoded))
 	if err != nil {
 		return nil, err
 	}
-	return decoded[:n], nil
+	return decoded[:noOfBytes], nil
 }
 
 // encrypt used for generating encrypted bytes
@@ -124,11 +126,11 @@ func (p *Plugin) GetSiteURL() string {
 }
 
 func (p *Plugin) GetPluginURLPath() string {
-	return "/plugins/" + constants.PluginID + "/api/v1"
+	return fmt.Sprintf("/plugins/%s/api/v1", constants.PluginID)
 }
 
 func (p *Plugin) GetPluginURL() string {
-	return strings.TrimRight(p.GetSiteURL(), "/") + p.GetPluginURLPath()
+	return fmt.Sprintf("%s%s", strings.TrimRight(p.GetSiteURL(), "/"), p.GetPluginURLPath())
 }
 
 // AddAuthorization function to add authorization to a request.

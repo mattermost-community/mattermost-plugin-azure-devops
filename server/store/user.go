@@ -10,8 +10,7 @@ type User struct {
 }
 
 func (s *Store) StoreUser(user *User) error {
-	err := s.StoreJSON(user.MattermostUserID, user)
-	if err != nil {
+	if err := s.StoreJSON(user.MattermostUserID, user); err != nil {
 		return err
 	}
 
@@ -20,16 +19,14 @@ func (s *Store) StoreUser(user *User) error {
 
 func (s *Store) LoadUser(mattermostUserID string) (*User, error) {
 	user := User{}
-	err := s.LoadJSON(mattermostUserID, &user)
-	if err != nil {
+	if err := s.LoadJSON(mattermostUserID, &user); err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 func (s *Store) DeleteUser(mattermostUserID string) bool {
-	err := s.Delete(mattermostUserID)
-	if err != nil {
+	if err := s.Delete(mattermostUserID); err != nil {
 		errors.Wrap(err, err.Error())
 		return false
 	}

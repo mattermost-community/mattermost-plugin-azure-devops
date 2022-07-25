@@ -24,6 +24,7 @@ const (
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
+	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
 
 	// Azure API versions
 	// TODO: WIP.
@@ -31,6 +32,13 @@ const (
 	// TasksIDAPIVersion    = "5.1"
 	// TasksAPIVersion      = "6.0"
 	CreateTaskAPIVersion = "7.1-preview.3"
+
+	// Get task link preview constants
+	HTTPS              = "https:"
+	HTTP               = "http:"
+	AzureDevopsBaseURL = "dev.azure.com"
+	Workitems          = "_workitems"
+	Edit               = "edit"
 
 	// Authorization constants
 	Bearer        = "Bearer %s"
@@ -66,6 +74,8 @@ const (
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 	CreatedTask          = "Link for newly created task: %s"
+	TaskTitle            = "[%s #%d: %s](%s)"
+	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 
 	// Error messages
 	Error               = "error"

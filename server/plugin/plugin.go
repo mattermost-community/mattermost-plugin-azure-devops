@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/mux"
@@ -95,4 +96,27 @@ func (p *Plugin) initBotUser() error {
 // ServeHTTP demonstrates a plugin that handles HTTP requests.
 func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.router.ServeHTTP(w, r)
+}
+
+func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
+	msg := post.Message
+
+	// Check if message is a work item link.
+	if taskLink(msg) {
+		post, msg = p.getTaskPosted(msg, post.UserId, post.ChannelId)
+		return post, msg
+	}
+	return nil, ""
+}
+
+// Function to validate the work item link.
+func taskLink(msg string) bool {
+	data := strings.Split(msg, "/")
+	if len(data) != 8 {
+		return false
+	}
+	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Workitems || data[6] != constants.Edit {
+		return false
+	}
+	return true
 }

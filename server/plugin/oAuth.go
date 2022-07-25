@@ -39,6 +39,9 @@ func (p *Plugin) OAuthConfig() *OAuthConfig {
 func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
+	oAuthState := fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)
+	p.Store.StoreOAuthState(mattermostUserID, oAuthState)
+
 	var buf bytes.Buffer
 	buf.WriteString(oAuthConfig.authURL)
 	parameterisedURL := url.Values{
@@ -46,7 +49,7 @@ func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 		"client_id":     {oAuthConfig.appID},
 		"redirect_uri":  {oAuthConfig.redirectURI},
 		"scope":         {oAuthConfig.scope},
-		"state":         {fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)},
+		"state":         {oAuthState},
 	}
 
 	if strings.Contains(oAuthConfig.authURL, "?") {
@@ -117,6 +120,11 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 	}
 
 	mattermostUserID := strings.Split(state, "/")[1]
+
+	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
+		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		return errors.Wrap(err, err.Error())
+	}
 
 	generateOauthTokenformValues := url.Values{
 		"client_assertion_type": {constants.ClientAssertionType},

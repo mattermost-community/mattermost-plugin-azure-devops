@@ -163,7 +163,6 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 	return task, nil
 }
 
-// UI may change in the future.
 // Function to get the task.
 func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
 	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)

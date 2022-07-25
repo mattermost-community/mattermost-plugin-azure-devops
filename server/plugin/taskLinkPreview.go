@@ -9,6 +9,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
+// UI may change in the future.
 // Function to return the new post of the work item.
 func (p *Plugin) getTaskPosted(msg, userID, channelID string) (*model.Post, string) {
 	link := strings.Split(msg, "/")

@@ -3,11 +3,12 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops Plugin"
+	BotDisplayName = "Azure Devops"
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID = "mattermost-plugin-azure-devops"
+	PluginID  = "mattermost-plugin-azure-devops"
+	ChannelID = "channel_id"
 	// TODO: Change later according to the needs.
 	HeaderMattermostUserID = "User-ID"
 
@@ -16,25 +17,12 @@ const (
 	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
-	// Plugin API Routes
-	APIPrefix         = "/api/v1"
-	WildRoute         = "{anything:.*}"
-	PathOAuthConnect  = "/connect"
-	PathOAuthCallback = "/callback"
-
 	// Azure API Routes
 	// TODO: WIP.
 	// GetProjects = "/%s/_apis/projects"
 	// GetTasksID = "/%s/_apis/wit/wiql"
 	// GetTasks   = "/%s/_apis/wit/workitems"
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s"
-
-	// Azure API versions
-	// TODO: WIP.
-	// ProjectAPIVersion = "7.1-preview.4"
-	// TasksIDAPIVersion = "5.1"
-	// TasksAPIVersion   = "6.0"
-	CreateTaskAPIVersion = "7.1-preview.3"
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 
 	// Authorization constants
 	Bearer        = "Bearer %s"
@@ -63,7 +51,6 @@ const (
 	// Query params constants
 	// PageQueryParam       = "$top"
 	// IDsQueryParam        = "ids"
-	APIVersionQueryParam = "api-version"
 
 	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end

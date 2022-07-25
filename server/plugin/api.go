@@ -40,7 +40,7 @@ func (p *Plugin) InitRoutes() {
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
-func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 		if mattermostUserID == "" {

@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -16,6 +17,7 @@ import (
 
 type Client interface {
 	TestApi() (string, error)
+	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error)
 	// TODO: WIP.
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
 	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
@@ -24,11 +26,15 @@ type Client interface {
 
 type client struct {
 	plugin     *Plugin
-	HTTPClient *http.Client
+	httpClient *http.Client
 }
 
-func (azureDevops *client) TestApi() (string, error) {
+type ErrorResponse struct {
+	Message string `json:"message"`
+}
 
+// TODO: remove later
+func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
@@ -118,8 +124,6 @@ func (azureDevops *client) TestApi() (string, error) {
 func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
 	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
-	params := url.Values{}
-	params.Add(constants.APIVersionQueryParam, constants.CreateTaskAPIVersion)
 
 	// Create request body.
 	payload := []serializers.TaskCreateBodyPayload{}
@@ -142,25 +146,47 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 	}
 
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, params, contentType); err != nil {
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to create the Task")
 	}
 
 	return task, nil
 }
 
+func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error) {
+	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
+
+	_, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
+	if err != nil {
+		return nil, err
+	}
+
+	return oAuthSuccessResponse, nil
+}
+
 // Wrapper to make REST API requests with "application/json" type content
-func (azureDevops *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, params url.Values, contentType string) (responseData []byte, err error) {
+func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}, contentType string) (responseData []byte, err error) {
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {
 		return nil, err
 	}
-	return azureDevops.call(url, method, path, contentType, mattermostUserID, buf, out, params)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
+}
+
+// Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
+func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, err error) {
+	contentType := "application/x-www-form-urlencoded"
+	buf := &bytes.Buffer{}
+	err = json.NewEncoder(buf).Encode(in)
+	if err != nil {
+		return nil, err
+	}
+	return c.call(url, method, path, contentType, "", buf, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (azureDevops *client) call(basePath, method, path, contentType, mamattermostUserID string, inBody io.Reader, out interface{}, params url.Values) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, mamattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -179,25 +205,30 @@ func (azureDevops *client) call(basePath, method, path, contentType, mamattermos
 		path = baseURL.String() + path
 	}
 
-	req, err := http.NewRequest(method, path, inBody)
-	if err != nil {
-		return nil, err
+	var req *http.Request
+	if formValues != "" {
+		req, err = http.NewRequest(method, path, strings.NewReader(formValues))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		req, err = http.NewRequest(method, path, inBody)
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
 	}
 
 	if mamattermostUserID != "" {
-		if err = azureDevops.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
+		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
 			return nil, err
 		}
 	}
 
-	if params != nil {
-		req.URL.RawQuery = params.Encode()
-	}
-
-	resp, err := azureDevops.HTTPClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -226,12 +257,9 @@ func (azureDevops *client) call(basePath, method, path, contentType, mamattermos
 		return nil, nil
 
 	case http.StatusNotFound:
-		return nil, errors.Errorf("not found")
+		return nil, ErrNotFound
 	}
 
-	type ErrorResponse struct {
-		Message string `json:"message"`
-	}
 	errResp := ErrorResponse{}
 	err = json.Unmarshal(responseData, &errResp)
 	if err != nil {
@@ -243,6 +271,6 @@ func (azureDevops *client) call(basePath, method, path, contentType, mamattermos
 func InitClient(p *Plugin) Client {
 	return &client{
 		plugin:     p,
-		HTTPClient: &http.Client{},
+		httpClient: &http.Client{},
 	}
 }

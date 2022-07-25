@@ -175,13 +175,13 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 }
 
 // Function to get the task.
-func (azureDevops *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
+func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
 	contentType := "application/json"
 
 	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
 
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil, contentType); err != nil {
+	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil, contentType); err != nil {
 		return nil, errors.Wrap(err, "failed to get the Task")
 	}
 

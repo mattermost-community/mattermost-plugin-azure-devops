@@ -1,11 +1,8 @@
 {
-    "id": "com.mattermost.plugin-starter-template",
-    "name": "Plugin Starter Template",
-    "description": "This plugin serves as a starting point for writing a Mattermost plugin.",
-    "homepage_url": "https://github.com/mattermost/mattermost-plugin-starter-template",
-    "support_url": "https://github.com/mattermost/mattermost-plugin-starter-template/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-starter-template/releases/tag/v0.1.0",
-    "icon_path": "assets/starter-template-icon.svg",
+    "id": "mattermost-plugin-azure-devops",
+    "name": "Mattermost Azure Devops plugin",
+    "description": "This plugin provides services of Azure DevOps such as Boards, Repos and Pipelines",
+    "icon_path": "assets/azurebot.svg",
     "version": "0.1.0",
     "min_server_version": "5.37.0",
     "server": {
@@ -23,6 +20,31 @@
     "settings_schema": {
         "header": "",
         "footer": "",
-        "settings": []
+        "settings": [
+            {
+                "key": "appId",
+                "display_name": "App ID",
+                "type": "text",
+                "help_text": "Enter Azure OAuth app ID"
+            },
+            {
+                "key": "clientSecret",
+                "display_name": "Client Secret",
+                "type": "text",
+                "help_text": "Enter Azure OAuth app client secret"
+            },
+            {
+                "key": "callbackUrl",
+                "display_name": "Callback URL",
+                "type": "text",
+                "help_text": "Enter Azure OAuth app callback URL"
+            },
+            {
+                "key": "azureDevopsAPIBaseURL",
+                "display_name": "Azure Devops API base URL",
+                "type": "text",
+                "help_text": "Enter Azure Devops API base URL"
+            }
+        ]
     }
 }

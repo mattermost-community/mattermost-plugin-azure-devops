@@ -7,14 +7,11 @@ import (
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
 var ErrNotFound = errors.New("not found")
-
-const (
-	atomicRetryLimit = 5
-	atomicRetryWait  = 30 * time.Millisecond
-)
 
 // Ensure makes sure the initial value for a key is set to the value provided, if it does not already exists
 // Returns the value set for the key in kv-store and error
@@ -29,8 +26,7 @@ func (s *Store) Ensure(key string, newValue []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	err = s.Store(key, newValue)
-	if err != nil {
+	if err = s.Store(key, newValue); err != nil {
 		return nil, err
 	}
 
@@ -102,11 +98,11 @@ func (s *Store) AtomicModifyWithOptions(key string, modify func(initialValue []b
 		}
 
 		currentAttempt++
-		if currentAttempt >= atomicRetryLimit {
+		if currentAttempt >= constants.AtomicRetryLimit {
 			return errors.New("reached write attempt limit")
 		}
 
-		time.Sleep(atomicRetryWait)
+		time.Sleep(constants.AtomicRetryWait)
 	}
 }
 

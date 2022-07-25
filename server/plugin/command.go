@@ -20,15 +20,16 @@ type Handler struct {
 	defaultHandler HandlerFunc
 }
 
-var azuredevopsCommandHandler = Handler{
+var azureDevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"help":       azuredevopsHelpCommand,
+		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
 	},
 	defaultHandler: executeDefault,
 }
 
+// TODO: add comments to explain the below code or refactor it
 func (ch *Handler) Handle(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
@@ -70,7 +71,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
-func azuredevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	return p.sendEphemeralPostForCommand(header, constants.HelpText)
 }
 
@@ -107,5 +108,5 @@ func (p *Plugin) ExecuteCommand(c *plugin.Context, commandArgs *model.CommandArg
 		return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
 	}
 
-	return azuredevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
+	return azureDevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
 }

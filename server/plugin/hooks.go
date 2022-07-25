@@ -28,6 +28,12 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.setConfiguration(configuration)
 
+	mattermostSiteURL := p.API.GetConfig().ServiceSettings.SiteURL
+	if mattermostSiteURL == nil {
+		return errors.New("plugin requires Mattermost Site URL to be set")
+	}
+	configuration.MattermostSiteURL = *mattermostSiteURL
+
 	return nil
 }
 

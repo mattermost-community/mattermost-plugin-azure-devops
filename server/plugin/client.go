@@ -134,7 +134,6 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 
 // Function to create task of a project.
 func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
-	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
 	// Create payload body to send.
@@ -157,15 +156,27 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 			})
 	}
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil, contentType); err != nil {
+	if _, err := azureDevops.callPatchJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil); err != nil {
 		return nil, errors.Wrap(err, "failed to get create Task")
 	}
 
 	return task, nil
 }
 
+// Wrapper to make REST API requests with "application/json-patch+json" type content
+func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+	contentType := "application/json-patch+json"
+	buf := &bytes.Buffer{}
+	err = json.NewEncoder(buf).Encode(in)
+	if err != nil {
+		return nil, err
+	}
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
+}
+
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values, contentType string) (responseData []byte, err error) {
+func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {

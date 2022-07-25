@@ -3,24 +3,19 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops Plugin"
+	BotDisplayName = "Azure Devops"
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
 	PluginID = "mattermost-plugin-azure-devops"
 	// TODO: Change later according to the needs.
-	HeaderMattermostUserID = "User-ID"
+	HeaderMattermostUserID = "Mattermost-User-ID"
+	ChannelID              = "channel_id"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
 	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
-
-	// Plugin API Routes
-	APIPrefix         = "/api/v1"
-	WildRoute         = "{anything:.*}"
-	PathOAuthConnect  = "/connect"
-	PathOAuthCallback = "/callback"
 
 	// Azure API Routes
 	// TODO: Remove later if not needed.
@@ -69,7 +64,7 @@ const (
 	UserConnected        = "Your Azure Devops account is succesfully connected!"
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
-	CreatedTask = "Link for new created task: %s"
+	CreatedTask          = "Link for new created task: %s"
 
 	// Error messages
 	Error                = "error"

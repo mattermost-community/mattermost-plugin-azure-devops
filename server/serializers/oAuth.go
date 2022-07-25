@@ -1,5 +1,13 @@
 package serializers
 
+type GenerateTokenPayload struct {
+	ClientAssertionType string `json:"client_assertion_type"`
+	ClientAssertion     string `json:"client_assertion"`
+	GrantType           string `json:"grant_type"`
+	Assertion           string `json:"assertion"`
+	RedirectURI         string `json:"redirect_uri"`
+}
+
 type OAuthErrorResponse struct {
 	ErrorMessage     string `json:"Error"`
 	ErrorDescription string `json:"ErrorDescription"`

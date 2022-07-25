@@ -29,9 +29,16 @@ func (s Store) Load(key string) ([]byte, error) {
 }
 
 func (s Store) Store(key string, data []byte) error {
-	var appErr *model.AppError
-	if appErr = s.api.KVSet(key, data); appErr != nil {
+	if appErr := s.api.KVSet(key, data); appErr != nil {
 		return errors.WithMessagef(appErr, "failed plugin KVSet %q", key)
+	}
+	return nil
+}
+
+func (s Store) StoreTTL(key string, data []byte, ttlSeconds int64) error {
+	appErr := s.api.KVSetWithExpiry(key, data, ttlSeconds)
+	if appErr != nil {
+		return errors.WithMessagef(appErr, "failed plugin KVSet (ttl: %vs) %q", ttlSeconds, key)
 	}
 	return nil
 }

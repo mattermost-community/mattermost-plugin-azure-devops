@@ -2,25 +2,22 @@ package plugin
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 type OAuthConfig struct {
-	appId        string
+	appID        string
 	clientSecret string
 	authURL      string
-	tokenURL     string
 	redirectURI  string
 	responseType string
 	scope        string
@@ -29,11 +26,10 @@ type OAuthConfig struct {
 // OAuthConfig initialize OAuth configs
 func (p *Plugin) OAuthConfig() *OAuthConfig {
 	return &OAuthConfig{
-		appId:        p.getConfiguration().AzureDevopsOAuthAppID,
+		appID:        p.getConfiguration().AzureDevopsOAuthAppID,
 		clientSecret: p.getConfiguration().AzureDevopsOAuthClientSecret,
-		authURL:      p.getConfiguration().AzureDevopsOAuthAuthorizationURL,
-		tokenURL:     p.getConfiguration().AzureDevopsOAuthTokenURL,
-		redirectURI:  p.getConfiguration().AzureDevopsOAuthCallbackURL,
+		authURL:      fmt.Sprintf("%s%s", constants.BaseOauthURL, constants.PathAuth),
+		redirectURI:  fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback),
 		responseType: constants.ResponseType,
 		scope:        constants.Scopes, // these scopes must be set in the OAuth app registered with the Azure portal
 	}
@@ -43,14 +39,17 @@ func (p *Plugin) OAuthConfig() *OAuthConfig {
 func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
+	oAuthState := fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)
+	p.Store.StoreOAuthState(mattermostUserID, oAuthState)
+
 	var buf bytes.Buffer
 	buf.WriteString(oAuthConfig.authURL)
-	v := url.Values{
+	parameterisedURL := url.Values{
 		"response_type": {oAuthConfig.responseType},
-		"client_id":     {oAuthConfig.appId},
+		"client_id":     {oAuthConfig.appID},
 		"redirect_uri":  {oAuthConfig.redirectURI},
 		"scope":         {oAuthConfig.scope},
-		"state":         {fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)},
+		"state":         {oAuthState},
 	}
 
 	if strings.Contains(oAuthConfig.authURL, "?") {
@@ -58,19 +57,19 @@ func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	} else {
 		buf.WriteByte('?')
 	}
-	buf.WriteString(v.Encode())
+	buf.WriteString(parameterisedURL.Encode())
 	return buf.String()
 }
 
 // OAuthConnect redirects to the OAuth authorization URL
 func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get("Mattermost-User-ID")
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	if mattermostUserID == "" {
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
 		return
 	}
 
-	channelID := r.URL.Query().Get("channel_id")
+	channelID := r.URL.Query().Get(constants.ChannelID)
 	if channelID == "" {
 		http.Error(w, "missing channel ID", http.StatusBadRequest)
 		return
@@ -116,64 +115,37 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		return errors.New("missing code or state")
 	}
 
+	if len(strings.Split(state, "/")) != 2 || strings.Split(state, "/")[1] == "" {
+		return errors.New("missing mattermost userID in state")
+	}
+
 	mattermostUserID := strings.Split(state, "/")[1]
 
-	oAuthConfig := p.OAuthConfig()
+	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
+		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		return errors.Wrap(err, err.Error())
+	}
 
-	form := url.Values{
+	generateOauthTokenformValues := url.Values{
 		"client_assertion_type": {constants.ClientAssertionType},
 		"client_assertion":      {p.getConfiguration().AzureDevopsOAuthClientSecret},
 		"grant_type":            {constants.GrantType},
 		"assertion":             {code},
-		"redirect_uri":          {p.getConfiguration().AzureDevopsOAuthCallbackURL},
+		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	// Create a HTTP post request
-	r, err := http.NewRequest("POST", oAuthConfig.tokenURL, strings.NewReader(form.Encode()))
+	successResponse, err := p.Client.GenerateOAuthToken(generateOauthTokenformValues)
 	if err != nil {
-		return errors.Wrap(err, err.Error())
-	}
-
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	client := &http.Client{}
-	res, err := client.Do(r)
-	if err != nil {
-		return errors.Wrap(err, err.Error())
-	}
-
-	defer res.Body.Close()
-
-	resBody, err := io.ReadAll(res.Body)
-	if err != nil {
-		return errors.Wrap(err, err.Error())
-	}
-
-	if res.StatusCode != http.StatusOK {
-		errResp := serializers.OAuthErrorResponse{}
-
-		err = json.Unmarshal(resBody, &errResp)
-		if err != nil {
-			return errors.Wrap(err, err.Error())
-		}
-
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(errors.New(errResp.ErrorMessage), errResp.ErrorDescription)
-	}
-
-	successResp := serializers.OAuthSuccessResponse{}
-
-	err = json.Unmarshal(resBody, &successResp)
-	if err != nil {
 		return errors.Wrap(err, err.Error())
 	}
 
-	encryptedAccessToken, err := p.encrypt([]byte(successResp.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
+	encryptedAccessToken, err := p.encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err
 	}
 
-	encryptedRefreshToken, err := p.encrypt([]byte(successResp.RefreshToken), []byte(p.getConfiguration().EncryptionSecret))
+	encryptedRefreshToken, err := p.encrypt([]byte(successResponse.RefreshToken), []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err
 	}
@@ -182,12 +154,12 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		MattermostUserID: mattermostUserID,
 		AccessToken:      p.encode(encryptedAccessToken),
 		RefreshToken:     p.encode(encryptedRefreshToken),
-		ExpiresIn:        successResp.ExpiresIn,
+		ExpiresIn:        successResponse.ExpiresIn,
 	}
 
 	p.Store.StoreUser(&user)
 
-	fmt.Printf("%+v\n", successResp) // TODO: remove later
+	fmt.Printf("%+v\n", successResponse) // TODO: remove later
 
 	p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText))
 
@@ -195,7 +167,7 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 }
 
 // UserAlreadyConnected checks if a user is already connected
-func (p *Plugin) UserAlreadyConnected(mattermostUserID string, channelID string) bool {
+func (p *Plugin) UserAlreadyConnected(mattermostUserID, channelID string) bool {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
 		errors.Wrap(err, err.Error())

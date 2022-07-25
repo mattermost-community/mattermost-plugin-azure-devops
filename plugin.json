@@ -2,9 +2,6 @@
     "id": "mattermost-plugin-azure-devops",
     "name": "Mattermost Azure Devops plugin",
     "description": "This plugin provides services of Azure DevOps such as Boards, Repos and Pipelines",
-    "homepage_url": "https://github.com/mattermost/mattermost-plugin-starter-template",
-    "support_url": "https://github.com/mattermost/mattermost-plugin-starter-template/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-starter-template/releases/tag/v0.1.0",
     "icon_path": "assets/azurebot.svg",
     "version": "0.1.0",
     "min_server_version": "5.37.0",
@@ -59,14 +56,6 @@
                 "help_text": "Enter the access token URL for the OAuth app registered with Azure Devops.",
                 "placeholder": "",
                 "default": "https://app.vssps.visualstudio.com/oauth2/token"
-            },
-            {
-                "key": "azureDevopsOAuthCallbackURL",
-                "display_name": "Azure Devops OAuth callback URL",
-                "type": "text",
-                "help_text": "Enter the callback URL for the OAuth app registered with Azure Devops.",
-                "placeholder": "",
-                "default": null
             },
             {
                 "key": "EncryptionSecret",

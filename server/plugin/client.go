@@ -163,6 +163,19 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 	return task, nil
 }
 
+// UI may change in the future.
+// Function to get the task.
+func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
+	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
+
+	var task *serializers.TaskValue
+	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil); err != nil {
+		return nil, errors.Wrap(err, "failed to get the Task")
+	}
+
+	return task, nil
+}
+
 // Wrapper to make REST API requests with "application/json-patch+json" type content
 func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	contentType := "application/json-patch+json"
@@ -183,20 +196,6 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
-}
-
-// Function to get the task.
-func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
-	contentType := "application/json"
-
-	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
-
-	var task *serializers.TaskValue
-	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil, contentType); err != nil {
-		return nil, errors.Wrap(err, "failed to get the Task")
-	}
-
-	return task, nil
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content

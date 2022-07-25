@@ -7,8 +7,8 @@ const (
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID = "mattermost-plugin-azure-devops"
-	ChannelID              = "channel_id"
+	PluginID  = "mattermost-plugin-azure-devops"
+	ChannelID = "channel_id"
 	// TODO: Change later according to the needs.
 	HeaderMattermostUserID = "User-ID"
 
@@ -67,9 +67,9 @@ const (
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 
 	// Error messages
-	Error                = "error"
-	GenericErrorMessage  = "something went wrong, please try again later"
-	NotAuthorized        = "not authorized"
+	Error               = "error"
+	GenericErrorMessage = "something went wrong, please try again later"
+	NotAuthorized       = "not authorized"
 	// TODO: WIP.
 	// InvalidPageNumber    = "invalid page number"
 	// OrganizationRequired = "organization is required"

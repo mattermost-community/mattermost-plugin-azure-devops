@@ -10,13 +10,13 @@ import (
 
 // UI may change in the future.
 // Function to return the new post of the work item.
-func (p *Plugin) postTaskPreview(link []string, msg, userID, channelID string) (*model.Post, string) {
-	data := serializers.GetTaskData{
-		Organization: link[3],
-		Project:      link[4],
-		TaskID:       link[7],
+func (p *Plugin) postTaskPreview(linkData []string, msg, userID, channelID string) (*model.Post, string) {
+	taskData := serializers.GetTaskData{
+		Organization: linkData[3],
+		Project:      linkData[4],
+		TaskID:       linkData[7],
 	}
-	task, err := p.Client.GetTask(data, userID)
+	task, err := p.Client.GetTask(taskData, userID)
 	if err != nil {
 		return nil, ""
 	}

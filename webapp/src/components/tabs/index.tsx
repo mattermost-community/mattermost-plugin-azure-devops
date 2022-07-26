@@ -1,32 +1,27 @@
-import React from 'react';
-import {Tabs as ReactBootstrapTabs, Tab} from 'react-bootstrap';
+import React from 'react'
+import Tab from 'react-bootstrap/Tab';
+import { Tabs as BootstrapTabs } from 'react-bootstrap';
 
-import './styles.scss';
+import './styles.scss'
 
 type TabsProps = {
-    tabs: TabData[]
-    tabsClassName?: string;
+  tabs: TabsData[]
 }
 
-const Tabs = ({tabs, tabsClassName = ''}: TabsProps) => {
-    return (
-        <ReactBootstrapTabs
-            id='tab-component'
-            className={`tabs ${tabsClassName}`}
-        >
-            {
-                tabs.map((tabData, index) => (
-                    <Tab
-                        key={tabData.title}
-                        eventKey={index}
-                        title={tabData.title}
-                    >
-                        {tabData.tabPanel}
-                    </Tab>
-                ))
-            }
-        </ReactBootstrapTabs>
-    );
-};
+const Tabs = ({ tabs }: TabsProps) => {
+  return (
+    <BootstrapTabs
+      defaultActiveKey="profile"
+      id="justify-tab-example"
+      className="mb-3"
+    >
+      {tabs.map(tab => (
+        <Tab eventKey={tab.title} title={tab.title}>
+          {tab.component}
+        </Tab>
+      ))}
+    </BootstrapTabs>
+  )
+}
 
 export default Tabs;

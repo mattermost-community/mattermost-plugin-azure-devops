@@ -13,7 +13,7 @@ type DropdownProps = {
     loadingOptions?: boolean;
     disabled?: boolean;
     required?: boolean;
-    error?: boolean | string;
+    error?: string;
 }
 
 const Dropdown = ({value, placeholder, options, onChange, customOption, loadingOptions, disabled, error, required}: DropdownProps): JSX.Element => {

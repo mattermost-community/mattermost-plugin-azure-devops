@@ -13,7 +13,7 @@ type ModalFooterProps = {
     cancelDisabled?: boolean;
 }
 
-const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, className = '', confirmDisabled, cancelDisabled}: ModalFooterProps) : JSX.Element => (
+const ModalFooter = ({onConfirm, onHide, cancelBtnText = '', confirmBtnText = '', className = '', confirmDisabled, cancelDisabled}: ModalFooterProps) : JSX.Element => (
     <RBModal.Footer className={`modal__footer d-flex flex-column justify-content-center align-items-center ${className}`}>
         {onConfirm && (
             <button

@@ -102,15 +102,15 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	msg := post.Message
 
 	// Check if message is a work item link.
-	if taskLink(msg) {
-		post, msg = p.getTaskPosted(msg, post.UserId, post.ChannelId)
+	if isValidTaskLink(msg) {
+		post, msg = p.postTaskPreview(msg, post.UserId, post.ChannelId)
 		return post, msg
 	}
 	return nil, ""
 }
 
 // Function to validate the work item link.
-func taskLink(msg string) bool {
+func isValidTaskLink(msg string) bool {
 	data := strings.Split(msg, "/")
 	if len(data) != 8 {
 		return false

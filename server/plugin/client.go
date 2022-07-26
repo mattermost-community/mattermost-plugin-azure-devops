@@ -166,8 +166,7 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	contentType := "application/json-patch+json"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
@@ -177,8 +176,7 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
@@ -188,15 +186,14 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, "", buf, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mamattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -228,8 +225,8 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 		}
 	}
 
-	if mamattermostUserID != "" {
-		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
+	if mattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
 			return nil, err
 		}
 	}

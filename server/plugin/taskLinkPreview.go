@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -11,8 +10,7 @@ import (
 
 // UI may change in the future.
 // Function to return the new post of the work item.
-func (p *Plugin) postTaskPreview(msg, userID, channelID string) (*model.Post, string) {
-	link := strings.Split(msg, "/")
+func (p *Plugin) postTaskPreview(link []string, msg, userID, channelID string) (*model.Post, string) {
 	data := serializers.GetTaskData{
 		Organization: link[3],
 		Project:      link[4],

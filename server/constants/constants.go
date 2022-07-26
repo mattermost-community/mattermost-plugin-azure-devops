@@ -24,6 +24,7 @@ const (
 	// GetTasksID = "/%s/_apis/wit/wiql"
 	// GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
+	GetProject = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 
 	// Azure API versions
 	// TODO: WIP.

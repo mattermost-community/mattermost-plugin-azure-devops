@@ -3,6 +3,8 @@ import {Store, Action} from 'redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
 
+import TaskModal from 'containers/TaskModal';
+
 import reducer from 'reducers';
 
 import Rhs from 'containers/Rhs';
@@ -12,7 +14,7 @@ import Constants from 'plugin_constants';
 
 import Hooks from 'hooks';
 
-import TaskModal from 'containers/TaskModal';
+import LinkModal from 'containers/LinkModal';
 
 import manifest from './manifest';
 
@@ -27,6 +29,7 @@ export default class Plugin {
         registry.registerReducer(reducer);
         registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
+        registry.registerRootComponent(LinkModal);
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);

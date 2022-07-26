@@ -22,6 +22,7 @@ type Client interface {
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
 	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error)
+	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error)
 }
 
 type client struct {
@@ -160,6 +161,18 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 	}
 
 	return task, nil
+}
+
+// Function to link a project and an organization.
+func (azureDevops *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error) {
+	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
+	var project *serializers.Project
+
+	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil); err != nil {
+		return nil, errors.Wrap(err, "failed to link Project")
+	}
+
+	return project, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

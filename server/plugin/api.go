@@ -11,6 +11,7 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 // Initializes the plugin REST API
@@ -36,6 +37,7 @@ func (p *Plugin) InitRoutes() {
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	// s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
+	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -217,6 +219,54 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 
 	// Send message to DM.
 	p.DM(mattermostUserID, message)
+}
+
+// API to link a project and an organization to a user.
+func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	var body *serializers.LinkRequestPayload
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&body); err != nil {
+		p.API.LogError("Error in decoding body", "Error", err.Error())
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	if err := body.IsLinkPayloadValid(); err != "" {
+		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	result, err := p.Client.Link(body, mattermostUserID)
+	if err != nil {
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	response, err := json.Marshal(result)
+	if err != nil {
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	project := store.Project{
+		MattermostUserID: mattermostUserID,
+		ProjectID: result.ID,
+		ProjectName: result.Name,
+		OrganizationName: body.Organization,
+	}
+
+	p.Store.StoreProject(&project)
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Add("Content-Type", "application/json")
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

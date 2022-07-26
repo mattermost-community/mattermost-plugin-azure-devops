@@ -5,4 +5,6 @@ import "time"
 const (
 	AtomicRetryLimit = 5
 	AtomicRetryWait  = 30 * time.Millisecond
+	OAuthPrefix = "oAuth_%s"
+	ProjectListPrefix = "projectList_%s"
 )

@@ -5,25 +5,22 @@ import Tooltip from 'components/tooltip';
 
 import './styles.scss';
 
-type IconColor = 'danger'
-
 type IconButtonProps = {
     iconClassName: string
     tooltipText: string
-    iconColor?: IconColor
     extraClass?: string
     onClick?: () => void
 }
 
-const IconButton = ({tooltipText, iconClassName, extraClass, iconColor, onClick}: IconButtonProps) => {
+const IconButton = ({tooltipText, iconClassName, extraClass, onClick}: IconButtonProps) => {
     return (
         <Tooltip tooltipContent={tooltipText}>
             <Button
                 variant='outline-danger'
-                className={`button-wrapper  ${extraClass} ${iconColor === 'danger' && 'danger'}`}
+                className={`plugin-btn button-wrapper btn-icon ${extraClass}`}
             >
                 <i
-                    className={iconClassName}
+                    className={`${iconClassName} icon`}
                     aria-hidden='true'
                 />
             </Button>

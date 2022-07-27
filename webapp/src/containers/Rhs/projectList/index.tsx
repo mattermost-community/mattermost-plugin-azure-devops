@@ -1,9 +1,12 @@
 import React from 'react';
+import {useDispatch} from 'react-redux';
 
 import ProjectCard from 'components/card/project';
 
+import {setProjectDetails} from 'reducers/projectDetails';
+
 // TODO: dummy data, remove later
-const data: ProjectItem[] = [
+const data: ProjectDetails[] = [
     {
         id: 'abc',
         title: 'Project A',
@@ -22,14 +25,20 @@ const data: ProjectItem[] = [
 ];
 
 const ProjectList = () => {
+    const dispatch = useDispatch();
+
+    const handleProjectTitleClick = (projectDetails: ProjectDetails) => {
+        dispatch(setProjectDetails(projectDetails));
+    };
+
     return (
         <>
             <p className='rhs-title'>{'Linked Projects'}</p>
             {
                 data.map((item) => (
                     <ProjectCard
-                        title={item.title}
-                        organization={item.organization}
+                        onProjectTitleClick={handleProjectTitleClick}
+                        projectDetails={{id: item.id, title: item.title, organization: item.organization}}
                         key={item.id}
                     />
                 ),

@@ -27,6 +27,14 @@ export const splitArgs = (command: string) => {
     return myArray;
 };
 
+export const onPressingEnterKey = (event: Event | undefined, func: () => void) => {
+    if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
+        return;
+    }
+
+    func();
+};
+
 export default {
     getBaseUrls,
 };

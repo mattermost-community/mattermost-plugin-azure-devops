@@ -83,4 +83,5 @@ const (
 	ProjectRequired      = "project is required"
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
+	GetProjectListError  = "Error getting Project List"
 )

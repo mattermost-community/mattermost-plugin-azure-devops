@@ -239,14 +239,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := p.Client.Link(body, mattermostUserID)
-	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
-
-	response, err := json.Marshal(result)
+	response, err := p.Client.Link(body, mattermostUserID)
 	if err != nil {
 		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
 		p.handleError(w, r, &error)
@@ -255,8 +248,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 	project := store.Project{
 		MattermostUserID: mattermostUserID,
-		ProjectID: result.ID,
-		ProjectName: result.Name,
+		ProjectID:        response.ID,
+		ProjectName:      response.Name,
 		OrganizationName: body.Organization,
 	}
 
@@ -264,9 +257,6 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

@@ -18,6 +18,7 @@ const LinkModal = () => {
     const [linkPayload, setLinkPayload] = useState<LinkPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility, organization, project} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -79,8 +80,8 @@ const LinkModal = () => {
 
     useEffect(() => {
         if (linkPayload) {
-            const {isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload);
-            console.log(isSuccess, isError);
+            const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload);
+            setLoading(isLoading);
             if ((isSuccess && !isError) || (!isSuccess && isError)) {
                 onHide();
             }
@@ -95,7 +96,9 @@ const LinkModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Link new project'
-                loading={linkPayload ? usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload).isLoading : false}
+                cancelDisabled={linkPayload ? loading : false}
+                confirmDisabled={linkPayload ? loading : false}
+                loading={linkPayload ? loading : false}
             >
                 <>
                     <Input

@@ -2,7 +2,10 @@ package store
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -114,4 +117,36 @@ func (s *Store) AtomicModify(key string, modify func(initialValue []byte) ([]byt
 		b, err := modify(initialValue)
 		return b, nil, err
 	})
+}
+
+func GetProjectListMapKey() string {
+	return GetKeyHash(constants.ProjectPrefix)
+}
+
+func GetProjectKey(projectID, mattermostUserID string) string {
+	return fmt.Sprintf(constants.ProjectKey, projectID, mattermostUserID)
+}
+
+func GetOAuthKey(mattermostUserID string) string {
+	return fmt.Sprintf(constants.OAuthPrefix, mattermostUserID)
+}
+
+// GetKeyHash can be used to create a hash from a string
+func GetKeyHash(key string) string {
+	hash := sha256.New()
+	_, _ = hash.Write([]byte(key))
+	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
+}
+
+func ProjectListFromJSON(bytes []byte) (*ProjectList, error) {
+	var projectList *ProjectList
+	if len(bytes) != 0 {
+		unmarshalErr := json.Unmarshal(bytes, &projectList)
+		if unmarshalErr != nil {
+			return nil, unmarshalErr
+		}
+	} else {
+		projectList = NewProjectList()
+	}
+	return projectList, nil
 }

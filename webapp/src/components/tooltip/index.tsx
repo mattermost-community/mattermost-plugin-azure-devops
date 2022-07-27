@@ -1,7 +1,7 @@
 import React from 'react';
-import {OverlayTrigger, Tooltip as ReactTooltip} from 'react-bootstrap';
-
 import {Placement} from 'react-bootstrap/esm/types';
+
+import {OverlayTrigger, Tooltip as ReactTooltip} from 'react-bootstrap';
 
 // Styles
 import './styles.scss';
@@ -9,7 +9,7 @@ import './styles.scss';
 type TooltipProps = {
     tooltipContent: JSX.Element | string
     children: JSX.Element
-    placement?: Placement,
+    placement?: Placement
 }
 
 const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) => {

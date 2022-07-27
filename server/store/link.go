@@ -3,22 +3,17 @@ package store
 import (
 	"fmt"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/pkg/errors"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
 type ProjectList struct {
-	Project []Project
+	Project []serializers.ProjectDetails
 }
 
-type Project struct {
-	MattermostUserID string
-	ProjectID        string
-	ProjectName      string
-	OrganizationName string
-}
-
-func (s *Store) StoreProject(project *Project) error {
+func (s *Store) StoreProject(project *serializers.ProjectDetails) error {
 	projectKey := fmt.Sprintf(constants.ProjectListPrefix, project.MattermostUserID)
 	prevProject, err := s.LoadProject(project.MattermostUserID)
 	if err != nil {
@@ -50,7 +45,7 @@ func (s *Store) LoadProject(mattermostUserID string) (*ProjectList, error) {
 	return &project, nil
 }
 
-func (s *Store) DeleteProject(project *Project) bool {
+func (s *Store) DeleteProject(project *serializers.ProjectDetails) bool {
 	projectKey := fmt.Sprintf(constants.ProjectListPrefix, project.MattermostUserID)
 	projectList, err := s.LoadProject(project.MattermostUserID)
 	if err != nil {

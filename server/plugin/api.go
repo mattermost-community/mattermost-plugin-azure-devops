@@ -11,7 +11,6 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 // Initializes the plugin REST API
@@ -254,7 +253,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	project := store.Project{
+	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        result.ID,
 		ProjectName:      result.Name,

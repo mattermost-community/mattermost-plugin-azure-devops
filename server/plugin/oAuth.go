@@ -39,6 +39,9 @@ func (p *Plugin) OAuthConfig() *OAuthConfig {
 func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
+	oAuthState := fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)
+	p.Store.StoreOAuthState(mattermostUserID, oAuthState)
+
 	var buf bytes.Buffer
 	buf.WriteString(oAuthConfig.authURL)
 	parameterisedURL := url.Values{
@@ -46,7 +49,7 @@ func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 		"client_id":     {oAuthConfig.appID},
 		"redirect_uri":  {oAuthConfig.redirectURI},
 		"scope":         {oAuthConfig.scope},
-		"state":         {fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)},
+		"state":         {oAuthState},
 	}
 
 	if strings.Contains(oAuthConfig.authURL, "?") {
@@ -97,8 +100,7 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := p.GenerateOAuthToken(code, state)
-	if err != nil {
+	if err := p.GenerateOAuthToken(code, state); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -107,7 +109,7 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateOAuthToken generates OAuth token after successful authorization
-func (p *Plugin) GenerateOAuthToken(code string, state string) error {
+func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	if code == "" || state == "" {
 		return errors.New("missing code or state")
 	}
@@ -117,6 +119,11 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 	}
 
 	mattermostUserID := strings.Split(state, "/")[1]
+
+	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
+		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		return errors.Wrap(err, err.Error())
+	}
 
 	generateOauthTokenformValues := url.Values{
 		"client_assertion_type": {constants.ClientAssertionType},

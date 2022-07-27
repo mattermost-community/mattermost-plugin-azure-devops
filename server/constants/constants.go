@@ -57,24 +57,4 @@ const (
 	// PageQueryParam       = "$top"
 	// APIVersionQueryParam = "api-version"
 	// IDsQueryParam        = "ids"
-
-	// Generic messages
-	// TODO: all these messages are to be verified from Mike at the end
-	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s?channel_id=%s)"
-	ConnectAccountFirst  = "You do not have any Azure Devops account connected, kindly link the account first"
-	UserConnected        = "Your Azure Devops account is succesfully connected!"
-	UserAlreadyConnected = "Your Azure Devops account is already connected"
-	UserDisconnected     = "Your Azure Devops account is now disconnected"
-
-	// Error messages
-	Error               = "error"
-	GenericErrorMessage = "something went wrong, please try again later"
-	NotAuthorized       = "not authorized"
-	// TODO: WIP.
-	// InvalidPageNumber    = "invalid page number"
-	// OrganizationRequired = "organization is required"
-	// ProjectRequired      = "project is required"
-	// InvalidStatus        = "invalid status"
-	// InvalidAssignedTo    = "you can only see tasks assigned to yourself"
-	// NoResultPresent      = "no results are present"
 )

@@ -111,7 +111,7 @@ func (s *Store) AtomicModifyWithOptions(key string, modify func(initialValue []b
 // See AtomicModifyWithOptions for more info
 func (s *Store) AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
 	return s.AtomicModifyWithOptions(key, func(initialValue []byte) ([]byte, *model.PluginKVSetOptions, error) {
-		b, err := modify(initialValue)
-		return b, nil, err
+		dataInByte, err := modify(initialValue)
+		return dataInByte, nil, err
 	})
 }

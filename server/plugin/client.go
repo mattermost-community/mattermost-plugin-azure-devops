@@ -60,8 +60,7 @@ func (c *client) callJSON(url, path, method string, in, out interface{}) (respon
 func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, buf, out, formValues)

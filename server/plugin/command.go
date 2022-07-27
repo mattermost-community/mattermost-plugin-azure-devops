@@ -88,7 +88,10 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, header *model.Co
 	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); !isConnected {
 		message = constants.ConnectAccountFirst
 	} else {
-		if isDeleted := p.Store.DeleteUser(header.UserId); !isDeleted {
+		if isDeleted, err := p.Store.DeleteUser(header.UserId); !isDeleted {
+			if err != nil {
+				p.API.LogError(constants.UnableToDisconnectUser, "Error", err.Error())
+			}
 			message = constants.GenericErrorMessage
 		}
 	}

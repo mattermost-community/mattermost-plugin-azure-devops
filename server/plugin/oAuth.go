@@ -100,8 +100,7 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := p.GenerateOAuthToken(code, state)
-	if err != nil {
+	if err := p.GenerateOAuthToken(code, state); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -110,7 +109,7 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateOAuthToken generates OAuth token after successful authorization
-func (p *Plugin) GenerateOAuthToken(code string, state string) error {
+func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	if code == "" || state == "" {
 		return errors.New("missing code or state")
 	}

@@ -18,6 +18,11 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'POST',
         apiServiceName: 'createTask',
     },
+    createLink: {
+        path: '/link',
+        method: 'POST',
+        apiServiceName: 'createLink',
+    },
     testGet: {
         path: '/test',
         method: 'GET',

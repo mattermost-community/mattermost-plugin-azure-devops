@@ -25,6 +25,7 @@ const (
 	// GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
+	GetProject = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 
 	// Azure API versions
 	// TODO: WIP.
@@ -80,9 +81,10 @@ const (
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 
 	// Error messages
-	Error               = "error"
-	GenericErrorMessage = "something went wrong, please try again later"
-	NotAuthorized       = "not authorized"
+	Error                    = "error"
+	GenericErrorMessage      = "something went wrong, please try again later"
+	ErrorFetchingProjectList = "Error in fetching project list"
+	NotAuthorized            = "not authorized"
 	// TODO: WIP.
 	// InvalidPageNumber    = "invalid page number"
 	// InvalidStatus        = "invalid status"

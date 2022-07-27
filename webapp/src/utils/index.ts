@@ -33,6 +33,18 @@ export const onPressingEnterKey = (event: Event | undefined, func: () => void) =
     }
 
     func();
+}
+
+export const getProjectLinkDetails = (str: string) => {
+    const data = str.split('/');
+    if (data.length !== 5) {
+        return [];
+    }
+    if (data[0] !== 'https:' && data[2] !== 'dev.azure.com') {
+        return [];
+    }
+    const values = [data[3], data[4]];
+    return values;
 };
 
 export default {

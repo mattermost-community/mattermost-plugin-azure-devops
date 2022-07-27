@@ -1,4 +1,5 @@
-import {showModal} from 'reducers/taskModal';
+import {showLinkModal} from 'reducers/linkModal';
+import {showTaskModal} from 'reducers/taskModal';
 import {splitArgs} from '../utils';
 
 export default class Hooks {
@@ -21,7 +22,12 @@ export default class Hooks {
 
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
             const args = splitArgs(commandTrimmed);
-            this.store.dispatch(showModal(args));
+            this.store.dispatch(showTaskModal(args));
+            return Promise.resolve({});
+        }
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops link')) {
+            const args = splitArgs(commandTrimmed);
+            this.store.dispatch(showLinkModal(args));
             return Promise.resolve({});
         }
         return Promise.resolve({

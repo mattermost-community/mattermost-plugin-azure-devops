@@ -38,6 +38,7 @@ func (p *Plugin) InitRoutes() {
 	// s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -255,8 +256,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 	project := store.Project{
 		MattermostUserID: mattermostUserID,
-		ProjectID: result.ID,
-		ProjectName: result.Name,
+		ProjectID:        result.ID,
+		ProjectName:      result.Name,
 		OrganizationName: body.Organization,
 	}
 
@@ -264,6 +265,32 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// handleGetAllLinkedProjects returns all linked projects list
+func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	projectList, err := p.Store.LoadProject(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchingProjectList, "Error", err.Error())
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	response, err := json.Marshal(projectList)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchingProjectList, "Error", err.Error())
+		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

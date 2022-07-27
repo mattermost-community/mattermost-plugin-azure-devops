@@ -13,8 +13,8 @@ type ProjectList struct {
 
 type Project struct {
 	MattermostUserID string
-	ProjectID string
-	ProjectName string
+	ProjectID        string
+	ProjectName      string
 	OrganizationName string
 }
 

@@ -96,9 +96,9 @@ const LinkModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Link new project'
-                cancelDisabled={linkPayload ? loading : false}
-                confirmDisabled={linkPayload ? loading : false}
-                loading={linkPayload ? loading : false}
+                cancelDisabled={loading}
+                confirmDisabled={loading}
+                loading={loading}
             >
                 <>
                     <Input

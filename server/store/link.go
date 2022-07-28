@@ -113,5 +113,3 @@ func (projectList *ProjectList) DeleteProjectByKey(userID, projectKey string) {
 		}
 	}
 }
-
-

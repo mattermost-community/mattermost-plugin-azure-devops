@@ -71,10 +71,10 @@ const (
 	CreatedTask          = "Link for newly created task: %s"
 
 	// Error messages
-	Error                    = "error"
-	GenericErrorMessage      = "something went wrong, please try again later"
-	ErrorFetchingProjectList = "Error in fetching project list"
-	NotAuthorized            = "not authorized"
+	Error                 = "error"
+	GenericErrorMessage   = "something went wrong, please try again later"
+	ErrorFetchProjectList = "Error in fetching project list"
+	NotAuthorized         = "not authorized"
 	// TODO: WIP.
 	// InvalidPageNumber    = "invalid page number"
 	// InvalidStatus        = "invalid status"
@@ -84,4 +84,5 @@ const (
 	ProjectRequired      = "project is required"
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
+	GetProjectListError  = "Error getting Project List"
 )

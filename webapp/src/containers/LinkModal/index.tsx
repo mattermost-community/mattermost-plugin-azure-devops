@@ -19,6 +19,7 @@ const LinkModal = () => {
     const usePlugin = usePluginApi();
     const {visibility, organization, project} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
     const [loading, setLoading] = useState(false);
+    const [apiError, setAPIError] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -39,16 +40,20 @@ const LinkModal = () => {
         setLinkOrganizationError('');
         setLinkProjectError('');
         setLinkPayload(null);
+        setLoading(false);
+        setAPIError(false);
         dispatch(hideLinkModal());
     }, []);
 
     const onOrganizationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setLinkOrganizationError('');
+        setAPIError(false);
         setState({...state, linkOrganization: (e.target as HTMLInputElement).value});
     }, [state]);
 
     const onProjectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setLinkProjectError('');
+        setAPIError(false);
         setState({...state, linkProject: (e.target as HTMLInputElement).value});
     }, [state]);
 
@@ -82,7 +87,8 @@ const LinkModal = () => {
         if (linkPayload) {
             const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload);
             setLoading(isLoading);
-            if ((isSuccess && !isError) || (!isSuccess && isError)) {
+            setAPIError(isError);
+            if (isSuccess) {
                 onHide();
             }
         }
@@ -99,6 +105,7 @@ const LinkModal = () => {
                 cancelDisabled={loading}
                 confirmDisabled={loading}
                 loading={loading}
+                error={apiError ? 'Organization name or project name is wrong' : ''}
             >
                 <>
                     <Input

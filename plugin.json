@@ -37,16 +37,13 @@
                 "key": "azureDevopsOAuthClientSecret",
                 "display_name": "Azure Devops OAuth Client Secret",
                 "type": "text",
-                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops.",
-                "placeholder": "",
-                "default": null
+                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops."
             },
             {
                 "key": "EncryptionSecret",
                 "display_name": "Encryption Secret:",
                 "type": "generated",
-                "help_text": "The secret key used to encrypt and decrpyt OAuth token.",
-                "default": null
+                "help_text": "The secret key used to encrypt and decrpyt OAuth token."
             }
         ]
     }

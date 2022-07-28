@@ -1,7 +1,5 @@
 package store
 
-import "github.com/pkg/errors"
-
 type User struct {
 	MattermostUserID string
 	AccessToken      string
@@ -27,7 +25,7 @@ func (s *Store) LoadUser(mattermostUserID string) (*User, error) {
 
 func (s *Store) DeleteUser(mattermostUserID string) (bool, error) {
 	if err := s.Delete(mattermostUserID); err != nil {
-		return false, errors.Wrap(err, err.Error())
+		return false, err
 	}
 
 	return true, nil

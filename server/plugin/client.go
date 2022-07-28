@@ -16,7 +16,7 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error)
+	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error)
 	// TODO: WIP.
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
@@ -122,8 +122,7 @@ func (c *client) TestApi() (string, error) {
 func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
-	if err != nil {
+	if _, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues); err != nil {
 		return nil, err
 	}
 
@@ -134,21 +133,16 @@ func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAut
 func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, err error) {
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	buf := &bytes.Buffer{}
-	if err = json.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
-	}
-	return c.call(url, method, path, contentType, "", buf, out, formValues)
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
@@ -212,8 +206,7 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
-			err = json.Unmarshal(responseData, out)
-			if err != nil {
+			if err = json.Unmarshal(responseData, out); err != nil {
 				return responseData, err
 			}
 		}
@@ -227,8 +220,7 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	}
 
 	errResp := ErrorResponse{}
-	err = json.Unmarshal(responseData, &errResp)
-	if err != nil {
+	if err = json.Unmarshal(responseData, &errResp); err != nil {
 		return responseData, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, fmt.Errorf("errorMessage %s", errResp.Message)

@@ -17,7 +17,6 @@ import (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type Configuration struct {
-	// TODO: Below configs are not final they are used as placeholder here
 	AzureDevopsAPIBaseURL        string `json:"azureDevopsAPIBaseURL"`
 	AzureDevopsOAuthAppID        string `json:"azureDevopsOAuthAppID"`
 	AzureDevopsOAuthClientSecret string `jso:"azureDevopsOAuthClientSecret"`

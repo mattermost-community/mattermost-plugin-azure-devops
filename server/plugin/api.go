@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -35,7 +36,7 @@ func (p *Plugin) InitRoutes() {
 	// TODO: WIP.
 	// s.HandleFunc("/projects", p.handleAuthRequired(p.handleGetProjects)).Methods(http.MethodGet)
 	// s.HandleFunc("/tasks", p.handleAuthRequired(p.handleGetTasks)).Methods(http.MethodGet)
-	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
+	s.HandleFunc("/tasks", p.handleAuthRequired(p.checkOAuth(p.handleCreateTask))).Methods(http.MethodPost)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -51,6 +52,23 @@ func (p *Plugin) handleAuthRequired(handleFunc func(w http.ResponseWriter, r *ht
 		}
 
 		handleFunc(w, r)
+	}
+}
+
+func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+		user, err := p.Store.LoadUser(mattermostUserID)
+		if err != nil || user.AccessToken == "" {
+			if errors.Is(err, ErrNotFound) || user.AccessToken == "" {
+				p.handleError(w, nil, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
+			} else {
+				p.API.LogError("Unable to get user", "Error", err.Error())
+				p.handleError(w, nil, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GenericErrorMessage})
+			}
+			return
+		}
+		handler(w, r)
 	}
 }
 

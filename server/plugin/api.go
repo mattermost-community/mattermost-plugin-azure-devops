@@ -61,10 +61,10 @@ func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {
 		user, err := p.Store.LoadUser(mattermostUserID)
 		if err != nil || user.AccessToken == "" {
 			if errors.Is(err, ErrNotFound) || user.AccessToken == "" {
-				p.handleError(w, nil, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
+				p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
 			} else {
 				p.API.LogError("Unable to get user", "Error", err.Error())
-				p.handleError(w, nil, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GenericErrorMessage})
+				p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GenericErrorMessage})
 			}
 			return
 		}

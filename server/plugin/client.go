@@ -16,7 +16,6 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error)
 	// TODO: WIP.
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
@@ -31,11 +30,6 @@ type client struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-}
-
-// TODO: remove later
-func (c *client) TestApi() (string, error) {
-	return "hello world", nil
 }
 
 func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error) {
@@ -132,7 +126,7 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 // }
 
 // Function to create task of a project.
-func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
+func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
 	// Create payload body to send.
@@ -155,7 +149,7 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 			})
 	}
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callPatchJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil); err != nil {
+	if _, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil); err != nil {
 		return nil, errors.Wrap(err, "failed to get create Task")
 	}
 
@@ -172,15 +166,16 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
 }
 
+// TODO: Uncomment the code later when needed.
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
-	contentType := "application/json"
-	buf := &bytes.Buffer{}
-	if err = json.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
-	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
-}
+// func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+// 	contentType := "application/json"
+// 	buf := &bytes.Buffer{}
+// 	if err = json.NewEncoder(buf).Encode(in); err != nil {
+// 		return nil, err
+// 	}
+// 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
+// }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
 func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {

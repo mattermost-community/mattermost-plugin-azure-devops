@@ -11,7 +11,7 @@ const Rhs = (): JSX.Element => {
     const tabData: TabData[] = [
         {
             title: 'Boards',
-            tabPanel: <div>Hello!</div>,
+            tabPanel: <div>{'Hello!'}</div>,
         },
         {
             title: 'Subscription',

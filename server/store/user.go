@@ -27,7 +27,7 @@ func (s *Store) LoadUser(mattermostUserID string) (*User, error) {
 
 func (s *Store) DeleteUser(mattermostUserID string) bool {
 	if err := s.Delete(mattermostUserID); err != nil {
-		errors.Wrap(err, err.Error())
+		_ = errors.Wrap(err, err.Error())
 		return false
 	}
 

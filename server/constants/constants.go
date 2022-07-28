@@ -64,7 +64,7 @@ const (
 	// TODO: all these messages are to be verified from Mike at the end
 	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s?channel_id=%s)"
 	ConnectAccountFirst  = "You do not have any Azure Devops account connected, kindly link the account first"
-	UserConnected        = "Your Azure Devops account is succesfully connected!"
+	UserConnected        = "Your Azure Devops account is successfully connected!"
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 	CreatedTask          = "Link for newly created task: %s"

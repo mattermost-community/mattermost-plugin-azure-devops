@@ -40,7 +40,9 @@ func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
 	oAuthState := fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)
-	p.Store.StoreOAuthState(mattermostUserID, oAuthState)
+	if err := p.Store.StoreOAuthState(mattermostUserID, oAuthState); err != nil {
+		return err.Error()
+	}
 
 	var buf bytes.Buffer
 	buf.WriteString(oAuthConfig.authURL)
@@ -77,7 +79,7 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID, channelID); isConnected {
 		p.closeBrowserWindowWithHTTPResponse(w)
-		p.DM(mattermostUserID, constants.UserAlreadyConnected)
+		_, _ = p.DM(mattermostUserID, constants.UserAlreadyConnected)
 		return
 	}
 
@@ -122,7 +124,9 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 	mattermostUserID := strings.Split(state, "/")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
 		return errors.Wrap(err, err.Error())
 	}
 
@@ -136,7 +140,9 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 
 	successResponse, err := p.Client.GenerateOAuthToken(generateOauthTokenformValues)
 	if err != nil {
-		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
 		return errors.Wrap(err, err.Error())
 	}
 
@@ -157,11 +163,15 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		ExpiresIn:        successResponse.ExpiresIn,
 	}
 
-	p.Store.StoreUser(&user)
+	if err := p.Store.StoreUser(&user); err != nil {
+		return err
+	}
 
 	fmt.Printf("%+v\n", successResponse) // TODO: remove later
 
-	p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText))
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -170,15 +180,15 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 func (p *Plugin) UserAlreadyConnected(mattermostUserID, channelID string) bool {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		errors.Wrap(err, err.Error())
+		_ = errors.Wrap(err, err.Error())
 		return false
 	}
 
 	if user.AccessToken != "" {
-		abc, _ := p.decode(user.AccessToken)
-		aa, _ := p.decrypt([]byte(abc), []byte(p.getConfiguration().EncryptionSecret))
+		decodedAccessToken, _ := p.decode(user.AccessToken)
+		token, _ := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
 
-		fmt.Printf("%+s token\n", string(aa))
+		fmt.Printf("%+s token\n", string(token))
 		return true
 	}
 

@@ -33,7 +33,7 @@ export const onPressingEnterKey = (event: Event | undefined, func: () => void) =
     }
 
     func();
-}
+};
 
 export const getProjectLinkDetails = (str: string) => {
     const data = str.split('/');

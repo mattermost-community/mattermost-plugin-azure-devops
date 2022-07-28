@@ -9,7 +9,7 @@ import './styles.scss';
 
 type ProjectCardProps = {
     onProjectTitleClick: (projectDetails: ProjectDetails) => void
-    handleUnlinkProject: () => void
+    handleUnlinkProject: (projectDetails: ProjectDetails) => void
     projectDetails: ProjectDetails
 }
 
@@ -37,7 +37,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                         tooltipText='Unlink project'
                         iconClassName='fa fa-chain-broken'
                         extraClass='unlink-button'
-                        onClick={handleUnlinkProject}
+                        onClick={() => handleUnlinkProject(projectDetails)}
                     />
                 </div>
             </div>

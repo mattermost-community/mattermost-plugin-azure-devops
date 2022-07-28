@@ -56,10 +56,6 @@ type ProjectDetails = {
     organizationName: string
 }
 
-type ProjectDetailsList = {
-    Project: ProjectDetails[]
-}
-
 type eventType = 'create' | 'update' | 'delete'
 
 type SubscriptionDetails = {

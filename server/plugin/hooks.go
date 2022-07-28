@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 // Invoked when configuration changes may have been made.
@@ -27,6 +28,12 @@ func (p *Plugin) OnConfigurationChange() error {
 
 	p.setConfiguration(configuration)
 
+	mattermostSiteURL := p.API.GetConfig().ServiceSettings.SiteURL
+	if mattermostSiteURL == nil {
+		return errors.New("plugin requires Mattermost Site URL to be set")
+	}
+	configuration.MattermostSiteURL = *mattermostSiteURL
+
 	return nil
 }
 
@@ -45,11 +52,11 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to get command")
 	}
 
-	err = p.API.RegisterCommand(command)
-	if err != nil {
+	if err = p.API.RegisterCommand(command); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
 
+	p.Store = store.NewStore(p.API)
 	p.router = p.InitAPI()
 	p.InitRoutes()
 	p.HandleStaticFiles()

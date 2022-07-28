@@ -22,28 +22,28 @@
         "footer": "",
         "settings": [
             {
-                "key": "appId",
-                "display_name": "App ID",
-                "type": "text",
-                "help_text": "Enter Azure OAuth app ID"
-            },
-            {
-                "key": "clientSecret",
-                "display_name": "Client Secret",
-                "type": "text",
-                "help_text": "Enter Azure OAuth app client secret"
-            },
-            {
-                "key": "callbackUrl",
-                "display_name": "Callback URL",
-                "type": "text",
-                "help_text": "Enter Azure OAuth app callback URL"
-            },
-            {
                 "key": "azureDevopsAPIBaseURL",
                 "display_name": "Azure Devops API base URL",
                 "type": "text",
-                "help_text": "Enter Azure Devops API base URL"
+                "help_text": "Enter the base URL for Azure Devops API"
+            },
+            {
+                "key": "azureDevopsOAuthAppID",
+                "display_name": "Azure Devops OAuth App ID",
+                "type": "text",
+                "help_text": "Enter the app ID for the OAuth app registered with Azure Devops"
+            },
+            {
+                "key": "azureDevopsOAuthClientSecret",
+                "display_name": "Azure Devops OAuth Client Secret",
+                "type": "text",
+                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops."
+            },
+            {
+                "key": "EncryptionSecret",
+                "display_name": "Encryption Secret:",
+                "type": "generated",
+                "help_text": "The secret key used to encrypt and decrpyt OAuth token."
             }
         ]
     }

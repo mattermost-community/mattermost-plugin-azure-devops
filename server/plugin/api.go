@@ -27,6 +27,10 @@ func (p *Plugin) InitRoutes() {
 
 	s := p.router.PathPrefix(constants.APIPrefix).Subrouter()
 
+	// OAuth
+	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }

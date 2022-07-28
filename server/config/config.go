@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 )
 
@@ -17,8 +17,11 @@ import (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type Configuration struct {
-	// TODO: Below configs are not final they are used as placeholder here
-	AzureDevopsAPIBaseURL string `json:"azureDevopsAPIBaseURL"`
+	AzureDevopsAPIBaseURL        string `json:"azureDevopsAPIBaseURL"`
+	AzureDevopsOAuthAppID        string `json:"azureDevopsOAuthAppID"`
+	AzureDevopsOAuthClientSecret string `jso:"azureDevopsOAuthClientSecret"`
+	EncryptionSecret             string `json:"EncryptionSecret"`
+	MattermostSiteURL            string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -31,6 +34,9 @@ func (c *Configuration) Clone() *Configuration {
 // ProcessConfiguration used for post-processing on the configuration.
 func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
+	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)
+	c.AzureDevopsOAuthClientSecret = strings.TrimSpace(c.AzureDevopsOAuthClientSecret)
+	c.EncryptionSecret = strings.TrimSpace(c.EncryptionSecret)
 
 	return nil
 }
@@ -38,7 +44,16 @@ func (c *Configuration) ProcessConfiguration() error {
 // Used for config validations.
 func (c *Configuration) IsValid() error {
 	if c.AzureDevopsAPIBaseURL == "" {
-		return fmt.Errorf("base URL of the Azure Devops API should not be empty")
+		return errors.New("azure devops API base URL should not be empty")
+	}
+	if c.AzureDevopsOAuthAppID == "" {
+		return errors.New("azure devops OAuth app id should not be empty")
+	}
+	if c.AzureDevopsOAuthClientSecret == "" {
+		return errors.New("azure devops OAuth client secret should not be empty")
+	}
+	if c.EncryptionSecret == "" {
+		return errors.New("encryption secret should not be empty")
 	}
 
 	return nil

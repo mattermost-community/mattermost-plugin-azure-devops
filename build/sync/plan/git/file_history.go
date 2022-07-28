@@ -89,8 +89,7 @@ func traverseTree(root *object.Tree, path string) (io.ReadCloser, error) {
 
 func getReaderHash(r io.Reader) (string, error) {
 	h := sha1.New() // nolint
-	_, err := io.Copy(h, r)
-	if err != nil {
+	if _, err := io.Copy(h, r); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil

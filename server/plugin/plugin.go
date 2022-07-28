@@ -14,6 +14,7 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.
@@ -29,6 +30,7 @@ type Plugin struct {
 	// setConfiguration for usage.
 	configuration *config.Configuration
 	router        *mux.Router
+	Store         *store.Store
 
 	// user ID of the bot account
 	botUserID string

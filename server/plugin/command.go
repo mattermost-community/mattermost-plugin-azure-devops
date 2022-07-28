@@ -90,10 +90,8 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, header *model.Co
 	message := constants.UserDisconnected
 	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); !isConnected {
 		message = constants.ConnectAccountFirst
-	} else {
-		if isDeleted := p.Store.DeleteUser(header.UserId); !isDeleted {
-			message = constants.GenericErrorMessage
-		}
+	} else if isDeleted := p.Store.DeleteUser(header.UserId); !isDeleted {
+		message = constants.GenericErrorMessage
 	}
 	return p.sendEphemeralPostForCommand(header, message)
 }

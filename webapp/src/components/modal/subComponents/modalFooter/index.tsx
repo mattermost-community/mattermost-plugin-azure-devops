@@ -1,5 +1,6 @@
 import React from 'react';
 import {Modal as RBModal} from 'react-bootstrap';
+import {Button} from 'react-bootstrap';
 
 import './styles.scss';
 
@@ -11,13 +12,14 @@ type ModalFooterProps = {
     className?: string;
     confirmDisabled?: boolean;
     cancelDisabled?: boolean;
+    confirmAction?: boolean;
 }
 
-const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, className = '', confirmDisabled, cancelDisabled}: ModalFooterProps) : JSX.Element => (
-    <RBModal.Footer className={`modal__footer d-flex flex-column justify-content-center align-items-center ${className}`}>
+const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, className = '', confirmDisabled, cancelDisabled, confirmAction}: ModalFooterProps) : JSX.Element => (
+    <RBModal.Footer className={!confirmAction ? `modal__footer d-flex flex-column justify-content-center align-items-center ${className}` : 'modal__confirm-action'}>
         {onConfirm && (
             <button
-                className='btn btn-primary modal__confirm-btn'
+                className={`plugin-btn btn ${confirmAction ? 'btn-danger' : 'btn-primary modal__confirm-btn'}`}
                 onClick={onConfirm}
                 disabled={confirmDisabled}
             >
@@ -26,7 +28,7 @@ const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, classNam
         )}
         {onHide && (
             <button
-                className='btn btn-link modal__cancel-btn'
+                className={`plugin-btn btn btn-link ${!confirmAction && 'modal__cancel-btn'}`}
                 onClick={onHide}
                 disabled={cancelDisabled}
             >

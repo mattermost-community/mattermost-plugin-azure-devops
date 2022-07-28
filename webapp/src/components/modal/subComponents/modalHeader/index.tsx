@@ -5,7 +5,7 @@ import './styles.scss';
 
 type ModalHeaderProps = {
     title?: string | JSX.Element;
-    onHide: () => void;
+    onHide?: () => void;
     showCloseIconInHeader?: boolean;
 }
 

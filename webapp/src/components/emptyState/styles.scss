@@ -1,11 +1,13 @@
 .no-data {
-  text-align: center;
   height: 100%;
-  min-height: 350px;
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+  text-align: center;
 
   &__icon {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     background: rgba(var(--center-channel-color-rgb), 0.04);
     border-radius: 100%;
     margin-bottom: 24px;
@@ -24,4 +26,14 @@
   &__btn {
     margin-top: 24px;
   }
+
+  svg {
+    fill: rgba(var(--center-channel-color-rgb), 0.5);
+  }
+}
+
+.slash-command {
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
 }

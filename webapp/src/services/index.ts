@@ -11,7 +11,7 @@ const pluginApi = createApi({
     baseQuery: fetchBaseQuery({baseUrl: Utils.getBaseUrls().pluginApiBaseUrl}),
     tagTypes: ['Posts'],
     endpoints: (builder) => ({
-        [Constants.pluginApiServiceConfigs.createTask.apiServiceName]: builder.query<void, CreateTaskPayload>({
+        [Constants.pluginApiServiceConfigs.createTask.apiServiceName]: builder.query<void, APIRequestPayload>({
             query: (payload) => ({
                 headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
                 url: Constants.pluginApiServiceConfigs.createTask.path,
@@ -19,12 +19,19 @@ const pluginApi = createApi({
                 body: payload,
             }),
         }),
-        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<void, LinkPayload>({
+        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<void, APIRequestPayload>({
             query: (payload) => ({
                 headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
                 url: Constants.pluginApiServiceConfigs.createLink.path,
                 method: Constants.pluginApiServiceConfigs.createLink.method,
                 body: payload,
+            }),
+        }),
+        [Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName]: builder.query<ProjectDetailsList, void>({
+            query: () => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.path,
+                method: Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.method,
             }),
         }),
     }),

@@ -18,6 +18,7 @@ const IconButton = ({tooltipText, iconClassName, extraClass, onClick}: IconButto
             <Button
                 variant='outline-danger'
                 className={`plugin-btn button-wrapper btn-icon ${extraClass}`}
+                onClick={onClick}
             >
                 <i
                     className={`${iconClassName} icon`}

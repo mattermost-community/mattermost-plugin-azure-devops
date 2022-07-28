@@ -1,3 +1,7 @@
+.height-rhs {
+    height: calc(100vh - 63px);
+}
+
 .project-details-unlink-button {
     max-width: 42px;
     height: 34px;
@@ -7,6 +11,9 @@
 }
 
 .unlink-button {
+    margin-left: auto;
+    display: block;
+
     i {
         margin: 6px 5px 0 0;
     }

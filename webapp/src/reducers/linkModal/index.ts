@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 import {getProjectLinkDetails} from 'utils';
 
@@ -18,7 +18,7 @@ export const openLinkModalSlice = createSlice({
     name: 'openLinkkModal',
     initialState,
     reducers: {
-        showLinkModal: (state, action) => {
+        showLinkModal: (state: CreateTaskModal, action: PayloadAction<Array<string>>) => {
             if (action.payload.length > 2) {
                 const details = getProjectLinkDetails(action.payload[2]);
                 if (details.length === 2) {
@@ -28,7 +28,7 @@ export const openLinkModalSlice = createSlice({
             }
             state.visibility = true;
         },
-        hideLinkModal: (state) => {
+        hideLinkModal: (state: CreateTaskModal) => {
             state.visibility = false;
             state.organization = '';
             state.project = '';

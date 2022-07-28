@@ -38,7 +38,7 @@ func (p *Plugin) OAuthConfig() *OAuthConfig {
 func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
-	oAuthState := fmt.Sprintf("%v_%v", model.NewId()[0:15], mattermostUserID)
+	oAuthState := fmt.Sprintf("%s_%s", model.NewId()[0:15], mattermostUserID)
 	if err := p.Store.StoreOAuthState(mattermostUserID, oAuthState); err != nil {
 		p.API.LogError(fmt.Sprintf(constants.UnableToStoreOauthState, mattermostUserID), "Error", err.Error())
 	}

@@ -46,10 +46,10 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
 
-	connect := model.NewAutocompleteData("connect", "", "Connect to your Azure devOps account")
+	connect := model.NewAutocompleteData("connect", "", "Connect to your Azure DevOps account")
 	azureDevops.AddCommand(connect)
 
-	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure devOps account")
+	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure DevOps account")
 	azureDevops.AddCommand(disconnect)
 
 	return azureDevops

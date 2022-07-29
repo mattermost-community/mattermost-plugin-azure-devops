@@ -61,7 +61,7 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mamattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -97,8 +97,8 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	if mamattermostUserID != "" {
-		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
+	if mattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
 			return nil, err
 		}
 	}

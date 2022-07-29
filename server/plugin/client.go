@@ -37,7 +37,6 @@ func (c *client) TestApi() (string, error) {
 
 // Function to create task for a project.
 func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
-	contentType := "application/json-patch+json"
 	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
 	// Create request body.
@@ -61,7 +60,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 	}
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, contentType)
+	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create the Task")
 	}
@@ -80,8 +79,20 @@ func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAut
 	return oAuthSuccessResponse, statusCode, nil
 }
 
+// Wrapper to make REST API requests with "application/json-patch+json" type content
+func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
+	contentType := "application/json-patch+json"
+	buf := &bytes.Buffer{}
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
+}
+
+
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}, contentType string) (responseData []byte, statusCode int, err error) {
+func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
+	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	err = json.NewEncoder(buf).Encode(in)
 	if err != nil {
@@ -97,7 +108,7 @@ func (c *client) callFormURLEncoded(url, path, method string, in, out interface{
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mamattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -133,8 +144,8 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	if mamattermostUserID != "" {
-		if err = c.plugin.AddAuthorization(req, mamattermostUserID); err != nil {
+	if mattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
 	}

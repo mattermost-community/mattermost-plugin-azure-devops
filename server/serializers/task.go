@@ -49,7 +49,7 @@ type TaskCreateRequestPayload struct {
 	Organization string               `json:"organization"`
 	Project      string               `json:"project"`
 	Type         string               `json:"type"`
-	Feilds       TaskCreateFieldValue `json:"fields"`
+	Fields       TaskCreateFieldValue `json:"fields"`
 }
 
 type TaskCreateFieldValue struct {
@@ -75,7 +75,7 @@ func (t *TaskCreateRequestPayload) IsValid() error {
 	if t.Type == "" {
 		return errors.New(constants.TaskTypeRequired)
 	}
-	if t.Feilds.Title == "" {
+	if t.Fields.Title == "" {
 		return errors.New(constants.TaskTitleRequired)
 	}
 	return nil

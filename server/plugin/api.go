@@ -42,7 +42,7 @@ func (p *Plugin) InitRoutes() {
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
 func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 		if mattermostUserID == "" {
 			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
 			p.handleError(w, r, &error)
@@ -187,34 +187,32 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 
 // API to create task of a project in an organization.
 func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 	var body *serializers.TaskCreateRequestPayload
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
 		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
 	if err := body.IsValid(); err != nil {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	task, err := p.Client.CreateTask(body, mattermostUserID)
+	task, statusCode, err := p.Client.CreateTask(body, mattermostUserID)
 	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
+
 	response, err := json.Marshal(task)
 	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
+
 	w.Header().Add("Content-Type", "application/json")
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

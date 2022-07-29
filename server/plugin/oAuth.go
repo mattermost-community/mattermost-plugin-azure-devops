@@ -1,7 +1,6 @@
 package plugin
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -39,40 +38,40 @@ func (p *Plugin) OAuthConfig() *OAuthConfig {
 func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 	oAuthConfig := p.OAuthConfig()
 
-	var buf bytes.Buffer
-	buf.WriteString(oAuthConfig.authURL)
+	oAuthState := fmt.Sprintf("%s_%s", model.NewId()[0:15], mattermostUserID)
+	if err := p.Store.StoreOAuthState(mattermostUserID, oAuthState); err != nil {
+		p.API.LogError(fmt.Sprintf(constants.UnableToStoreOauthState, mattermostUserID), "Error", err.Error())
+	}
+
+	var stringBuilder strings.Builder
+	stringBuilder.WriteString(oAuthConfig.authURL)
 	parameterisedURL := url.Values{
 		"response_type": {oAuthConfig.responseType},
 		"client_id":     {oAuthConfig.appID},
 		"redirect_uri":  {oAuthConfig.redirectURI},
 		"scope":         {oAuthConfig.scope},
-		"state":         {fmt.Sprintf("%v/%v", model.NewId()[0:15], mattermostUserID)},
+		"state":         {oAuthState},
 	}
 
 	if strings.Contains(oAuthConfig.authURL, "?") {
-		buf.WriteByte('&')
+		stringBuilder.WriteByte('&')
 	} else {
-		buf.WriteByte('?')
+		stringBuilder.WriteByte('?')
 	}
-	buf.WriteString(parameterisedURL.Encode())
-	return buf.String()
+	stringBuilder.WriteString(parameterisedURL.Encode())
+	return stringBuilder.String()
 }
 
 // OAuthConnect redirects to the OAuth authorization URL
 func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	// TODO: use checkAuth middleware for this
 	if mattermostUserID == "" {
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
 		return
 	}
 
-	channelID := r.URL.Query().Get(constants.ChannelID)
-	if channelID == "" {
-		http.Error(w, "missing channel ID", http.StatusBadRequest)
-		return
-	}
-
-	if isConnected := p.UserAlreadyConnected(mattermostUserID, channelID); isConnected {
+	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.closeBrowserWindowWithHTTPResponse(w)
 		p.DM(mattermostUserID, constants.UserAlreadyConnected)
 		return
@@ -97,8 +96,12 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := p.GenerateOAuthToken(code, state)
-	if err != nil {
+	if len(strings.Split(state, "_")) != 2 || strings.Split(state, "_")[1] == "" {
+		http.Error(w, constants.InvalidAuthState, http.StatusBadRequest)
+		return
+	}
+
+	if err := p.GenerateOAuthToken(code, state); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -107,18 +110,15 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateOAuthToken generates OAuth token after successful authorization
-func (p *Plugin) GenerateOAuthToken(code string, state string) error {
-	if code == "" || state == "" {
-		return errors.New("missing code or state")
+func (p *Plugin) GenerateOAuthToken(code, state string) error {
+	mattermostUserID := strings.Split(state, "_")[1]
+
+	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
+		p.DM(mattermostUserID, constants.GenericErrorMessage)
+		return errors.Wrap(err, err.Error())
 	}
 
-	if len(strings.Split(state, "/")) != 2 || strings.Split(state, "/")[1] == "" {
-		return errors.New("missing mattermost userID in state")
-	}
-
-	mattermostUserID := strings.Split(state, "/")[1]
-
-	generateOauthTokenformValues := url.Values{
+	oauthTokenFormValues := url.Values{
 		"client_assertion_type": {constants.ClientAssertionType},
 		"client_assertion":      {p.getConfiguration().AzureDevopsOAuthClientSecret},
 		"grant_type":            {constants.GrantType},
@@ -126,7 +126,7 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	successResponse, err := p.Client.GenerateOAuthToken(generateOauthTokenformValues.Encode())
+	successResponse, err := p.Client.GenerateOAuthToken(oauthTokenFormValues.Encode())
 	if err != nil {
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
 		return errors.Wrap(err, err.Error())
@@ -159,10 +159,10 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 }
 
 // UserAlreadyConnected checks if a user is already connected
-func (p *Plugin) UserAlreadyConnected(mattermostUserID, channelID string) bool {
+func (p *Plugin) UserAlreadyConnected(mattermostUserID string) bool {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		errors.Wrap(err, err.Error())
+		p.API.LogError(constants.UnableToCheckIfAlreadyConnected, "Error", err.Error())
 		return false
 	}
 

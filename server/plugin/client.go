@@ -16,11 +16,8 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error)
+	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error)
-	// TODO: WIP.
-	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
-	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 }
 
 type client struct {
@@ -37,93 +34,10 @@ func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
-// TODO: WIP.
-// Function to get the list of projects.
-// func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
-// 	var projectList *serializers.ProjectList
-// 	page := queryParams["page"].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.ProjectLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.ProjectAPIVersion)
-
-// 	// URL to fetch projects list.
-// 	project := fmt.Sprintf(constants.GetProjects, queryParams["organization"])
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, nil, &projectList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Projects list")
-// 	}
-
-// 	// Check if new projects are present for current page.
-// 	if page*constants.ProjectLimit >= projectList.Count+constants.ProjectLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-// 	return projectList, nil
-// }
-
-// TODO: WIP.
-// Function to get the list of tasks.
-// func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
-// 	page := queryParams[constants.Page].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
-
-// 	// Query to fetch the tasks IDs list.
-// 	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
-
-// 	// Add filters to the query.
-// 	if queryParams[constants.Status] != "" {
-// 		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
-// 	}
-// 	if queryParams[constants.AssignedTo] == "me" {
-// 		query += constants.TaskQueryAssignedToFilter
-// 	}
-
-// 	// Query payload.
-// 	taskQuery := map[string]string{
-// 		"query": query,
-// 	}
-// 	// URL to fetch tasks IDs list.
-// 	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
-
-// 	var taskIDList *serializers.TaskIDList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task ID list")
-// 	}
-
-// 	// Check if new task ID are present for current page.
-// 	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-
-// 	var IDs string
-// 	for i := 0; i < len(taskIDList.TaskList); i++ {
-// 		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
-// 	}
-
-// 	params = url.Values{}
-// 	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
-
-// 	// URL to fetch tasks list.
-// 	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
-
-// 	var taskList *serializers.TaskList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task list")
-// 	}
-
-// 	return taskList, nil
-// }
-
 func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
-	if err != nil {
+	if _, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues); err != nil {
 		return nil, err
 	}
 
@@ -134,22 +48,16 @@ func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAut
 func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, err error) {
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
-		return nil, err
-	}
-	return c.call(url, method, path, contentType, "", buf, out, formValues)
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
@@ -213,8 +121,7 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
-			err = json.Unmarshal(responseData, out)
-			if err != nil {
+			if err = json.Unmarshal(responseData, out); err != nil {
 				return responseData, err
 			}
 		}
@@ -228,8 +135,7 @@ func (c *client) call(basePath, method, path, contentType string, mamattermostUs
 	}
 
 	errResp := ErrorResponse{}
-	err = json.Unmarshal(responseData, &errResp)
-	if err != nil {
+	if err = json.Unmarshal(responseData, &errResp); err != nil {
 		return responseData, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, fmt.Errorf("errorMessage %s", errResp.Message)

@@ -33,7 +33,7 @@ func (p *Plugin) sendEphemeralPostForCommand(args *model.CommandArgs, text strin
 func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (string, error) {
 	channel, err := p.API.GetDirectChannel(mattermostUserID, p.botUserID)
 	if err != nil {
-		p.API.LogError("Couldn't get bot's DM channel", "user_id", mattermostUserID, "error", err.Error())
+		p.API.LogError("Couldn't get bot's DM channel", "userID", mattermostUserID, "Error", err.Error())
 		return "", err
 	}
 	post := &model.Post{
@@ -150,16 +150,3 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	r.Header.Add(constants.Authorization, fmt.Sprintf(constants.Bearer, string(decryptedAccessToken)))
 	return nil
 }
-
-// TODO: WIP.
-// StringToInt function to convert string to int.
-// func StringToInt(str string) int {
-// 	if str == "" {
-// 		return 0
-// 	}
-// 	val, err := strconv.ParseInt(str, 10, 64)
-// 	if err != nil {
-// 		return 0
-// 	}
-// 	return int(val)
-// }

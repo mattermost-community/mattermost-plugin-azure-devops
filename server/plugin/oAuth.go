@@ -127,7 +127,7 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
 		}
-		return errors.Wrap(err, err.Error())
+		return errors.Wrap(err, "failed to verify oAuth state")
 	}
 
 	generateOauthTokenformValues := url.Values{
@@ -143,7 +143,7 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
 		}
-		return errors.Wrap(err, err.Error())
+		return errors.Wrap(err, "failed to generate oAuth token")
 	}
 
 	encryptedAccessToken, err := p.encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
@@ -180,13 +180,22 @@ func (p *Plugin) GenerateOAuthToken(code string, state string) error {
 func (p *Plugin) UserAlreadyConnected(mattermostUserID, channelID string) bool {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		_ = errors.Wrap(err, err.Error())
+		_ = errors.Wrap(err, "failed to load the User")
 		return false
 	}
 
 	if user.AccessToken != "" {
-		decodedAccessToken, _ := p.decode(user.AccessToken)
-		token, _ := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+		decodedAccessToken, err := p.decode(user.AccessToken)
+		if err != nil {
+			_ = errors.Wrap(err, "failed to decode the Token")
+			return false
+		}
+
+		token, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+		if err != nil {
+			_ = errors.Wrap(err, "failed to decrypt the Token")
+			return false
+		}
 
 		fmt.Printf("%+s token\n", string(token))
 		return true

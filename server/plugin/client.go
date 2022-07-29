@@ -71,7 +71,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, int, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
+	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -94,15 +94,14 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
 	contentType := "application/x-www-form-urlencoded"
 	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
@@ -168,8 +167,7 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
-			err = json.Unmarshal(responseData, out)
-			if err != nil {
+			if err = json.Unmarshal(responseData, out); err != nil {
 				return responseData, http.StatusInternalServerError, err
 			}
 		}
@@ -183,8 +181,7 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	errResp := ErrorResponse{}
-	err = json.Unmarshal(responseData, &errResp)
-	if err != nil {
+	if err = json.Unmarshal(responseData, &errResp); err != nil {
 		return responseData, http.StatusInternalServerError, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, resp.StatusCode, fmt.Errorf("errorMessage %s", errResp.Message)

@@ -16,11 +16,8 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error)
+	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, int, error)
-	// TODO: WIP.
-	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
-	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 }
 
@@ -37,88 +34,6 @@ type ErrorResponse struct {
 func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
-
-// TODO: WIP.
-// Function to get the list of projects.
-// func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
-// 	var projectList *serializers.ProjectList
-// 	page := queryParams["page"].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.ProjectLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.ProjectAPIVersion)
-
-// 	// URL to fetch projects list.
-// 	project := fmt.Sprintf(constants.GetProjects, queryParams["organization"])
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, nil, &projectList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Projects list")
-// 	}
-
-// 	// Check if new projects are present for current page.
-// 	if page*constants.ProjectLimit >= projectList.Count+constants.ProjectLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-// 	return projectList, nil
-// }
-
-// TODO: WIP.
-// Function to get the list of tasks.
-// func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
-// 	page := queryParams[constants.Page].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
-
-// 	// Query to fetch the tasks IDs list.
-// 	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
-
-// 	// Add filters to the query.
-// 	if queryParams[constants.Status] != "" {
-// 		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
-// 	}
-// 	if queryParams[constants.AssignedTo] == "me" {
-// 		query += constants.TaskQueryAssignedToFilter
-// 	}
-
-// 	// Query payload.
-// 	taskQuery := map[string]string{
-// 		"query": query,
-// 	}
-// 	// URL to fetch tasks IDs list.
-// 	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
-
-// 	var taskIDList *serializers.TaskIDList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task ID list")
-// 	}
-
-// 	// Check if new task ID are present for current page.
-// 	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-
-// 	var IDs string
-// 	for i := 0; i < len(taskIDList.TaskList); i++ {
-// 		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
-// 	}
-
-// 	params = url.Values{}
-// 	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
-
-// 	// URL to fetch tasks list.
-// 	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
-
-// 	var taskList *serializers.TaskList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task list")
-// 	}
-
-// 	return taskList, nil
-// }
 
 // Function to create task for a project.
 func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
@@ -178,12 +93,7 @@ func (c *client) callJSON(url, path, method string, mattermostUserID string, in,
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
 func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
-		return nil, http.StatusInternalServerError, err
-	}
-	return c.call(url, method, path, contentType, "", buf, out, formValues)
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs

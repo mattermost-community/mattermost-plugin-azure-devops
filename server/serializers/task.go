@@ -7,19 +7,6 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
-// type TaskIDList struct {
-// 	TaskList []TaskIDListValue `json:"workItems"`
-// }
-
-// type TaskIDListValue struct {
-// 	ID int `json:"id"`
-// }
-
-// type TaskList struct {
-// 	Count int         `json:"count"`
-// 	Tasks []TaskValue `json:"value"`
-// }
-
 type TaskValue struct {
 	ID     int            `json:"id"`
 	Fields TaskFieldValue `json:"fields"`

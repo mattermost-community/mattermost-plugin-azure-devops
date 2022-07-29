@@ -150,16 +150,3 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	r.Header.Add(constants.Authorization, fmt.Sprintf(constants.Bearer, string(decryptedAccessToken)))
 	return nil
 }
-
-// TODO: WIP.
-// StringToInt function to convert string to int.
-// func StringToInt(str string) int {
-// 	if str == "" {
-// 		return 0
-// 	}
-// 	val, err := strconv.ParseInt(str, 10, 64)
-// 	if err != nil {
-// 		return 0
-// 	}
-// 	return int(val)
-// }

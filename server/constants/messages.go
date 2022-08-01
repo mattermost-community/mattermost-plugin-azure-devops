@@ -12,6 +12,7 @@ const (
 	TaskTitle            = "[%s #%d: %s](%s)"
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 	AlreadyLinkedProject = "This project is already linked."
+	NoProjectLinked      = "No project is linked, please link a project."
 
 	// Validations
 	OrganizationRequired = "organization is required"
@@ -35,5 +36,4 @@ const (
 	InvalidAuthState                = "Invalid oauth state, please try again"
 	UnableToCheckIfAlreadyConnected = "Unable to check if user account is already connected"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
-
 )

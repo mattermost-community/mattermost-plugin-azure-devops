@@ -1,10 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 
-export interface CreateTaskModal {
-    visibility: boolean
-}
-
-const initialState: CreateTaskModal = {
+const initialState: TaskModalState = {
     visibility: false,
 };
 

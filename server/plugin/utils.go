@@ -175,7 +175,7 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 
 func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) bool {
 	for _, a := range projectList {
-		if a == project {
+		if a.ProjectName == project.ProjectName && a.OrganizationName == project.OrganizationName {
 			return true
 		}
 	}

@@ -28,10 +28,10 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'GET',
         apiServiceName: 'testGet',
     },
-    getProjects: {
+    getLinkedProjects: {
         path: '/link/project',
         method: 'GET',
-        apiServiceName: 'getProjects',
+        apiServiceName: 'getLinkedProjects',
     },
 };
 

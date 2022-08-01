@@ -38,6 +38,11 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'POST',
         apiServiceName: 'unlinkProject',
     },
+    getUserDetails: {
+        path: '/user',
+        method: 'GET',
+        apiServiceName: 'getUserDetails',
+    },
 };
 
 export default {

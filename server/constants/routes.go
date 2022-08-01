@@ -8,6 +8,7 @@ const (
 	PathOAuthCallback        = "/oauth/complete"
 	PathGetAllLinkedProjects = "/project/link"
 	PathUnlinkProject        = "/project/unlink"
+	PathUser                 = "/user"
 
 	// Azure API paths
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"

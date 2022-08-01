@@ -49,15 +49,11 @@ const ProjectList = () => {
         const unlinkProject = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked);
 
         if (unlinkProject) {
-            const {isSuccess, isError, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked);
-
             // TODO: remove later
             // eslint-disable-next-line
             console.log('test', usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked));
-            if (isSuccess && !isError && !isLoading) {
-                fetchLinkedProjectsList();
-                setShowConfirmationModal(false);
-            }
+            fetchLinkedProjectsList();
+            setShowConfirmationModal(false);
         }
     };
 
@@ -96,18 +92,30 @@ const ProjectList = () => {
             {
                 usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess && (
                     usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data ?
-                        usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data?.map((item) => (
-                            <ProjectCard
-                                onProjectTitleClick={handleProjectTitleClick}
-                                projectDetails={item}
-                                key={item.projectID}
-                                handleUnlinkProject={handleUnlinkProject}
-                            />
-                        ),
-                        ) :
+                        <>
+                            {
+                                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data?.map((item) => (
+                                    <ProjectCard
+                                        onProjectTitleClick={handleProjectTitleClick}
+                                        projectDetails={item}
+                                        key={item.projectID}
+                                        handleUnlinkProject={handleUnlinkProject}
+                                    />
+                                ),
+                                )
+                            }
+                            <div className='rhs-project-list-wrapper'>
+                                <button
+                                    onClick={handleOpenLinkProjectModal}
+                                    className='plugin-btn no-data__btn btn btn-primary project-list-btn'
+                                >
+                                    {'Link new project'}
+                                </button>
+                            </div>
+                        </> :
                         <EmptyState
                             title='No Project Linked'
-                            subTitle={{text: 'You can link a project by clicking the below button or using the slash command', slashCommand: '/azuredevops link'}}
+                            subTitle={{text: 'Link a project by clicking the button below'}}
                             buttonText='Link new project'
                             buttonAction={handleOpenLinkProjectModal}
                         />)

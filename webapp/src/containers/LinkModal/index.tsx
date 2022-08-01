@@ -74,15 +74,11 @@ const LinkModal = () => {
     const linkTask = async (payload: LinkPayload) => {
         const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
         if (createTaskRequest) {
-            const {isSuccess, isError, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
-
             // TODO: remove later
             // eslint-disable-next-line
             console.log('test', usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload));
-            if (isSuccess && !isError && !isLoading) {
-                dispatch(toggleIsLinked(true));
-                resetModalState();
-            }
+            dispatch(toggleIsLinked(true));
+            resetModalState();
         }
     };
 

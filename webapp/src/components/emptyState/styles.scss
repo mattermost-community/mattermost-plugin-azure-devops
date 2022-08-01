@@ -1,5 +1,4 @@
 .no-data {
-  height: 100%;
   display: flex;
   justify-content: center;
   margin-top: 80px;
@@ -25,10 +24,6 @@
 
   &__btn {
     margin-top: 24px;
-  }
-
-  svg {
-    fill: rgba(var(--center-channel-color-rgb), 0.5);
   }
 }
 

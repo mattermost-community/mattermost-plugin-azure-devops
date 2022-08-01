@@ -13,10 +13,10 @@ const (
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 
 	// Validations
-	OrganizationRequired = "Organization is required"
-	ProjectRequired      = "Project is required"
-	TaskTypeRequired     = "Task type is required"
-	TaskTitleRequired    = "Task title is required"
+	OrganizationRequired = "organization is required"
+	ProjectRequired      = "project is required"
+	TaskTypeRequired     = "task type is required"
+	TaskTitleRequired    = "task title is required"
 )
 
 const (

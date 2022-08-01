@@ -1,24 +1,11 @@
 package serializers
 
 import (
+	"errors"
 	"time"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
-
-// TODO: WIP.
-// type TaskIDList struct {
-// 	TaskList []TaskIDListValue `json:"workItems"`
-// }
-
-// type TaskIDListValue struct {
-// 	ID int `json:"id"`
-// }
-
-// type TaskList struct {
-// 	Count int         `json:"count"`
-// 	Tasks []TaskValue `json:"value"`
-// }
 
 type TaskValue struct {
 	ID     int            `json:"id"`
@@ -58,7 +45,7 @@ type TaskCreateRequestPayload struct {
 	Organization string               `json:"organization"`
 	Project      string               `json:"project"`
 	Type         string               `json:"type"`
-	Feilds       TaskCreateFieldValue `json:"fields"`
+	Fields       TaskCreateFieldValue `json:"fields"`
 }
 
 type TaskCreateFieldValue struct {
@@ -74,18 +61,18 @@ type TaskCreateBodyPayload struct {
 }
 
 // IsValid function to validate request payload.
-func (t *TaskCreateRequestPayload) IsValid() string {
+func (t *TaskCreateRequestPayload) IsValid() error {
 	if t.Organization == "" {
-		return constants.OrganizationRequired
+		return errors.New(constants.OrganizationRequired)
 	}
 	if t.Project == "" {
-		return constants.ProjectRequired
+		return errors.New(constants.ProjectRequired)
 	}
 	if t.Type == "" {
-		return constants.TaskTypeRequired
+		return errors.New(constants.TaskTypeRequired)
 	}
-	if t.Feilds.Title == "" {
-		return constants.TaskTitleRequired
+	if t.Fields.Title == "" {
+		return errors.New(constants.TaskTitleRequired)
 	}
-	return ""
+	return nil
 }

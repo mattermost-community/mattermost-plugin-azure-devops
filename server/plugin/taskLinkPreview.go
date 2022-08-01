@@ -18,7 +18,7 @@ func (p *Plugin) getTaskPosted(msg, userID, channelID string) (*model.Post, stri
 		Project:      link[4],
 		TaskID:       link[7],
 	}
-	task, err := p.Client.GetTask(data, userID)
+	task, _, err := p.Client.GetTask(data, userID)
 	if err != nil {
 		return nil, ""
 	}

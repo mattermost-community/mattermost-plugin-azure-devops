@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
@@ -39,6 +38,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.handleGetUserAccountDetails)).Methods(http.MethodGet)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
+	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
@@ -69,48 +69,6 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 	}
 }
 
-// API to create task of a project in an organization.
-func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-	var body *serializers.TaskCreateRequestPayload
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&body); err != nil {
-		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
-
-	if err := body.IsValid(); err != "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
-		p.handleError(w, r, &error)
-		return
-	}
-
-	task, err := p.Client.CreateTask(body, mattermostUserID)
-	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
-	response, err := json.Marshal(task)
-	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
-	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
-
-	// Send message to DM.
-	p.DM(mattermostUserID, message)
-}
-
 // API to link a project and an organization to a user.
 func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
@@ -129,9 +87,9 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := p.Client.Link(body, mattermostUserID)
+	response, statusCode, err := p.Client.Link(body, mattermostUserID)
 	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
+		error := serializers.Error{Code: statusCode, Message: err.Error()}
 		p.handleError(w, r, &error)
 		return
 	}
@@ -246,6 +204,40 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// API to create task of a project in an organization.
+func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	var body *serializers.TaskCreateRequestPayload
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&body); err != nil {
+		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	task, statusCode, err := p.Client.CreateTask(body, mattermostUserID)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	response, err := json.Marshal(task)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

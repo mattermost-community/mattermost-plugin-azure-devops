@@ -17,6 +17,6 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Authorization constants
-	Bearer        = "Bearer %s"
+	Bearer        = "Bearer"
 	Authorization = "Authorization"
 )

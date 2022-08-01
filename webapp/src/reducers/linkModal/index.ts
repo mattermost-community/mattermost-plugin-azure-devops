@@ -10,7 +10,7 @@ const initialState: LinkProjectModalState = {
 };
 
 export const openLinkModalSlice = createSlice({
-    name: 'openLinkkModal',
+    name: 'openLinkModal',
     initialState,
     reducers: {
         showLinkModal: (state: LinkProjectModalState, action: PayloadAction<Array<string>>) => {

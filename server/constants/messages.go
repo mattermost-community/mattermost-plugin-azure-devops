@@ -11,6 +11,7 @@ const (
 	CreatedTask          = "Link for newly created task: %s"
 	TaskTitle            = "[%s #%d: %s](%s)"
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
+	AlreadyLinkedProject = "This project is already linked."
 
 	// Validations
 	OrganizationRequired = "organization is required"

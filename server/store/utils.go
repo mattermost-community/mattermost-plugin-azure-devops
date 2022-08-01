@@ -137,16 +137,3 @@ func GetKeyHash(key string) string {
 	_, _ = hash.Write([]byte(key))
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
-
-func ProjectListFromJSON(bytes []byte) (*ProjectList, error) {
-	var projectList *ProjectList
-	if len(bytes) != 0 {
-		unmarshalErr := json.Unmarshal(bytes, &projectList)
-		if unmarshalErr != nil {
-			return nil, unmarshalErr
-		}
-	} else {
-		projectList = NewProjectList()
-	}
-	return projectList, nil
-}

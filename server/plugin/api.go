@@ -88,6 +88,18 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	if p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}) {
+		p.DM(mattermostUserID, constants.AlreadyLinkedProject)
+		return
+	}
+
 	response, statusCode, err := p.Client.Link(body, mattermostUserID)
 	if err != nil {
 		error := serializers.Error{Code: statusCode, Message: err.Error()}

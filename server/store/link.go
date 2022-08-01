@@ -108,3 +108,16 @@ func (projectList *ProjectList) DeleteProjectByKey(userID, projectKey string) {
 		}
 	}
 }
+
+func ProjectListFromJSON(bytes []byte) (*ProjectList, error) {
+	var projectList *ProjectList
+	if len(bytes) != 0 {
+		unmarshalErr := json.Unmarshal(bytes, &projectList)
+		if unmarshalErr != nil {
+			return nil, unmarshalErr
+		}
+	} else {
+		projectList = NewProjectList()
+	}
+	return projectList, nil
+}

@@ -175,4 +175,3 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 	}
 	return false
 }
-

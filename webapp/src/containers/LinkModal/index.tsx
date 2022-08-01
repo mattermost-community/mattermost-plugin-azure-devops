@@ -104,7 +104,7 @@ const LinkModal = () => {
                 <Input
                     type='text'
                     placeholder='Organization name'
-                    value={projectDetails.project}
+                    value={projectDetails.organization}
                     onChange={onOrganizationChange}
                     error={errorState.organization}
                     required={true}

@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
@@ -241,6 +242,11 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
+
+	// Send message to DM.
+	p.DM(mattermostUserID, message)
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

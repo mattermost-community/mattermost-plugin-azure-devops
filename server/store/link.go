@@ -4,17 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/pkg/errors"
 )
 
-type ProjectListMap map[string]Project
-
-type Project struct {
-	MattermostUserID string
-	ProjectID        string
-	ProjectName      string
-	OrganizationName string
-}
+type ProjectListMap map[string]serializers.ProjectDetails
 
 type ProjectList struct {
 	ByMattermostUserID map[string]ProjectListMap
@@ -26,7 +20,7 @@ func NewProjectList() *ProjectList {
 	}
 }
 
-func (s *Store) StoreProject(project *Project) error {
+func (s *Store) StoreProject(project *serializers.ProjectDetails) error {
 	key := GetProjectListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
 		projectList, err := ProjectListFromJSON(initialBytes)
@@ -46,12 +40,12 @@ func (s *Store) StoreProject(project *Project) error {
 	return nil
 }
 
-func (projectList *ProjectList) AddProject(userID string, project *Project) {
+func (projectList *ProjectList) AddProject(userID string, project *serializers.ProjectDetails) {
 	if _, valid := projectList.ByMattermostUserID[userID]; !valid {
 		projectList.ByMattermostUserID[userID] = make(ProjectListMap)
 	}
 	projectKey := GetProjectKey(project.ProjectID, userID)
-	projectListValue := Project{
+	projectListValue := serializers.ProjectDetails{
 		MattermostUserID: userID,
 		ProjectID:        project.ProjectID,
 		ProjectName:      project.ProjectName,
@@ -73,19 +67,19 @@ func (s *Store) GetProject() (*ProjectList, error) {
 	return projects, nil
 }
 
-func (s *Store) GetAllProjects(userID string) ([]Project, error) {
+func (s *Store) GetAllProjects(userID string) ([]serializers.ProjectDetails, error) {
 	projects, err := s.GetProject()
 	if err != nil {
 		return nil, err
 	}
-	var projectList []Project
+	var projectList []serializers.ProjectDetails
 	for _, project := range projects.ByMattermostUserID[userID] {
 		projectList = append(projectList, project)
 	}
 	return projectList, nil
 }
 
-func (s *Store) DeleteProject(project *Project) error {
+func (s *Store) DeleteProject(project *serializers.ProjectDetails) error {
 	key := GetProjectListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
 		projectList, err := ProjectListFromJSON(initialBytes)

@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
@@ -161,6 +162,15 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	}
 	r.Header.Add(constants.Authorization, fmt.Sprintf(constants.Bearer, string(decryptedAccessToken)))
 	return nil
+}
+
+func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) bool {
+	for _, a := range projectList {
+		if a.ProjectName == project.ProjectName && a.OrganizationName == project.OrganizationName {
+			return true
+		}
+	}
+	return false
 }
 
 // TODO: WIP.

@@ -69,6 +69,7 @@ const (
 	UserAlreadyConnected = "Your Azure Devops account is already connected"
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 	CreatedTask          = "Link for newly created task: %s"
+	AlreadyLinkedProject = "This project is already linked."
 
 	// Error messages
 	Error               = "error"
@@ -79,9 +80,10 @@ const (
 	// InvalidStatus        = "invalid status"
 	// InvalidAssignedTo    = "you can only see tasks assigned to yourself"
 	// NoResultPresent      = "no results are present"
-	OrganizationRequired = "organization is required"
-	ProjectRequired      = "project is required"
-	TaskTypeRequired     = "task type is required"
-	TaskTitleRequired    = "task title is required"
-	GetProjectListError  = "error getting Project List"
+	OrganizationRequired  = "organization is required"
+	ProjectRequired       = "project is required"
+	TaskTypeRequired      = "task type is required"
+	TaskTitleRequired     = "task title is required"
+	GetProjectListError   = "error getting Project List"
+	ErrorFetchProjectList = "error in fetching project list"
 )

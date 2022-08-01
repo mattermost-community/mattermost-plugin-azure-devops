@@ -168,7 +168,7 @@ const TaskModal = () => {
     if (visibility) {
         return (
             <Modal
-                show={visibility}
+                show={visibility && !optionsLoading && !usePlugin.getApiState(Constants.pluginApiServiceConfigs.getLinkedProjects.apiServiceName).isError}
                 title='Create Task'
                 onHide={resetModalState}
                 onConfirm={onConfirm}

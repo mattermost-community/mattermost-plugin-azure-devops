@@ -173,9 +173,9 @@ const TaskModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Create task'
-                loading={taskPayload ? loading : false}
-                confirmDisabled={taskPayload ? loading : false}
-                cancelDisabled={taskPayload ? loading : false}
+                loading={loading}
+                confirmDisabled={loading}
+                cancelDisabled={loading}
             >
                 <>
                     <Dropdown

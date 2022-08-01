@@ -84,7 +84,9 @@ const (
 	Error                 = "error"
 	GenericErrorMessage   = "something went wrong, please try again later"
 	ErrorFetchProjectList = "Error in fetching project list"
+	ErrorUnlinkProject    = "Error in unlinking the project"
 	NotAuthorized         = "not authorized"
+	ErrorDecodingBody     = "Error in decoding body"
 	// TODO: WIP.
 	// InvalidPageNumber    = "invalid page number"
 	// InvalidStatus        = "invalid status"
@@ -95,4 +97,5 @@ const (
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
 	GetProjectListError  = "Error getting Project List"
+	ProjectNotFound      = "Requested project does not exists"
 )

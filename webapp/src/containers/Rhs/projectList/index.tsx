@@ -7,34 +7,72 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
 import {setProjectDetails} from 'reducers/projectDetails';
-import {showLinkModal} from 'reducers/linkModal';
+import {showLinkModal, toggleIsLinked} from 'reducers/linkModal';
+import {getLinkModalState} from 'selectors';
 import usePluginApi from 'hooks/usePluginApi';
 
 import plugin_constants from 'plugin_constants';
 
 const ProjectList = () => {
+    // State variables
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [projectNameToBeUnlinked, setProjectNameToBeUnlinked] = useState<string | null>(null);
+    const [projectToBeUnlinked, setProjectToBeUnlinked] = useState<ProjectDetails>();
 
+    // Hooks
     const dispatch = useDispatch();
     const usePlugin = usePluginApi();
 
+    // Fetch linked projects list
+    const fetchLinkedProjectsList = () => usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+
+    // Navigates to project details view
     const handleProjectTitleClick = (projectDetails: ProjectDetails) => {
         dispatch(setProjectDetails(projectDetails));
     };
 
+    // Opens link project modal
     const handleOpenLinkProjectModal = () => {
         dispatch(showLinkModal([]));
     };
 
+    /**
+     * Opens a confirmation modal to confirm unlinking a project
+     * @param projectDetails
+     */
     const handleUnlinkProject = (projectDetails: ProjectDetails) => {
-        setProjectNameToBeUnlinked(projectDetails.projectName);
+        setProjectToBeUnlinked(projectDetails);
         setShowConfirmationModal(true);
     };
 
+    // Handles unlinking a project and fetching the modified project list
+    const handleConfirmUnlinkProject = async () => {
+        const unlinkProject = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked);
+
+        if (unlinkProject) {
+            const {isSuccess, isError, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked);
+
+            // TODO: remove later
+            // eslint-disable-next-line
+            console.log('test', usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked));
+            if (isSuccess && !isError && !isLoading) {
+                fetchLinkedProjectsList();
+                setShowConfirmationModal(false);
+            }
+        }
+    };
+
+    // Fetch the linked projects list when RHS is opened
     useEffect(() => {
-        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+        fetchLinkedProjectsList();
     }, []);
+
+    // Fetch the linked projects list when new project is linked
+    useEffect(() => {
+        if (getLinkModalState(usePlugin.state).isLinked) {
+            dispatch(toggleIsLinked(false));
+            fetchLinkedProjectsList();
+        }
+    }, [getLinkModalState(usePlugin.state)]);
 
     return (
         <>
@@ -43,9 +81,10 @@ const ProjectList = () => {
                 <ConfirmationModal
                     isOpen={showConfirmationModal}
                     onHide={() => setShowConfirmationModal(false)}
-                    onConfirm={() => setShowConfirmationModal(false)}
+                    onConfirm={handleConfirmUnlinkProject}
+                    isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
                     confirmBtnText='Unlink'
-                    description={`Are you sure you want to unlink ${projectNameToBeUnlinked}?`}
+                    description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
                     title='Confirm Project Unlink'
                 />
             }
@@ -55,8 +94,7 @@ const ProjectList = () => {
                 )
             }
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess &&
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data && (
+                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess && (
                     usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data ?
                         usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data?.map((item) => (
                             <ProjectCard

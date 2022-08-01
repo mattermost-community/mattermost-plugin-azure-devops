@@ -2,23 +2,18 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 import {getProjectLinkDetails} from 'utils';
 
-export interface CreateTaskModal {
-    visibility: boolean,
-    organization: string,
-    project: string,
-}
-
-const initialState: CreateTaskModal = {
+const initialState: LinkProjectModalState = {
     visibility: false,
     organization: '',
     project: '',
+    isLinked: false,
 };
 
 export const openLinkModalSlice = createSlice({
     name: 'openLinkkModal',
     initialState,
     reducers: {
-        showLinkModal: (state: CreateTaskModal, action: PayloadAction<Array<string>>) => {
+        showLinkModal: (state: LinkProjectModalState, action: PayloadAction<Array<string>>) => {
             if (action.payload.length > 2) {
                 const details = getProjectLinkDetails(action.payload[2]);
                 if (details.length === 2) {
@@ -27,15 +22,19 @@ export const openLinkModalSlice = createSlice({
                 }
             }
             state.visibility = true;
+            state.isLinked = false;
         },
-        hideLinkModal: (state: CreateTaskModal) => {
+        hideLinkModal: (state: LinkProjectModalState) => {
             state.visibility = false;
             state.organization = '';
             state.project = '';
         },
+        toggleIsLinked: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
+            state.isLinked = action.payload;
+        },
     },
 });
 
-export const {showLinkModal, hideLinkModal} = openLinkModalSlice.actions;
+export const {showLinkModal, hideLinkModal, toggleIsLinked} = openLinkModalSlice.actions;
 
 export default openLinkModalSlice.reducer;

@@ -15,7 +15,7 @@ const initialState: CreateTaskModal = {
 };
 
 export const openLinkModalSlice = createSlice({
-    name: 'openLinkkModal',
+    name: 'openLinkModal',
     initialState,
     reducers: {
         showLinkModal: (state, action) => {

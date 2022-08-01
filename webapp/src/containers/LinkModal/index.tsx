@@ -13,13 +13,15 @@ const LinkModal = () => {
         linkOrganization: '',
         linkProject: '',
     });
-    const [linkOrganizationError, setLinkOrganizationError] = useState('');
-    const [linkProjectError, setLinkProjectError] = useState('');
+    const [error, setError] = useState({
+        linkOrganizationError: '',
+        linkProjectError: '',
+    });
     const [linkPayload, setLinkPayload] = useState<LinkPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility, organization, project} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
     const [loading, setLoading] = useState(false);
-    const [apiError, setAPIError] = useState(false);
+    const [APIError, setAPIError] = useState('');
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -37,32 +39,32 @@ const LinkModal = () => {
             linkOrganization: '',
             linkProject: '',
         });
-        setLinkOrganizationError('');
-        setLinkProjectError('');
+        setError({
+            linkOrganizationError: '',
+            linkProjectError: '',
+        });
         setLinkPayload(null);
         setLoading(false);
-        setAPIError(false);
+        setAPIError('');
         dispatch(hideLinkModal());
     }, []);
 
     const onOrganizationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setLinkOrganizationError('');
-        setAPIError(false);
+        setError({...error, linkOrganizationError: ''});
         setState({...state, linkOrganization: (e.target as HTMLInputElement).value});
-    }, [state]);
+    }, [state, error]);
 
     const onProjectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setLinkProjectError('');
-        setAPIError(false);
+        setError({...error, linkProjectError: ''});
         setState({...state, linkProject: (e.target as HTMLInputElement).value});
-    }, [state]);
+    }, [state, error]);
 
     const onConfirm = useCallback(() => {
         if (state.linkOrganization === '') {
-            setLinkOrganizationError('Organization is required');
+            setError((value) => ({...value, linkOrganizationError: 'Organization is required'}));
         }
         if (state.linkProject === '') {
-            setLinkProjectError('Project is required');
+            setError((value) => ({...value, linkProjectError: 'Project is required'}));
         }
 
         if (!state.linkOrganization || !state.linkProject) {
@@ -81,15 +83,17 @@ const LinkModal = () => {
 
         // Make POST api request
         usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
-    }, [state, linkOrganizationError, linkProjectError]);
+    }, [state]);
 
     useEffect(() => {
         if (linkPayload) {
             const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload);
             setLoading(isLoading);
-            setAPIError(isError);
             if (isSuccess) {
                 onHide();
+            }
+            if (isError) {
+                setAPIError('Organization or project name is wrong');
             }
         }
     }, [usePlugin.state]);
@@ -105,7 +109,7 @@ const LinkModal = () => {
                 cancelDisabled={loading}
                 confirmDisabled={loading}
                 loading={loading}
-                error={apiError ? 'Organization name or project name is wrong' : ''}
+                error={APIError}
             >
                 <>
                     <Input
@@ -113,7 +117,7 @@ const LinkModal = () => {
                         placeholder='Organization name'
                         value={state.linkOrganization}
                         onChange={onOrganizationChange}
-                        error={linkOrganizationError}
+                        error={error.linkOrganizationError}
                         required={true}
                     />
                     <Input
@@ -122,7 +126,7 @@ const LinkModal = () => {
                         value={state.linkProject}
                         onChange={onProjectChange}
                         required={true}
-                        error={linkProjectError}
+                        error={error.linkProjectError}
                     />
                 </>
             </Modal>

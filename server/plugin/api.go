@@ -228,8 +228,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
 		p.API.LogError("Error in decoding body", "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
@@ -241,8 +240,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 	response, err := p.Client.Link(body, mattermostUserID)
 	if err != nil {
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 

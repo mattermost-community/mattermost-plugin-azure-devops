@@ -82,6 +82,9 @@ const TaskModal = () => {
             taskTitleError: '',
         });
         setTaskPayload(null);
+        setAPIError('');
+        setOrganizationOptions([]);
+        setProjectOptions([]);
         dispatch(hideTaskModal());
     }, []);
 

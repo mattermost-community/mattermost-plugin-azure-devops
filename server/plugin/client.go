@@ -43,8 +43,7 @@ func (c *client) TestApi() (string, error) {
 func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, nil, &oAuthSuccessResponse, encodedFormValues)
-	if err != nil {
+	if _, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues); err != nil {
 		return nil, err
 	}
 
@@ -209,13 +208,9 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	buf := &bytes.Buffer{}
-	if err = json.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
-	}
-	return c.call(url, method, path, contentType, "", buf, out, formValues)
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
@@ -279,8 +274,7 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
-			err = json.Unmarshal(responseData, out)
-			if err != nil {
+			if err = json.Unmarshal(responseData, out); err != nil {
 				return responseData, err
 			}
 		}
@@ -294,8 +288,7 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	errResp := ErrorResponse{}
-	err = json.Unmarshal(responseData, &errResp)
-	if err != nil {
+	if err = json.Unmarshal(responseData, &errResp); err != nil {
 		return responseData, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, fmt.Errorf("errorMessage %s", errResp.Message)

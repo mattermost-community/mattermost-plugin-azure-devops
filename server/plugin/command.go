@@ -13,7 +13,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
-type HandlerFunc func(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError)
+type HandlerFunc func(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError)
 
 type Handler struct {
 	handlers       map[string]HandlerFunc
@@ -30,18 +30,18 @@ var azureDevopsCommandHandler = Handler{
 }
 
 // TODO: add comments to explain the below code or refactor it
-func (ch *Handler) Handle(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	for n := len(args); n > 0; n-- {
 		h := ch.handlers[strings.Join(args[:n], "/")]
 		if h != nil {
-			return h(p, c, header, args[n:]...)
+			return h(p, c, commandArgs, args[n:]...)
 		}
 	}
-	return ch.defaultHandler(p, c, header, args...)
+	return ch.defaultHandler(p, c, commandArgs, args...)
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
@@ -77,32 +77,35 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
-func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	return p.sendEphemeralPostForCommand(header, constants.HelpText)
+func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	return p.sendEphemeralPostForCommand(commandArgs, constants.HelpText)
 }
 
-func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	message := fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect, header.ChannelId)
-	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); isConnected {
+func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); isConnected {
 		message = constants.UserAlreadyConnected
 	}
-	return p.sendEphemeralPostForCommand(header, message)
+	return p.sendEphemeralPostForCommand(commandArgs, message)
 }
 
-func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	message := constants.UserDisconnected
-	if isConnected := p.UserAlreadyConnected(header.UserId, header.ChannelId); !isConnected {
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		message = constants.ConnectAccountFirst
 	} else {
-		if isDeleted := p.Store.DeleteUser(header.UserId); !isDeleted {
+		if isDeleted, err := p.Store.DeleteUser(commandArgs.UserId); !isDeleted {
+			if err != nil {
+				p.API.LogError(constants.UnableToDisconnectUser, "Error", err.Error())
+			}
 			message = constants.GenericErrorMessage
 		}
 	}
-	return p.sendEphemeralPostForCommand(header, message)
+	return p.sendEphemeralPostForCommand(commandArgs, message)
 }
 
-func executeDefault(p *Plugin, c *plugin.Context, header *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	return p.sendEphemeralPostForCommand(header, constants.InvalidCommand)
+func executeDefault(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	return p.sendEphemeralPostForCommand(commandArgs, constants.InvalidCommand)
 }
 
 // Handles executing a slash command

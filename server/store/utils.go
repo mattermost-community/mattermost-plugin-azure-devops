@@ -16,7 +16,7 @@ import (
 
 var ErrNotFound = errors.New("not found")
 
-// Ensure makes sure the initial value for a key is set to the value provided, if it does not already exists
+// Ensure makes sure the initial value for a key is set to the value provided, if it does not already exist
 // Returns the value set for the key in kv-store and error
 func (s *Store) Ensure(key string, newValue []byte) ([]byte, error) {
 	value, err := s.Load(key)
@@ -114,8 +114,8 @@ func (s *Store) AtomicModifyWithOptions(key string, modify func(initialValue []b
 // See AtomicModifyWithOptions for more info
 func (s *Store) AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
 	return s.AtomicModifyWithOptions(key, func(initialValue []byte) ([]byte, *model.PluginKVSetOptions, error) {
-		b, err := modify(initialValue)
-		return b, nil, err
+		dataInByte, err := modify(initialValue)
+		return dataInByte, nil, err
 	})
 }
 

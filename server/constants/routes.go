@@ -4,8 +4,13 @@ const (
 	// Plugin API Routes
 	APIPrefix                = "/api/v1"
 	WildRoute                = "{anything:.*}"
-	PathOAuthConnect         = "/connect"
-	PathOAuthCallback        = "/callback"
+	PathOAuthConnect         = "/oauth/connect"
+	PathOAuthCallback        = "/oauth/complete"
 	PathGetAllLinkedProjects = "/project/link"
 	PathUnlinkProject        = "/project/unlink"
+
+	// Azure API paths
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
+	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
+	GetProject = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 )

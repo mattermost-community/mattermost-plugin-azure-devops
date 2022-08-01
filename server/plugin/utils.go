@@ -10,10 +10,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -34,7 +35,7 @@ func (p *Plugin) sendEphemeralPostForCommand(args *model.CommandArgs, text strin
 func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (string, error) {
 	channel, err := p.API.GetDirectChannel(mattermostUserID, p.botUserID)
 	if err != nil {
-		p.API.LogError("Couldn't get bot's DM channel", "user_id", mattermostUserID, "error", err.Error())
+		p.API.LogError("Couldn't get bot's DM channel", "userID", mattermostUserID, "Error", err.Error())
 		return "", err
 	}
 	post := &model.Post{

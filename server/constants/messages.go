@@ -12,12 +12,20 @@ const (
 	TaskTitle            = "[%s #%d: %s](%s)"
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 
-	// Errors
-	Error                           = "error"
+	// Validations
+	OrganizationRequired = "Organization is required"
+	ProjectRequired      = "Project is required"
+	TaskTypeRequired     = "Task type is required"
+	TaskTitleRequired    = "Task title is required"
+)
+
+const (
+	// Error messages
+	Error         = "error"
+	NotAuthorized = "not authorized"
 	GenericErrorMessage             = "Something went wrong, please try again later"
 	ErrorFetchProjectList           = "Error in fetching project list"
 	ErrorUnlinkProject              = "Error in unlinking the project"
-	NotAuthorized                   = "not authorized"
 	ErrorDecodingBody               = "Error in decoding body"
 	GetProjectListError             = "Error getting Project List"
 	ProjectNotFound                 = "Requested project does not exists"
@@ -27,9 +35,4 @@ const (
 	UnableToCheckIfAlreadyConnected = "Unable to check if user account is already connected"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
 
-	// Validations
-	OrganizationRequired = "Organization is required"
-	ProjectRequired      = "Project is required"
-	TaskTypeRequired     = "Task type is required"
-	TaskTitleRequired    = "Task title is required"
 )

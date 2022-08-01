@@ -25,6 +25,6 @@ const (
 	Edit               = "edit"
 
 	// Authorization constants
-	Bearer        = "Bearer %s"
+	Bearer        = "Bearer"
 	Authorization = "Authorization"
 )

@@ -17,10 +17,7 @@ import (
 
 type Client interface {
 	TestApi() (string, error) // TODO: remove later
-	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error)
-	// TODO: WIP.
-	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
-	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
+	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error)
@@ -40,7 +37,7 @@ func (c *client) TestApi() (string, error) {
 	return "hello world", nil
 }
 
-func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, error) {
+func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
 	if _, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues); err != nil {
@@ -49,88 +46,6 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 
 	return oAuthSuccessResponse, nil
 }
-
-// TODO: WIP.
-// Function to get the list of projects.
-// func (azureDevops *client) GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error) {
-// 	var projectList *serializers.ProjectList
-// 	page := queryParams["page"].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.ProjectLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.ProjectAPIVersion)
-
-// 	// URL to fetch projects list.
-// 	project := fmt.Sprintf(constants.GetProjects, queryParams["organization"])
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, project, http.MethodGet, mattermostUserID, nil, &projectList, params); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Projects list")
-// 	}
-
-// 	// Check if new projects are present for current page.
-// 	if page*constants.ProjectLimit >= projectList.Count+constants.ProjectLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-// 	return projectList, nil
-// }
-
-// Function to get the list of tasks.
-// func (azureDevops *client) GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error) {
-// 	contentType := "application/json"
-// 	page := queryParams[constants.Page].(int)
-
-// 	// Query params of URL.
-// 	params := url.Values{}
-// 	params.Add(constants.PageQueryParam, fmt.Sprint(page*constants.TaskLimit))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksIDAPIVersion)
-
-// 	// Query to fetch the tasks IDs list.
-// 	query := fmt.Sprintf(constants.TaskQuery, queryParams[constants.Project])
-
-// 	// Add filters to the query.
-// 	if queryParams[constants.Status] != "" {
-// 		query += fmt.Sprintf(constants.TaskQueryStatusFilter, queryParams[constants.Status])
-// 	}
-// 	if queryParams[constants.AssignedTo] == "me" {
-// 		query += constants.TaskQueryAssignedToFilter
-// 	}
-
-// 	// Query payload.
-// 	taskQuery := map[string]string{
-// 		"query": query,
-// 	}
-// 	// URL to fetch tasks IDs list.
-// 	taskIDs := fmt.Sprintf(constants.GetTasksID, queryParams[constants.Organization])
-
-// 	var taskIDList *serializers.TaskIDList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskIDs, http.MethodPost, mattermostUserID, taskQuery, &taskIDList, params, contentType); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task ID list")
-// 	}
-
-// 	// Check if new task ID are present for current page.
-// 	if page*constants.TaskLimit >= len(taskIDList.TaskList)+constants.TaskLimit {
-// 		return nil, errors.Errorf(constants.NoResultPresent)
-// 	}
-
-// 	var IDs string
-// 	for i := 0; i < len(taskIDList.TaskList); i++ {
-// 		IDs += fmt.Sprint(strconv.Itoa(taskIDList.TaskList[i].ID), ",")
-// 	}
-
-// 	params = url.Values{}
-// 	params.Add(constants.IDsQueryParam, strings.TrimSuffix(IDs, ","))
-// 	params.Add(constants.APIVersionQueryParam, constants.TasksAPIVersion)
-
-// 	// URL to fetch tasks list.
-// 	task := fmt.Sprintf(constants.GetTasks, queryParams[constants.Organization])
-
-// 	var taskList *serializers.TaskList
-// 	if _, err := azureDevops.callJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, task, http.MethodGet, mattermostUserID, nil, &taskList, params, contentType); err != nil {
-// 		return nil, errors.Wrap(err, "failed to get Task list")
-// 	}
-
-// 	return taskList, nil
-// }
 
 // Function to create task of a project.
 func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error) {
@@ -156,7 +71,7 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 			})
 	}
 	var task *serializers.TaskValue
-	if _, err := azureDevops.callPatchJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, nil); err != nil {
+	if _, err := azureDevops.callPatchJSON(azureDevops.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task); err != nil {
 		return nil, errors.Wrap(err, "failed to get create Task")
 	}
 
@@ -168,7 +83,7 @@ func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID s
 	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
 
 	var task *serializers.TaskValue
-	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil); err != nil {
+	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task); err != nil {
 		return nil, errors.Wrap(err, "failed to get the Task")
 	}
 
@@ -180,7 +95,7 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
 	var project *serializers.Project
 
-	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil); err != nil {
+	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project); err != nil {
 		return nil, errors.Wrap(err, "failed to link Project")
 	}
 
@@ -188,33 +103,33 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content
-func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json-patch+json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
 	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -234,8 +149,8 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	var req *http.Request
-	if formValues != nil {
-		req, err = http.NewRequest(method, path, strings.NewReader(formValues.Encode()))
+	if formValues != "" {
+		req, err = http.NewRequest(method, path, strings.NewReader(formValues))
 		if err != nil {
 			return nil, err
 		}
@@ -254,6 +169,12 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
+	}
+
+	if mattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
+			return nil, err
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)

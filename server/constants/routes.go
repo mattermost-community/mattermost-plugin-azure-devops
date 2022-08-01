@@ -9,6 +9,8 @@ const (
 	PathGetAllLinkedProjects = "/project/link"
 	PathUnlinkProject        = "/project/unlink"
 	PathUser                 = "/user"
+	PathCreateTasks = "/tasks"
+	PathLinkProject = "/link"
 
 	// Azure API paths
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"

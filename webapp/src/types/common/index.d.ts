@@ -4,7 +4,7 @@
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getProjects'
 
 type PluginApiService = {
     path: string,
@@ -29,6 +29,11 @@ type CreateTaskFields = {
 type LinkPayload = {
     organization: string,
     project: string,
+}
+
+type ProjectList = {
+    organizationName: string,
+    projectName: string,
 }
 
 type CreateTaskPayload = {

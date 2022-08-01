@@ -8,29 +8,7 @@ import Modal from 'components/modal';
 import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
 import {hideTaskModal} from 'reducers/taskModal';
-
-// TODO: fetch the organization and project options from API later.
-const organizationOptions = [
-    {
-        value: 'bs-test',
-        label: 'bs-test',
-    },
-];
-
-const projectOptions = [
-    {
-        value: 'bs',
-        label: 'bs',
-    },
-    {
-        value: 'bs-2',
-        label: 'bs-2',
-    },
-    {
-        value: 'bs-3',
-        label: 'bs-3',
-    },
-];
+import {getOrganizationList, getProjectList} from 'utils';
 
 const taskTypeOptions = [
     {
@@ -55,27 +33,38 @@ const TaskModal = () => {
         taskTitle: '',
         taskDescription: '',
     });
-    const [taskOrganizationError, setTaskOrganizationError] = useState('');
-    const [taskProjectError, setTaskProjectError] = useState('');
-    const [taskTypeError, setTaskTypeError] = useState('');
-    const [taskTitleError, setTaskTitleError] = useState('');
+    const [error, setError] = useState({
+        taskOrganizationError: '',
+        taskProjectError: '',
+        taskTypeError: '',
+        taskTitleError: '',
+    });
     const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openTaskModalReducer;
     const [loading, setLoading] = useState(false);
+    const [optionsLoading, setOptionsLoading] = useState(false);
+    const [organizationOptions, setOrganizationOptions] = useState<DropdownOptionType[]>();
+    const [projectOptions, setProjectOptions] = useState<DropdownOptionType[]>();
+    const [APIError, setAPIError] = useState('');
+
     const dispatch = useDispatch();
 
     useEffect(() => {
         if (visibility === true) {
-            // Pre-select the dropdown value in case of single option.
-            if (organizationOptions.length === 1) {
-                setState({...state, taskOrganization: organizationOptions[0].value});
-            }
-            if (projectOptions.length === 1) {
-                setState({...state, taskProject: projectOptions[0].value});
-            }
+            usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.getProjects.apiServiceName);
         }
     }, [visibility]);
+
+    useEffect(() => {
+        // Pre-select the dropdown value in case of single option.
+        if (organizationOptions?.length === 1) {
+            setState((value) => ({...value, taskOrganization: organizationOptions[0].value}));
+        }
+        if (projectOptions?.length === 1) {
+            setState((value) => ({...value, taskProject: projectOptions[0].value}));
+        }
+    }, [projectOptions, organizationOptions]);
 
     // Function to hide the modal and reset all the states.
     const onHide = useCallback(() => {
@@ -86,33 +75,35 @@ const TaskModal = () => {
             taskTitle: '',
             taskDescription: '',
         });
-        setTaskOrganizationError('');
-        setTaskProjectError('');
-        setTaskTitleError('');
-        setTaskTypeError('');
+        setError({
+            taskOrganizationError: '',
+            taskProjectError: '',
+            taskTypeError: '',
+            taskTitleError: '',
+        });
         setTaskPayload(null);
         dispatch(hideTaskModal());
     }, []);
 
     const onOrganizationChange = useCallback((value: string) => {
-        setTaskOrganizationError('');
+        setError({...error, taskOrganizationError: ''});
         setState({...state, taskOrganization: value});
-    }, [state]);
+    }, [state, error]);
 
     const onProjectChange = useCallback((value: string) => {
-        setTaskProjectError('');
+        setError({...error, taskProjectError: ''});
         setState({...state, taskProject: value});
-    }, [state]);
+    }, [state, error]);
 
     const onTaskTypeChange = useCallback((value: string) => {
-        setTaskTypeError('');
+        setError({...error, taskTypeError: ''});
         setState({...state, taskType: value});
-    }, [state]);
+    }, [state, error]);
 
     const onTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setTaskTitleError('');
+        setError({...error, taskTitleError: ''});
         setState({...state, taskTitle: (e.target as HTMLInputElement).value});
-    }, [state]);
+    }, [state, error]);
 
     const onDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setState({...state, taskDescription: (e.target as HTMLInputElement).value});
@@ -120,16 +111,16 @@ const TaskModal = () => {
 
     const onConfirm = useCallback(() => {
         if (state.taskOrganization === '') {
-            setTaskOrganizationError('Organization is required');
+            setError((value) => ({...value, taskOrganizationError: 'Organization is required'}));
         }
         if (state.taskProject === '') {
-            setTaskProjectError('Project is required');
+            setError((value) => ({...value, taskProjectError: 'Project is required'}));
         }
         if (state.taskType === '') {
-            setTaskTypeError('Work item type is required');
+            setError((value) => ({...value, taskTypeError: 'Work item type is required'}));
         }
         if (state.taskTitle === '') {
-            setTaskTitleError('Title is required');
+            setError((value) => ({...value, taskTitleError: 'Title is required'}));
         }
 
         if (!state.taskOrganization || !state.taskProject || !state.taskTitle || !state.taskType) {
@@ -153,15 +144,28 @@ const TaskModal = () => {
 
         // Make POST api request
         usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, payload);
-    }, [state, taskOrganizationError, taskProjectError, taskTitleError, taskTypeError]);
+    }, [state]);
 
     useEffect(() => {
         if (taskPayload) {
             const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
             setLoading(isLoading);
-            if ((isSuccess && !isError) || (!isSuccess && isError)) {
+            if (isSuccess) {
                 onHide();
             }
+            if (isError) {
+                setAPIError('Failed to create the task.');
+            }
+            return;
+        }
+        const {data, isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.getProjects.apiServiceName);
+        setOptionsLoading(isLoading);
+        if (isSuccess && data) {
+            setProjectOptions(getProjectList(data));
+            setOrganizationOptions(getOrganizationList(data));
+        }
+        if (isError) {
+            setAPIError('Failed to load the options.');
         }
     }, [usePlugin.state]);
 
@@ -173,26 +177,29 @@ const TaskModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Create task'
-                loading={taskPayload ? loading : false}
-                confirmDisabled={taskPayload ? loading : false}
-                cancelDisabled={taskPayload ? loading : false}
+                loading={loading}
+                confirmDisabled={loading}
+                cancelDisabled={loading}
+                error={APIError}
             >
                 <>
                     <Dropdown
                         placeholder='Organization name'
                         value={state.taskOrganization}
                         onChange={(newValue) => onOrganizationChange(newValue)}
-                        options={organizationOptions}
+                        options={organizationOptions ?? []}
+                        loadingOptions={optionsLoading}
                         required={true}
-                        error={taskOrganizationError}
+                        error={error.taskOrganizationError}
                     />
                     <Dropdown
                         placeholder='Project name'
                         value={state.taskProject}
                         onChange={(newValue) => onProjectChange(newValue)}
-                        options={projectOptions}
+                        options={projectOptions ?? []}
+                        loadingOptions={optionsLoading}
                         required={true}
-                        error={taskProjectError}
+                        error={error.taskProjectError}
                     />
                     <Dropdown
                         placeholder='Work item type'
@@ -200,14 +207,14 @@ const TaskModal = () => {
                         onChange={(newValue) => onTaskTypeChange(newValue)}
                         options={taskTypeOptions}
                         required={true}
-                        error={taskTypeError}
+                        error={error.taskTypeError}
                     />
                     <Input
                         type='text'
                         placeholder='Title'
                         value={state.taskTitle}
                         onChange={onTitleChange}
-                        error={taskTitleError}
+                        error={error.taskTitleError}
                         required={true}
                     />
                     <Input

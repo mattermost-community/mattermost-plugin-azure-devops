@@ -18,7 +18,7 @@ import (
 type Client interface {
 	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, int, error)
-	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
+	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 }
 
 type client struct {
@@ -36,13 +36,13 @@ func (c *client) TestApi() (string, error) {
 }
 
 // Function to create task for a project.
-func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
-	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
+func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
+	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type, constants.CreateTaskAPIVersion)
 
 	// Create request body.
-	payload := []*serializers.TaskCreateBodyPayload{}
+	payload := []*serializers.CreateTaskBodyPayload{}
 	payload = append(payload,
-		&serializers.TaskCreateBodyPayload{
+		&serializers.CreateTaskBodyPayload{
 			Operation: "add",
 			Path:      "/fields/System.Title",
 			From:      "",
@@ -51,7 +51,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 
 	if body.Fields.Description != "" {
 		payload = append(payload,
-			&serializers.TaskCreateBodyPayload{
+			&serializers.CreateTaskBodyPayload{
 				Operation: "add",
 				Path:      "/fields/System.Description",
 				From:      "",
@@ -62,7 +62,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 	var task *serializers.TaskValue
 	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task)
 	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to create the Task")
+		return nil, statusCode, errors.Wrap(err, "failed to create task")
 	}
 
 	return task, statusCode, nil
@@ -88,7 +88,6 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
-
 
 // Wrapper to make REST API requests with "application/json" type content
 func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {

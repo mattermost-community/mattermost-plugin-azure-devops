@@ -1,7 +1,9 @@
 package serializers
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 	"time"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -32,19 +34,19 @@ type TaskUserDetails struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
-type TaskCreateRequestPayload struct {
+type CreateTaskRequestPayload struct {
 	Organization string               `json:"organization"`
 	Project      string               `json:"project"`
 	Type         string               `json:"type"`
-	Fields       TaskCreateFieldValue `json:"fields"`
+	Fields       CreateTaskFieldValue `json:"fields"`
 }
 
-type TaskCreateFieldValue struct {
+type CreateTaskFieldValue struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-type TaskCreateBodyPayload struct {
+type CreateTaskBodyPayload struct {
 	Operation string `json:"op"`
 	Path      string `json:"path"`
 	From      string `json:"from"`
@@ -52,7 +54,7 @@ type TaskCreateBodyPayload struct {
 }
 
 // IsValid function to validate request payload.
-func (t *TaskCreateRequestPayload) IsValid() error {
+func (t *CreateTaskRequestPayload) IsValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
 	}
@@ -66,4 +68,12 @@ func (t *TaskCreateRequestPayload) IsValid() error {
 		return errors.New(constants.TaskTitleRequired)
 	}
 	return nil
+}
+
+func CreateTaskRequestPayloadFromJSON(data io.Reader) (*CreateTaskRequestPayload, error) {
+	var body *CreateTaskRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }

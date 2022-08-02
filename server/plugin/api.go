@@ -66,9 +66,9 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 // API to create task of a project in an organization.
 func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-	var body *serializers.TaskCreateRequestPayload
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&body); err != nil {
+
+	body, err := serializers.CreateTaskRequestPayloadFromJSON(r.Body)
+	if err != nil {
 		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return

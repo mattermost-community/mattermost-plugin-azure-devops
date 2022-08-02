@@ -110,7 +110,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 
 // Function to validate the work item link.
 func isValidTaskLink(msg string) ([]string, bool) {
-	data := strings.Split(msg, "/")
+	trimmedLink := strings.TrimRight(msg, "/")
+	data := strings.Split(trimmedLink, "/")
 	if len(data) != 8 {
 		return nil, false
 	}

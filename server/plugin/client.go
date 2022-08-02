@@ -37,7 +37,7 @@ func (c *client) TestApi() (string, error) {
 
 // Function to create task for a project.
 func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
-	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type, constants.CreateTaskAPIVersion)
+	taskURL := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
 	// Create request body.
 	payload := []*serializers.CreateTaskBodyPayload{}

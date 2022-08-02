@@ -19,7 +19,7 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Azure API Routes
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=%s"
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=" + CreateTaskAPIVersion
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"

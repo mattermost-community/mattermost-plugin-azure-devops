@@ -15,8 +15,12 @@ const (
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
-	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
-	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
+	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n" +
+		"* `/azuredevops connect` - Connect your Mattermost account to your Azure Devops account.\n" +
+		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure Devops account.\n" +
+		"* `/azuredevops boards create` - Create a new task for your project.\n" +
+		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n"
+	InvalidCommand = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Get task link preview constants
 	HTTPS              = "https:"

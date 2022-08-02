@@ -117,7 +117,6 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
-
 // Wrapper to make REST API requests with "application/json" type content
 func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json"

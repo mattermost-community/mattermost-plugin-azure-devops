@@ -23,8 +23,8 @@ const (
 
 const (
 	// Error messages
-	Error         = "error"
-	NotAuthorized = "not authorized"
+	Error                           = "error"
+	NotAuthorized                   = "not authorized"
 	GenericErrorMessage             = "Something went wrong, please try again later"
 	ErrorFetchProjectList           = "Error in fetching project list"
 	ErrorUnlinkProject              = "Error in unlinking the project"

@@ -49,20 +49,15 @@ const LinkModal = () => {
 
     // Handles on confirming link project
     const onConfirm = () => {
-        const errorStateChanges: LinkPayload = {
-            organization: '',
-            project: '',
-        };
-
         if (projectDetails.organization === '') {
-            errorStateChanges.organization = 'Organization is required';
+            errorState.organization = 'Organization is required';
         }
 
         if (projectDetails.project === '') {
-            errorStateChanges.project = 'Project is required';
+            errorState.project = 'Project is required';
         }
 
-        if (errorStateChanges.organization || errorStateChanges.project) {
+        if (errorState.organization || errorState.project) {
             return;
         }
 
@@ -74,20 +69,26 @@ const LinkModal = () => {
     const linkTask = async (payload: LinkPayload) => {
         const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
         if (createTaskRequest) {
-            // TODO: remove later
-            // eslint-disable-next-line
-            console.log('test', usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload));
             dispatch(toggleIsLinked(true));
             resetModalState();
         }
     };
 
     useEffect(() => {
-        setProjectDetails({
-            organization: getLinkModalState(usePlugin.state).organization,
-            project: getLinkModalState(usePlugin.state).project,
-        });
-    }, [getLinkModalState(usePlugin.state)]);
+        if (getLinkModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
+            dispatch(hideLinkModal());
+        }
+        if (getLinkModalState(usePlugin.state).visibility) {
+            setProjectDetails({
+                organization: getLinkModalState(usePlugin.state).organization,
+                project: getLinkModalState(usePlugin.state).project,
+            });
+        }
+    }, [getLinkModalState(usePlugin.state).visibility]);
+
+    if (getLinkModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
+        return <></>;
+    }
 
     return (
         <Modal

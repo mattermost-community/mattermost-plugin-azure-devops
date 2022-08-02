@@ -25,6 +25,8 @@ var azureDevopsCommandHandler = Handler{
 		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
+		"boards":     azureDevopsBoardsCommand,
+		"link":       azureDevopsProjectLinkCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -100,6 +102,35 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *mod
 		message = constants.GenericErrorMessage
 	}
 	return p.sendEphemeralPostForCommand(commandArgs, message)
+}
+
+func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := constants.ConnectAccountFirst
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, message)
+	}
+
+	isAnyProjectLinked, err := p.IsAnyProjectLinked(commandArgs.UserId) 
+	if err != nil {
+		return nil, &model.AppError{}
+	}
+
+	if !isAnyProjectLinked {
+		return p.sendEphemeralPostForCommand(commandArgs, constants.NoProjectLinked)
+		// p.DM(commandArgs.UserId, constants.NoProjectLinked)
+		// return &model.CommandResponse{}, nil
+	}
+
+	return &model.CommandResponse{}, nil
+}
+
+func azureDevopsProjectLinkCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := constants.ConnectAccountFirst
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, message)
+	}
+
+	return &model.CommandResponse{}, nil
 }
 
 func executeDefault(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

@@ -29,12 +29,18 @@ export default class Hooks {
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
             const args = splitArgs(commandTrimmed);
             this.store.dispatch(showTaskModal(args));
-            return Promise.resolve({});
+            return {
+                message,
+                args: contextArgs,
+            };
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops link')) {
             const args = splitArgs(commandTrimmed);
             this.store.dispatch(showLinkModal(args));
-            return Promise.resolve({});
+            return {
+                message,
+                args: contextArgs,
+            };
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops connect')) {
             this.closeRhs();

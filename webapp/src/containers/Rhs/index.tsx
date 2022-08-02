@@ -32,12 +32,11 @@ const Rhs = (): JSX.Element => {
                 <LinearLoader/>
             }
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isError &&
+                !usePlugin.isUserAccountConnected() &&
                 <AccountNotLinked/>
             }
             {
-                !usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isLoading &&
-                !usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isError &&
+                usePlugin.isUserAccountConnected() &&
                 usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isSuccess && (
                     getprojectDetailsState(usePlugin.state).projectID ?
                         <ProjectDetails title={getprojectDetailsState(usePlugin.state).projectName}/> :

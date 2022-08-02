@@ -27,9 +27,10 @@ export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
         registry.registerReducer(reducer);
+        registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
-        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(App, Constants.RightSidebarHeader);
+        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
         registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.AzureDevops);

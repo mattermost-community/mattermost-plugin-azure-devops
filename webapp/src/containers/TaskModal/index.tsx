@@ -10,6 +10,7 @@ import usePluginApi from 'hooks/usePluginApi';
 import {hideTaskModal} from 'reducers/taskModal';
 import {getOrganizationList, getProjectList} from 'utils';
 import {getTaskModalState} from 'selectors';
+import pluginApi from 'services';
 
 const taskTypeOptions = [
     {
@@ -45,22 +46,23 @@ const TaskModal = () => {
     });
     const [organizationOptions, setOrganizationOptions] = useState<DropdownOptionType[]>();
     const [projectOptions, setProjectOptions] = useState<DropdownOptionType[]>();
-
-    // const [loading, setLoading] = useState(false);
     const [optionsLoading, setOptionsLoading] = useState(false);
 
     // Hooks
     const usePlugin = usePluginApi();
     const dispatch = useDispatch();
 
-    const {visibility} = getTaskModalState(usePlugin.state);
-
     useEffect(() => {
-        if (visibility === true) {
+        if (getTaskModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
+            dispatch(hideTaskModal());
+            return;
+        }
+
+        if (getTaskModalState(usePlugin.state).visibility) {
             // Make API request to fetch all linked projects.
             usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
         }
-    }, [visibility]);
+    }, [getTaskModalState(usePlugin.state).visibility]);
 
     useEffect(() => {
         // Pre-select the dropdown value in case of single option.
@@ -92,8 +94,6 @@ const TaskModal = () => {
         setOrganizationOptions([]);
         setProjectOptions([]);
         setOptionsLoading(false);
-
-        // setLoading(false);
         dispatch(hideTaskModal());
     };
 
@@ -165,65 +165,66 @@ const TaskModal = () => {
         }
     }, [usePlugin.state]);
 
-    if (visibility) {
-        return (
-            <Modal
-                show={visibility && !optionsLoading && !usePlugin.getApiState(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isError}
-                title='Create Task'
-                onHide={resetModalState}
-                onConfirm={onConfirm}
-                confirmBtnText='Create task'
-                loading={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
-                confirmDisabled={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
-                cancelDisabled={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
-                error={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isError ? 'Failed to create the task' : ''}
-            >
-                <>
-                    <Dropdown
-                        placeholder='Organization name'
-                        value={taskDetails.organization}
-                        onChange={(newValue) => onOrganizationChange(newValue)}
-                        options={organizationOptions ?? []}
-                        loadingOptions={optionsLoading}
-                        required={true}
-                        error={errorState.organization}
-                    />
-                    <Dropdown
-                        placeholder='Project name'
-                        value={taskDetails.project}
-                        onChange={(newValue) => onProjectChange(newValue)}
-                        options={projectOptions ?? []}
-                        loadingOptions={optionsLoading}
-                        required={true}
-                        error={errorState.project}
-                    />
-                    <Dropdown
-                        placeholder='Work item type'
-                        value={taskDetails.type}
-                        onChange={(newValue) => onTaskTypeChange(newValue)}
-                        options={taskTypeOptions}
-                        required={true}
-                        error={errorState.type}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Title'
-                        value={taskDetails.fields.title}
-                        onChange={onTitleChange}
-                        error={errorState.title}
-                        required={true}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Description'
-                        value={taskDetails.fields.description}
-                        onChange={onDescriptionChange}
-                    />
-                </>
-            </Modal>
-        );
+    if (getTaskModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
+        return <></>;
     }
-    return null;
+
+    return (
+        <Modal
+            show={getTaskModalState(usePlugin.state).visibility && !optionsLoading && !usePlugin.getApiState(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isError}
+            title='Create Task'
+            onHide={resetModalState}
+            onConfirm={onConfirm}
+            confirmBtnText='Create task'
+            loading={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
+            confirmDisabled={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
+            cancelDisabled={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
+            error={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isError ? 'Failed to create the task' : ''}
+        >
+            <>
+                <Dropdown
+                    placeholder='Organization name'
+                    value={taskDetails.organization}
+                    onChange={(newValue) => onOrganizationChange(newValue)}
+                    options={organizationOptions ?? []}
+                    loadingOptions={optionsLoading}
+                    required={true}
+                    error={errorState.organization}
+                />
+                <Dropdown
+                    placeholder='Project name'
+                    value={taskDetails.project}
+                    onChange={(newValue) => onProjectChange(newValue)}
+                    options={projectOptions ?? []}
+                    loadingOptions={optionsLoading}
+                    required={true}
+                    error={errorState.project}
+                />
+                <Dropdown
+                    placeholder='Work item type'
+                    value={taskDetails.type}
+                    onChange={(newValue) => onTaskTypeChange(newValue)}
+                    options={taskTypeOptions}
+                    required={true}
+                    error={errorState.type}
+                />
+                <Input
+                    type='text'
+                    placeholder='Title'
+                    value={taskDetails.fields.title}
+                    onChange={onTitleChange}
+                    error={errorState.title}
+                    required={true}
+                />
+                <Input
+                    type='text'
+                    placeholder='Description'
+                    value={taskDetails.fields.description}
+                    onChange={onDescriptionChange}
+                />
+            </>
+        </Modal>
+    );
 };
 
 export default TaskModal;

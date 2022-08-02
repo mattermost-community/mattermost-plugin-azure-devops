@@ -120,6 +120,18 @@ const ProjectList = () => {
                             buttonAction={handleOpenLinkProjectModal}
                         />)
             }
+            {/* To handle case when no project is linked. */}
+            {
+                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isError &&
+                (
+                    <EmptyState
+                        title='No Project Linked'
+                        subTitle={{text: 'Link a project by clicking the button below'}}
+                        buttonText='Link new project'
+                        buttonAction={handleOpenLinkProjectModal}
+                    />
+                )
+            }
         </>
     );
 };

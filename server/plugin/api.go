@@ -148,7 +148,6 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	}
 
 	if len(projectList) == 0 {
-		p.DM(mattermostUserID, constants.NoProjectLinked)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.NoProjectLinked})
 		return
 	}

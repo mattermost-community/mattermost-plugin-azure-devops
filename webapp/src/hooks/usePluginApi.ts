@@ -1,6 +1,8 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {AnyAction} from 'redux';
 
+import plugin_constants from 'plugin_constants';
+
 import services from 'services';
 
 function usePluginApi() {
@@ -18,7 +20,12 @@ function usePluginApi() {
         return {data, isError, isLoading, isSuccess};
     };
 
-    return {makeApiRequest, getApiState, state};
+    const isUserAccountConnected = () => {
+        const {isLoading, isError, data} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        return (!isLoading && !isError && data?.MattermostUserID);
+    };
+
+    return {makeApiRequest, getApiState, state, isUserAccountConnected};
 }
 
 export default usePluginApi;

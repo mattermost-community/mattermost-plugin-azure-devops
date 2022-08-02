@@ -169,3 +169,16 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 	}
 	return false
 }
+
+func (p* Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		return false, err
+	}
+
+	if len(projectList) == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}

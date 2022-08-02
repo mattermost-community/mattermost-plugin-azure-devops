@@ -23,9 +23,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                             aria-label={projectName}
                             role='button'
                             tabIndex={0}
-                            className='font-size-14 font-bold link-title'
-                            onKeyDown={() => onPressingEnterKey(event, () => onProjectTitleClick(projectDetails))}
-                            onClick={() => onProjectTitleClick(projectDetails)}
+                            className='font-size-14 font-bold'
                         >
                             {projectName}
                         </span>

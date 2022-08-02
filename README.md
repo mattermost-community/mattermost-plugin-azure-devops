@@ -36,13 +36,6 @@ This plugin integrates the services of Azure DevOps in Mattermost. For a stable 
 
 - Right-hand sidebar (RHS) shows the list of projects linked to your current channel. Each project will have an option to **unlink** a project from the current channel.
 
-- Creating a work item: A work item can be created using the slash command below.
-
-    ```
-    - /azuredevops boards create
-    ```
-    On successful creation of a task, you will get a direct message (DM) from the bot of the newly created work item link.
-
 - Preview work item: A preview of the work item will be created when a work item URL is posted in a channel.
 
 ## Installation

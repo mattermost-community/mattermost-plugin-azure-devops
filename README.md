@@ -18,27 +18,30 @@ This plugin integrates the Azure DevOps in Mattermost. For a stable production r
 
 ## Features
 
-- Connect/disconnect account: A user may connect or disconnect to their Azure DevOps account using the slash command.
+- oAuth: A user may connect or disconnect to their Azure DevOps account using the slash command below.
 
     ```
     - /azuredevops connect
     - /azuredevops disconnect
     ```
 
-- Link/unlink a project: Link or unlink a project with your current channel using the slash command.
+- Link a project: You can link a project existing on Azure DevOps using the slash command below.
 
     ```
     - /azuredevops link <project link>
-    - /azuredevops unlink <project link>
     ```
+
+- Unink a project: You can unlink a project appearing in the RHS under "Linked Projects".
+
 
 - Right-hand sidebar (RHS) shows the list of projects linked to your current channel. Each project will have an option to **unlink** a project from the current channel.
 
-- Creating a work item: A work item can be made with a slash command. On successful creation of a task, we get a direct message (DM) from the bot of the newly created work item link.
+- Creating a work item: A work item can be created using the slash command below.
 
     ```
     - /azuredevops boards create
     ```
+    On successful creation of a task, you will get a direct message (DM) from the bot of the newly created work item link.
 
 - Preview work item: A preview of the work item will be created when a work item URL is posted in a channel.
 
@@ -50,7 +53,7 @@ This plugin integrates the Azure DevOps in Mattermost. For a stable production r
 
 ## Setup
 
-  - [Azure DevOps Setup](./docs/oauth_setup.md)
+  - [oAuth app registration for Azure DevOps](./docs/oauth_setup.md)
   - [Plugin Setup](./docs/plugin_setup.md)
 
 ## Connecting to Azure Devops

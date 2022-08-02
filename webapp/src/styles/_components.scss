@@ -1,5 +1,5 @@
 .height-rhs {
-    height: calc(100vh - 63px);
+    height: 100%;
 }
 
 .project-details-unlink-button {
@@ -19,7 +19,6 @@
     }
 }
 
-
 .rhs-project-list-wrapper {
     position: fixed;
     bottom: 0;
@@ -33,4 +32,10 @@
     .project-list-btn {
         width: calc(100% - 60px);
     }
+}
+
+
+.not-linked {
+    text-align: center;
+    padding: 50px 0;
 }

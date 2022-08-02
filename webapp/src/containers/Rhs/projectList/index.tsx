@@ -104,14 +104,18 @@ const ProjectList = () => {
                                 ),
                                 )
                             }
-                            <div className='rhs-project-list-wrapper'>
-                                <button
-                                    onClick={handleOpenLinkProjectModal}
-                                    className='plugin-btn no-data__btn btn btn-primary project-list-btn'
-                                >
-                                    {'Link new project'}
-                                </button>
-                            </div>
+                            {
+                                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data?.length >= 0 && (
+                                    <div className='rhs-project-list-wrapper'>
+                                        <button
+                                            onClick={handleOpenLinkProjectModal}
+                                            className='plugin-btn no-data__btn btn btn-primary project-list-btn'
+                                        >
+                                            {'Link new project'}
+                                        </button>
+                                    </div>
+                                )
+                            }
                         </> :
                         <EmptyState
                             title='No Project Linked'

@@ -12,6 +12,14 @@ export const getLinkModalState = (state: any): LinkProjectModalState => {
     return state[pluginPrefix].openLinkModalReducer;
 };
 
+export const getUserConnectionState = (state: any): userConnectionState => {
+    return state[pluginPrefix].userConnectionSlice;
+};
+
+export const getApiState = (state: any) => {
+    return state[pluginPrefix].pluginApi;
+};
+
 export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
     return state.views.rhs;
 };

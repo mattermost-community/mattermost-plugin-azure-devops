@@ -1,12 +1,14 @@
 import React, {useEffect} from 'react';
+import {useDispatch} from 'react-redux';
 
-import Rhs from 'containers/Rhs';
 import plugin_constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
 
+import {toggleConnectionTriggered, toggleIsDisconnected} from 'reducers/userAcountDetails';
+import {getLinkModalState, getTaskModalState, getRhsState, getUserConnectionState} from 'selectors';
+
 // Global styles
 import 'styles/main.scss';
-import {getLinkModalState, getTaskModalState} from 'selectors';
 
 /**
  * Mattermost plugin allows registering only one component in RHS
@@ -14,12 +16,31 @@ import {getLinkModalState, getTaskModalState} from 'selectors';
  */
 const App = (): JSX.Element => {
     const usePlugin = usePluginApi();
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        if (getLinkModalState(usePlugin.state).visibility || getTaskModalState(usePlugin.state).visibility) {
+        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+    }, []);
+
+    useEffect(() => {
+        if (
+            (
+                getLinkModalState(usePlugin.state).visibility ||
+                getTaskModalState(usePlugin.state).visibility ||
+                getRhsState(usePlugin.state).isSidebarOpen
+            ) && getUserConnectionState(usePlugin.state).isConnectionTriggered
+        ) {
+            dispatch(toggleConnectionTriggered(false));
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
         }
-    }, [getLinkModalState(usePlugin.state).visibility, getTaskModalState(usePlugin.state).visibility]);
+    }, [usePlugin.state]);
+
+    useEffect(() => {
+        if (getUserConnectionState(usePlugin.state).isUserDisconnected) {
+            dispatch(toggleConnectionTriggered(false));
+            dispatch(toggleIsDisconnected(true));
+        }
+    }, [usePlugin.state]);
 
     return (
         <></>

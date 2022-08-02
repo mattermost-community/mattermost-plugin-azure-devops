@@ -1,5 +1,4 @@
 import {showLinkModal} from 'reducers/linkModal';
-import {showTaskModal} from 'reducers/taskModal';
 import {splitArgs} from '../utils';
 
 export default class Hooks {
@@ -11,6 +10,20 @@ export default class Hooks {
         this.store.dispatch({
             type: 'UPDATE_RHS_STATE',
             state: null,
+        });
+    }
+
+    disconnectUser() {
+        this.store.dispatch({
+            type: 'userAccountDetails/toggleIsDisconnected',
+            payload: true,
+        });
+    }
+
+    toggleUserConnection(triggerConnection) {
+        this.store.dispatch({
+            type: 'userAccountDetails/toggleConnectionTriggered',
+            payload: triggerConnection,
         });
     }
 
@@ -26,16 +39,10 @@ export default class Hooks {
                 args: contextArgs,
             });
         }
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
-            const args = splitArgs(commandTrimmed);
-            this.store.dispatch(showTaskModal(args));
-            return {
-                message,
-                args: contextArgs,
-            };
-        }
+
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops link')) {
             const args = splitArgs(commandTrimmed);
+            this.toggleUserConnection(true);
             this.store.dispatch(showLinkModal(args));
             return {
                 message,
@@ -50,8 +57,8 @@ export default class Hooks {
             };
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops disconnect')) {
+            this.disconnectUser();
             this.closeRhs();
-
             return {
                 message,
                 args: contextArgs,

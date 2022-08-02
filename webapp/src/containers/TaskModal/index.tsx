@@ -9,8 +9,8 @@ import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
 import {hideTaskModal} from 'reducers/taskModal';
 import {getOrganizationList, getProjectList} from 'utils';
-import {getTaskModalState} from 'selectors';
-import pluginApi from 'services';
+import {getTaskModalState, getUserConnectionState} from 'selectors';
+import LinearLoader from 'components/loader/linear';
 
 const taskTypeOptions = [
     {
@@ -53,16 +53,13 @@ const TaskModal = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (getTaskModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
-            dispatch(hideTaskModal());
-            return;
-        }
-
-        if (getTaskModalState(usePlugin.state).visibility) {
+        if (getTaskModalState(usePlugin.state).visibility && !usePlugin.getUserAccountConnectionState().isLoading &&
+            usePlugin.getUserAccountConnectionState().isSuccess &&
+            usePlugin.getUserAccountConnectionState().data?.MattermostUserID) {
             // Make API request to fetch all linked projects.
             usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
         }
-    }, [getTaskModalState(usePlugin.state).visibility]);
+    }, [usePlugin.state]);
 
     useEffect(() => {
         // Pre-select the dropdown value in case of single option.
@@ -127,20 +124,28 @@ const TaskModal = () => {
     };
 
     const onConfirm = () => {
+        const newErrorState = {
+            organization: '',
+            project: '',
+            type: '',
+            title: '',
+        };
+
         if (taskDetails.organization === '') {
-            errorState.organization = 'Project is required';
+            newErrorState.organization = 'Project is required';
         }
         if (taskDetails.project === '') {
-            errorState.project = 'Project is required';
+            newErrorState.project = 'Project is required';
         }
         if (taskDetails.type === '') {
-            errorState.type = 'Work item type is required';
+            newErrorState.type = 'Work item type is required';
         }
         if (taskDetails.fields.title === '') {
-            errorState.title = 'Title is required';
+            newErrorState.title = 'Title is required';
         }
 
-        if (errorState.organization || errorState.project || errorState.title || errorState.type) {
+        if (newErrorState.organization || newErrorState.project || newErrorState.title || newErrorState.type) {
+            setErrorState(newErrorState);
             return;
         }
 
@@ -165,16 +170,17 @@ const TaskModal = () => {
         }
     }, [usePlugin.state]);
 
-    if (getTaskModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
-        return <></>;
-    }
-
     return (
         <Modal
             show={getTaskModalState(usePlugin.state).visibility && !optionsLoading && !usePlugin.getApiState(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isError}
             title='Create Task'
             onHide={resetModalState}
             onConfirm={onConfirm}
+            showFooter={
+                !usePlugin.getUserAccountConnectionState().isLoading &&
+                usePlugin.getUserAccountConnectionState().isSuccess &&
+                usePlugin.getUserAccountConnectionState().data?.MattermostUserID
+            }
             confirmBtnText='Create task'
             loading={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
             confirmDisabled={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isLoading}
@@ -182,46 +188,69 @@ const TaskModal = () => {
             error={usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails).isError ? 'Failed to create the task' : ''}
         >
             <>
-                <Dropdown
-                    placeholder='Organization name'
-                    value={taskDetails.organization}
-                    onChange={(newValue) => onOrganizationChange(newValue)}
-                    options={organizationOptions ?? []}
-                    loadingOptions={optionsLoading}
-                    required={true}
-                    error={errorState.organization}
-                />
-                <Dropdown
-                    placeholder='Project name'
-                    value={taskDetails.project}
-                    onChange={(newValue) => onProjectChange(newValue)}
-                    options={projectOptions ?? []}
-                    loadingOptions={optionsLoading}
-                    required={true}
-                    error={errorState.project}
-                />
-                <Dropdown
-                    placeholder='Work item type'
-                    value={taskDetails.type}
-                    onChange={(newValue) => onTaskTypeChange(newValue)}
-                    options={taskTypeOptions}
-                    required={true}
-                    error={errorState.type}
-                />
-                <Input
-                    type='text'
-                    placeholder='Title'
-                    value={taskDetails.fields.title}
-                    onChange={onTitleChange}
-                    error={errorState.title}
-                    required={true}
-                />
-                <Input
-                    type='text'
-                    placeholder='Description'
-                    value={taskDetails.fields.description}
-                    onChange={onDescriptionChange}
-                />
+                {
+                    usePlugin.getUserAccountConnectionState().isLoading && (<LinearLoader/>)
+                }
+                {
+                    !usePlugin.getUserAccountConnectionState().isLoading &&
+                    usePlugin.getUserAccountConnectionState().isError &&
+                    (<div className='not-linked'>{'You do not have any Azure Devops account connected. Kindly link the account first'}</div>)
+                }
+                {
+                    !usePlugin.getUserAccountConnectionState().isLoading &&
+                    usePlugin.getUserAccountConnectionState().isSuccess &&
+                    usePlugin.getUserAccountConnectionState().data?.MattermostUserID &&
+                    usePlugin.getApiState(Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).data?.length <= 0 &&
+                    (<div className='not-linked'>{'You do not have any linked project. Kindly link a project first'}</div>)
+                }
+                {
+                    !usePlugin.getUserAccountConnectionState().isLoading &&
+                    usePlugin.getUserAccountConnectionState().isSuccess &&
+                    usePlugin.getUserAccountConnectionState().data?.MattermostUserID && (
+                        <>
+                            <Dropdown
+                                placeholder='Organization name'
+                                value={taskDetails.organization}
+                                onChange={(newValue) => onOrganizationChange(newValue)}
+                                options={organizationOptions ?? []}
+                                loadingOptions={optionsLoading}
+                                required={true}
+                                error={errorState.organization}
+                            />
+                            <Dropdown
+                                placeholder='Project name'
+                                value={taskDetails.project}
+                                onChange={(newValue) => onProjectChange(newValue)}
+                                options={projectOptions ?? []}
+                                loadingOptions={optionsLoading}
+                                required={true}
+                                error={errorState.project}
+                            />
+                            <Dropdown
+                                placeholder='Work item type'
+                                value={taskDetails.type}
+                                onChange={(newValue) => onTaskTypeChange(newValue)}
+                                options={taskTypeOptions}
+                                required={true}
+                                error={errorState.type}
+                            />
+                            <Input
+                                type='text'
+                                placeholder='Title'
+                                value={taskDetails.fields.title}
+                                onChange={onTitleChange}
+                                error={errorState.title}
+                                required={true}
+                            />
+                            <Input
+                                type='text'
+                                placeholder='Description'
+                                value={taskDetails.fields.description}
+                                onChange={onDescriptionChange}
+                            />
+                        </>
+                    )
+                }
             </>
         </Modal>
     );

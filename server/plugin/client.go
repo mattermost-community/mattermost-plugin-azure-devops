@@ -17,7 +17,7 @@ import (
 
 type Client interface {
 	TestApi() (string, error) // TODO: remove later
-	GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, int, error)
+	GenerateOAuthToken(formValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
@@ -70,10 +70,10 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 	return task, statusCode, nil
 }
 
-func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAuthSuccessResponse, int, error) {
+func (c *client) GenerateOAuthToken(formValues url.Values) (*serializers.OAuthSuccessResponse, int, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, http.MethodPost, &oAuthSuccessResponse, encodedFormValues)
+	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, "", http.MethodPost, &oAuthSuccessResponse, formValues)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -114,7 +114,7 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil)
 }
 
 // Wrapper to make REST API requests with "application/json" type content
@@ -124,17 +124,17 @@ func (c *client) callJSON(url, path, method string, mattermostUserID string, in,
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil)
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
+func (c *client) callFormURLEncoded(url, path, mattermostUserID string, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	return c.call(url, method, path, contentType, "", nil, out, formValues)
+	return c.call(url, method, path, contentType, mattermostUserID, nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, statusCode int, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -154,8 +154,8 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	var req *http.Request
-	if formValues != "" {
-		req, err = http.NewRequest(method, path, strings.NewReader(formValues))
+	if formValues != nil {
+		req, err = http.NewRequest(method, path, strings.NewReader(formValues.Encode()))
 		if err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
@@ -192,6 +192,12 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	switch resp.StatusCode {
+	case http.StatusUnauthorized, http.StatusNonAuthoritativeInfo:
+		if err := c.plugin.RefreshOAuthToken(mattermostUserID); err != nil {
+			return nil, http.StatusUnauthorized, err
+		}
+		_, statusCode, err := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues)
+		return nil, statusCode, err
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
 			if err = json.Unmarshal(responseData, out); err != nil {

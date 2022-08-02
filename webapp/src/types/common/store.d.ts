@@ -8,3 +8,8 @@ type LinkProjectModalState = {
 type TaskModalState = {
     visibility: boolean,
 }
+
+type userConnectionState = {
+    isConnectionTriggered: boolean
+    isUserDisconnected: boolean
+}

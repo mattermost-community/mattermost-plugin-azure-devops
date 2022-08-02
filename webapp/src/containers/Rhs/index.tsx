@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {getprojectDetailsState, getRhsState} from 'selectors';
+import {getprojectDetailsState, getRhsState, getUserConnectionState} from 'selectors';
 
 import LinearLoader from 'components/loader/linear';
 
@@ -32,17 +32,18 @@ const Rhs = (): JSX.Element => {
                 <LinearLoader/>
             }
             {
-                !usePlugin.isUserAccountConnected() &&
+                !usePlugin.getUserAccountConnectionState().isLoading &&
+                usePlugin.getUserAccountConnectionState().isError &&
                 <AccountNotLinked/>
             }
             {
-                usePlugin.isUserAccountConnected() &&
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isSuccess && (
+                !usePlugin.getUserAccountConnectionState().isLoading &&
+                usePlugin.getUserAccountConnectionState().isSuccess &&
+                usePlugin.getUserAccountConnectionState().data?.MattermostUserID && (
                     getprojectDetailsState(usePlugin.state).projectID ?
                         <ProjectDetails title={getprojectDetailsState(usePlugin.state).projectName}/> :
                         <ProjectList/>
                 )
-
             }
         </div>
     );

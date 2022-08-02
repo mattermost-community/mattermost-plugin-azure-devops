@@ -6,8 +6,9 @@ import Modal from 'components/modal';
 
 import usePluginApi from 'hooks/usePluginApi';
 import {hideLinkModal, toggleIsLinked} from 'reducers/linkModal';
-import {getLinkModalState} from 'selectors';
+import {getLinkModalState, getUserConnectionState} from 'selectors';
 import plugin_constants from 'plugin_constants';
+import LinearLoader from 'components/loader/linear';
 
 const LinkModal = () => {
     // State variables
@@ -39,25 +40,33 @@ const LinkModal = () => {
 
     // Set organization name
     const onOrganizationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorState({...errorState, organization: ''});
         setProjectDetails({...projectDetails, organization: (e.target as HTMLInputElement).value});
     };
 
     // Set project name
     const onProjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorState({...errorState, project: ''});
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
     // Handles on confirming link project
     const onConfirm = () => {
+        const newErrorState: LinkPayload = {
+            organization: '',
+            project: '',
+        };
+
         if (projectDetails.organization === '') {
-            errorState.organization = 'Organization is required';
+            newErrorState.organization = 'Organization is required';
         }
 
         if (projectDetails.project === '') {
-            errorState.project = 'Project is required';
+            newErrorState.project = 'Project is required';
         }
 
-        if (errorState.organization || errorState.project) {
+        if (newErrorState.organization || newErrorState.project) {
+            setErrorState(newErrorState);
             return;
         }
 
@@ -75,9 +84,6 @@ const LinkModal = () => {
     };
 
     useEffect(() => {
-        if (getLinkModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
-            dispatch(hideLinkModal());
-        }
         if (getLinkModalState(usePlugin.state).visibility) {
             setProjectDetails({
                 organization: getLinkModalState(usePlugin.state).organization,
@@ -86,38 +92,55 @@ const LinkModal = () => {
         }
     }, [getLinkModalState(usePlugin.state).visibility]);
 
-    if (getLinkModalState(usePlugin.state).visibility && !usePlugin.isUserAccountConnected()) {
-        return <></>;
-    }
-
     return (
         <Modal
             show={getLinkModalState(usePlugin.state).visibility}
             title='Link new project'
             onHide={resetModalState}
             onConfirm={onConfirm}
+            showFooter={
+                !usePlugin.getUserAccountConnectionState().isLoading &&
+                usePlugin.getUserAccountConnectionState().isSuccess &&
+                usePlugin.getUserAccountConnectionState().data?.MattermostUserID
+            }
             confirmBtnText='Link new project'
             cancelDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
             confirmDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
             loading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
         >
             <>
-                <Input
-                    type='text'
-                    placeholder='Organization name'
-                    value={projectDetails.organization}
-                    onChange={onOrganizationChange}
-                    error={errorState.organization}
-                    required={true}
-                />
-                <Input
-                    type='text'
-                    placeholder='Project name'
-                    value={projectDetails.project}
-                    onChange={onProjectChange}
-                    required={true}
-                    error={errorState.project}
-                />
+                {
+                    usePlugin.getUserAccountConnectionState().isLoading && (<LinearLoader/>)
+                }
+                {
+                    !usePlugin.getUserAccountConnectionState().isLoading &&
+                    usePlugin.getUserAccountConnectionState().isError &&
+                    (<div className='not-linked'>{'You do not have any Azure Devops account connected. Kindly link the account first'}</div>)
+                }
+                {
+                    !usePlugin.getUserAccountConnectionState().isLoading &&
+                    usePlugin.getUserAccountConnectionState().isSuccess &&
+                    usePlugin.getUserAccountConnectionState().data?.MattermostUserID && (
+                        <>
+                            <Input
+                                type='text'
+                                placeholder='Organization name'
+                                value={projectDetails.organization}
+                                onChange={onOrganizationChange}
+                                error={errorState.organization}
+                                required={true}
+                            />
+                            <Input
+                                type='text'
+                                placeholder='Project name'
+                                value={projectDetails.project}
+                                onChange={onProjectChange}
+                                required={true}
+                                error={errorState.project}
+                            />
+                        </>
+                    )
+                }
             </>
         </Modal>
     );

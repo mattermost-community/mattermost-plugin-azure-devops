@@ -5,13 +5,13 @@ import services from 'services';
 import openLinkModalReducer from './linkModal';
 import openTaskModalReducer from './taskModal';
 import projectDetailsSlice from './projectDetails';
-import testReducer from './testReducer';
+import userConnectionSlice from './userAcountDetails';
 
 const reducers = combineReducers({
     openLinkModalReducer,
     openTaskModalReducer,
     projectDetailsSlice,
-    testReducer,
+    userConnectionSlice,
     [services.reducerPath]: services.reducer,
 });
 

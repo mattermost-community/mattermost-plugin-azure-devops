@@ -20,12 +20,12 @@ function usePluginApi() {
         return {data, isError, isLoading, isSuccess};
     };
 
-    const isUserAccountConnected = () => {
-        const {isLoading, isError, data} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
-        return (!isLoading && !isError && data?.MattermostUserID);
+    const getUserAccountConnectionState = () => {
+        const {isLoading, isError, isSuccess, data} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        return {isLoading, data, isError, isSuccess};
     };
 
-    return {makeApiRequest, getApiState, state, isUserAccountConnected};
+    return {makeApiRequest, getApiState, state, getUserAccountConnectionState};
 }
 
 export default usePluginApi;

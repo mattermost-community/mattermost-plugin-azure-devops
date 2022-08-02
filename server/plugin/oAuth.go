@@ -73,7 +73,7 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.closeBrowserWindowWithHTTPResponse(w)
-		p.DM(mattermostUserID, constants.UserAlreadyConnected)
+		_, _ = p.DM(mattermostUserID, constants.UserAlreadyConnected)
 		return
 	}
 
@@ -114,8 +114,10 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(err, err.Error())
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, "failed to verify oAuth state")
 	}
 
 	oauthTokenFormValues := url.Values{
@@ -128,8 +130,10 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues.Encode())
 	if err != nil {
-		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(err, err.Error())
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, "failed to generate oAuth token")
 	}
 
 	encryptedAccessToken, err := p.encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
@@ -149,11 +153,15 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		ExpiresIn:        successResponse.ExpiresIn,
 	}
 
-	p.Store.StoreUser(&user)
+	if err := p.Store.StoreUser(&user); err != nil {
+		return err
+	}
 
 	fmt.Printf("%+v\n", successResponse) // TODO: remove later
 
-	p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText))
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+		return err
+	}
 
 	return nil
 }

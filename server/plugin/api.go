@@ -2,13 +2,13 @@ package plugin
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -274,14 +274,29 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
+	if _, err = w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
+	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
 
 	// Send message to DM.
-	p.DM(mattermostUserID, message)
+	_, err = p.DM(mattermostUserID, message)
+	_ = errors.Wrap(err, "failed to DM the created Task")
+}
+
+// TODO: for testing purpose, remove later
+func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
+	// TODO: remove later
+	response, err := p.Client.TestApi()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	res, _ := json.Marshal(response)
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(res)
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
@@ -297,20 +312,6 @@ func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-// TODO: for testing purpose, remove later
-func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
-	// TODO: remove later
-	response, err := p.Client.TestApi()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	res, _ := json.Marshal(response)
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
 }
 
 // Handles the static files under the assets directory.

@@ -1,91 +1,122 @@
-# Plugin Starter Template [![CircleCI branch](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-starter-template/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-starter-template)
+# Mattermost Azure DevOps Plugin
+## Table of Contents
+- [License](#license)
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Connecting to Azure DevOps](#connecting-to-azure-devops)
+- [Development](#development)
 
-This plugin serves as a starting point for writing a Mattermost plugin. Feel free to base your own plugin off this repository.
+## License
 
-To learn more about plugins, see [our plugin documentation](https://developers.mattermost.com/extend/plugins/).
+See the [LICENSE](./LICENSE) file for license rights and limitations.
 
-## Getting Started
-Use GitHub's template feature to make a copy of this repository by clicking the "Use this template" button.
+## Overview
 
-Alternatively shallow clone the repository matching your plugin name:
-```
-git clone --depth 1 https://github.com/mattermost/mattermost-plugin-starter-template com.example.my-plugin
-```
+This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Release](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
 
-Note that this project uses [Go modules](https://github.com/golang/go/wiki/Modules). Be sure to locate the project outside of `$GOPATH`.
+## Features
 
-Edit the following files:
-1. `plugin.json` with your `id`, `name`, and `description`:
-```
-{
-    "id": "com.example.my-plugin",
-    "name": "My Plugin",
-    "description": "A plugin to enhance Mattermost."
-}
-```
+- oAuth: A user may connect or disconnect to their Azure DevOps account using the slash command below.
 
-2. `go.mod` with your Go module path, following the `<hosting-site>/<repository>/<module>` convention:
-```
-module github.com/example/my-plugin
-```
+    ```
+    - /azuredevops connect
+    - /azuredevops disconnect
+    ```
 
-3. `.golangci.yml` with your Go module path:
-```yml
-linters-settings:
-  # [...]
-  goimports:
-    local-prefixes: github.com/example/my-plugin
-```
+- Link a project: You can link a project existing on Azure DevOps using the slash command below.
 
-Build your plugin:
-```
-make
-```
+    ```
+    - /azuredevops link <project link>
+    ```
 
-This will produce a single plugin file (with support for multiple architectures) for upload to your Mattermost server:
+- Unink a project: You can unlink a project appearing in the RHS under "Linked Projects".
 
-```
-dist/com.example.my-plugin.tar.gz
-```
+
+- Right-hand sidebar (RHS) shows the list of projects linked to your current channel. Each project will have an option to **unlink** a project from the current channel.
+
+- Creating a work item: A work item can be created using the slash command below.
+
+    ```
+    - /azuredevops boards create
+    ```
+    On successful creation of a task, you will get a direct message (DM) from the bot of the newly created work item link.
+
+- Preview work item: A preview of the work item will be created when a work item URL is posted in a channel.
+
+## Installation
+
+1. Go to the [releases page of this GitHub repository](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and download the latest release for your Mattermost server.
+2. Upload this file to the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
+3. Enable the plugin from **System Console > Plugins > Mattermost Azure Devops plugin**.
+
+## Setup
+
+  - [oAuth app registration for Azure DevOps](./docs/oauth_setup.md)
+  - [Plugin Setup](./docs/plugin_setup.md)
+
+## Connecting to Azure Devops
+  - Enter slash command `/azuredevops connect`.
+  - You will get a response with a link to connect your Azure DevOps account.
+  ![Screenshot from 2022-07-29 13-01-14](https://user-images.githubusercontent.com/100013900/181709568-9468b4a7-aaef-45a5-8968-882d560f43c3.png)
+  - Click on that link. If it asks for a login, enter your credentials and connect to your account.
 
 ## Development
 
-To avoid having to manually install your plugin, build and deploy your plugin using one of the following options. In order for the below options to work, you must first enable plugin uploads via your config.json or API and restart Mattermost.
+### Setup
 
-```json
-    "PluginSettings" : {
-        ...
-        "EnableUploads" : true
-    }
+Make sure you have the following components installed:  
+
+- Go - v1.16 - [Getting Started](https://golang.org/doc/install)
+    > **Note:** If you have installed Go to a custom location, make sure the `$GOROOT` variable is set properly. Refer to [Installing to a custom location](https://golang.org/doc/install#install).
+- Make
+
+### Building the plugin
+
+Run the following command in the plugin repo to prepare a compiled, distributable plugin zip:
+
+```bash
+make dist
 ```
+
+After a successful build, a `.tar.gz` file in `/dist` folder will be created which can be uploaded to Mattermost. To avoid having to manually install your plugin, deploy your plugin using one of the following options.
 
 ### Deploying with Local Mode
 
 If your Mattermost server is running locally, you can enable [local mode](https://docs.mattermost.com/administration/mmctl-cli-tool.html#local-mode) to streamline deploying your plugin. Edit your server configuration as follows:
 
-```json
+```
 {
     "ServiceSettings": {
         ...
         "EnableLocalMode": true,
         "LocalModeSocketLocation": "/var/tmp/mattermost_local.socket"
     },
+    "ServiceSettings": {
+        ...
+        "EnableLocalMode": true,
+        "LocalModeSocketLocation": "/var/tmp/mattermost_local.socket"
+    }
 }
 ```
 
 and then deploy your plugin:
-```
+
+```bash
 make deploy
 ```
 
 You may also customize the Unix socket path:
-```
+
+```bash
 export MM_LOCALSOCKETPATH=/var/tmp/alternate_local.socket
 make deploy
 ```
 
-If developing a plugin with a webapp, watch for changes and deploy those automatically:
-```
+If developing a plugin with a web app, watch for changes and deploy those automatically:
+
+```bash
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
 make watch
@@ -94,7 +125,8 @@ make watch
 ### Deploying with credentials
 
 Alternatively, you can authenticate with the server's API with credentials:
-```
+
+```bash
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_USERNAME=admin
 export MM_ADMIN_PASSWORD=password
@@ -102,37 +134,9 @@ make deploy
 ```
 
 or with a [personal access token](https://docs.mattermost.com/developer/personal-access-tokens.html):
-```
+
+```bash
 export MM_SERVICESETTINGS_SITEURL=http://localhost:8065
 export MM_ADMIN_TOKEN=j44acwd8obn78cdcx7koid4jkr
 make deploy
 ```
-
-## Q&A
-
-### How do I make a server-only or web app-only plugin?
-
-Simply delete the `server` or `webapp` folders and remove the corresponding sections from `plugin.json`. The build scripts will skip the missing portions automatically.
-
-### How do I include assets in the plugin bundle?
-
-Place them into the `assets` directory. To use an asset at runtime, build the path to your asset and open as a regular file:
-
-```go
-bundlePath, err := p.API.GetBundlePath()
-if err != nil {
-    return errors.Wrap(err, "failed to get bundle path")
-}
-
-profileImage, err := ioutil.ReadFile(filepath.Join(bundlePath, "assets", "profile_image.png"))
-if err != nil {
-    return errors.Wrap(err, "failed to read profile image")
-}
-
-if appErr := p.API.SetProfileImage(userID, profileImage); appErr != nil {
-    return errors.Wrap(err, "failed to set profile image")
-}
-```
-
-### How do I build the plugin with unminified JavaScript?
-Setting the `MM_DEBUG` environment variable will invoke the debug builds. The simplist way to do this is to simply include this variable in your calls to `make` (e.g. `make dist MM_DEBUG=1`).

@@ -1,5 +1,11 @@
 .height-rhs {
-    height: calc(100vh - 63px);
+    /*
+    * 100vh is the height of entire viewport
+    * we are subtracting 185px where 100px is the space occupied by footer
+    * 63px is the space occupied by header
+    * and 22px is the padding
+    */
+    height: calc(100vh - 185px);
 }
 
 .project-details-unlink-button {

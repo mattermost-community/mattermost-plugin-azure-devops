@@ -14,7 +14,7 @@ See the [LICENSE](./LICENSE) file for license rights and limitations.
 
 ## Overview
 
-This plugin integrates the Azure DevOps in Mattermost. For a stable production release, please download the latest version from the Plugin Marketplace and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
+This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Release](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
 
 ## Features
 

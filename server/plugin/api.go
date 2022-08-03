@@ -301,7 +301,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 
 	subscriptionList, statusCode, err := p.Client.GetSubscriptions(body, mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}

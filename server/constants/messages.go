@@ -36,4 +36,5 @@ const (
 	InvalidAuthState                = "Invalid oauth state, please try again"
 	UnableToCheckIfAlreadyConnected = "Unable to check if user account is already connected"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
+	ErrorFetchSubscriptionList      = "Error in fetching subscription list"
 )

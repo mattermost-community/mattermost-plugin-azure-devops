@@ -38,6 +38,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.checkOAuth(p.handleGetAllLinkedProjects))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathCreateSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -112,7 +113,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}) {
+	_, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project})
+	if isProjectLinked {
 		p.DM(mattermostUserID, constants.AlreadyLinkedProject)
 		return
 	}
@@ -185,7 +187,8 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !p.IsProjectLinked(projectList, *project) {
+	_, isProjectLinked := p.IsProjectLinked(projectList, *project)
+	if !isProjectLinked {
 		p.API.LogError(constants.ProjectNotFound, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotFound})
 		return
@@ -284,6 +287,55 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	_ = errors.Wrap(err, "failed to DM the created Task")
 }
 
+func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	project, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project})
+	if !isProjectLinked {
+		p.API.LogError(constants.ProjectNotFound, "Error")
+		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotLinked})
+		return
+	}
+
+	pluginURL := p.GetPluginURL()
+
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, pluginURL, mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorCreateSubscription, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	response, err := json.Marshal(subscription)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	if _, err = w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 // TODO: for testing purpose, remove later
 func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
 	// TODO: remove later
@@ -293,6 +345,10 @@ func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	u, _ := p.Store.LoadUser(mattermostUserID)
+	t, _ := p.ParseAuthToken(u.AccessToken)
+	fmt.Println("\n\n\n", t)
 	res, _ := json.Marshal(response)
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(res)

@@ -21,6 +21,7 @@ type Client interface {
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
+	GetSubscriptions(body *serializers.SubscriptionListRequestPayload, mattermostUserID string) (*serializers.SubscriptionList, int, error)
 }
 
 type client struct {
@@ -62,7 +63,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 	}
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task)
+	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task, false)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create the Task")
 	}
@@ -73,7 +74,7 @@ func (c *client) CreateTask(body *serializers.TaskCreateRequestPayload, mattermo
 func (c *client) GenerateOAuthToken(formValues url.Values) (*serializers.OAuthSuccessResponse, int, error) {
 	var oAuthSuccessResponse *serializers.OAuthSuccessResponse
 
-	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, "", http.MethodPost, &oAuthSuccessResponse, formValues)
+	_, statusCode, err := c.callFormURLEncoded(constants.BaseOauthURL, constants.PathToken, "", http.MethodPost, &oAuthSuccessResponse, formValues, false)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -86,7 +87,7 @@ func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID s
 	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task)
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, false)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the Task")
 	}
@@ -99,7 +100,7 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
 	var project *serializers.Project
 
-	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project)
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, false)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to link Project")
 	}
@@ -107,34 +108,46 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	return project, statusCode, nil
 }
 
+func (c *client) GetSubscriptions(body *serializers.SubscriptionListRequestPayload, mattermostUserID string) (*serializers.SubscriptionList, int, error) {
+	subscriptionURL := fmt.Sprintf(constants.GetSubscriptions, body.Organization)
+	var subscriptionList *serializers.SubscriptionList
+
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodGet, mattermostUserID, nil, &subscriptionList, true)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get subscriptions")
+	}
+
+	return subscriptionList, statusCode, nil
+}
+
 // Wrapper to make REST API requests with "application/json-patch+json" type content
-func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
+func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, basicAuth bool) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json-patch+json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil, basicAuth)
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
+func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}, basicAuth bool) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil, basicAuth)
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, mattermostUserID string, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+func (c *client) callFormURLEncoded(url, path, mattermostUserID string, method string, out interface{}, formValues url.Values, basicAuth bool) (responseData []byte, statusCode int, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	return c.call(url, method, path, contentType, mattermostUserID, nil, out, formValues)
+	return c.call(url, method, path, contentType, mattermostUserID, nil, out, formValues, basicAuth)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values, basicAuth bool) (responseData []byte, statusCode int, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -171,8 +184,14 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	if mattermostUserID != "" {
-		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
-			return nil, http.StatusInternalServerError, err
+		if basicAuth {
+			if err = c.plugin.AddBasicAuthorization(req, mattermostUserID); err != nil {
+				return nil, http.StatusInternalServerError, err
+			}
+		} else {
+			if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
+				return nil, http.StatusInternalServerError, err
+			}
 		}
 	}
 
@@ -196,7 +215,7 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 		if err := c.plugin.RefreshOAuthToken(mattermostUserID); err != nil {
 			return nil, http.StatusUnauthorized, err
 		}
-		_, statusCode, err := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues)
+		_, statusCode, err := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues, basicAuth)
 		return nil, statusCode, err
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {

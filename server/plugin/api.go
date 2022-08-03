@@ -38,6 +38,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.checkOAuth(p.handleGetAllLinkedProjects))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -282,6 +283,39 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	// Send message to DM.
 	_, err = p.DM(mattermostUserID, message)
 	_ = errors.Wrap(err, "failed to DM the created Task")
+}
+
+func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	body, err := serializers.SubscriptionListRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for getting subscriptions", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	subscriptionList, statusCode, err := p.Client.GetSubscriptions(body, mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	response, err := json.Marshal(subscriptionList)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	if _, err = w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // TODO: for testing purpose, remove later

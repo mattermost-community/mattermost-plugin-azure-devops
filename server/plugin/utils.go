@@ -161,6 +161,21 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	return nil
 }
 
+func (p *Plugin) AddBasicAuthorization(r *http.Request, mattermostUserID string) error {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		return err
+	}
+
+	token, err := p.ParseAuthToken(user.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	r.SetBasicAuth(mattermostUserID, token)
+	return nil
+}
+
 func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) bool {
 	for _, a := range projectList {
 		if a.ProjectName == project.ProjectName && a.OrganizationName == project.OrganizationName {
@@ -170,7 +185,7 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 	return false
 }
 
-func (p* Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
+func (p *Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		return false, err

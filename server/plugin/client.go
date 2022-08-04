@@ -22,7 +22,7 @@ type Client interface {
 	// GetProjectList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.ProjectList, error)
 	// GetTaskList(queryParams map[string]interface{}, mattermostUserID string) (*serializers.TaskList, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, error)
-	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error)
+	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, error)
 }
 
 type client struct {
@@ -164,8 +164,8 @@ func (azureDevops *client) CreateTask(body *serializers.TaskCreateRequestPayload
 }
 
 // Function to get the task.
-func (c *client) GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, error) {
-	taskURL := fmt.Sprintf(constants.GetTask, queryParams.Organization, queryParams.TaskID)
+func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, error) {
+	taskURL := fmt.Sprintf(constants.GetTask, organization, taskID)
 
 	var task *serializers.TaskValue
 	if _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil); err != nil {

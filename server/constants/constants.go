@@ -77,7 +77,7 @@ const (
 	UserDisconnected     = "Your Azure Devops account is now disconnected"
 	CreatedTask          = "Link for newly created task: %s"
 	TaskTitle            = "[%s #%d: %s](%s)"
-	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
+	TaskPreviewMessage   = "**State:** %s\n**Assigned To:** %s\n**Description:** %s"
 
 	// Error messages
 	Error               = "error"

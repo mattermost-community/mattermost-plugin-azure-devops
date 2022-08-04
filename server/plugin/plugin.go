@@ -99,10 +99,9 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-
 	// Check if message is a work item link.
-	if getTaskData, isValid := isValidTaskLink(post.Message); isValid {
-		post, msg := p.postTaskPreview(getTaskData, post.Message, post.UserId, post.ChannelId)
+	if taskData, isValid := isValidTaskLink(post.Message); isValid {
+		post, msg := p.postTaskPreview(taskData, post.UserId, post.ChannelId)
 		return post, msg
 	}
 	return nil, ""

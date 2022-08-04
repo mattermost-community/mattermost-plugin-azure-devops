@@ -69,6 +69,14 @@ type SubscriptionDetails struct {
 	SubscriptionID   string `json:"subscriptionID"`
 }
 
+type DetailedMessage struct {
+	Markdown string `json:"markdown"`
+}
+
+type SubscriptionNotification struct {
+	DetailedMessage DetailedMessage `json:"detailedMessage"`
+}
+
 func SubscriptionListRequestPayloadFromJSON(data io.Reader) (*SubscriptionListRequestPayload, error) {
 	var body *SubscriptionListRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
@@ -79,6 +87,14 @@ func SubscriptionListRequestPayloadFromJSON(data io.Reader) (*SubscriptionListRe
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func SubscriptionNotificationFromJSON(data io.Reader) (*SubscriptionNotification, error) {
+	var body *SubscriptionNotification
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
 		return nil, err
 	}

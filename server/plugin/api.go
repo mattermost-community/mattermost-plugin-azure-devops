@@ -8,6 +8,7 @@ import (
 	"runtime/debug"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -40,6 +41,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathCreateSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathNotificationSubscriptions, p.handleNotificationSubscriptions).Methods(http.MethodPost)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -388,6 +390,36 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.Request) {
+	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	channelID := r.URL.Query().Get("channelID")
+	if channelID == "" {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelNameRequired})
+		return
+	}
+
+	attachment := &model.SlackAttachment{
+		Text: body.DetailedMessage.Markdown,
+	}
+
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+	p.API.CreatePost(post)
+	fmt.Println("\n\nchannel", channelID)
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 // TODO: for testing purpose, remove later

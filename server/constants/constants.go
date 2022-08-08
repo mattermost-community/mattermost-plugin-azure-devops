@@ -29,6 +29,14 @@ const (
 	Workitems          = "_workitems"
 	Edit               = "edit"
 
+	// Subscription constants
+	PublisherID      = "tfs"
+	ConsumerId       = "webHooks"
+	ConsumerActionId = "httpRequest"
+	Create           = "create"
+	Update           = "update"
+	Delete           = "delete"
+
 	// Authorization constants
 	Bearer        = "Bearer"
 	Authorization = "Authorization"

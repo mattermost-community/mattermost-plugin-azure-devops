@@ -176,13 +176,22 @@ func (p *Plugin) AddBasicAuthorization(r *http.Request, mattermostUserID string)
 	return nil
 }
 
-func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) bool {
+func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
 	for _, a := range projectList {
 		if a.ProjectName == project.ProjectName && a.OrganizationName == project.OrganizationName {
-			return true
+			return &a, true
 		}
 	}
-	return false
+	return nil, false
+}
+
+func (p *Plugin) IsSubscriptionPresent(subscriptionList []serializers.SubscriptionDetails, subscription serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+	for _, a := range subscriptionList {
+		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType {
+			return &a, true
+		}
+	}
+	return nil, false
 }
 
 func (p *Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {

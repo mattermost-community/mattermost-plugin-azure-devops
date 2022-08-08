@@ -21,7 +21,7 @@ type Client interface {
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
-	GetSubscriptions(body *serializers.SubscriptionListRequestPayload, mattermostUserID string) (*serializers.SubscriptionList, int, error)
+	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 }
 
 type client struct {
@@ -108,16 +108,38 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	return project, statusCode, nil
 }
 
-func (c *client) GetSubscriptions(body *serializers.SubscriptionListRequestPayload, mattermostUserID string) (*serializers.SubscriptionList, int, error) {
-	subscriptionURL := fmt.Sprintf(constants.GetSubscriptions, body.Organization)
-	var subscriptionList *serializers.SubscriptionList
+func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
+	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodGet, mattermostUserID, nil, &subscriptionList, true)
-	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get subscriptions")
+	publisherInputs := serializers.PublisherInputs{
+		ProjectID: project.ProjectID,
 	}
 
-	return subscriptionList, statusCode, nil
+	consumerInputs := serializers.ConsumerInputs{
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathNotificationSubscription, channelID),
+	}
+
+	StatusData := map[string]string{
+		constants.Create: "workitem.created",
+		constants.Update: "workitem.updated",
+		constants.Delete: "workitem.deleted",
+	}
+
+	payload := serializers.CreateSubscriptionBodyPayload{
+		PublisherID:      constants.PublisherID,
+		EventType:        StatusData[body.EventType],
+		ConsumerId:       constants.ConsumerId,
+		ConsumerActionId: constants.ConsumerActionId,
+		PublisherInputs:  publisherInputs,
+		ConsumerInputs:   consumerInputs,
+	}
+	var subscription *serializers.SubscriptionValue
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, true)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
+	}
+
+	return subscription, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

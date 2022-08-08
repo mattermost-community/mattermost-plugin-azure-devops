@@ -19,6 +19,8 @@ const (
 	ProjectRequired      = "project is required"
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
+	EventTypeRequired    = "event type is required"
+	ChannelNameRequired  = "channel name is required"
 )
 
 const (
@@ -37,4 +39,8 @@ const (
 	UnableToCheckIfAlreadyConnected = "Unable to check if user account is already connected"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
 	ErrorFetchSubscriptionList      = "Error in fetching subscription list"
+	ErrorCreateSubscription         = "Error in creating subscription"
+	ProjectNotLinked                = "Requested project is not linked"
+	GetSubscriptionListError        = "Error getting Subscription List"
+	SubscriptionAlreadyPresent      = "Subscription is already present"
 )

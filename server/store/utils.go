@@ -131,6 +131,14 @@ func GetOAuthKey(mattermostUserID string) string {
 	return fmt.Sprintf(constants.OAuthPrefix, mattermostUserID)
 }
 
+func GetSubscriptionListMapKey() string {
+	return GetKeyHash(constants.SubscriptionPrefix)
+}
+
+func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType string) string {
+	return fmt.Sprintf("%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType)
+}
+
 // GetKeyHash can be used to create a hash from a string
 func GetKeyHash(key string) string {
 	hash := sha256.New()

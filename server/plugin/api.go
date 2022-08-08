@@ -349,11 +349,11 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 	p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
-		ProjectID: subscription.PublisherInputs.ProjectID,
+		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        channel.Id,
-		SubscriptionID: subscription.ID,
+		SubscriptionID:   subscription.ID,
 	})
 	response, err := json.Marshal(subscription)
 	if err != nil {
@@ -371,7 +371,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}

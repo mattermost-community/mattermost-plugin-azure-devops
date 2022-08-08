@@ -62,11 +62,11 @@ type CreateSubscriptionBodyPayload struct {
 type SubscriptionDetails struct {
 	MattermostUserID string `json:"mattermostUserID"`
 	ProjectName      string `json:"projectName"`
-	ProjectID string `json:"projectId"`
+	ProjectID        string `json:"projectId"`
 	OrganizationName string `json:"organizationName"`
 	EventType        string `json:"eventType"`
 	ChannelID        string `json:"channelID"`
-	SubscriptionID string `json:"subscriptionID"`
+	SubscriptionID   string `json:"subscriptionID"`
 }
 
 func SubscriptionListRequestPayloadFromJSON(data io.Reader) (*SubscriptionListRequestPayload, error) {

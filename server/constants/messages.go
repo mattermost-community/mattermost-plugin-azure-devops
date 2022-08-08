@@ -41,4 +41,6 @@ const (
 	ErrorFetchSubscriptionList      = "Error in fetching subscription list"
 	ErrorCreateSubscription         = "Error in creating subscription"
 	ProjectNotLinked                = "Requested project is not linked"
+	GetSubscriptionListError        = "Error getting Subscription List"
+	SubscriptionAlreadyPresent      = "Subscription is already present"
 )

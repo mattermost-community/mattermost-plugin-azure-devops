@@ -21,7 +21,7 @@ type Client interface {
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
-	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
+	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 }
 
 type client struct {
@@ -108,7 +108,7 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	return project, statusCode, nil
 }
 
-func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
+func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
 	publisherInputs := serializers.PublisherInputs{
@@ -116,7 +116,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathNotificationSubscription, body.ChannelName),
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathNotificationSubscription, channelID),
 	}
 
 	StatusData := map[string]string{
@@ -133,7 +133,6 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}
-
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, true)
 	if err != nil {

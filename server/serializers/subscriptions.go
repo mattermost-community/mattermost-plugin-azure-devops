@@ -59,6 +59,14 @@ type CreateSubscriptionBodyPayload struct {
 	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
 }
 
+type SubscriptionDetails struct {
+	MattermostUserID string `json:"mattermostUserID"`
+	ProjectName      string `json:"projectName"`
+	OrganizationName string `json:"organizationName"`
+	EventType        string `json:"eventType"`
+	ChannelID        string `json:"channelID"`
+}
+
 func SubscriptionListRequestPayloadFromJSON(data io.Reader) (*SubscriptionListRequestPayload, error) {
 	var body *SubscriptionListRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {

@@ -315,15 +315,43 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	pluginURL := p.GetPluginURL()
+	// TODO: remove later
+	teamID := "qteks46as3befxj4ec1mip5ume"
+	channel, channelErr := p.API.GetChannelByName(teamID, body.ChannelName, false)
+	if channelErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: channelErr.DetailedError})
+		return
+	}
 
-	subscription, statusCode, err := p.Client.CreateSubscription(body, project, pluginURL, mattermostUserID)
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	_, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: channel.Id, EventType: body.EventType})
+	if isSubscriptionPresent {
+		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
+		return
+	}
+
+	pluginURL := p.GetPluginURL()
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, channel.Id, pluginURL, mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorCreateSubscription, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
 
+	p.Store.StoreSubscription(&serializers.SubscriptionDetails{
+		MattermostUserID: mattermostUserID,
+		ProjectName:      body.Project,
+		OrganizationName: body.Organization,
+		EventType:        body.EventType,
+		ChannelID:        channel.Id,
+	})
 	response, err := json.Marshal(subscription)
 	if err != nil {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -345,6 +373,7 @@ func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
+	// TODO: for testing purposes, remove later
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 	u, _ := p.Store.LoadUser(mattermostUserID)
 	t, _ := p.ParseAuthToken(u.AccessToken)

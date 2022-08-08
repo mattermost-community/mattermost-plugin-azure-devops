@@ -395,21 +395,20 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
-		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
+		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
 	channelID := r.URL.Query().Get("channelID")
 	if channelID == "" {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelNameRequired})
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelIDRequired})
 		return
 	}
 
 	attachment := &model.SlackAttachment{
 		Text: body.DetailedMessage.Markdown,
 	}
-
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,
@@ -417,7 +416,6 @@ func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.
 
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	p.API.CreatePost(post)
-	fmt.Println("\n\nchannel", channelID)
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }

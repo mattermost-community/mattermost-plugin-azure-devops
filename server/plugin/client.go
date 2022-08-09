@@ -45,23 +45,23 @@ func (c *client) GenerateOAuthToken(encodedFormValues string) (*serializers.OAut
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method string, in, out interface{}) (responseData []byte, err error) {
+func (c *client) callJSON(url, path, method string, mattermostUserID string, in, out interface{}) (responseData []byte, err error) {
 	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, err
 	}
-	return c.call(url, method, path, contentType, buf, out, "")
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, "")
 }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
 func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues string) (responseData []byte, err error) {
 	contentType := "application/x-www-form-urlencoded"
-	return c.call(url, method, path, contentType, nil, out, formValues)
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Makes HTTP request to REST APIs
-func (c *client) call(basePath, method, path, contentType string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
+func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues string) (responseData []byte, err error) {
 	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
@@ -95,6 +95,12 @@ func (c *client) call(basePath, method, path, contentType string, inBody io.Read
 
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
+	}
+
+	if mattermostUserID != "" {
+		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
+			return nil, err
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)

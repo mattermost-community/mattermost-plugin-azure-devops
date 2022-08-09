@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
 // Initializes the plugin REST API
@@ -30,9 +31,21 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
+}
+
+func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(error.Code)
+	message := map[string]string{constants.Error: error.Message}
+	response, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

@@ -15,3 +15,9 @@ const (
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
 	InvalidAuthState                = "Invalid oauth state, please try again"
 )
+
+const (
+	// Error messages
+	Error         = "error"
+	NotAuthorized = "not authorized"
+)

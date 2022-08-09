@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -130,4 +131,25 @@ func (p *Plugin) GetPluginURLPath() string {
 
 func (p *Plugin) GetPluginURL() string {
 	return fmt.Sprintf("%s%s", strings.TrimRight(p.GetSiteURL(), "/"), p.GetPluginURLPath())
+}
+
+// AddAuthorization function to add authorization to a request.
+func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) error {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		return err
+	}
+
+	decodedAccessToken, err := p.decode(user.AccessToken)
+	if err != nil {
+		return err
+	}
+
+	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		return err
+	}
+
+	r.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, string(decryptedAccessToken)))
+	return nil
 }

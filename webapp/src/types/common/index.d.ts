@@ -33,7 +33,7 @@ type CreateTaskPayload = {
     fields: CreateTaskFields,
 }
 
-type APIRequestPayload = CreateTaskPayload;
+type APIRequestPayload = CreateTaskPayload | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;

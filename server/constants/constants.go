@@ -8,10 +8,10 @@ const (
 
 	// Plugin configs
 	PluginID               = "mattermost-plugin-azure-devops"
+	ChannelID              = "channel_id"
 	HeaderMattermostUserID = "Mattermost-User-ID"
 	// TODO: Change later according to the needs.
 	HeaderMattermostUserIDAPI = "User-ID"
-	ChannelID                 = "channel_id"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
@@ -40,56 +40,20 @@ const (
 	Workitems          = "_workitems"
 	Edit               = "edit"
 
+	// Azure API Versions
+	CreateTaskAPIVersion = "7.1-preview.3"
+
 	// Authorization constants
-	Bearer        = "Bearer %s"
+	Bearer        = "Bearer"
 	Authorization = "Authorization"
 
-	// Limits
-	// TODO: WIP.
-	// ProjectLimit = 10
-	// TaskLimit = 10
+	GetTasksID = "/%s/_apis/wit/wiql"
+	GetTasks   = "/%s/_apis/wit/workitems"
 
-	// TODO: WIP.
-	// URL filters
-	// Organization = "organization"
-	// Project      = "project"
-	// Status       = "status"
-	// AssignedTo   = "assigned_to"
-	// Page         = "page"
+	TasksIDAPIVersion = "5.1"
+	TasksAPIVersion   = "6.0"
 
-	// TODO: WIP.
-	// Tasks status
-	// Doing = "doing"
-	// Todo  = "to-do"
-	// Done  = "done"
-
-	// Query params constants
-	// TODO: WIP.
-	// PageQueryParam       = "$top"
-	// IDsQueryParam        = "ids"
-
-	// Generic messages
-	// TODO: all these messages are to be verified from Mike at the end
-	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s?channel_id=%s)"
-	ConnectAccountFirst  = "You do not have any Azure Devops account connected, kindly link the account first"
-	UserConnected        = "Your Azure Devops account is succesfully connected!"
-	UserAlreadyConnected = "Your Azure Devops account is already connected"
-	UserDisconnected     = "Your Azure Devops account is now disconnected"
-	CreatedTask          = "Link for newly created task: %s"
-	TaskTitle            = "[%s #%d: %s](%s)"
-	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
-
-	// Error messages
-	Error               = "error"
-	GenericErrorMessage = "something went wrong, please try again later"
-	NotAuthorized       = "not authorized"
-	// TODO: WIP.
-	// InvalidPageNumber    = "invalid page number"
-	// InvalidStatus        = "invalid status"
-	// InvalidAssignedTo    = "you can only see tasks assigned to yourself"
-	// NoResultPresent      = "no results are present"
-	OrganizationRequired = "organization is required"
-	ProjectRequired      = "project is required"
-	TaskTypeRequired     = "task type is required"
-	TaskTitleRequired    = "task title is required"
+	PageQueryParam       = "$top"
+	APIVersionQueryParam = "api-version"
+	IDsQueryParam        = "ids"
 )

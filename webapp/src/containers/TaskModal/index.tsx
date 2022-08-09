@@ -15,6 +15,10 @@ const organizationOptions = [
         value: 'bs-test',
         label: 'bs-test',
     },
+    {
+        value: 'brightscout-test',
+        label: 'brightscout-test',
+    },
 ];
 
 const projectOptions = [
@@ -29,6 +33,10 @@ const projectOptions = [
     {
         value: 'bs-3',
         label: 'bs-3',
+    },
+    {
+        value: 'azure-test',
+        label: 'azure-test',
     },
 ];
 
@@ -62,6 +70,7 @@ const TaskModal = () => {
     const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openTaskModalReducer;
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -156,67 +165,67 @@ const TaskModal = () => {
 
     useEffect(() => {
         if (taskPayload) {
-            const {isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
+            const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
+            setLoading(isLoading);
             if ((isSuccess && !isError) || (!isSuccess && isError)) {
                 onHide();
             }
         }
     }, [usePlugin.state]);
 
-    if (visibility) {
-        return (
-            <Modal
-                show={visibility}
-                title='Create Task'
-                onHide={onHide}
-                onConfirm={onConfirm}
-                confirmBtnText='Create task'
-                loading={taskPayload ? usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload).isLoading : false}
-            >
-                <>
-                    <Dropdown
-                        placeholder='Organization name'
-                        value={state.taskOrganization}
-                        onChange={(newValue) => onOrganizationChange(newValue)}
-                        options={organizationOptions}
-                        required={true}
-                        error={taskOrganizationError}
-                    />
-                    <Dropdown
-                        placeholder='Project name'
-                        value={state.taskProject}
-                        onChange={(newValue) => onProjectChange(newValue)}
-                        options={projectOptions}
-                        required={true}
-                        error={taskProjectError}
-                    />
-                    <Dropdown
-                        placeholder='Work item type'
-                        value={state.taskType}
-                        onChange={(newValue) => onTaskTypeChange(newValue)}
-                        options={taskTypeOptions}
-                        required={true}
-                        error={taskTypeError}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Title'
-                        value={state.taskTitle}
-                        onChange={onTitleChange}
-                        error={taskTitleError}
-                        required={true}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Description'
-                        value={state.taskDescription}
-                        onChange={onDescriptionChange}
-                    />
-                </>
-            </Modal>
-        );
-    }
-    return null;
+    return (
+        <Modal
+            show={visibility}
+            title='Create Task'
+            onHide={onHide}
+            onConfirm={onConfirm}
+            confirmBtnText='Create task'
+            loading={loading}
+            confirmDisabled={loading}
+            cancelDisabled={loading}
+        >
+            <>
+                <Dropdown
+                    placeholder='Organization name'
+                    value={state.taskOrganization}
+                    onChange={(newValue) => onOrganizationChange(newValue)}
+                    options={organizationOptions}
+                    required={true}
+                    error={taskOrganizationError}
+                />
+                <Dropdown
+                    placeholder='Project name'
+                    value={state.taskProject}
+                    onChange={(newValue) => onProjectChange(newValue)}
+                    options={projectOptions}
+                    required={true}
+                    error={taskProjectError}
+                />
+                <Dropdown
+                    placeholder='Work item type'
+                    value={state.taskType}
+                    onChange={(newValue) => onTaskTypeChange(newValue)}
+                    options={taskTypeOptions}
+                    required={true}
+                    error={taskTypeError}
+                />
+                <Input
+                    type='text'
+                    placeholder='Title'
+                    value={state.taskTitle}
+                    onChange={onTitleChange}
+                    error={taskTitleError}
+                    required={true}
+                />
+                <Input
+                    type='text'
+                    placeholder='Description'
+                    value={state.taskDescription}
+                    onChange={onDescriptionChange}
+                />
+            </>
+        </Modal>
+    );
 };
 
 export default TaskModal;

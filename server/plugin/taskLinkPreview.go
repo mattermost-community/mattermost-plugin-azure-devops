@@ -2,41 +2,39 @@ package plugin
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
-// UI may change in the future.
-// Function to return the new post of the work item.
-func (p *Plugin) getTaskPosted(msg, userID, channelID string) (*model.Post, string) {
-	link := strings.Split(msg, "/")
-	data := serializers.GetTaskData{
-		Organization: link[3],
-		Project:      link[4],
-		TaskID:       link[7],
-	}
-	task, err := p.Client.GetTask(data, userID)
+// postTaskPreview function returns the new post containing the preview of the work item.
+// (UI may change in the future)
+func (p *Plugin) postTaskPreview(linkData []string, userID, channelID string) (*model.Post, string) {
+	task, _, err := p.Client.GetTask(linkData[3], linkData[7], userID)
 	if err != nil {
 		return nil, ""
 	}
+
 	assignedTo := task.Fields.AssignedTo.DisplayName
 	if assignedTo == "" {
-		assignedTo = "none"
+		assignedTo = "None"
 	}
+
 	description := task.Fields.Description
 	if description == "" {
-		description = "none"
+		description = "No description"
 	}
+
 	taskTitle := fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.Html.Href)
 	TaskPreviewMessage := fmt.Sprintf(constants.TaskPreviewMessage, task.Fields.State, assignedTo, description)
-	message := fmt.Sprintf("%s\n%s\n```\n%s\n```", msg, taskTitle, TaskPreviewMessage)
 	post := &model.Post{
 		UserId:    userID,
 		ChannelId: channelID,
-		Message:   message,
 	}
+	attachment := &model.SlackAttachment{
+		Text: fmt.Sprintf("%s\n%s\n", taskTitle, TaskPreviewMessage),
+	}
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+
 	return post, ""
 }

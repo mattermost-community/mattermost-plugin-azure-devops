@@ -442,13 +442,14 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType}); !isSubscriptionPresent {
+	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType})
+	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})
 		return
 	}
 
-	statusCode, err := p.Client.DeleteSubscription(body.Organization, body.SubscriptionID, mattermostUserID)
+	statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID)
 	if err != nil {
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return

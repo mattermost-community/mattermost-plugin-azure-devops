@@ -51,11 +51,10 @@ type CreateSubscriptionRequestPayload struct {
 }
 
 type DeleteSubscriptionRequestPayload struct {
-	Organization   string `json:"organization"`
-	Project        string `json:"project"`
-	EventType      string `json:"eventType"`
-	ChannelID      string `json:"channelID"`
-	SubscriptionID string `json:"subscriptionID"`
+	Organization string `json:"organization"`
+	Project      string `json:"project"`
+	EventType    string `json:"eventType"`
+	ChannelID    string `json:"channelID"`
 }
 
 type CreateSubscriptionBodyPayload struct {
@@ -143,9 +142,6 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
-	}
-	if t.SubscriptionID == "" {
-		return errors.New(constants.SubscriptionIDRequired)
 	}
 	if t.Project == "" {
 		return errors.New(constants.ProjectRequired)

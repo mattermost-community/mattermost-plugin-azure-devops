@@ -50,6 +50,14 @@ type CreateSubscriptionRequestPayload struct {
 	ChannelName  string `json:"channelName"`
 }
 
+type DeleteSubscriptionRequestPayload struct {
+	Organization   string `json:"organization"`
+	Project        string `json:"project"`
+	EventType      string `json:"eventType"`
+	ChannelID      string `json:"channelID"`
+	SubscriptionID string `json:"subscriptionID"`
+}
+
 type CreateSubscriptionBodyPayload struct {
 	PublisherID      string          `json:"publisherId"`
 	EventType        string          `json:"eventType"`
@@ -93,6 +101,14 @@ func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscripti
 	return body, nil
 }
 
+func DeleteSubscriptionRequestPayloadFromJSON(data io.Reader) (*DeleteSubscriptionRequestPayload, error) {
+	var body *DeleteSubscriptionRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
 func SubscriptionNotificationFromJSON(data io.Reader) (*SubscriptionNotification, error) {
 	var body *SubscriptionNotification
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
@@ -119,6 +135,25 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 		return errors.New(constants.EventTypeRequired)
 	}
 	if t.ChannelName == "" {
+		return errors.New(constants.ChannelNameRequired)
+	}
+	return nil
+}
+
+func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
+	if t.Organization == "" {
+		return errors.New(constants.OrganizationRequired)
+	}
+	if t.SubscriptionID == "" {
+		return errors.New(constants.SubscriptionIDRequired)
+	}
+	if t.Project == "" {
+		return errors.New(constants.ProjectRequired)
+	}
+	if t.EventType == "" {
+		return errors.New(constants.EventTypeRequired)
+	}
+	if t.ChannelID == "" {
 		return errors.New(constants.ChannelNameRequired)
 	}
 	return nil

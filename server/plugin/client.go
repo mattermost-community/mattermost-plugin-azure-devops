@@ -22,6 +22,7 @@ type Client interface {
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
+	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 }
 
 type client struct {
@@ -140,6 +141,16 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	return subscription, statusCode, nil
+}
+
+func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error) {
+	subscriptionURL := fmt.Sprintf(constants.DeleteSubscription, organization, subscriptionID)
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodDelete, mattermostUserID, nil, nil, true)
+	if err != nil {
+		return statusCode, errors.Wrap(err, "failed to delete subscription")
+	}
+
+	return statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

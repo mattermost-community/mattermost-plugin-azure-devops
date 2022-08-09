@@ -89,7 +89,6 @@ func (s *Store) GetAllSubscriptions(userID string) ([]serializers.SubscriptionDe
 	return subscriptionList, nil
 }
 
-// TODO: remove later if not needed.
 func (s *Store) DeleteSubscription(subscription *serializers.SubscriptionDetails) error {
 	key := GetSubscriptionListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
@@ -112,7 +111,6 @@ func (s *Store) DeleteSubscription(subscription *serializers.SubscriptionDetails
 	return nil
 }
 
-// TODO: remove later if not needed.
 func (subscriptionList *SubscriptionList) DeleteSubscriptionByKey(userID, subscriptionKey string) {
 	for key := range subscriptionList.ByMattermostUserID[userID] {
 		if key == subscriptionKey {

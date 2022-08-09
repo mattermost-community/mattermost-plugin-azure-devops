@@ -42,6 +42,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathCreateSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathNotificationSubscriptions, p.handleNotificationSubscriptions).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathDeleteSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
@@ -418,6 +419,51 @@ func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.
 	p.API.CreatePost(post)
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	body, err := serializers.DeleteSubscriptionRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for deleting subscriptions", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	_, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType})
+	if !isSubscriptionPresent {
+		p.API.LogError(constants.SubscriptionNotFound, "Error")
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})
+		return
+	}
+	
+	statusCode, err := p.Client.DeleteSubscription(body.Organization, body.SubscriptionID, mattermostUserID)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
+		MattermostUserID: mattermostUserID,
+		ProjectName:      body.Project,
+		OrganizationName: body.Organization,
+		EventType:        body.EventType,
+		ChannelID:        body.ChannelID,
+	})
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // TODO: for testing purpose, remove later

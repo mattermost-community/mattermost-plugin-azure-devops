@@ -15,13 +15,14 @@ const (
 	NoProjectLinked      = "No project is linked, please link a project."
 
 	// Validations
-	OrganizationRequired = "organization is required"
-	ProjectRequired      = "project is required"
-	TaskTypeRequired     = "task type is required"
-	TaskTitleRequired    = "task title is required"
-	EventTypeRequired    = "event type is required"
-	ChannelNameRequired  = "channel name is required"
-	ChannelIDRequired    = "channel ID is required"
+	OrganizationRequired   = "organization is required"
+	ProjectRequired        = "project is required"
+	TaskTypeRequired       = "task type is required"
+	TaskTitleRequired      = "task title is required"
+	EventTypeRequired      = "event type is required"
+	ChannelNameRequired    = "channel name is required"
+	ChannelIDRequired      = "channel ID is required"
+	SubscriptionIDRequired = "subscription ID is required"
 )
 
 const (
@@ -44,4 +45,5 @@ const (
 	ProjectNotLinked                = "Requested project is not linked"
 	GetSubscriptionListError        = "Error getting Subscription List"
 	SubscriptionAlreadyPresent      = "Subscription is already present"
+	SubscriptionNotFound            = "Requested subscription does not exists"
 )

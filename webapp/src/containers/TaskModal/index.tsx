@@ -15,6 +15,10 @@ const organizationOptions = [
         value: 'bs-test',
         label: 'bs-test',
     },
+    {
+        value: 'brightscout-test',
+        label: 'brightscout-test',
+    }
 ];
 
 const projectOptions = [
@@ -29,6 +33,10 @@ const projectOptions = [
     {
         value: 'bs-3',
         label: 'bs-3',
+    },
+    {
+        value: 'azure-test',
+        label: 'azure-test',
     },
 ];
 

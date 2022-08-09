@@ -147,6 +147,7 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	if err != nil {
 		return err
 	}
-	r.Header.Add(constants.Authorization, fmt.Sprintf(constants.Bearer, string(decryptedAccessToken)))
+
+	r.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, string(decryptedAccessToken)))
 	return nil
 }

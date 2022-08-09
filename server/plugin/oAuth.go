@@ -126,7 +126,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	successResponse, err := p.Client.GenerateOAuthToken(oauthTokenFormValues.Encode())
+	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues.Encode())
 	if err != nil {
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
 		return errors.Wrap(err, err.Error())

@@ -33,6 +33,41 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
 	// TODO: for testing purpose, remove later
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
+	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
+}
+
+// API to create task of a project in an organization.
+func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+
+	body, err := serializers.CreateTaskRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	task, statusCode, err := p.Client.CreateTask(body, mattermostUserID)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	response, err := json.Marshal(task)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.

@@ -15,7 +15,7 @@ type IconButtonProps = {
     onClick?: () => void
 }
 
-const IconButton = ({tooltipText, iconClassName, extraClass, iconColor, onClick}: IconButtonProps) => {
+const IconButton = ({tooltipText, iconClassName, extraClass = '', iconColor, onClick}: IconButtonProps) => {
     return (
         <Tooltip tooltipContent={tooltipText}>
             <Button

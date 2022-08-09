@@ -32,8 +32,7 @@ const ProjectList = () => {
                         organization={item.organization}
                         key={item.id}
                     />
-                ),
-                )
+                ))
             }
         </>
     );

@@ -35,6 +35,20 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
 
+// handleAuthRequired verifies if the provided request is performed by an authorized source.
+func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+		if mattermostUserID == "" {
+			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
+			p.handleError(w, r, &error)
+			return
+		}
+
+		handleFunc(w, r)
+	}
+}
+
 func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(error.Code)

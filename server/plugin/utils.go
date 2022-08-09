@@ -139,12 +139,10 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	if err != nil {
 		return err
 	}
-
 	decodedAccessToken, err := p.decode(user.AccessToken)
 	if err != nil {
 		return err
 	}
-
 	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err

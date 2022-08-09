@@ -16,7 +16,6 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(formValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.TaskCreateRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(queryParams serializers.GetTaskData, mattermostUserID string) (*serializers.TaskValue, int, error)
@@ -31,11 +30,6 @@ type client struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-}
-
-// TODO: remove later
-func (c *client) TestApi() (string, error) {
-	return "hello world", nil
 }
 
 // Function to create task for a project.
@@ -116,7 +110,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathNotificationSubscriptions, channelID),
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
 
 	StatusData := map[string]string{

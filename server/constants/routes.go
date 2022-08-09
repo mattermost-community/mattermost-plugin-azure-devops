@@ -13,7 +13,7 @@ const (
 	PathLinkProject               = "/link"
 	PathGetSubscriptions          = "/subscriptions"
 	PathCreateSubscriptions       = "/subscriptions"
-	PathNotificationSubscriptions = "/notification"
+	PathSubscriptionNotifications = "/notification"
 
 	// Azure API paths
 	CreateTask         = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"

@@ -19,11 +19,8 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Azure API Routes
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=" + CreateTaskAPIVersion
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
-
-	// Azure API Versions
-	CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Get task link preview constants
 	HTTPS              = "https:"
@@ -31,6 +28,9 @@ const (
 	AzureDevopsBaseURL = "dev.azure.com"
 	Workitems          = "_workitems"
 	Edit               = "edit"
+
+	// Azure API Versions
+	CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Authorization constants
 	Bearer        = "Bearer"

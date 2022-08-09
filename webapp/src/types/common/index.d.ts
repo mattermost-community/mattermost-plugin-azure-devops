@@ -39,3 +39,14 @@ type DropdownOptionType = {
     label?: string | JSX.Element;
     value: string;
 }
+
+type TabsData = {
+    title: string
+    component: JSX.Element
+}
+
+type ProjectItem = {
+    id: string
+    title: string
+    organization: string
+}

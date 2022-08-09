@@ -1,0 +1,16 @@
+.project-details {
+    flex-basis: 70%;
+}
+
+.button-wrapper {
+    flex-basis: 30%;
+}
+
+.delete-button {
+    display: block;
+    margin-left: auto;
+    
+    i {
+        margin: 1px 0 0 2px;
+    }
+}

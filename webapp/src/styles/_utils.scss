@@ -1,0 +1,54 @@
+// Margins
+.margin-bottom-10 {
+    margin-bottom: 10px;
+}
+
+// Paddings
+.padding-25 {
+    padding: 25px;
+}
+
+// Dimensions
+.height-100vh {
+    height: 100vh;
+}
+
+// Layouts
+.d-flex {
+    display: flex;
+}
+
+// Fonts
+.font-size-14 {
+    font-size: 14px;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+// Titles
+.rhs-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.link-title {
+    color: #3498db;
+    cursor: pointer;
+
+    &:hover {
+        color: #2980b9;
+    }
+}
+
+// BG
+.bg-sidebar {
+    background-color: rgba(var(--center-channel-color-rgb), 0.04);
+}
+
+// Cursors
+.cursor-pointer {
+    cursor: pointer;
+}

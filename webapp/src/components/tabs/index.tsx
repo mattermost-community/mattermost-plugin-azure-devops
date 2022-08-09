@@ -12,7 +12,7 @@ const Tabs = ({tabs}: TabsProps) => {
     return (
         <BootstrapTabs
             defaultActiveKey='profile'
-            id='justify-tab-example'
+            id='RhsTabs'
             className='mb-3'
         >
             {tabs.map((tab, index) => (

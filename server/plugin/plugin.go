@@ -99,24 +99,22 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	msg := post.Message
-
 	// Check if message is a work item link.
-	if taskLink(msg) {
-		post, msg = p.getTaskPosted(msg, post.UserId, post.ChannelId)
+	if taskData, isValid := isValidTaskLink(post.Message); isValid {
+		post, msg := p.postTaskPreview(taskData, post.UserId, post.ChannelId)
 		return post, msg
 	}
 	return nil, ""
 }
 
 // Function to validate the work item link.
-func taskLink(msg string) bool {
+func isValidTaskLink(msg string) ([]string, bool) {
 	data := strings.Split(msg, "/")
 	if len(data) != 8 {
-		return false
+		return nil, false
 	}
 	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Workitems || data[6] != constants.Edit {
-		return false
+		return nil, false
 	}
-	return true
+	return data, true
 }

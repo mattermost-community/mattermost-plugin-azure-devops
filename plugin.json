@@ -37,32 +37,13 @@
                 "key": "azureDevopsOAuthClientSecret",
                 "display_name": "Azure Devops OAuth Client Secret",
                 "type": "text",
-                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops.",
-                "placeholder": "",
-                "default": null
-            },
-            {
-                "key": "azureDevopsOAuthAuthorizationURL",
-                "display_name": "Azure Devops OAuth Authorization URL",
-                "type": "text",
-                "help_text": "Enter the authorization URL for the OAuth app registered with Azure Devops.",
-                "placeholder": "",
-                "default": "https://app.vssps.visualstudio.com/oauth2/authorize"
-            },
-            {
-                "key": "azureDevopsOAuthTokenURL",
-                "display_name": "Azure Devops OAuth Access Token URL",
-                "type": "text",
-                "help_text": "Enter the access token URL for the OAuth app registered with Azure Devops.",
-                "placeholder": "",
-                "default": "https://app.vssps.visualstudio.com/oauth2/token"
+                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops."
             },
             {
                 "key": "EncryptionSecret",
                 "display_name": "Encryption Secret:",
                 "type": "generated",
-                "help_text": "The secret key used to encrypt and decrpyt OAuth token.",
-                "default": null
+                "help_text": "The secret key used to encrypt and decrpyt OAuth token."
             }
         ]
     }

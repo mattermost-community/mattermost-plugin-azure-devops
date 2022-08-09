@@ -44,3 +44,4 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organization, title}
 };
 
 export default ProjectCard;
+

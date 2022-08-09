@@ -45,8 +45,16 @@ type TabsData = {
     component: JSX.Element
 }
 
-type ProjectItem = {
+type ProjectDetails = {
     id: string
     title: string
     organization: string
+}
+
+type eventType = 'create' | 'update' | 'delete'
+
+type SubscriptionDetails = {
+    id: string
+    name: string
+    eventType: eventType
 }

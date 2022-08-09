@@ -1,20 +1,8 @@
 .button-wrapper {
     border-radius: 4px;
     background-color: transparent;
-}
-
-.danger {
-    border-color: #d24b4e;
-
-    i {
-        color: #d24b4e;
-    }
     
-    &:hover {
-        background-color: #d24b4e;
-
-        i {
-            color: #ffffff;
-        }
+    i {
+        color: rgba(var(--center-channel-color-rgb), 0.56)
     }
 }

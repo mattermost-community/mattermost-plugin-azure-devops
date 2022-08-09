@@ -19,6 +19,7 @@ type Client interface {
 	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
+	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
 }
 
 type client struct {
@@ -85,6 +86,19 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+// Function to get the task.
+func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error) {
+	taskURL := fmt.Sprintf(constants.GetTask, organization, taskID)
+
+	var task *serializers.TaskValue
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the Task")
+	}
+
+	return task, statusCode, nil
+}
+
 // Wrapper to make REST API requests with "application/json-patch+json" type content
 func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json-patch+json"
@@ -96,7 +110,8 @@ func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, o
 }
 
 // Wrapper to make REST API requests with "application/json" type content
-func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values, contentType string) (responseData []byte, statusCode int, err error) {
+func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+	contentType := "application/json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err

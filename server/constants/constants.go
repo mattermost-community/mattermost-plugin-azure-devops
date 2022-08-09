@@ -20,9 +20,17 @@ const (
 
 	// Azure API Routes
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=" + CreateTaskAPIVersion
+	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
+
+	// Get task link preview constants
+	HTTPS              = "https:"
+	HTTP               = "http:"
+	AzureDevopsBaseURL = "dev.azure.com"
+	Workitems          = "_workitems"
+	Edit               = "edit"
 
 	// Authorization constants
 	Bearer        = "Bearer"

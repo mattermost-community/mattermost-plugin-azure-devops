@@ -18,11 +18,7 @@ const organizationOptions = [
     {
         value: 'brightscout-test',
         label: 'brightscout-test',
-<<<<<<< HEAD
-    }
-=======
     },
->>>>>>> 60860b782aefab4366e53d83f69ef94089260bae
 ];
 
 const projectOptions = [
@@ -177,64 +173,6 @@ const TaskModal = () => {
         }
     }, [usePlugin.state]);
 
-<<<<<<< HEAD
-    if (visibility) {
-        return (
-            <Modal
-                show={visibility}
-                title='Create Task'
-                onHide={onHide}
-                onConfirm={onConfirm}
-                confirmBtnText='Create task'
-                loading={loading}
-                confirmDisabled={loading}
-                cancelDisabled={loading}
-            >
-                <>
-                    <Dropdown
-                        placeholder='Organization name'
-                        value={state.taskOrganization}
-                        onChange={(newValue) => onOrganizationChange(newValue)}
-                        options={organizationOptions}
-                        required={true}
-                        error={taskOrganizationError}
-                    />
-                    <Dropdown
-                        placeholder='Project name'
-                        value={state.taskProject}
-                        onChange={(newValue) => onProjectChange(newValue)}
-                        options={projectOptions}
-                        required={true}
-                        error={taskProjectError}
-                    />
-                    <Dropdown
-                        placeholder='Work item type'
-                        value={state.taskType}
-                        onChange={(newValue) => onTaskTypeChange(newValue)}
-                        options={taskTypeOptions}
-                        required={true}
-                        error={taskTypeError}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Title'
-                        value={state.taskTitle}
-                        onChange={onTitleChange}
-                        error={taskTitleError}
-                        required={true}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Description'
-                        value={state.taskDescription}
-                        onChange={onDescriptionChange}
-                    />
-                </>
-            </Modal>
-        );
-    }
-    return null;
-=======
     return (
         <Modal
             show={visibility}
@@ -288,7 +226,6 @@ const TaskModal = () => {
             </>
         </Modal>
     );
->>>>>>> 60860b782aefab4366e53d83f69ef94089260bae
 };
 
 export default TaskModal;

@@ -12,7 +12,7 @@ import Constants from 'plugin_constants';
 
 import Hooks from 'hooks';
 
-import TaskModal from 'containers/TaskModal/TaskModal';
+import TaskModal from 'containers/TaskModal';
 
 import manifest from './manifest';
 

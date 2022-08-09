@@ -71,7 +71,7 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 	}
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, payload, &task)
+	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, &payload, &task, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create task")
 	}
@@ -86,20 +86,19 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content
-func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}) (responseData []byte, statusCode int, err error) {
+func (c *client) callPatchJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	contentType := "application/json-patch+json"
 	buf := &bytes.Buffer{}
 	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-	return c.call(url, method, path, contentType, mattermostUserID, buf, out, nil)
+	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
 }
 
 // Wrapper to make REST API requests with "application/json" type content
 func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values, contentType string) (responseData []byte, statusCode int, err error) {
 	buf := &bytes.Buffer{}
-	err = json.NewEncoder(buf).Encode(in)
-	if err != nil {
+	if err = json.NewEncoder(buf).Encode(in); err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
@@ -138,14 +137,14 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 		}
 	}
 
-	if contentType != "" {
-		req.Header.Add("Content-Type", contentType)
-	}
-
 	if mattermostUserID != "" {
 		if err = c.plugin.AddAuthorization(req, mattermostUserID); err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
+	}
+
+	if contentType != "" {
+		req.Header.Add("Content-Type", contentType)
 	}
 
 	resp, err := c.httpClient.Do(req)

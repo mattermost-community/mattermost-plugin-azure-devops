@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -165,14 +164,15 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	return nil
 }
 
+// TODO: WIP.
 // StringToInt function to convert string to int.
-func StringToInt(str string) int {
-	if str == "" {
-		return 0
-	}
-	val, err := strconv.ParseInt(str, 10, 64)
-	if err != nil {
-		return 0
-	}
-	return int(val)
-}
+// func StringToInt(str string) int {
+// 	if str == "" {
+// 		return 0
+// 	}
+// 	val, err := strconv.ParseInt(str, 10, 64)
+// 	if err != nil {
+// 		return 0
+// 	}
+// 	return int(val)
+// }

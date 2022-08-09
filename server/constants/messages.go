@@ -19,4 +19,5 @@ const (
 	UnableToStoreOauthState         = "Unable to store oAuth state for the userID %s"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
 	InvalidAuthState                = "Invalid oauth state, please try again"
+	CreatedTask                     = "Link for newly created task: %s"
 )

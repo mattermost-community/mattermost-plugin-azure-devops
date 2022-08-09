@@ -1,7 +1,11 @@
 import React from 'react';
 import {Modal as RBModal} from 'react-bootstrap';
 
-import './styles.scss';
+import ModalHeader from './subComponents/modalHeader';
+import ModalLoader from './subComponents/modalLoader';
+import ModalBody from './subComponents/modalBody';
+import ModalFooter from './subComponents/modalFooter';
+import ModalSubTitleAndError from './subComponents/modalSubtitleAndError';
 
 type ModalProps = {
     show: boolean;
@@ -14,9 +18,13 @@ type ModalProps = {
     confirmBtnText?: string;
     cancelBtnText?: string;
     className?: string;
+    loading?: boolean;
+    error?: string | JSX.Element;
+    confirmDisabled?: boolean;
+    cancelDisabled?: boolean;
 }
 
-const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmBtnText, cancelBtnText, className = ''}: ModalProps) => {
+const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false}: ModalProps) => {
     return (
         <RBModal
             show={show}
@@ -24,41 +32,31 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
             centered={true}
             className={`modal ${className}`}
         >
-            {(title || subTitle || showCloseIconInHeader) && (
-                <div className='modal__header'>
-                    <div className='modal__title d-flex align-items-center justify-content-between'>
-                        {title && <p className='modal__title'>{title}</p>}
-                        {showCloseIconInHeader && (
-                            <button
-                                className='style--none'
-                                onClick={onHide}
-                            ><i className='icon icon-close modal__close-icon'/></button>
-                        )}
-                    </div>
-                    {subTitle && <p className='modal__subtitle'>{subTitle}</p>}
-                </div>
-            )}
-            {children && (
-                <RBModal.Body className='modal__body'>
+            <ModalHeader
+                title={title}
+                showCloseIconInHeader={showCloseIconInHeader}
+                onHide={onHide}
+            />
+            <ModalLoader loading={loading}/>
+            <ModalBody>
+                <>
+                    <ModalSubTitleAndError
+                        subTitle={subTitle}
+                    />
                     {children}
-                </RBModal.Body>
-            )}
-            <RBModal.Footer className='modal__footer d-flex flex-column justify-content-center align-items-center'>
-                {onConfirm && (
-                    <button
-                        className='btn btn-primary modal__confirm-btn'
-                        onClick={onConfirm}
-                    >
-                        {confirmBtnText || 'Confirm'}
-                    </button>
-                )}
-                <button
-                    className='btn btn-link modal__cancel-btn'
-                    onClick={onHide}
-                >
-                    {cancelBtnText || 'Cancel'}
-                </button>
-            </RBModal.Footer>
+                    <ModalSubTitleAndError
+                        error={error}
+                    />
+                </>
+            </ModalBody>
+            <ModalFooter
+                onHide={onHide}
+                onConfirm={onConfirm}
+                cancelBtnText={cancelBtnText}
+                confirmBtnText={confirmBtnText}
+                confirmDisabled={confirmDisabled}
+                cancelDisabled={cancelDisabled}
+            />
         </RBModal>
     );
 };

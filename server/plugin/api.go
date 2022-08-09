@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
@@ -66,6 +67,11 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
+
+	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
+
+	// Send message to DM.
+	p.DM(mattermostUserID, message)
 
 	w.Header().Add("Content-Type", "application/json")
 	if _, err := w.Write(response); err != nil {

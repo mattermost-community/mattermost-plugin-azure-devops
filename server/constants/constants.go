@@ -28,35 +28,12 @@ const (
 	Bearer        = "Bearer"
 	Authorization = "Authorization"
 
-	// TODO: Remove later if not needed.
-	// GetProjects = "/%s/_apis/projects"
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
 
-	// Azure API versions
-	// TODO: Remove later if not needed.
-	// ProjectAPIVersion = "7.1-preview.4"
 	TasksIDAPIVersion = "5.1"
 	TasksAPIVersion   = "6.0"
 
-	// Limits
-	// TODO: Remove later if not needed.
-	// ProjectLimit = 10
-	TaskLimit = 10
-
-	// URL filters
-	Organization = "organization"
-	Project      = "project"
-	Status       = "status"
-	AssignedTo   = "assigned_to"
-	Page         = "page"
-
-	// Tasks status
-	Doing = "doing"
-	Todo  = "to-do"
-	Done  = "done"
-
-	// Query params constants
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
 	IDsQueryParam        = "ids"

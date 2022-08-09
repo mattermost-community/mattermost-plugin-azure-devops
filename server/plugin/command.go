@@ -52,7 +52,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure DevOps account")
 	azureDevops.AddCommand(disconnect)
 
-	create := model.NewAutocompleteData("boards create", "[title] [description]", "create a new task with the given title and description")
+	create := model.NewAutocompleteData("boards create", "", "create a new task")
 	azureDevops.AddCommand(create)
 
 	return azureDevops

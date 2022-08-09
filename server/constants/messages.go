@@ -14,7 +14,7 @@ const (
 	AlreadyLinkedProject = "This project is already linked."
 	NoProjectLinked      = "No project is linked, please link a project."
 
-	// Validations
+	// Validations Errors
 	OrganizationRequired   = "organization is required"
 	ProjectRequired        = "project is required"
 	TaskTypeRequired       = "task type is required"

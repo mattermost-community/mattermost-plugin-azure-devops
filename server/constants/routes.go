@@ -11,9 +11,7 @@ const (
 	PathUser                      = "/user"
 	PathCreateTasks               = "/tasks"
 	PathLinkProject               = "/link"
-	PathGetSubscriptions          = "/subscriptions"
-	PathCreateSubscriptions       = "/subscriptions"
-	PathDeleteSubscriptions       = "/subscriptions"
+	PathSubscriptions             = "/subscriptions"
 	PathNotificationSubscriptions = "/notification"
 
 	// Azure API paths

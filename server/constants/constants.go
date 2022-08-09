@@ -19,19 +19,8 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Azure API Routes
-	// TODO: WIP.
-	// GetProjects = "/%s/_apis/projects"
-	// GetTasksID = "/%s/_apis/wit/wiql"
-	// GetTasks   = "/%s/_apis/wit/workitems"
 	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
-
-	// Azure API versions
-	// TODO: WIP.
-	// ProjectAPIVersion = "7.1-preview.4"
-	// TasksIDAPIVersion    = "5.1"
-	// TasksAPIVersion      = "6.0"
-	// CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Get task link preview constants
 	HTTPS              = "https:"

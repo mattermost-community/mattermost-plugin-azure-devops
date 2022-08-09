@@ -39,9 +39,7 @@ const ProjectDetails = ({title}: ProjectDetailsProps) => {
 
     // Reset the state when the component is unmounted
     useEffect(() => {
-        return () => {
-            handleResetProjectDetails();
-        };
+        return handleResetProjectDetails();
     }, []);
 
     return (
@@ -61,7 +59,7 @@ const ProjectDetails = ({title}: ProjectDetailsProps) => {
             {
                 data.map((item) => (
                     <SubscriptionCard
-                        subscriptionDetails={{...item}}
+                        subscriptionDetails={item}
                         key={item.id}
                     />
                 ),

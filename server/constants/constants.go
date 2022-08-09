@@ -7,10 +7,11 @@ const (
 	BotDescription = "A bot account created by the Azure Devops plugin."
 
 	// Plugin configs
-	PluginID = "mattermost-plugin-azure-devops"
-	// TODO: Change later according to the needs.
-	HeaderMattermostUserID = "Mattermost-User-ID"
+	PluginID               = "mattermost-plugin-azure-devops"
 	ChannelID              = "channel_id"
+	HeaderMattermostUserID = "Mattermost-User-ID"
+	// TODO: Change later according to the needs.
+	HeaderMattermostUserIDAPI = "User-ID"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
@@ -18,22 +19,25 @@ const (
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Azure API Routes
+	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=" + CreateTaskAPIVersion
+
+	// Azure API Versions
+	CreateTaskAPIVersion = "7.1-preview.3"
+
+	// Authorization constants
+	Bearer        = "Bearer"
+	Authorization = "Authorization"
+
 	// TODO: Remove later if not needed.
 	// GetProjects = "/%s/_apis/projects"
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s"
 
 	// Azure API versions
 	// TODO: Remove later if not needed.
 	// ProjectAPIVersion = "7.1-preview.4"
-	TasksIDAPIVersion    = "5.1"
-	TasksAPIVersion      = "6.0"
-	CreateTaskAPIVersion = "7.1-preview.3"
-
-	// Authorization constants
-	Bearer        = "Bearer %s"
-	Authorization = "Authorization"
+	TasksIDAPIVersion = "5.1"
+	TasksAPIVersion   = "6.0"
 
 	// Limits
 	// TODO: Remove later if not needed.
@@ -56,26 +60,4 @@ const (
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
 	IDsQueryParam        = "ids"
-
-	// Generic messages
-	// TODO: all these messages are to be verified from Mike at the end
-	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s?channel_id=%s)"
-	ConnectAccountFirst  = "You do not have any Azure Devops account connected, kindly link the account first"
-	UserConnected        = "Your Azure Devops account is succesfully connected!"
-	UserAlreadyConnected = "Your Azure Devops account is already connected"
-	UserDisconnected     = "Your Azure Devops account is now disconnected"
-	CreatedTask          = "Link for new created task: %s"
-
-	// Error messages
-	Error                = "error"
-	GenericErrorMessage  = "something went wrong, please try again later"
-	NotAuthorized        = "not authorized"
-	InvalidPageNumber    = "invalid page number"
-	OrganizationRequired = "organization is required"
-	ProjectRequired      = "project is required"
-	InvalidStatus        = "invalid status"
-	InvalidAssignedTo    = "you can only see tasks assigned to yourself"
-	NoResultPresent      = "no results are present"
-	TaskTypeRequired     = "task type is required"
-	TaskTitleRequired    = "task title is required"
 )

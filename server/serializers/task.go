@@ -1,6 +1,9 @@
 package serializers
 
 import (
+	"encoding/json"
+	"errors"
+	"io"
 	"time"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -22,7 +25,6 @@ type TaskList struct {
 type TaskValue struct {
 	ID     int            `json:"id"`
 	Fields TaskFieldValue `json:"fields"`
-	Link Link `json:"_links"`
 }
 
 type TaskFieldValue struct {
@@ -53,19 +55,19 @@ type TaskUserDetails struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
-type TaskCreateRequestPayload struct {
+type CreateTaskRequestPayload struct {
 	Organization string               `json:"organization"`
 	Project      string               `json:"project"`
 	Type         string               `json:"type"`
-	Feilds       TaskCreateFieldValue `json:"fields"`
+	Fields       CreateTaskFieldValue `json:"fields"`
 }
 
-type TaskCreateFieldValue struct {
+type CreateTaskFieldValue struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-type TaskCreateBodyPayload struct {
+type CreateTaskBodyPayload struct {
 	Operation string `json:"op"`
 	Path      string `json:"path"`
 	From      string `json:"from"`
@@ -73,18 +75,26 @@ type TaskCreateBodyPayload struct {
 }
 
 // IsValid function to validate request payload.
-func (t *TaskCreateRequestPayload) IsValid() string {
+func (t *CreateTaskRequestPayload) IsValid() error {
 	if t.Organization == "" {
-		return constants.OrganizationRequired
+		return errors.New(constants.OrganizationRequired)
 	}
 	if t.Project == "" {
-		return constants.ProjectRequired
+		return errors.New(constants.ProjectRequired)
 	}
 	if t.Type == "" {
-		return constants.TaskTypeRequired
+		return errors.New(constants.TaskTypeRequired)
 	}
-	if t.Feilds.Title == "" {
-		return constants.TaskTitleRequired
+	if t.Fields.Title == "" {
+		return errors.New(constants.TaskTitleRequired)
 	}
-	return ""
+	return nil
+}
+
+func CreateTaskRequestPayloadFromJSON(data io.Reader) (*CreateTaskRequestPayload, error) {
+	var body *CreateTaskRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }

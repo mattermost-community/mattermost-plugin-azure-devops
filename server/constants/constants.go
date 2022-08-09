@@ -25,6 +25,6 @@ const (
 	CreateTaskAPIVersion = "7.1-preview.3"
 
 	// Authorization constants
-	Bearer        = "Bearer %s"
+	Bearer        = "Bearer"
 	Authorization = "Authorization"
 )

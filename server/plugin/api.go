@@ -36,33 +36,6 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 }
 
-// handleAuthRequired verifies if the provided request is performed by an authorized source.
-func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-		if mattermostUserID == "" {
-			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
-			p.handleError(w, r, &error)
-			return
-		}
-
-		handleFunc(w, r)
-	}
-}
-
-func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(error.Code)
-	message := map[string]string{constants.Error: error.Message}
-	response, err := json.Marshal(message)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
 // API to create task of a project in an organization.
 func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
@@ -92,6 +65,33 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Add("Content-Type", "application/json")
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// handleAuthRequired verifies if the provided request is performed by an authorized source.
+func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+		if mattermostUserID == "" {
+			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
+			p.handleError(w, r, &error)
+			return
+		}
+
+		handleFunc(w, r)
+	}
+}
+
+func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *serializers.Error) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(error.Code)
+	message := map[string]string{constants.Error: error.Message}
+	response, err := json.Marshal(message)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

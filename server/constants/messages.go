@@ -1,9 +1,14 @@
 package constants
 
 const (
-	// Generic messages
 	// TODO: all these messages are to be verified from Mike at the end
 	GenericErrorMessage             = "Something went wrong, please try again later"
+	Error                           = "error"
+	NotAuthorized                   = "not authorized"
+	OrganizationRequired            = "organization is required"
+	ProjectRequired                 = "project is required"
+	TaskTypeRequired                = "task type is required"
+	TaskTitleRequired               = "task title is required"
 	ConnectAccount                  = "[Click here to link your Azure DevOps account](%s%s)"
 	ConnectAccountFirst             = "You do not have any Azure Devops account connected. Kindly link the account first"
 	UserConnected                   = "Your Azure Devops account is succesfully connected!"

@@ -52,8 +52,7 @@ func (p *Plugin) OnActivate() error {
 		return errors.Wrap(err, "failed to get command")
 	}
 
-	err = p.API.RegisterCommand(command)
-	if err != nil {
+	if err = p.API.RegisterCommand(command); err != nil {
 		return errors.Wrap(err, "failed to register command")
 	}
 

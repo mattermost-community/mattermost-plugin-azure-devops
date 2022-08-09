@@ -10,7 +10,7 @@ import (
 // postTaskPreview function returns the new post containing the preview of the work item.
 // (UI may change in the future)
 func (p *Plugin) postTaskPreview(linkData []string, userID, channelID string) (*model.Post, string) {
-	task, err := p.Client.GetTask(linkData[3], linkData[7], userID)
+	task, _, err := p.Client.GetTask(linkData[3], linkData[7], userID)
 	if err != nil {
 		return nil, ""
 	}

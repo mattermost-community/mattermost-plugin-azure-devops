@@ -1,8 +1,23 @@
 import React from 'react';
 
-import Tabs from './tabs';
+import usePluginApi from 'hooks/usePluginApi';
+import {getprojectDetailsState} from 'selectors';
 
-// TODO: this is only for test purpose, refactor/remove the function content while actual development
-const Rhs = (): JSX.Element => <Tabs/>;
+import ProjectList from './projectList';
+import ProjectDetails from './projectDetails';
+
+const Rhs = (): JSX.Element => {
+    const usePlugin = usePluginApi();
+
+    return (
+        <div className='height-100vh bg-sidebar padding-25'>
+            {
+                getprojectDetailsState(usePlugin.state).id ?
+                    <ProjectDetails title={getprojectDetailsState(usePlugin.state).title}/> :
+                    <ProjectList/>
+            }
+        </div>
+    );
+};
 
 export default Rhs;

@@ -19,6 +19,14 @@ const pluginApi = createApi({
                 body: payload,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<void, LinkPayload>({
+            query: (payload) => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: Constants.pluginApiServiceConfigs.createLink.path,
+                method: Constants.pluginApiServiceConfigs.createLink.method,
+                body: payload,
+            }),
+        }),
     }),
 });
 

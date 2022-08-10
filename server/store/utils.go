@@ -2,7 +2,10 @@ package store
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -13,7 +16,7 @@ import (
 
 var ErrNotFound = errors.New("not found")
 
-// Ensure makes sure the initial value for a key is set to the value provided, if it does not already exists
+// Ensure makes sure the initial value for a key is set to the value provided, if it does not already exist
 // Returns the value set for the key in kv-store and error
 func (s *Store) Ensure(key string, newValue []byte) ([]byte, error) {
 	value, err := s.Load(key)
@@ -111,7 +114,26 @@ func (s *Store) AtomicModifyWithOptions(key string, modify func(initialValue []b
 // See AtomicModifyWithOptions for more info
 func (s *Store) AtomicModify(key string, modify func(initialValue []byte) ([]byte, error)) error {
 	return s.AtomicModifyWithOptions(key, func(initialValue []byte) ([]byte, *model.PluginKVSetOptions, error) {
-		b, err := modify(initialValue)
-		return b, nil, err
+		dataInByte, err := modify(initialValue)
+		return dataInByte, nil, err
 	})
+}
+
+func GetProjectListMapKey() string {
+	return GetKeyHash(constants.ProjectPrefix)
+}
+
+func GetProjectKey(projectID, mattermostUserID string) string {
+	return fmt.Sprintf(constants.ProjectKey, projectID, mattermostUserID)
+}
+
+func GetOAuthKey(mattermostUserID string) string {
+	return fmt.Sprintf(constants.OAuthPrefix, mattermostUserID)
+}
+
+// GetKeyHash can be used to create a hash from a string
+func GetKeyHash(key string) string {
+	hash := sha256.New()
+	_, _ = hash.Write([]byte(key))
+	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }

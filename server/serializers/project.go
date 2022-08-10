@@ -1,5 +1,12 @@
 package serializers
 
+type ProjectDetails struct {
+	MattermostUserID string
+	ProjectID        string
+	ProjectName      string
+	OrganizationName string
+}
+
 // TODO: Remove later if not needed.
 // import (
 // 	"time"

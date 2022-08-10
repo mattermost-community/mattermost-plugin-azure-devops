@@ -17,14 +17,11 @@ import (
 // If you add non-reference types to your configuration struct, be sure to rewrite Clone as a deep
 // copy appropriate for your types.
 type Configuration struct {
-	// TODO: Below configs are not final they are used as placeholder here
-	AzureDevopsAPIBaseURL            string `json:"azureDevopsAPIBaseURL"`
-	AzureDevopsOAuthAppID            string `json:"azureDevopsOAuthAppID"`
-	AzureDevopsOAuthClientSecret     string `jso:"azureDevopsOAuthClientSecret"`
-	AzureDevopsOAuthAuthorizationURL string `json:"azureDevopsOAuthAuthorizationURL"`
-	AzureDevopsOAuthTokenURL         string `json:"azureDevopsOAuthTokenURL"`
-	EncryptionSecret                 string `json:"EncryptionSecret"`
-	MattermostSiteURL                string
+	AzureDevopsAPIBaseURL        string `json:"azureDevopsAPIBaseURL"`
+	AzureDevopsOAuthAppID        string `json:"azureDevopsOAuthAppID"`
+	AzureDevopsOAuthClientSecret string `jso:"azureDevopsOAuthClientSecret"`
+	EncryptionSecret             string `json:"EncryptionSecret"`
+	MattermostSiteURL            string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -39,8 +36,6 @@ func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsAPIBaseURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsAPIBaseURL), "/")
 	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)
 	c.AzureDevopsOAuthClientSecret = strings.TrimSpace(c.AzureDevopsOAuthClientSecret)
-	c.AzureDevopsOAuthAuthorizationURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsOAuthAuthorizationURL), "/")
-	c.AzureDevopsOAuthTokenURL = strings.TrimRight(strings.TrimSpace(c.AzureDevopsOAuthTokenURL), "/")
 	c.EncryptionSecret = strings.TrimSpace(c.EncryptionSecret)
 
 	return nil
@@ -56,12 +51,6 @@ func (c *Configuration) IsValid() error {
 	}
 	if c.AzureDevopsOAuthClientSecret == "" {
 		return errors.New("azure devops OAuth client secret should not be empty")
-	}
-	if c.AzureDevopsOAuthAuthorizationURL == "" {
-		return errors.New("azure devops OAuth authorization URL should not be empty")
-	}
-	if c.AzureDevopsOAuthTokenURL == "" {
-		return errors.New("azure devops OAuth token URL should not be empty")
 	}
 	if c.EncryptionSecret == "" {
 		return errors.New("encryption secret should not be empty")

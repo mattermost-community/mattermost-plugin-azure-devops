@@ -8,8 +8,8 @@ const pluginId = 'mattermost-plugin-azure-devops';
 const AzureDevops = 'Azure Devops';
 const RightSidebarHeader = 'Azure Devops';
 
-const MMUSERID = 'MMUSERID';
-const HeaderMattermostUserID = 'User-ID';
+const MMCSRF = 'MMCSRF';
+const HeaderCSRFToken = 'X-CSRF-Token';
 
 // Plugin api service (RTK query) configs
 const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
@@ -56,8 +56,8 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
 };
 
 export default {
-    MMUSERID,
-    HeaderMattermostUserID,
+    MMCSRF,
+    HeaderCSRFToken,
     pluginId,
     pluginApiServiceConfigs,
     AzureDevops,

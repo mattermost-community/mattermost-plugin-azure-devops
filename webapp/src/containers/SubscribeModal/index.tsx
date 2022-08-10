@@ -13,6 +13,8 @@ import {hideSubscribeModal, toggleIsLinked} from 'reducers/subscribeModal';
 import Dropdown from 'components/dropdown';
 import {getOrganizationList, getProjectList} from 'utils';
 
+import './styles.scss';
+
 const SubscribeModal = () => {
     const eventTypeOptions = [
         {

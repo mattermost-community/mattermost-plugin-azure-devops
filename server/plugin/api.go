@@ -49,7 +49,7 @@ func (p *Plugin) InitRoutes() {
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
 func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 		if mattermostUserID == "" {
 			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
 			p.handleError(w, r, &error)
@@ -62,7 +62,7 @@ func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFun
 
 func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 		user, err := p.Store.LoadUser(mattermostUserID)
 		if err != nil || user.AccessToken == "" {
 			if errors.Is(err, ErrNotFound) || user.AccessToken == "" {
@@ -93,7 +93,7 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 
 // API to link a project and an organization to a user.
 func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	var body *serializers.LinkRequestPayload
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
@@ -144,7 +144,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 
 // handleGetAllLinkedProjects returns all linked projects list
 func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
@@ -173,7 +173,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 
 // handleUnlinkProject unlinks a project
 func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
 	var project *serializers.ProjectDetails
 	decoder := json.NewDecoder(r.Body)
@@ -221,7 +221,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 
 // handleUnlinkProject unlinks a project
 func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
 	userDetails, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
@@ -252,7 +252,7 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 
 // API to create task of a project in an organization.
 func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	var body *serializers.TaskCreateRequestPayload
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
@@ -291,7 +291,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
@@ -362,7 +362,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
@@ -416,7 +416,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 }
 
 func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	body, err := serializers.DeleteSubscriptionRequestPayloadFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for deleting subscriptions", "Error", err.Error())
@@ -461,7 +461,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 }
 
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	pathParams := mux.Vars(r)
 	teamID := pathParams[constants.PathParamTeamID]
 	if !model.IsValidId(teamID) {

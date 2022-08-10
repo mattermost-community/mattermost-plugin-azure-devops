@@ -16,6 +16,8 @@ import Hooks from 'hooks';
 
 import LinkModal from 'containers/LinkModal';
 
+import SubscribeModal from 'containers/SubscribeModal';
+
 import manifest from './manifest';
 
 import App from './app';
@@ -30,6 +32,7 @@ export default class Plugin {
         registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
+        registry.registerRootComponent(SubscribeModal);
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);

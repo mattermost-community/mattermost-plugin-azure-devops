@@ -27,6 +27,7 @@ var azureDevopsCommandHandler = Handler{
 		"disconnect": azureDevopsDisconnectCommand,
 		"boards":     azureDevopsBoardsCommand,
 		"link":       azureDevopsProjectLinkCommand,
+		"subscribe": azureDevopsSubscribeCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -43,7 +44,7 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.Comma
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, link")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, link, subscribe")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
@@ -59,6 +60,9 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 
 	link := model.NewAutocompleteData("link", "[link]", "Link a project")
 	azureDevops.AddCommand(link)
+
+	subscribe := model.NewAutocompleteData("subscribe", "", "Add a subscription")
+	azureDevops.AddCommand(subscribe)
 
 	return azureDevops
 }
@@ -125,6 +129,15 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 }
 
 func azureDevopsProjectLinkCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	message := constants.ConnectAccountFirst
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, message)
+	}
+
+	return &model.CommandResponse{}, nil
+}
+
+func azureDevopsSubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	message := constants.ConnectAccountFirst
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, message)

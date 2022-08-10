@@ -5,7 +5,7 @@ import plugin_constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
 
 import {toggleConnectionTriggered, toggleIsDisconnected} from 'reducers/userAcountDetails';
-import {getLinkModalState, getTaskModalState, getRhsState, getUserConnectionState} from 'selectors';
+import {getLinkModalState, getTaskModalState, getRhsState, getUserConnectionState, getSubscribeModalState} from 'selectors';
 
 // Global styles
 import 'styles/main.scss';
@@ -27,6 +27,7 @@ const App = (): JSX.Element => {
             (
                 getLinkModalState(usePlugin.state).visibility ||
                 getTaskModalState(usePlugin.state).visibility ||
+                getSubscribeModalState(usePlugin.state).visibility ||
                 getRhsState(usePlugin.state).isSidebarOpen
             ) && getUserConnectionState(usePlugin.state).isConnectionTriggered
         ) {

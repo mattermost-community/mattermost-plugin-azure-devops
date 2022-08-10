@@ -49,6 +49,21 @@ const pluginApi = createApi({
                 method: Constants.pluginApiServiceConfigs.getUserDetails.method,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.createSubscription.apiServiceName]: builder.query<void, APIRequestPayload>({
+            query: (payload) => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: Constants.pluginApiServiceConfigs.createSubscription.path,
+                method: Constants.pluginApiServiceConfigs.createSubscription.method,
+                body: payload,
+            }),
+        }),
+        [Constants.pluginApiServiceConfigs.getChannels.apiServiceName]: builder.query<ChannelList[], FetchChannelParams>({
+            query: (params) => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: `${Constants.pluginApiServiceConfigs.getChannels.path}/${params.teamId}`,
+                method: Constants.pluginApiServiceConfigs.getChannels.method,
+            }),
+        }),
     }),
 });
 

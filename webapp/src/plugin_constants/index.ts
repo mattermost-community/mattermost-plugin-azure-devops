@@ -43,6 +43,16 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'GET',
         apiServiceName: 'getUserDetails',
     },
+    createSubscription: {
+        path: '/subscriptions',
+        method: 'POST',
+        apiServiceName: 'createSubscription',
+    },
+    getChannels: {
+        path: '/channels',
+        method: 'GET',
+        apiServiceName: 'getChannels',
+    },
 };
 
 export default {

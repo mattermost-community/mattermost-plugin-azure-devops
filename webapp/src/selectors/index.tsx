@@ -27,3 +27,7 @@ export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
 export const getTaskModalState = (state: any): TaskModalState => {
     return state[pluginPrefix].openTaskModalReducer;
 };
+
+export const getSubscribeModalState = (state: any): SubscribeModalState => {
+    return state[pluginPrefix].openSubscribeModalReducer;
+};

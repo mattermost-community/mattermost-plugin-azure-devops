@@ -43,6 +43,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
+	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
@@ -292,6 +293,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
+	fmt.Println("\n\n\nbody", body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
@@ -317,14 +319,6 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: remove later
-	teamID := "qteks46as3befxj4ec1mip5ume"
-	channel, channelErr := p.API.GetChannelByName(teamID, body.ChannelName, false)
-	if channelErr != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: channelErr.DetailedError})
-		return
-	}
-
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
@@ -332,7 +326,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: channel.Id, EventType: body.EventType})
+	_, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType})
 	if isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
@@ -340,7 +334,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	pluginURL := p.GetPluginURL()
-	subscription, statusCode, err := p.Client.CreateSubscription(body, project, channel.Id, pluginURL, mattermostUserID)
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, body.ChannelID, pluginURL, mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorCreateSubscription, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
@@ -353,7 +347,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
-		ChannelID:        channel.Id,
+		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 	})
 	response, err := json.Marshal(subscription)
@@ -467,6 +461,45 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	pathParams := mux.Vars(r)
+	teamID := pathParams[constants.PathParamTeamID]
+	if !model.IsValidId(teamID) {
+		p.API.LogError("Invalid team id")
+		http.Error(w, "Invalid team id", http.StatusBadRequest)
+		return
+	}
+
+	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
+	if channelErr != nil {
+		p.API.LogError("Error in getting channels for team and user", "Error", channelErr.Error())
+		http.Error(w, fmt.Sprintf("Error in getting channels for team and user. Error: %s", channelErr.Error()), channelErr.StatusCode)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if channels == nil {
+		_, _ = w.Write([]byte("[]"))
+		return
+	}
+
+	var requiredChannels []*model.Channel
+	for _, channel := range channels {
+		if channel.Type == model.CHANNEL_PRIVATE || channel.Type == model.CHANNEL_OPEN {
+			requiredChannels = append(requiredChannels, channel)
+		}
+	}
+	if requiredChannels == nil {
+		_, _ = w.Write([]byte("[]"))
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(requiredChannels); err != nil {
+		p.API.LogError("Error while writing response", "Error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {

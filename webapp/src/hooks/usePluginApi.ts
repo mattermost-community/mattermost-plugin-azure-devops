@@ -22,7 +22,7 @@ function usePluginApi() {
 
     const getUserAccountConnectionState = () => {
         const {isLoading, isError, isSuccess, data} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
-        return {isLoading, data, isError, isSuccess};
+        return {isLoading, data: data as UserDetails, isError, isSuccess};
     };
 
     return {makeApiRequest, getApiState, state, getUserAccountConnectionState};

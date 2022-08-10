@@ -19,7 +19,8 @@ const (
 		"* `/azuredevops connect` - Connect your Mattermost account to your Azure Devops account.\n" +
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure Devops account.\n" +
 		"* `/azuredevops boards create` - Create a new task for your project.\n" +
-		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n"
+		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
+		"* `/azuredevops subscribe` - Create a subscription to a current channel.\n"
 	InvalidCommand = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Get task link preview constants
@@ -36,6 +37,9 @@ const (
 	Create           = "create"
 	Update           = "update"
 	Delete           = "delete"
+
+	// Path params
+	PathParamTeamID = "team_id"
 
 	// Authorization constants
 	Bearer        = "Bearer"

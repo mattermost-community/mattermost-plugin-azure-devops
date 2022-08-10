@@ -160,8 +160,6 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		return err
 	}
 
-	fmt.Printf("%+v\n", successResponse) // TODO: remove later
-
 	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
 		return err
 	}

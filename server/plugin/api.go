@@ -348,6 +348,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		EventType:        body.EventType,
 		ChannelID:        channel.Id,
 	})
+
 	response, err := json.Marshal(subscription)
 	if err != nil {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -369,11 +370,7 @@ func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	// TODO: for testing purposes, remove later
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-	u, _ := p.Store.LoadUser(mattermostUserID)
-	t, _ := p.ParseAuthToken(u.AccessToken)
-	fmt.Println("\n\n\n", t)
+
 	res, _ := json.Marshal(response)
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(res)

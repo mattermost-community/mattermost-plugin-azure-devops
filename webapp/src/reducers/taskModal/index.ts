@@ -12,15 +12,15 @@ export const openTaskModalSlice = createSlice({
     name: 'openTaskModal',
     initialState,
     reducers: {
-        showModal: (state) => {
+        showTaskModal: (state) => {
             state.visibility = true;
         },
-        hideModal: (state) => {
+        hideTaskModal: (state) => {
             state.visibility = false;
         },
     },
 });
 
-export const {showModal, hideModal} = openTaskModalSlice.actions;
+export const {showTaskModal, hideTaskModal} = openTaskModalSlice.actions;
 
 export default openTaskModalSlice.reducer;

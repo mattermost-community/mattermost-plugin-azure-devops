@@ -12,6 +12,7 @@ import Constants from 'plugin_constants';
 
 import Hooks from 'hooks';
 
+import LinkModal from 'containers/LinkModal';
 import TaskModal from 'containers/TaskModal';
 
 import manifest from './manifest';
@@ -25,8 +26,8 @@ export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         // @see https://developers.mattermost.com/extend/plugins/webapp/reference/
         registry.registerReducer(reducer);
-        registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
+        registry.registerRootComponent(LinkModal);
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);

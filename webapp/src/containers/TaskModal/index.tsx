@@ -7,7 +7,7 @@ import Modal from 'components/modal';
 
 import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
-import {hideModal} from 'reducers/taskModal';
+import {hideTaskModal} from 'reducers/taskModal';
 
 // TODO: fetch the organization and project options from API later.
 const organizationOptions = [
@@ -98,7 +98,7 @@ const TaskModal = () => {
         setTaskTitleError('');
         setTaskTypeError('');
         setTaskPayload(null);
-        dispatch(hideModal());
+        dispatch(hideTaskModal());
     }, []);
 
     const onOrganizationChange = useCallback((value: string) => {

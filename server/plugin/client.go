@@ -20,6 +20,7 @@ type Client interface {
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
+	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error)
 }
 
 type client struct {
@@ -80,10 +81,15 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 	return task, statusCode, nil
 }
 
-// Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
-func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
-	contentType := "application/x-www-form-urlencoded"
-	return c.call(url, method, path, contentType, "", nil, out, formValues)
+// Function to link a project and an organization.
+func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error) {
+	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
+	var project *serializers.Project
+	if _, _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil); err != nil {
+		return nil, errors.Wrap(err, "failed to link Project")
+	}
+
+	return project, nil
 }
 
 // Function to get the task.
@@ -97,6 +103,12 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 	}
 
 	return task, statusCode, nil
+}
+
+// Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
+func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+	contentType := "application/x-www-form-urlencoded"
+	return c.call(url, method, path, contentType, "", nil, out, formValues)
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

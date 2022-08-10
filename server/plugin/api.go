@@ -293,7 +293,6 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
-	fmt.Println("\n\n\nbody", body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
@@ -500,6 +499,7 @@ func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) 
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
+
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {

@@ -67,6 +67,7 @@ const SubscribeModal = () => {
         if (!getChannelState().data) {
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
         }
+
         if (!getProjectState().data) {
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
         }
@@ -77,6 +78,7 @@ const SubscribeModal = () => {
         if (channelList) {
             setChannelOptions(channelList.map((channel) => ({label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>, value: channel.id})));
         }
+
         const projectList = getProjectState().data;
         if (projectList) {
             setProjectOptions(getProjectList(projectList));
@@ -89,9 +91,11 @@ const SubscribeModal = () => {
         if (organizationOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, organization: organizationOptions[0].value}));
         }
+
         if (projectOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, project: projectOptions[0].value}));
         }
+
         if (channelOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, channelID: channelOptions[0].value}));
         }

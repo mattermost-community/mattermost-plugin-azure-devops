@@ -27,7 +27,7 @@ var azureDevopsCommandHandler = Handler{
 		"disconnect": azureDevopsDisconnectCommand,
 		"boards":     azureDevopsBoardsCommand,
 		"link":       azureDevopsProjectLinkCommand,
-		"subscribe": azureDevopsSubscribeCommand,
+		"subscribe":  azureDevopsSubscribeCommand,
 	},
 	defaultHandler: executeDefault,
 }

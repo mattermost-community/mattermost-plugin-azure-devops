@@ -47,7 +47,7 @@ type CreateSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
-	ChannelID  string `json:"channelID"`
+	ChannelID    string `json:"channelID"`
 }
 
 type DeleteSubscriptionRequestPayload struct {

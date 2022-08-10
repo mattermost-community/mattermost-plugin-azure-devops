@@ -113,8 +113,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project})
-	if isProjectLinked {
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
 		p.DM(mattermostUserID, constants.AlreadyLinkedProject)
 		return
 	}
@@ -187,8 +186,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, isProjectLinked := p.IsProjectLinked(projectList, *project)
-	if !isProjectLinked {
+	if _, isProjectLinked := p.IsProjectLinked(projectList, *project); !isProjectLinked {
 		p.API.LogError(constants.ProjectNotFound, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotFound})
 		return
@@ -325,22 +323,20 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorFetchSubscriptionList, "Error", err.Error())
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	_, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: channel.Id, EventType: body.EventType})
-	if isSubscriptionPresent {
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: channel.Id, EventType: body.EventType}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
 		return
 	}
 
-	pluginURL := p.GetPluginURL()
-	subscription, statusCode, err := p.Client.CreateSubscription(body, project, channel.Id, pluginURL, mattermostUserID)
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, channel.Id, p.GetPluginURL(), mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorCreateSubscription, "Error", err.Error())
+		p.API.LogError(constants.CreateSubscriptionError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}

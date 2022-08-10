@@ -31,8 +31,8 @@ const (
 
 	// Subscription constants
 	PublisherID      = "tfs"
-	ConsumerId       = "webHooks"
-	ConsumerActionId = "httpRequest"
+	ConsumerID       = "webHooks"
+	ConsumerActionID = "httpRequest"
 	Create           = "create"
 	Update           = "update"
 	Delete           = "delete"

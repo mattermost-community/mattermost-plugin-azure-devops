@@ -41,10 +41,8 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathNotificationSubscriptions, p.handleNotificationSubscriptions).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathSubscriptioNotifications, p.handleSubscriptioNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
-	// TODO: for testing purpose, remove later
-	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
@@ -393,7 +391,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handleSubscriptioNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -416,7 +414,10 @@ func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.
 	}
 
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-	p.API.CreatePost(post)
+	if _, err := p.API.CreatePost(post); err != nil {
+		p.API.LogError("Error in creating post", "Error", err.Error())
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 }
@@ -464,25 +465,6 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	})
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
-}
-
-// TODO: for testing purpose, remove later
-func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
-	// TODO: remove later
-	response, err := p.Client.TestApi()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	// TODO: for testing purposes, remove later
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-	u, _ := p.Store.LoadUser(mattermostUserID)
-	t, _ := p.ParseAuthToken(u.AccessToken)
-	fmt.Println("\n\n\n", t)
-	res, _ := json.Marshal(response)
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
 }
 
 func (p *Plugin) WithRecovery(next http.Handler) http.Handler {

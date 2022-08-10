@@ -41,7 +41,7 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.Comma
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
@@ -51,6 +51,12 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 
 	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure DevOps account")
 	azureDevops.AddCommand(disconnect)
+
+	create := model.NewAutocompleteData("boards create", "", "create a new task")
+	azureDevops.AddCommand(create)
+
+	link := model.NewAutocompleteData("link", "[link]", "link a project")
+	azureDevops.AddCommand(link)
 
 	return azureDevops
 }

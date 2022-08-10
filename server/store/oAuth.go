@@ -7,11 +7,13 @@ import (
 )
 
 func (s *Store) StoreOAuthState(mattermostUserID, state string) error {
-	return s.StoreTTL(mattermostUserID, []byte(state), constants.TTLSecondsForOAuthState)
+	oAuthKey := GetOAuthKey(mattermostUserID)
+	return s.StoreTTL(oAuthKey, []byte(state), constants.TTLSecondsForOAuthState)
 }
 
 func (s *Store) VerifyOAuthState(mattermostUserID, state string) error {
-	storedState, err := s.Load(mattermostUserID)
+	oAuthKey := GetOAuthKey(mattermostUserID)
+	storedState, err := s.Load(oAuthKey)
 	if err != nil {
 		if err == ErrNotFound {
 			return errors.New(constants.AuthAttemptExpired)

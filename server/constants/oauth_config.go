@@ -10,6 +10,7 @@ const (
 	BaseOauthURL = "https://app.vssps.visualstudio.com"
 
 	// Paths
-	PathAuth  = "/oauth2/authorize"
+	PathAuth = "/oauth2/authorize"
+	// #nosec G101 -- This is a false positive
 	PathToken = "/oauth2/token"
 )

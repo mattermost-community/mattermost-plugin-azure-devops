@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
@@ -133,21 +134,38 @@ func (p *Plugin) GetPluginURL() string {
 	return fmt.Sprintf("%s%s", strings.TrimRight(p.GetSiteURL(), "/"), p.GetPluginURLPath())
 }
 
+func (p *Plugin) ParseAuthToken(encoded string) (string, error) {
+	decodedAccessToken, err := p.decode(encoded)
+	if err != nil {
+		return "", err
+	}
+	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		return "", err
+	}
+	return string(decryptedAccessToken), nil
+}
+
 // AddAuthorization function to add authorization to a request.
 func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) error {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
 		return err
 	}
-	decodedAccessToken, err := p.decode(user.AccessToken)
-	if err != nil {
-		return err
-	}
-	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+	token, err := p.ParseAuthToken(user.AccessToken)
 	if err != nil {
 		return err
 	}
 
-	r.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, string(decryptedAccessToken)))
+	r.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, token))
 	return nil
+}
+
+func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, project serializers.ProjectDetails) bool {
+	for _, a := range projectList {
+		if a.ProjectName == project.ProjectName && a.OrganizationName == project.OrganizationName {
+			return true
+		}
+	}
+	return false
 }

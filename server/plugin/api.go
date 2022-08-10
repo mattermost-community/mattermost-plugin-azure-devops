@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
@@ -31,9 +32,10 @@ func (p *Plugin) InitRoutes() {
 	// OAuth
 	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
-	// TODO: for testing purpose, remove later
-	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
+
+	// Plugin APIs
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
+	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -57,7 +59,6 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
-
 	response, err := json.Marshal(task)
 	if err != nil {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -68,12 +69,65 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
+
+	// Send message to DM.
+	p.DM(mattermostUserID, message)
+}
+
+// API to link a project and an organization to a user.
+func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+	var body *serializers.LinkRequestPayload
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&body); err != nil {
+		p.API.LogError("Error in decoding body", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsLinkPayloadValid(); err != "" {
+		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
+		p.handleError(w, r, &error)
+		return
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	if p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}) {
+		p.DM(mattermostUserID, constants.AlreadyLinkedProject)
+		return
+	}
+
+	response, err := p.Client.Link(body, mattermostUserID)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	project := serializers.ProjectDetails{
+		MattermostUserID: mattermostUserID,
+		ProjectID:        response.ID,
+		ProjectName:      response.Name,
+		OrganizationName: body.Organization,
+	}
+
+	p.Store.StoreProject(&project)
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Add("Content-Type", "application/json")
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
 func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 		if mattermostUserID == "" {
 			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
 			p.handleError(w, r, &error)
@@ -110,20 +164,6 @@ func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-// TODO: for testing purpose, remove later
-func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
-	// TODO: remove later
-	response, err := p.Client.TestApi()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	res, _ := json.Marshal(response)
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
 }
 
 // Handles the static files under the assets directory.

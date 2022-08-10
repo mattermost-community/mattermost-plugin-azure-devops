@@ -36,9 +36,6 @@ func (p *Plugin) InitRoutes() {
 	// Plugin APIs
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
-
-	// TODO: for testing purpose, remove later
-	s.HandleFunc("/test", p.testAPI).Methods(http.MethodGet)
 }
 
 // API to create task of a project in an organization.
@@ -73,7 +70,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	message := fmt.Sprintf(constants.CreatedTask, task.Link.Html.Href)
+	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
 
 	// Send message to DM.
 	p.DM(mattermostUserID, message)
@@ -167,20 +164,6 @@ func (p *Plugin) WithRecovery(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-// TODO: for testing purpose, remove later
-func (p *Plugin) testAPI(w http.ResponseWriter, r *http.Request) {
-	// TODO: remove later
-	response, err := p.Client.TestApi()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	res, _ := json.Marshal(response)
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(res)
 }
 
 // Handles the static files under the assets directory.

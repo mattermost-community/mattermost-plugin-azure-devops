@@ -25,7 +25,7 @@ func (p *Plugin) postTaskPreview(linkData []string, userID, channelID string) (*
 		description = "No description"
 	}
 
-	taskTitle := fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.Html.Href)
+	taskTitle := fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href)
 	TaskPreviewMessage := fmt.Sprintf(constants.TaskPreviewMessage, task.Fields.State, assignedTo, description)
 	post := &model.Post{
 		UserId:    userID,

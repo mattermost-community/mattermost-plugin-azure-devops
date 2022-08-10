@@ -16,7 +16,6 @@ import (
 )
 
 type Client interface {
-	TestApi() (string, error) // TODO: remove later
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
@@ -30,11 +29,6 @@ type client struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-}
-
-// TODO: remove later
-func (c *client) TestApi() (string, error) {
-	return "hello world", nil
 }
 
 func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error) {
@@ -104,6 +98,17 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 
 	return task, statusCode, nil
 }
+
+// TODO: Uncomment the code later when needed.
+// Wrapper to make REST API requests with "application/json" type content
+// func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
+// 	contentType := "application/json"
+// 	buf := &bytes.Buffer{}
+// 	if err = json.NewEncoder(buf).Encode(in); err != nil {
+// 		return nil, err
+// 	}
+// 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
+// }
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
 func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {

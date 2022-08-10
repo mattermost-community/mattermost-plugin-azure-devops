@@ -7,13 +7,17 @@ import Modal from 'components/modal';
 
 import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
-import {hideModal} from 'reducers/taskModal';
+import {hideTaskModal} from 'reducers/taskModal';
 
 // TODO: fetch the organization and project options from API later.
 const organizationOptions = [
     {
         value: 'bs-test',
         label: 'bs-test',
+    },
+    {
+        value: 'brightscout-test',
+        label: 'brightscout-test',
     },
 ];
 
@@ -29,6 +33,10 @@ const projectOptions = [
     {
         value: 'bs-3',
         label: 'bs-3',
+    },
+    {
+        value: 'azure-test',
+        label: 'azure-test',
     },
 ];
 
@@ -62,7 +70,6 @@ const TaskModal = () => {
     const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openTaskModalReducer;
-    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -91,7 +98,7 @@ const TaskModal = () => {
         setTaskTitleError('');
         setTaskTypeError('');
         setTaskPayload(null);
-        dispatch(hideModal());
+        dispatch(hideTaskModal());
     }, []);
 
     const onOrganizationChange = useCallback((value: string) => {
@@ -157,8 +164,7 @@ const TaskModal = () => {
 
     useEffect(() => {
         if (taskPayload) {
-            const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
-            setLoading(isLoading);
+            const {isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
             if ((isSuccess && !isError) || (!isSuccess && isError)) {
                 onHide();
             }
@@ -173,9 +179,7 @@ const TaskModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Create task'
-                loading={loading}
-                confirmDisabled={loading}
-                cancelDisabled={loading}
+                loading={taskPayload ? usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload).isLoading : false}
             >
                 <>
                     <Dropdown

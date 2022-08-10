@@ -4,7 +4,7 @@
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink'
 
 type PluginApiService = {
     path: string,
@@ -26,6 +26,11 @@ type CreateTaskFields = {
     description: string,
 }
 
+type LinkPayload = {
+    organization: string,
+    project: string,
+}
+
 type CreateTaskPayload = {
     organization: string,
     project: string,
@@ -33,9 +38,28 @@ type CreateTaskPayload = {
     fields: CreateTaskFields,
 }
 
-type APIRequestPayload = CreateTaskPayload;
+type APIRequestPayload = CreateTaskPayload | LinkPayload | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
     value: string;
+}
+
+type TabsData = {
+    title: string
+    component: JSX.Element
+}
+
+type ProjectDetails = {
+    id: string
+    title: string
+    organization: string
+}
+
+type eventType = 'create' | 'update' | 'delete'
+
+type SubscriptionDetails = {
+    id: string
+    name: string
+    eventType: eventType
 }

@@ -79,11 +79,9 @@ const SubscribeModal = () => {
         if (organizationOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, organization: organizationOptions[0].value}));
         }
-
         if (projectOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, project: projectOptions[0].value}));
         }
-
         if (channelOptions.length === 1) {
             setSubscriptionDetails((value) => ({...value, channelID: channelOptions[0].value}));
         }
@@ -170,6 +168,7 @@ const SubscribeModal = () => {
         if (channelList) {
             setChannelOptions(channelList.map((channel) => ({label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>, value: channel.id})));
         }
+
         const projectList = getProjectState().data;
         if (projectList) {
             setProjectOptions(getProjectList(projectList));

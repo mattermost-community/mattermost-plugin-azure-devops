@@ -27,7 +27,6 @@ const App = (): JSX.Element => {
             (
                 getLinkModalState(usePlugin.state).visibility ||
                 getTaskModalState(usePlugin.state).visibility ||
-                getSubscribeModalState(usePlugin.state).visibility ||
                 getRhsState(usePlugin.state).isSidebarOpen
             ) && getUserConnectionState(usePlugin.state).isConnectionTriggered
         ) {

@@ -52,7 +52,6 @@ export default class Hooks {
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops subscribe')) {
             const args = splitArgs(commandTrimmed);
-            this.toggleUserConnection(true);
             this.store.dispatch(showSubscribeModal(args));
             return {
                 message,

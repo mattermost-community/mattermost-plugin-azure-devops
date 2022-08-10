@@ -15,6 +15,10 @@ const organizationOptions = [
         value: 'bs-test',
         label: 'bs-test',
     },
+    {
+        value: 'brightscout-test',
+        label: 'brightscout-test',
+    },
 ];
 
 const projectOptions = [
@@ -29,6 +33,10 @@ const projectOptions = [
     {
         value: 'bs-3',
         label: 'bs-3',
+    },
+    {
+        value: 'azure-test',
+        label: 'azure-test',
     },
 ];
 
@@ -62,7 +70,6 @@ const TaskModal = () => {
     const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
     const usePlugin = usePluginApi();
     const {visibility} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openTaskModalReducer;
-    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -153,12 +160,11 @@ const TaskModal = () => {
 
         // Make POST api request
         usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, payload);
-    }, [state, taskOrganizationError, taskProjectError, taskTitleError, taskTypeError]);
+    }, [state]);
 
     useEffect(() => {
         if (taskPayload) {
-            const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
-            setLoading(isLoading);
+            const {isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
             if ((isSuccess && !isError) || (!isSuccess && isError)) {
                 onHide();
             }
@@ -173,9 +179,7 @@ const TaskModal = () => {
                 onHide={onHide}
                 onConfirm={onConfirm}
                 confirmBtnText='Create task'
-                loading={taskPayload ? loading : false}
-                confirmDisabled={taskPayload ? loading : false}
-                cancelDisabled={taskPayload ? loading : false}
+                loading={taskPayload ? usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload).isLoading : false}
             >
                 <>
                     <Dropdown

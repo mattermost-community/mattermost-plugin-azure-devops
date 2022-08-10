@@ -38,9 +38,28 @@ type CreateTaskPayload = {
     fields: CreateTaskFields,
 }
 
-type APIRequestPayload = CreateTaskPayload | LinkPayload;
+type APIRequestPayload = CreateTaskPayload | LinkPayload | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
     value: string;
+}
+
+type TabsData = {
+    title: string
+    component: JSX.Element
+}
+
+type ProjectDetails = {
+    id: string
+    title: string
+    organization: string
+}
+
+type eventType = 'create' | 'update' | 'delete'
+
+type SubscriptionDetails = {
+    id: string
+    name: string
+    eventType: eventType
 }

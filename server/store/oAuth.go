@@ -2,12 +2,13 @@ package store
 
 import (
 	"github.com/pkg/errors"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
 func (s *Store) StoreOAuthState(mattermostUserID, state string) error {
-	var ttlSeconds int64 = 60
 	oAuthKey := GetOAuthKey(mattermostUserID)
-	return s.StoreTTL(oAuthKey, []byte(state), ttlSeconds)
+	return s.StoreTTL(oAuthKey, []byte(state), constants.TTLSecondsForOAuthState)
 }
 
 func (s *Store) VerifyOAuthState(mattermostUserID, state string) error {
@@ -15,13 +16,13 @@ func (s *Store) VerifyOAuthState(mattermostUserID, state string) error {
 	storedState, err := s.Load(oAuthKey)
 	if err != nil {
 		if err == ErrNotFound {
-			return errors.New("authentication attempt expired, please try again")
+			return errors.New(constants.AuthAttemptExpired)
 		}
 		return err
 	}
 
 	if string(storedState) != state {
-		return errors.New("invalid oauth state, please try again")
+		return errors.New(constants.InvalidAuthState)
 	}
 	return nil
 }

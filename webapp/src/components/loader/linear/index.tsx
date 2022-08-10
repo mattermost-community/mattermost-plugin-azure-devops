@@ -2,7 +2,7 @@ import React from 'react';
 
 import './styles.scss';
 
-const LinearLoader = () => {
+const LinearLoader = () : JSX.Element => {
     return (
         <div className='linear-loader'>
             <div className='linear-loader__bar'/>

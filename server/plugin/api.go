@@ -39,9 +39,9 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.checkOAuth(p.handleGetAllLinkedProjects))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathCreateSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleNotificationSubscriptions).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathSubscriptioNotifications, p.handleSubscriptioNotifications).Methods(http.MethodPost)
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
@@ -390,7 +390,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (p *Plugin) handleNotificationSubscriptions(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handleSubscriptioNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())

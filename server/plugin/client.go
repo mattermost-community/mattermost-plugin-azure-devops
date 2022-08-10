@@ -110,7 +110,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptioNotifications, channelID),
 	}
 
 	StatusData := map[string]string{

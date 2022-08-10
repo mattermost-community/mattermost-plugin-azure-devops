@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
@@ -73,7 +74,9 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.closeBrowserWindowWithHTTPResponse(w)
-		_, _ = p.DM(mattermostUserID, constants.UserAlreadyConnected)
+		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected); DMErr != nil {
+			p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
+		}
 		return
 	}
 

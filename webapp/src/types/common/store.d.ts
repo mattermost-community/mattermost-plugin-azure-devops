@@ -11,7 +11,6 @@ type TaskModalState = {
 
 type SubscribeModalState = {
     visibility: boolean,
-    isLinked: boolean,
 }
 
 type userConnectionState = {

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
@@ -8,8 +8,7 @@ import Modal from 'components/modal';
 import usePluginApi from 'hooks/usePluginApi';
 import {getSubscribeModalState} from 'selectors';
 import plugin_constants from 'plugin_constants';
-import LinearLoader from 'components/loader/linear';
-import {hideSubscribeModal, toggleIsLinked} from 'reducers/subscribeModal';
+import {hideSubscribeModal} from 'reducers/subscribeModal';
 import Dropdown from 'components/dropdown';
 import {getOrganizationList, getProjectList} from 'utils';
 
@@ -31,7 +30,6 @@ const SubscribeModal = () => {
         },
     ];
 
-    // State variables
     const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionPayload>({
         organization: '',
         project: '',
@@ -44,13 +42,15 @@ const SubscribeModal = () => {
         eventType: '',
         channelID: '',
     });
+    const [subscriptionPayload, setSubscriptionPayload] = useState<SubscriptionPayload | null>();
+    const [loading, setLoading] = useState(false);
+    const [APIError, setAPIError] = useState('');
     const [channelOptions, setChannelOptions] = useState<DropdownOptionType[]>([]);
     const [organizationOptions, setOrganizationOptions] = useState<DropdownOptionType[]>([]);
     const [projectOptions, setProjectOptions] = useState<DropdownOptionType[]>([]);
     const {entities} = useSelector((state: GlobalState) => state);
-
-    // Hooks
     const usePlugin = usePluginApi();
+    const {visibility} = getSubscribeModalState(usePlugin.state);
     const dispatch = useDispatch();
 
     // Get ProjectList State
@@ -69,24 +69,10 @@ const SubscribeModal = () => {
         if (!getChannelState().data) {
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
         }
-
         if (!getProjectState().data) {
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
         }
     }, []);
-
-    useEffect(() => {
-        const channelList = getChannelState().data;
-        if (channelList) {
-            setChannelOptions(channelList.map((channel) => ({label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>, value: channel.id})));
-        }
-
-        const projectList = getProjectState().data;
-        if (projectList) {
-            setProjectOptions(getProjectList(projectList));
-            setOrganizationOptions(getOrganizationList(projectList));
-        }
-    }, [usePlugin.state]);
 
     useEffect(() => {
         // Pre-select the dropdown value in case of single option.
@@ -104,7 +90,7 @@ const SubscribeModal = () => {
     }, [projectOptions, organizationOptions, channelOptions]);
 
     // Function to hide the modal and reset all the states.
-    const resetModalState = () => {
+    const onHide = useCallback(() => {
         setSubscriptionDetails({
             organization: '',
             project: '',
@@ -117,141 +103,135 @@ const SubscribeModal = () => {
             eventType: '',
             channelID: '',
         });
+        setLoading(false);
+        setAPIError('');
+        setSubscriptionPayload(null);
         dispatch(hideSubscribeModal());
-    };
+    }, []);
 
     // Set organization name
-    const onOrganizationChange = (value: string) => {
+    const onOrganizationChange = useCallback((value: string) => {
         setErrorState({...errorState, organization: ''});
         setSubscriptionDetails({...subscriptionDetails, organization: value});
-    };
+    }, [subscriptionDetails, errorState]);
 
     // Set project name
-    const onProjectChange = (value: string) => {
+    const onProjectChange = useCallback((value: string) => {
         setErrorState({...errorState, project: ''});
         setSubscriptionDetails({...subscriptionDetails, project: value});
-    };
+    }, [subscriptionDetails, errorState]);
 
     // Set event type
-    const onEventTypeChange = (value: string) => {
+    const onEventTypeChange = useCallback((value: string) => {
         setErrorState({...errorState, eventType: ''});
         setSubscriptionDetails({...subscriptionDetails, eventType: value});
-    };
+    }, [subscriptionDetails, errorState]);
 
     // Set channel name
-    const onChannelChange = (value: string) => {
+    const onChannelChange = useCallback((value: string) => {
         setErrorState({...errorState, channelID: ''});
         setSubscriptionDetails({...subscriptionDetails, channelID: value});
-    };
+    }, [subscriptionDetails, errorState]);
 
     // Handles on confirming subscription
-    const onConfirm = () => {
-        const newErrorState: SubscriptionPayload = {
-            organization: '',
-            project: '',
-            eventType: '',
-            channelID: '',
-        };
-
+    const onConfirm = useCallback(() => {
         if (subscriptionDetails.organization === '') {
-            newErrorState.organization = 'Organization is required';
+            setErrorState((value) => ({...value, organization: 'Organization is required'}));
         }
-
         if (subscriptionDetails.project === '') {
-            newErrorState.project = 'Project is required';
+            setErrorState((value) => ({...value, project: 'Project is required'}));
         }
-
         if (subscriptionDetails.eventType === '') {
-            newErrorState.eventType = 'Event type is required';
+            setErrorState((value) => ({...value, eventType: 'Event type is required'}));
         }
-
         if (subscriptionDetails.channelID === '') {
-            newErrorState.channelID = 'Channel name is required';
+            setErrorState((value) => ({...value, channelID: 'Channel name is required'}));
         }
-
-        if (newErrorState.organization || newErrorState.project || newErrorState.channelID || newErrorState.eventType) {
-            setErrorState(newErrorState);
+        if (!subscriptionDetails.organization || !subscriptionDetails.project || !subscriptionDetails.channelID || !subscriptionDetails.eventType) {
             return;
         }
 
-        // Make POST api request
-        subscribe(subscriptionDetails);
-    };
+        // Create payload to send in the POST request.
+        const payload = {
+            organization: subscriptionDetails.organization,
+            project: subscriptionDetails.project,
+            channelID: subscriptionDetails.channelID,
+            eventType: subscriptionDetails.eventType,
+        };
 
-    // Make POST api request to create subscription
-    const subscribe = async (payload: SubscriptionPayload) => {
-        const createSubscriptionRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, payload);
-        if (createSubscriptionRequest) {
-            dispatch(toggleIsLinked(true));
-            resetModalState();
+        setSubscriptionPayload(payload);
+
+        // Make POST api request
+        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, payload);
+    }, [subscriptionDetails]);
+
+    useEffect(() => {
+        const channelList = getChannelState().data;
+        if (channelList) {
+            setChannelOptions(channelList.map((channel) => ({label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>, value: channel.id})));
         }
-    };
+        const projectList = getProjectState().data;
+        if (projectList) {
+            setProjectOptions(getProjectList(projectList));
+            setOrganizationOptions(getOrganizationList(projectList));
+        }
+        if (subscriptionPayload) {
+            const {isLoading, isSuccess, isError} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionPayload);
+            setLoading(isLoading);
+            if (isSuccess) {
+                onHide();
+            }
+            if (isError) {
+                setAPIError('Some error occurred. Please try again later.');
+            }
+        }
+    }, [usePlugin.state]);
 
     return (
         <Modal
-            show={getSubscribeModalState(usePlugin.state).visibility}
+            show={visibility}
             title='Create subscription'
-            onHide={resetModalState}
+            onHide={onHide}
             onConfirm={onConfirm}
-            showFooter={
-                !usePlugin.getUserAccountConnectionState().isLoading &&
-                usePlugin.getUserAccountConnectionState().isSuccess &&
-                usePlugin.getUserAccountConnectionState().data?.MattermostUserID
-            }
             confirmBtnText='Create subsciption'
-            cancelDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails).isLoading}
-            confirmDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails).isLoading}
-            loading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails).isLoading}
+            cancelDisabled={loading}
+            confirmDisabled={loading}
+            loading={loading}
+            error={APIError}
         >
             <>
-                {
-                    usePlugin.getUserAccountConnectionState().isLoading && (<LinearLoader/>)
-                }
-                {
-                    !usePlugin.getUserAccountConnectionState().isLoading &&
-                    usePlugin.getUserAccountConnectionState().isError &&
-                    (<div className='not-linked'>{'You do not have any Azure Devops account connected. Kindly link the account first'}</div>)
-                }
-                {
-                    !usePlugin.getUserAccountConnectionState().isLoading &&
-                    usePlugin.getUserAccountConnectionState().isSuccess &&
-                    usePlugin.getUserAccountConnectionState().data?.MattermostUserID && (
-                        <>
-                            <Dropdown
-                                placeholder='Organization name'
-                                value={subscriptionDetails.organization}
-                                onChange={(newValue) => onOrganizationChange(newValue)}
-                                options={organizationOptions}
-                                required={true}
-                                error={errorState.organization}
-                            />
-                            <Dropdown
-                                placeholder='Project name'
-                                value={subscriptionDetails.project}
-                                onChange={(newValue) => onProjectChange(newValue)}
-                                options={projectOptions}
-                                required={true}
-                                error={errorState.project}
-                            />
-                            <Dropdown
-                                placeholder='Event type'
-                                value={subscriptionDetails.eventType}
-                                onChange={(newValue) => onEventTypeChange(newValue)}
-                                options={eventTypeOptions}
-                                required={true}
-                                error={errorState.eventType}
-                            />
-                            <Dropdown
-                                placeholder='Channel name'
-                                value={subscriptionDetails.channelID}
-                                onChange={(newValue) => onChannelChange(newValue)}
-                                options={channelOptions}
-                                required={true}
-                                error={errorState.channelID}
-                            />
-                        </>
-                    )
-                }
+                <Dropdown
+                    placeholder='Organization name'
+                    value={subscriptionDetails.organization}
+                    onChange={(newValue) => onOrganizationChange(newValue)}
+                    options={organizationOptions}
+                    required={true}
+                    error={errorState.organization}
+                />
+                <Dropdown
+                    placeholder='Project name'
+                    value={subscriptionDetails.project}
+                    onChange={(newValue) => onProjectChange(newValue)}
+                    options={projectOptions}
+                    required={true}
+                    error={errorState.project}
+                />
+                <Dropdown
+                    placeholder='Event type'
+                    value={subscriptionDetails.eventType}
+                    onChange={(newValue) => onEventTypeChange(newValue)}
+                    options={eventTypeOptions}
+                    required={true}
+                    error={errorState.eventType}
+                />
+                <Dropdown
+                    placeholder='Channel name'
+                    value={subscriptionDetails.channelID}
+                    onChange={(newValue) => onChannelChange(newValue)}
+                    options={channelOptions}
+                    required={true}
+                    error={errorState.channelID}
+                />
             </>
         </Modal>
     );

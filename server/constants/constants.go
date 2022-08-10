@@ -32,6 +32,8 @@ const (
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
+	TasksIDAPIVersion    = "5.1"
+	TasksAPIVersion      = "6.0"
 
 	// Authorization constants
 	Bearer        = "Bearer"
@@ -39,9 +41,6 @@ const (
 
 	GetTasksID = "/%s/_apis/wit/wiql"
 	GetTasks   = "/%s/_apis/wit/workitems"
-
-	TasksIDAPIVersion = "5.1"
-	TasksAPIVersion   = "6.0"
 
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"

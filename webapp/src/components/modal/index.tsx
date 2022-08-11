@@ -56,7 +56,7 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
                 cancelBtnText={cancelBtnText}
                 confirmBtnText={confirmBtnText}
                 confirmAction={confirmAction}
-                />
+            />
         </RBModal>
     );
 };

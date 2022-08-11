@@ -5,8 +5,6 @@ import IconButton from 'components/buttons/iconButton';
 
 import {onPressingEnterKey} from 'utils';
 
-import './styles.scss';
-
 type ProjectCardProps = {
     onProjectTitleClick: (projectDetails: ProjectDetails) => void
     handleUnlinkProject: () => void

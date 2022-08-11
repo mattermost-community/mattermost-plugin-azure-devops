@@ -10,7 +10,7 @@ const Rhs = (): JSX.Element => {
     const usePlugin = usePluginApi();
 
     if (!getRhsState(usePlugin.state).isSidebarOpen) {
-        return <></>
+        return <></>;
     }
 
     return (

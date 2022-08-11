@@ -31,8 +31,8 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
     getAllLinkedProjectsList: {
         path: '/link/project',
         method: 'GET',
-        apiServiceName: 'getAllLinkedProjectsList'
-    }
+        apiServiceName: 'getAllLinkedProjectsList',
+    },
 };
 
 export default {

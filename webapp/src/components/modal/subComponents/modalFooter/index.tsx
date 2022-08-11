@@ -1,6 +1,5 @@
 import React from 'react';
 import {Modal as RBModal} from 'react-bootstrap';
-import {Button} from 'react-bootstrap';
 
 import './styles.scss';
 
@@ -16,7 +15,7 @@ type ModalFooterProps = {
 }
 
 const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, className = '', confirmDisabled, cancelDisabled, confirmAction}: ModalFooterProps) : JSX.Element => (
-    <RBModal.Footer className={!confirmAction ? `modal__footer d-flex flex-column justify-content-center align-items-center ${className}` : 'modal__confirm-action'}>
+    <RBModal.Footer className={confirmAction ? 'modal__confirm-action' : `modal__footer d-flex flex-column justify-content-center align-items-center ${className}`}>
         {onConfirm && (
             <button
                 className={`plugin-btn btn ${confirmAction ? 'btn-danger' : 'btn-primary modal__confirm-btn'}`}

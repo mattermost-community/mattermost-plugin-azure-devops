@@ -13,4 +13,9 @@
     margin: 0 !important;
     padding: 0;
   }
+
+  &__confirm-action {
+    display: flex;
+    flex-direction: row-reverse;
+  }
 }

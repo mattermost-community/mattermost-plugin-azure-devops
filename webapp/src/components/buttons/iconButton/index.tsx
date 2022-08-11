@@ -20,7 +20,8 @@ const IconButton = ({tooltipText, iconClassName, extraClass = '', iconColor, onC
         <Tooltip tooltipContent={tooltipText}>
             <Button
                 variant='outline-danger'
-                className={`button-wrapper  ${extraClass} ${iconColor === 'danger' && 'danger'}`}
+                className={`plugin-btn button-wrapper btn-icon ${extraClass}`}
+                onClick={onClick}
             >
                 <i
                     className={iconClassName}

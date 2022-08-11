@@ -70,7 +70,7 @@
     cursor: pointer;
 
     &:hover {
-        color: darken($link-color, 30);
+        color: darken($link-color, 20);
         text-decoration: underline;
     }
 }

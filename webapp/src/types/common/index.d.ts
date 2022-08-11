@@ -4,11 +4,11 @@
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList'
 
 type PluginApiService = {
     path: string,
-    method: httpMethod,
+    method: HttpMethod,
     apiServiceName: ApiServiceName
 }
 
@@ -51,9 +51,9 @@ type TabsData = {
 }
 
 type ProjectDetails = {
-    id: string
-    title: string
-    organization: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
 }
 
 type eventType = 'create' | 'update' | 'delete'

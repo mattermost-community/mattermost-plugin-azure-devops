@@ -45,4 +45,8 @@ const (
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
 	IDsQueryParam        = "ids"
+
+	// Websocket events
+	WSEventConnect    = "connect"
+	WSEventDisconnect = "disconnect"
 )

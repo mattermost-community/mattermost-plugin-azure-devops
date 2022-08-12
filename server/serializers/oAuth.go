@@ -18,3 +18,7 @@ type OAuthSuccessResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    string `json:"expires_in"`
 }
+
+type ConnectedResponse struct {
+	Connected bool `json:"connected"`
+}

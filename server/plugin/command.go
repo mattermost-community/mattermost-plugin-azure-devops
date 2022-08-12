@@ -25,6 +25,7 @@ var azureDevopsCommandHandler = Handler{
 		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
+		"link":       azureDevopsAccountConnectionCheck,
 	},
 	defaultHandler: executeDefault,
 }
@@ -77,6 +78,14 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
+func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, constants.ConnectAccountFirst)
+	}
+
+	return &model.CommandResponse{}, nil
+}
+
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	return p.sendEphemeralPostForCommand(commandArgs, constants.HelpText)
 }
@@ -100,6 +109,12 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *mod
 			}
 			message = constants.GenericErrorMessage
 		}
+
+		p.API.PublishWebSocketEvent(
+			constants.WSEventDisconnect,
+			nil,
+			&model.WebsocketBroadcast{UserId: commandArgs.UserId},
+		)
 	}
 	return p.sendEphemeralPostForCommand(commandArgs, message)
 }

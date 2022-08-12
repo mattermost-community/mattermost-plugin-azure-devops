@@ -164,6 +164,12 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		return err
 	}
 
+	p.API.PublishWebSocketEvent(
+		constants.WSEventConnect,
+		nil,
+		&model.WebsocketBroadcast{UserId: mattermostUserID},
+	)
+
 	return nil
 }
 

@@ -68,3 +68,5 @@ type SubscriptionDetails = {
     name: string
     eventType: eventType
 }
+
+type ModalId = 'linkProject' | 'createBoardTask' | null

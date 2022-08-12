@@ -4,12 +4,16 @@ const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
 
 // TODO: create a type for global state
 
+export const getGlobalModalState = (state: any): GlobalModalState => {
+    return state[pluginPrefix].globalModalSlice;
+};
+
 export const getprojectDetailsState = (state: any) => {
     return state[pluginPrefix].projectDetailsSlice;
 };
 
 export const getLinkModalState = (state: any): LinkProjectModalState => {
-    return state[pluginPrefix].openLinkModalReducer;
+    return state[pluginPrefix].openLinkModalSlice;
 };
 
 export const getRhsState = (state: any): {isSidebarOpen: boolean} => {

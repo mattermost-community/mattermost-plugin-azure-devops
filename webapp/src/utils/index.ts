@@ -14,7 +14,7 @@ const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string}
     return {pluginApiBaseUrl, mattermostApiBaseUrl};
 };
 
-export const splitArgs = (command: string) => {
+export const getCommandArgs = (command: string) => {
     const myRegexp = /[^\s"]+|"([^"]*)"/gi;
     const myArray = [];
     let match;
@@ -24,19 +24,22 @@ export const splitArgs = (command: string) => {
             myArray.push(match[1] ? match[1] : match[0]);
         }
     } while (match != null);
-    return myArray;
+    return myArray.length > 2 ? myArray.slice(2) : [];
 };
 
-export const getProjectLinkDetails = (str: string) => {
+export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     const data = str.split('/');
-    if (data.length !== 5) {
-        return [];
+    if (data.length < 5 || (data[0] !== 'https:' && data[2] !== 'dev.azure.com')) {
+        return {
+            organization: '',
+            project: '',
+        };
     }
-    if (data[0] !== 'https:' && data[2] !== 'dev.azure.com') {
-        return [];
-    }
-    const values = [data[3], data[4]];
-    return values;
+
+    return {
+        organization: data[3] ?? '',
+        project: data[4] ?? '',
+    };
 };
 
 export const onPressingEnterKey = (event: Event | undefined, func: () => void) => {

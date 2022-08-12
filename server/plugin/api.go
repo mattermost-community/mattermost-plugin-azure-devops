@@ -36,7 +36,7 @@ func (p *Plugin) InitRoutes() {
 	// Plugin APIs
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.handleUnlinkProject)).Methods(http.MethodPost)
 }
 
@@ -46,7 +46,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 
 	body, err := serializers.CreateTaskRequestPayloadFromJSON(r.Body)
 	if err != nil {
-		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
+		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}

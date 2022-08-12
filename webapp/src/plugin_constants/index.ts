@@ -33,6 +33,11 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'GET',
         apiServiceName: 'getAllLinkedProjectsList',
     },
+    unlinkProject: {
+        path: '/unlink/project',
+        method: 'POST',
+        apiServiceName: 'unlinkProject',
+    },
 };
 
 export default {

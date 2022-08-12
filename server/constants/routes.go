@@ -7,4 +7,5 @@ const (
 	PathOAuthConnect         = "/oauth/connect"
 	PathOAuthCallback        = "/oauth/complete"
 	PathGetAllLinkedProjects = "/link/project"
+	PathUnlinkProject        = "/unlink/project"
 )

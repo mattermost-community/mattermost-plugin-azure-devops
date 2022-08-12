@@ -9,9 +9,10 @@ type ConfirmationModalProps = {
     confirmBtnText: string
     onHide?: () => void
     onConfirm?: () => void
+    isLoading?: boolean
 }
 
-const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm}: ConfirmationModalProps) => {
+const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm, isLoading}: ConfirmationModalProps) => {
     return (
         <Modal
             show={isOpen}
@@ -20,6 +21,7 @@ const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, 
             onConfirm={onConfirm}
             confirmAction={true}
             confirmBtnText={confirmBtnText}
+            loading={isLoading}
         >
             <p>{description}</p>
         </Modal>

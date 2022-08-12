@@ -25,4 +25,7 @@ const (
 	AlreadyLinkedProject            = "This project is already linked."
 	GetProjectListError             = "Error getting Project List"
 	ErrorFetchProjectList           = "Error in fetching project list"
+	ErrorDecodingBody               = "Error in decoding body"
+	ProjectNotFound                 = "Requested project does not exists"
+	ErrorUnlinkProject              = "Error in unlinking the project"
 )

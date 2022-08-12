@@ -132,8 +132,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
@@ -141,7 +140,10 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 
 	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
+		if _, err = w.Write([]byte("[]")); err != nil {
+			p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		}
 		return
 	}
 
@@ -162,8 +164,7 @@ func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 		if mattermostUserID == "" {
-			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
-			p.handleError(w, r, &error)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized})
 			return
 		}
 
@@ -217,9 +218,10 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	successResponse := &serializers.SuccessResponse{
 		Message: "success",
 	}
+
 	response, err := json.Marshal(&successResponse)
 	if err != nil {
-		p.API.LogError("Error marhsalling response", "Error", err.Error())
+		p.API.LogError("Error marhsalling the response", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}

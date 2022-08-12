@@ -38,6 +38,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.handleUnlinkProject)).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.handleGetUserAccountDetails)).Methods(http.MethodGet)
 }
 
 // API to create task of a project in an organization.
@@ -218,6 +219,37 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		Message: "success",
 	}
 	response, err := json.Marshal(&successResponse)
+	if err != nil {
+		p.API.LogError("Error marhsalling response", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// handleUnlinkProject unlinks a project
+func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+
+	userDetails, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if userDetails.MattermostUserID == "" {
+		p.API.LogError(constants.ConnectAccountFirst, "Error")
+		p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
+		return
+	}
+
+	response, err := json.Marshal(&userDetails)
 	if err != nil {
 		p.API.LogError("Error marhsalling response", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})

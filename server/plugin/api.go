@@ -147,7 +147,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 	}
 }
 

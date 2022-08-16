@@ -16,6 +16,10 @@ export const getLinkModalState = (state: any): LinkProjectModalState => {
     return state[pluginPrefix].openLinkModalSlice;
 };
 
+export const getCreateTaskModalState = (state: any): CreateTaskModalState => {
+    return state[pluginPrefix].openTaskModalReducer;
+};
+
 export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
     return state.views.rhs;
 };

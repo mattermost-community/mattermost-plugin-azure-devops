@@ -71,13 +71,13 @@ const LinkModal = () => {
         }
 
         // Make POST api request
-        linkTask(projectDetails);
+        linkTask();
     };
 
     // Make POST api request to link a project
-    const linkTask = async (payload: LinkPayload) => {
-        const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
-        if (createTaskRequest) {
+    const linkTask = async () => {
+        const linkProjectResponse = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
+        if (linkProjectResponse) {
             dispatch(toggleIsLinked(true));
             resetModalState();
         }
@@ -111,6 +111,7 @@ const LinkModal = () => {
                     value={projectDetails.organization}
                     onChange={onOrganizationChange}
                     error={errorState.organization}
+                    disabled={isLoading}
                     required={true}
                 />
                 <Input
@@ -118,8 +119,9 @@ const LinkModal = () => {
                     placeholder='Project name'
                     value={projectDetails.project}
                     onChange={onProjectChange}
-                    required={true}
+                    disabled={isLoading}
                     error={errorState.project}
+                    required={true}
                 />
             </>
         </Modal>

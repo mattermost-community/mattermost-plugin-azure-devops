@@ -14,3 +14,13 @@ type LinkProjectModalState = {
     project: string,
     isLinked: boolean,
 }
+
+type TaskFieldsCommandArgs = {
+    title: string;
+    description: string;
+}
+
+type CreateTaskModalState = {
+    visibility: boolean
+    commandArgs: TaskFieldsCommandArgs
+}

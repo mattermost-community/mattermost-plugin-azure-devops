@@ -18,11 +18,6 @@ const (
 	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
-	// Azure API Routes
-	CreateTask = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
-	GetTask    = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
-	GetProject = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
-
 	// Get task link preview constants
 	HTTPS              = "https:"
 	HTTP               = "http:"
@@ -34,6 +29,13 @@ const (
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"
 	TasksAPIVersion      = "6.0"
+	// Subscription constants
+	PublisherID      = "tfs"
+	ConsumerID       = "webHooks"
+	ConsumerActionID = "httpRequest"
+	Create           = "create"
+	Update           = "update"
+	Delete           = "delete"
 
 	// Authorization constants
 	Bearer        = "Bearer"

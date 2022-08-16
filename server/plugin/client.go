@@ -19,7 +19,8 @@ type Client interface {
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
-	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error)
+	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
+	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 }
 
 type client struct {
@@ -75,17 +76,6 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 	return task, statusCode, nil
 }
 
-// Function to link a project and an organization.
-func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, error) {
-	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
-	var project *serializers.Project
-	if _, _, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil); err != nil {
-		return nil, errors.Wrap(err, "failed to link Project")
-	}
-
-	return project, nil
-}
-
 // Function to get the task.
 func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error) {
 	taskURL := fmt.Sprintf(constants.GetTask, organization, taskID)
@@ -99,21 +89,56 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 	return task, statusCode, nil
 }
 
-// TODO: Uncomment the code later when needed.
-// Wrapper to make REST API requests with "application/json" type content
-// func (c *client) callJSON(url, path, method, mattermostUserID string, in, out interface{}, formValues url.Values) (responseData []byte, err error) {
-// 	contentType := "application/json"
-// 	buf := &bytes.Buffer{}
-// 	if err = json.NewEncoder(buf).Encode(in); err != nil {
-// 		return nil, err
-// 	}
-// 	return c.call(url, method, path, contentType, mattermostUserID, buf, out, formValues)
-// }
+// Function to link a project and an organization.
+func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
+	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
+	var project *serializers.Project
+
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to link Project")
+	}
+	return project, statusCode, nil
+}
 
 // Wrapper to make REST API requests with "application/x-www-form-urlencoded" type content
 func (c *client) callFormURLEncoded(url, path, method string, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	contentType := "application/x-www-form-urlencoded"
 	return c.call(url, method, path, contentType, "", nil, out, formValues)
+}
+
+func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
+	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
+
+	publisherInputs := serializers.PublisherInputs{
+		ProjectID: project.ProjectID,
+	}
+
+	consumerInputs := serializers.ConsumerInputs{
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionotifications, channelID),
+	}
+
+	statusData := map[string]string{
+		constants.Create: "workitem.created",
+		constants.Update: "workitem.updated",
+		constants.Delete: "workitem.deleted",
+	}
+
+	payload := serializers.CreateSubscriptionBodyPayload{
+		PublisherID:      constants.PublisherID,
+		EventType:        statusData[body.EventType],
+		ConsumerId:       constants.ConsumerID,
+		ConsumerActionId: constants.ConsumerActionID,
+		PublisherInputs:  publisherInputs,
+		ConsumerInputs:   consumerInputs,
+	}
+	var subscription *serializers.SubscriptionValue
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
+	}
+
+	return subscription, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

@@ -39,10 +39,6 @@ type SubscriptionList struct {
 	SubscriptionValue []SubscriptionValue `json:"value"`
 }
 
-type SubscriptionListRequestPayload struct {
-	Organization string `json:"organization"`
-}
-
 type CreateSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
@@ -67,27 +63,12 @@ type SubscriptionDetails struct {
 	ChannelID        string `json:"channelID"`
 }
 
-func SubscriptionListRequestPayloadFromJSON(data io.Reader) (*SubscriptionListRequestPayload, error) {
-	var body *SubscriptionListRequestPayload
-	if err := json.NewDecoder(data).Decode(&body); err != nil {
-		return nil, err
-	}
-	return body, nil
-}
-
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
 		return nil, err
 	}
 	return body, nil
-}
-
-func (t *SubscriptionListRequestPayload) IsSubscriptionRequestPayloadValid() error {
-	if t.Organization == "" {
-		return errors.New(constants.OrganizationRequired)
-	}
-	return nil
 }
 
 func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {

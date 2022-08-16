@@ -29,6 +29,7 @@ const (
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"
 	TasksAPIVersion      = "6.0"
+
 	// Subscription constants
 	PublisherID      = "tfs"
 	ConsumerID       = "webHooks"

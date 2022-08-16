@@ -6,7 +6,7 @@ const (
 	WildRoute                    = "{anything:.*}"
 	PathOAuthConnect             = "/oauth/connect"
 	PathOAuthCallback            = "/oauth/complete"
-	PathLinkedProjects = "/project/link"
+	PathLinkedProjects           = "/project/link"
 	PathGetAllLinkedProjects     = "/project/link"
 	PathUnlinkProject            = "/project/unlink"
 	PathUser                     = "/user"

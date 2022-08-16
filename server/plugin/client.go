@@ -197,10 +197,10 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	switch resp.StatusCode {
 	case http.StatusUnauthorized, http.StatusNonAuthoritativeInfo:
 		if err := c.plugin.RefreshOAuthToken(mattermostUserID); err != nil {
-			return nil, err
+			return nil, http.StatusInternalServerError, err
 		}
-		_, err := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues)
-		return nil, err
+		_, statusCode, err := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues)
+		return nil, statusCode, err
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
 			if err = json.Unmarshal(responseData, out); err != nil {

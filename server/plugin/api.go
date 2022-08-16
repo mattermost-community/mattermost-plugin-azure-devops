@@ -9,6 +9,7 @@ import (
 	"runtime/debug"
 
 	"github.com/gorilla/mux"
+	"github.com/mattermost/mattermost-server/v5/model"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -42,6 +43,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -338,6 +340,37 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
+	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	channelID := r.URL.Query().Get("channelID")
+	if channelID == "" {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelIDRequired})
+		return
+	}
+
+	attachment := &model.SlackAttachment{
+		Text: body.DetailedMessage.Markdown,
+	}
+	post := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: channelID,
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+	if _, err := p.API.CreatePost(post); err != nil {
+		p.API.LogError("Error in creating post", "Error", err.Error())
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {

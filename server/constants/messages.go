@@ -22,6 +22,7 @@ const (
 	TaskTitleRequired    = "task title is required"
 	EventTypeRequired    = "event type is required"
 	ChannelNameRequired  = "channel name is required"
+	ChannelIDRequired    = "channel ID is required"
 )
 
 const (

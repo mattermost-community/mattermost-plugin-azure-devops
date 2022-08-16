@@ -322,6 +322,17 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	project := r.URL.Query().Get(constants.ProjectParam)
+	if project != "" {
+		subscriptionByProject := []serializers.SubscriptionDetails{}
+		for _, subscription := range subscriptionList {
+			if subscription.ProjectName == project {
+				subscriptionByProject = append(subscriptionByProject, subscription)
+			}
+		}
+		subscriptionList = subscriptionByProject
+	}
+
 	response, err := json.Marshal(subscriptionList)
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())

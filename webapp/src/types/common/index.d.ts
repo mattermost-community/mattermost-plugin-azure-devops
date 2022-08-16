@@ -51,7 +51,7 @@ type TabsData = {
 }
 
 type ProjectDetails = {
-    mattermostID: string
+    mattermostUserID: string
     projectID: string,
     projectName: string,
     organizationName: string

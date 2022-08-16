@@ -15,7 +15,7 @@ const (
 	AlreadyLinkedProject = "This project is already linked."
 	NoProjectLinked      = "No project is linked, please link a project."
 
-	// Validations
+	// Validations Errors
 	OrganizationRequired = "organization is required"
 	ProjectRequired      = "project is required"
 	TaskTypeRequired     = "task type is required"
@@ -44,4 +44,5 @@ const (
 	ProjectNotLinked                = "Requested project is not linked"
 	GetSubscriptionListError        = "Error getting Subscription List"
 	SubscriptionAlreadyPresent      = "Subscription is already present"
+	SubscriptionNotFound            = "Requested subscription does not exists"
 )

@@ -20,4 +20,5 @@ const (
 	GetTask            = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
 	GetProject         = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 	CreateSubscription = "/%s/_apis/hooks/subscriptions?api-version=6.0"
+	DeleteSubscription = "/%s/_apis/hooks/subscriptions/%s?api-version=6.0"
 )

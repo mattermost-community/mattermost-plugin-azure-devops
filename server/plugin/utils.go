@@ -156,7 +156,7 @@ func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) erro
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("tokrn\n\n", token)
 	r.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, token))
 	return nil
 }

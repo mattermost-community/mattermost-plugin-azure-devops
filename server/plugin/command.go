@@ -26,6 +26,7 @@ var azureDevopsCommandHandler = Handler{
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
 		"link":       azureDevopsAccountConnectionCheck,
+		"subscribe":  azureDevopsAccountConnectionCheck,
 	},
 	defaultHandler: executeDefault,
 }
@@ -42,7 +43,7 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.Comma
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link, subscribe")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
@@ -58,6 +59,9 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 
 	link := model.NewAutocompleteData("link", "[link]", "link a project")
 	azureDevops.AddCommand(link)
+
+	subscribe := model.NewAutocompleteData("subscribe", "", "Add a subscription")
+	azureDevops.AddCommand(subscribe)
 
 	return azureDevops
 }

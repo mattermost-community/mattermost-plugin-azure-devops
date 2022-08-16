@@ -4,6 +4,7 @@ import services from 'services';
 
 import globalModalSlice from './globalModal';
 import openLinkModalSlice from './linkModal';
+import openSubscribeModalSlice from './subscribeModal';
 import openTaskModalReducer from './taskModal';
 import projectDetailsSlice from './projectDetails';
 import userConnectedSlice from './userConnected';
@@ -13,6 +14,7 @@ const reducers = combineReducers({
     globalModalSlice,
     openLinkModalSlice,
     openTaskModalReducer,
+    openSubscribeModalSlice,
     projectDetailsSlice,
     userConnectedSlice,
     testReducer,

@@ -10,8 +10,6 @@ const (
 	PluginID               = "mattermost-plugin-azure-devops"
 	ChannelID              = "channel_id"
 	HeaderMattermostUserID = "Mattermost-User-ID"
-	// TODO: Change later according to the needs.
-	HeaderMattermostUserIDAPI = "User-ID"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
@@ -37,6 +35,9 @@ const (
 	Create           = "create"
 	Update           = "update"
 	Delete           = "delete"
+
+	// Path params
+	PathParamTeamID = "team_id"
 
 	// Authorization constants
 	Bearer        = "Bearer"

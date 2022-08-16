@@ -3,9 +3,10 @@ import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-import {getGlobalModalState, getLinkModalState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState} from 'selectors';
 
 import {toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {resetGlobalModalState} from 'reducers/globalModal';
 
 // Global styles
@@ -32,6 +33,9 @@ const App = (): JSX.Element => {
             case 'linkProject':
                 dispatch(toggleShowLinkModal({isVisible: true, commandArgs}));
                 break;
+            case 'subscribeProject':
+                dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs}));
+                break;
             }
         } else {
             dispatch(resetGlobalModalState());
@@ -40,7 +44,7 @@ const App = (): JSX.Element => {
 
     useEffect(() => {
         dispatch(resetGlobalModalState());
-    }, [getLinkModalState(usePlugin.state).visibility]);
+    }, [getLinkModalState(usePlugin.state).visibility, getSubscribeModalState(usePlugin.state).visibility]);
 
     return <></>;
 };

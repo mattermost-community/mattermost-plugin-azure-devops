@@ -14,3 +14,7 @@ type LinkProjectModalState = {
     project: string,
     isLinked: boolean,
 }
+
+type SubscribeModalState = {
+    visibility: boolean,
+}

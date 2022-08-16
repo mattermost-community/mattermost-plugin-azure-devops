@@ -43,7 +43,7 @@ type CreateSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
-	ChannelName  string `json:"channelName"`
+	ChannelID    string `json:"channelID"`
 }
 
 type CreateSubscriptionBodyPayload struct {
@@ -114,8 +114,8 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	if t.EventType == "" {
 		return errors.New(constants.EventTypeRequired)
 	}
-	if t.ChannelName == "" {
-		return errors.New(constants.ChannelNameRequired)
+	if t.ChannelID == "" {
+		return errors.New(constants.ChannelIDRequired)
 	}
 	return nil
 }
@@ -131,7 +131,7 @@ func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 		return errors.New(constants.EventTypeRequired)
 	}
 	if t.ChannelID == "" {
-		return errors.New(constants.ChannelNameRequired)
+		return errors.New(constants.ChannelIDRequired)
 	}
 	return nil
 }

@@ -27,6 +27,15 @@ export default class Hooks {
             return Promise.resolve({});
         }
 
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops subscribe')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs}));
+            return {
+                message,
+                args: contextArgs,
+            };
+        }
+
         return Promise.resolve({
             message,
             args: contextArgs,

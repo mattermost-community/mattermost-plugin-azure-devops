@@ -50,6 +50,25 @@ export const onPressingEnterKey = (event: Event | undefined, func: () => void) =
     func();
 };
 
+export const getProjectList = (data: ProjectDetails[]) => {
+    const projectList: DropdownOptionType[] = [];
+    data.map((project) => projectList.push({value: project.projectName, label: project.projectName}));
+    return projectList;
+};
+
+export const getOrganizationList = (data: ProjectDetails[]) => {
+    const uniqueOrganization: Record<string, boolean> = {};
+    const organizationList: DropdownOptionType[] = [];
+    data.map((organization) => {
+        if (!(organization.organizationName in uniqueOrganization)) {
+            uniqueOrganization[organization.organizationName] = true;
+            organizationList.push({value: organization.organizationName, label: organization.organizationName});
+        }
+        return organizationList;
+    });
+    return organizationList;
+};
+
 export default {
     getBaseUrls,
 };

@@ -19,3 +19,7 @@ export const getLinkModalState = (state: any): LinkProjectModalState => {
 export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
     return state.views.rhs;
 };
+
+export const getSubscribeModalState = (state: any): SubscribeModalState => {
+    return state[pluginPrefix].openSubscribeModalSlice;
+};

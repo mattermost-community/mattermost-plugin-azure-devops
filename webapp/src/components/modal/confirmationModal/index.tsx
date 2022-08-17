@@ -7,7 +7,7 @@ type ConfirmationModalProps = {
     title: string
     description: string
     confirmBtnText: string
-    onHide?: () => void
+    onHide: () => void
     onConfirm?: () => void
 }
 

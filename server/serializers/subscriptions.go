@@ -47,12 +47,10 @@ type CreateSubscriptionRequestPayload struct {
 }
 
 type CreateSubscriptionBodyPayload struct {
-	PublisherID string `json:"publisherId"`
-	EventType   string `json:"eventType"`
-	// nolint  // Disabling lint as json used is correct
-	ConsumerId string `json:"consumerId"`
-	// nolint
-	ConsumerActionId string          `json:"consumerActionId"`
+	PublisherID      string          `json:"publisherId"`
+	EventType        string          `json:"eventType"`
+	ConsumerID       string          `json:"consumerId"`
+	ConsumerActionID string          `json:"consumerActionId"`
 	PublisherInputs  PublisherInputs `json:"publisherInputs"`
 	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
 }

@@ -128,8 +128,8 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	payload := serializers.CreateSubscriptionBodyPayload{
 		PublisherID:      constants.PublisherID,
 		EventType:        statusData[body.EventType],
-		ConsumerId:       constants.ConsumerID,
-		ConsumerActionId: constants.ConsumerActionID,
+		ConsumerID:       constants.ConsumerID,
+		ConsumerActionID: constants.ConsumerActionID,
 		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}

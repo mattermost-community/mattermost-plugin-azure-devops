@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
@@ -42,15 +42,12 @@ const SubscribeModal = () => {
         eventType: '',
         channelID: '',
     });
-    const [subscriptionPayload, setSubscriptionPayload] = useState<SubscriptionPayload | null>();
-    const [loading, setLoading] = useState(false);
-    const [APIError, setAPIError] = useState('');
     const [channelOptions, setChannelOptions] = useState<DropdownOptionType[]>([]);
     const [organizationOptions, setOrganizationOptions] = useState<DropdownOptionType[]>([]);
     const [projectOptions, setProjectOptions] = useState<DropdownOptionType[]>([]);
     const {entities} = useSelector((state: GlobalState) => state);
     const usePlugin = usePluginApi();
-    const {visibility} = getSubscribeModalState(usePlugin.state);
+    const visibility = getSubscribeModalState(usePlugin.state).visibility;
     const dispatch = useDispatch();
 
     // Get ProjectList State
@@ -88,7 +85,7 @@ const SubscribeModal = () => {
     }, [projectOptions, organizationOptions, channelOptions]);
 
     // Function to hide the modal and reset all the states.
-    const onHide = useCallback(() => {
+    const onHide = () => {
         setSubscriptionDetails({
             organization: '',
             project: '',
@@ -101,67 +98,69 @@ const SubscribeModal = () => {
             eventType: '',
             channelID: '',
         });
-        setLoading(false);
-        setAPIError('');
-        setSubscriptionPayload(null);
         dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: []}));
-    }, []);
+    };
 
     // Set organization name
-    const onOrganizationChange = useCallback((value: string) => {
+    const onOrganizationChange = (value: string) => {
         setErrorState({...errorState, organization: ''});
         setSubscriptionDetails({...subscriptionDetails, organization: value});
-    }, [subscriptionDetails, errorState]);
+    };
 
     // Set project name
-    const onProjectChange = useCallback((value: string) => {
+    const onProjectChange = (value: string) => {
         setErrorState({...errorState, project: ''});
         setSubscriptionDetails({...subscriptionDetails, project: value});
-    }, [subscriptionDetails, errorState]);
+    };
 
     // Set event type
-    const onEventTypeChange = useCallback((value: string) => {
+    const onEventTypeChange = (value: string) => {
         setErrorState({...errorState, eventType: ''});
         setSubscriptionDetails({...subscriptionDetails, eventType: value});
-    }, [subscriptionDetails, errorState]);
+    };
 
     // Set channel name
-    const onChannelChange = useCallback((value: string) => {
+    const onChannelChange = (value: string) => {
         setErrorState({...errorState, channelID: ''});
         setSubscriptionDetails({...subscriptionDetails, channelID: value});
-    }, [subscriptionDetails, errorState]);
+    };
 
     // Handles on confirming subscription
-    const onConfirm = useCallback(() => {
+    const onConfirm = () => {
+        const errorStateChanges: SubscriptionPayload = {
+            organization: '',
+            project: '',
+            channelID: '',
+            eventType: '',
+        };
         if (subscriptionDetails.organization === '') {
-            setErrorState((value) => ({...value, organization: 'Organization is required'}));
+            errorStateChanges.organization = 'Organization is required';
         }
         if (subscriptionDetails.project === '') {
-            setErrorState((value) => ({...value, project: 'Project is required'}));
+            errorStateChanges.project = 'Project is required';
         }
         if (subscriptionDetails.eventType === '') {
-            setErrorState((value) => ({...value, eventType: 'Event type is required'}));
+            errorStateChanges.eventType = 'Event type is required';
         }
         if (subscriptionDetails.channelID === '') {
-            setErrorState((value) => ({...value, channelID: 'Channel name is required'}));
+            errorStateChanges.channelID = 'Channel name is required';
         }
-        if (!subscriptionDetails.organization || !subscriptionDetails.project || !subscriptionDetails.channelID || !subscriptionDetails.eventType) {
+        if (errorStateChanges.organization || errorStateChanges.project || errorStateChanges.channelID || errorStateChanges.eventType) {
+            setErrorState(errorStateChanges);
             return;
         }
 
-        // Create payload to send in the POST request.
-        const payload = {
-            organization: subscriptionDetails.organization,
-            project: subscriptionDetails.project,
-            channelID: subscriptionDetails.channelID,
-            eventType: subscriptionDetails.eventType,
-        };
-
-        setSubscriptionPayload(payload);
-
         // Make POST api request
-        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, payload);
-    }, [subscriptionDetails]);
+        createSubscription();
+    };
+
+    // Make POST api request to create subscription
+    const createSubscription = async () => {
+        const createSubscriptionResponse = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails);
+        if (createSubscriptionResponse) {
+            onHide();
+        }
+    };
 
     useEffect(() => {
         const channelList = getChannelState().data;
@@ -174,17 +173,9 @@ const SubscribeModal = () => {
             setProjectOptions(getProjectList(projectList));
             setOrganizationOptions(getOrganizationList(projectList));
         }
-        if (subscriptionPayload) {
-            const {isLoading, isSuccess, isError} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionPayload);
-            setLoading(isLoading);
-            if (isSuccess) {
-                onHide();
-            }
-            if (isError) {
-                setAPIError('Some error occurred. Please try again later.');
-            }
-        }
     }, [usePlugin.state]);
+
+    const APIResponse = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails);
 
     return (
         <Modal
@@ -193,10 +184,10 @@ const SubscribeModal = () => {
             onHide={onHide}
             onConfirm={onConfirm}
             confirmBtnText='Create subsciption'
-            cancelDisabled={loading}
-            confirmDisabled={loading}
-            loading={loading}
-            error={APIError}
+            confirmDisabled={APIResponse.isLoading}
+            cancelDisabled={APIResponse.isLoading}
+            loading={APIResponse.isLoading}
+            error={APIResponse.isError ? 'Some error occurred. Please try again later.' : ''}
         >
             <>
                 <Dropdown
@@ -206,6 +197,7 @@ const SubscribeModal = () => {
                     options={organizationOptions}
                     required={true}
                     error={errorState.organization}
+                    disabled={APIResponse.isLoading}
                 />
                 <Dropdown
                     placeholder='Project name'
@@ -214,6 +206,7 @@ const SubscribeModal = () => {
                     options={projectOptions}
                     required={true}
                     error={errorState.project}
+                    disabled={APIResponse.isLoading}
                 />
                 <Dropdown
                     placeholder='Event type'
@@ -222,6 +215,7 @@ const SubscribeModal = () => {
                     options={eventTypeOptions}
                     required={true}
                     error={errorState.eventType}
+                    disabled={APIResponse.isLoading}
                 />
                 <Dropdown
                     placeholder='Channel name'
@@ -230,6 +224,7 @@ const SubscribeModal = () => {
                     options={channelOptions}
                     required={true}
                     error={errorState.channelID}
+                    disabled={APIResponse.isLoading}
                 />
             </>
         </Modal>

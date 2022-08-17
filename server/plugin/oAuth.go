@@ -227,7 +227,8 @@ func (p *Plugin) isAccessTokenExpired(mattermostUserID string) bool {
 		return false
 	}
 
-	if user.ExpiresAt.Before(time.Now()) {
+	// TODO: use middleware for all such places to check if user's oAuth is completed
+	if user.AccessToken != "" && user.ExpiresAt.Before(time.Now()) {
 		return true
 	}
 

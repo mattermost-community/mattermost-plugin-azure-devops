@@ -1,7 +1,7 @@
 import React from 'react';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {getprojectDetailsState, getRhsState} from 'selectors';
+import {getProjectDetailsState, getRhsState} from 'selectors';
 
 import AccountNotLinked from './accountNotLinked';
 import ProjectList from './projectList';
@@ -21,8 +21,8 @@ const Rhs = (): JSX.Element => {
             }
             {
                 usePlugin.isUserAccountConnected() && (
-                    getprojectDetailsState(usePlugin.state).projectID ?
-                        <ProjectDetails title={getprojectDetailsState(usePlugin.state).projectName}/> :
+                    getProjectDetailsState(usePlugin.state).projectID ?
+                        <ProjectDetails {...getProjectDetailsState(usePlugin.state)}/> :
                         <ProjectList/>)
             }
         </div>

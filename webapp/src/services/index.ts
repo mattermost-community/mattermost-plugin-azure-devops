@@ -64,6 +64,21 @@ const pluginApi = createApi({
                 method: Constants.pluginApiServiceConfigs.getChannels.method,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName]: builder.query<SubscriptionDetails[], FetchSubscriptionList>({
+            query: (params) => ({
+                headers: {[Constants.HeaderCSRFToken]: Cookies.get(Constants.MMCSRF)},
+                url: `${Constants.pluginApiServiceConfigs.getSubscriptionList.path}${params.project}`,
+                method: Constants.pluginApiServiceConfigs.getSubscriptionList.method,
+            }),
+        }),
+        [Constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName]: builder.query<void, APIRequestPayload>({
+            query: (payload) => ({
+                headers: {[Constants.HeaderCSRFToken]: Cookies.get(Constants.MMCSRF)},
+                url: Constants.pluginApiServiceConfigs.deleteSubscription.path,
+                method: Constants.pluginApiServiceConfigs.deleteSubscription.method,
+                body: payload,
+            }),
+        }),
     }),
 });
 

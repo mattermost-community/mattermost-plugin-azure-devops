@@ -190,7 +190,12 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := p.Store.DeleteProject(project); err != nil {
+	if err := p.Store.DeleteProject(&serializers.ProjectDetails{
+		MattermostUserID: mattermostUserID,
+		ProjectID:        project.ProjectID,
+		ProjectName:      project.ProjectName,
+		OrganizationName: project.OrganizationName,
+	}); err != nil {
 		p.API.LogError(constants.ErrorUnlinkProject, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 	}
@@ -291,6 +296,13 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	channel, channelErr := p.API.GetChannel(body.ChannelID)
+	if channelErr != nil {
+		p.API.LogError("Error in getting channels for team and user", "Error", channelErr.Error())
+		http.Error(w, fmt.Sprintf("Error in getting channels for team and user. Error: %s", channelErr.Error()), channelErr.StatusCode)
+		return
+	}
+
 	p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
@@ -299,6 +311,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
+		ChannelName:      channel.DisplayName,
 	})
 
 	response, err := json.Marshal(subscription)

@@ -62,6 +62,7 @@ type SubscriptionDetails struct {
 	OrganizationName string `json:"organizationName"`
 	EventType        string `json:"eventType"`
 	ChannelID        string `json:"channelID"`
+	ChannelName      string `json:"channelName"`
 	SubscriptionID   string `json:"subscriptionID"`
 }
 

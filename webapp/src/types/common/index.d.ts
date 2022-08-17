@@ -2,9 +2,9 @@
  * Keep all common types here which are to be used throughout the project
 */
 
-type HttpMethod = 'GET' | 'POST';
+type HttpMethod = 'GET' | 'POST' | 'DELETE' ;
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject' | 'getUserDetails' | 'createSubscription' | 'getChannels'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject' | 'getUserDetails' | 'createSubscription' | 'getChannels' | 'getSubscriptionList' | 'deleteSubscription'
 
 type PluginApiService = {
     path: string,
@@ -45,7 +45,7 @@ type SubscriptionPayload = {
     channelID: string
 }
 
-type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | UserDetails | SubscriptionPayload | FetchChannelParams | void;
+type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | UserDetails | SubscriptionPayload | FetchChannelParams | FetchSubscriptionList | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
@@ -81,12 +81,20 @@ type FetchChannelParams = {
     teamId: string;
 }
 
+type FetchSubscriptionList = {
+    project: string;
+}
+
 type eventType = 'create' | 'update' | 'delete'
 
 type SubscriptionDetails = {
-    id: string
-    name: string
-    eventType: eventType
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string,
+    eventType: string,
+    channelID: string,
+    channelName: string,
 }
 
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null

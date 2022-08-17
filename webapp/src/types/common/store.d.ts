@@ -17,4 +17,5 @@ type LinkProjectModalState = {
 
 type SubscribeModalState = {
     visibility: boolean,
+    isCreated: boolean,
 }

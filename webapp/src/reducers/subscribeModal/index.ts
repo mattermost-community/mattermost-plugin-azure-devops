@@ -2,6 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 const initialState: SubscribeModalState = {
     visibility: false,
+    isCreated: false,
 };
 
 export const openSubscribeModalSlice = createSlice({
@@ -10,10 +11,14 @@ export const openSubscribeModalSlice = createSlice({
     reducers: {
         toggleShowSubscribeModal: (state: SubscribeModalState, action: PayloadAction<GlobalModalActionPayload>) => {
             state.visibility = action.payload.isVisible;
+            state.isCreated = false;
+        },
+        toggleIsSubscribed: (state: SubscribeModalState, action: PayloadAction<boolean>) => {
+            state.isCreated = action.payload;
         },
     },
 });
 
-export const {toggleShowSubscribeModal} = openSubscribeModalSlice.actions;
+export const {toggleShowSubscribeModal, toggleIsSubscribed} = openSubscribeModalSlice.actions;
 
 export default openSubscribeModalSlice.reducer;

@@ -53,6 +53,16 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'GET',
         apiServiceName: 'getChannels',
     },
+    getSubscriptionList: {
+        path: '/subscriptions?project=',
+        method: 'GET',
+        apiServiceName: 'getSubscriptionList',
+    },
+    deleteSubscription: {
+        path: '/subscriptions',
+        method: 'DELETE',
+        apiServiceName: 'deleteSubscription',
+    },
 };
 
 export default {

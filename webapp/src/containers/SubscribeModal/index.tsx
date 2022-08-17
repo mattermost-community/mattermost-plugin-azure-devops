@@ -8,7 +8,7 @@ import Modal from 'components/modal';
 import usePluginApi from 'hooks/usePluginApi';
 import {getSubscribeModalState} from 'selectors';
 import plugin_constants from 'plugin_constants';
-import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import Dropdown from 'components/dropdown';
 import {getOrganizationList, getProjectList} from 'utils';
 
@@ -98,6 +98,9 @@ const SubscribeModal = () => {
             eventType: '',
             channelID: '',
         });
+        setChannelOptions([]);
+        setOrganizationOptions([]);
+        setProjectOptions([]);
         dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: []}));
     };
 
@@ -158,6 +161,7 @@ const SubscribeModal = () => {
     const createSubscription = async () => {
         const createSubscriptionResponse = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails);
         if (createSubscriptionResponse) {
+            dispatch(toggleIsSubscribed(true));
             onHide();
         }
     };
@@ -183,7 +187,7 @@ const SubscribeModal = () => {
             title='Create subscription'
             onHide={onHide}
             onConfirm={onConfirm}
-            confirmBtnText='Create subsciption'
+            confirmBtnText='Create subscription'
             confirmDisabled={APIResponse.isLoading}
             cancelDisabled={APIResponse.isLoading}
             loading={APIResponse.isLoading}

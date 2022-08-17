@@ -8,7 +8,7 @@ export const getGlobalModalState = (state: any): GlobalModalState => {
     return state[pluginPrefix].globalModalSlice;
 };
 
-export const getprojectDetailsState = (state: any) => {
+export const getProjectDetailsState = (state: any) => {
     return state[pluginPrefix].projectDetailsSlice;
 };
 

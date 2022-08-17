@@ -14,6 +14,8 @@ const Rhs = (): JSX.Element => {
         return <></>;
     }
 
+    const projectDetails = getProjectDetailsState(usePlugin.state);
+
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
             {
@@ -21,8 +23,8 @@ const Rhs = (): JSX.Element => {
             }
             {
                 usePlugin.isUserAccountConnected() && (
-                    getProjectDetailsState(usePlugin.state).projectID ?
-                        <ProjectDetails {...getProjectDetailsState(usePlugin.state)}/> :
+                    projectDetails.projectID ?
+                        <ProjectDetails {...projectDetails}/> :
                         <ProjectList/>)
             }
         </div>

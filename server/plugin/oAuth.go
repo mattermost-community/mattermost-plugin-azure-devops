@@ -131,6 +131,48 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
+	return p.StoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+}
+
+// RefreshOAuthToken refreshes OAuth token
+func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, err.Error())
+	}
+
+	decodedRefreshToken, err := p.decode(user.RefreshToken)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, err.Error())
+	}
+
+	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, err.Error())
+	}
+
+	oauthTokenFormValues := url.Values{
+		"client_assertion_type": {constants.ClientAssertionType},
+		"client_assertion":      {p.getConfiguration().AzureDevopsOAuthClientSecret},
+		"grant_type":            {constants.GrantTypeRefresh},
+		"assertion":             {string(decryptedRefreshToken)},
+		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
+	}
+
+	return p.StoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+}
+
+// StoreOAuthToken stores oAuth token
+func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {

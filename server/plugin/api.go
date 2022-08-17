@@ -59,8 +59,8 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := body.IsValid(); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if validationErr := body.IsValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 
@@ -83,7 +83,9 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
 
 	// Send message to DM.
-	p.DM(mattermostUserID, message)
+	if _, DMErr := p.DM(mattermostUserID, message); DMErr != nil {
+		p.API.LogError("Failed to DM", "Error", DMErr.Error())
+	}
 }
 
 // API to link a project and an organization to a user.
@@ -111,7 +113,9 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		p.DM(mattermostUserID, constants.AlreadyLinkedProject)
+		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject); DMErr != nil {
+			p.API.LogError("Failed to DM", "Error", DMErr.Error())
+		}
 		return
 	}
 
@@ -128,7 +132,10 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		OrganizationName: body.Organization,
 	}
 
-	p.Store.StoreProject(&project)
+	if storeErr := p.Store.StoreProject(&project); storeErr != nil {
+		p.API.LogError("Error in storing a project", "Error", storeErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", "application/json")
@@ -190,14 +197,14 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := p.Store.DeleteProject(&serializers.ProjectDetails{
+	if deleteErr := p.Store.DeleteProject(&serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        project.ProjectID,
 		ProjectName:      project.ProjectName,
 		OrganizationName: project.OrganizationName,
-	}); err != nil {
-		p.API.LogError(constants.ErrorUnlinkProject, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+	}); deleteErr != nil {
+		p.API.LogError(constants.ErrorUnlinkProject, "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
 	}
 
 	successResponse := &serializers.SuccessResponse{
@@ -241,6 +248,12 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	p.API.PublishWebSocketEvent(
+		constants.WSEventConnect,
+		nil,
+		&model.WebsocketBroadcast{UserId: mattermostUserID},
+	)
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response); err != nil {
@@ -257,8 +270,8 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 
@@ -303,7 +316,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	p.Store.StoreSubscription(&serializers.SubscriptionDetails{
+	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
 		ProjectID:        subscription.PublisherInputs.ProjectID,
@@ -312,7 +325,10 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
-	})
+	}); storeErr != nil {
+		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
+	}
 
 	response, err := json.Marshal(subscription)
 	if err != nil {
@@ -400,8 +416,8 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 
@@ -425,13 +441,17 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
+	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
-	})
+	}); deleteErr != nil {
+		p.API.LogError("Error in deleting a subscription", "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusNoContent)
 }

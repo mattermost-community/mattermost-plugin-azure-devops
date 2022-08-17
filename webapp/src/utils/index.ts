@@ -42,6 +42,20 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     };
 };
 
+export const getCreateTaskModalCommandArgs = (arr: Array<string>): TaskFieldsCommandArgs => {
+    if (arr.length < 3) {
+        return {
+            title: '',
+            description: '',
+        };
+    }
+
+    return {
+        title: arr[1] ?? '',
+        description: arr[2] ?? '',
+    };
+};
+
 export const onPressingEnterKey = (event: Event | undefined, func: () => void) => {
     if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
         return;

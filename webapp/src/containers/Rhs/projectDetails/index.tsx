@@ -7,8 +7,8 @@ import BackButton from 'components/buttons/backButton';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
-import {resetProjectDetails} from 'reducers/projectDetails';
 import usePluginApi from 'hooks/usePluginApi';
+import {resetProjectDetails} from 'reducers/projectDetails';
 import plugin_constants from 'plugin_constants';
 import EmptyState from 'components/emptyState';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';

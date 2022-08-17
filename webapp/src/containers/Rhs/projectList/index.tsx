@@ -92,7 +92,7 @@ const ProjectList = () => {
                     data && data.length > 0 ?
                         <>
                             {
-                                data?.map((item) => (
+                                data?.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}

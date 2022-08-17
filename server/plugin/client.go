@@ -174,7 +174,7 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 
 // Makes HTTP request to REST APIs
 func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
-	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
+	errContext := fmt.Sprintf("Azure DevOps: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)

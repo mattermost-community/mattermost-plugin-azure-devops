@@ -16,10 +16,11 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projec
         <BaseCard>
             <div className='d-flex'>
                 <div className='project-details'>
-                    <LabelValuePair
+                    {/* TODO: discuss if this is required and it should be the subscription's name not the project name */}
+                    {/* <LabelValuePair
                         label='Name'
                         value={projectName}
-                    />
+                    /> */}
                     <LabelValuePair
                         label='Event'
                         value={eventType}

@@ -5,8 +5,8 @@
 // Plugin configs
 const pluginId = 'mattermost-plugin-azure-devops';
 
-const AzureDevops = 'Azure Devops';
-const RightSidebarHeader = 'Azure Devops';
+const AzureDevops = 'Azure DevOps';
+const RightSidebarHeader = 'Azure DevOps';
 
 const MMCSRF = 'MMCSRF';
 const HeaderCSRFToken = 'X-CSRF-Token';

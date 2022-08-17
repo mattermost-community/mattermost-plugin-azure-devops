@@ -4,11 +4,11 @@ const (
 	// TODO: all these messages are to be verified from Mike at the end
 	// Generic
 	GenericErrorMessage  = "Something went wrong, please try again later"
-	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s)"
-	ConnectAccountFirst  = "You do not have any Azure Devops account connected. Kindly link the account first"
-	UserConnected        = "Your Azure Devops account is successfully connected!"
-	UserAlreadyConnected = "Your Azure Devops account is already connected"
-	UserDisconnected     = "Your Azure Devops account is now disconnected"
+	ConnectAccount       = "[Click here to connect your Azure DevOps account](%s%s)"
+	ConnectAccountFirst  = "Your Azure DevOps account is not connected \n%s"
+	UserConnected        = "Your Azure DevOps account is successfully connected!"
+	UserAlreadyConnected = "Your Azure DevOps account is already connected"
+	UserDisconnected     = "Your Azure DevOps account is now disconnected"
 	CreatedTask          = "Link for newly created task: %s"
 	TaskTitle            = "[%s #%d: %s](%s)"
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"

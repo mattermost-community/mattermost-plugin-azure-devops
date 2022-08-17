@@ -75,7 +75,7 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.CloseBrowserWindowWithHTTPResponse(w)
-		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected, false); DMErr != nil {
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: DMErr.Error()})
 			return
 		}
@@ -144,7 +144,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		&model.WebsocketBroadcast{UserId: mattermostUserID},
 	)
 
-	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText), false); err != nil {
 		return err
 	}
 
@@ -202,7 +202,7 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 
 	tokenExpiryDurationInSeconds, err := strconv.Atoi(successResponse.ExpiresIn)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return err

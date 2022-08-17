@@ -224,7 +224,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
+	if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
 			return nil, http.StatusInternalServerError, err
 		}

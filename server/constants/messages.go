@@ -28,4 +28,5 @@ const (
 	ErrorDecodingBody               = "Error in decoding body"
 	ProjectNotFound                 = "Requested project does not exists"
 	ErrorUnlinkProject              = "Error in unlinking the project"
+	ErrorLoadingUserData            = "Error in loading user data"
 )

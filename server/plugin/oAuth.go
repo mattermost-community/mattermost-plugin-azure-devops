@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
@@ -131,7 +133,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	return p.StoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
 }
 
 // RefreshOAuthToken refreshes OAuth token
@@ -139,19 +141,19 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(err, err.Error())
+		return err
 	}
 
 	decodedRefreshToken, err := p.decode(user.RefreshToken)
 	if err != nil {
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(err, err.Error())
+		return err
 	}
 
 	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		p.DM(mattermostUserID, constants.GenericErrorMessage)
-		return errors.Wrap(err, err.Error())
+		return err
 	}
 
 	oauthTokenFormValues := url.Values{
@@ -162,11 +164,11 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	return p.StoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
 }
 
-// StoreOAuthToken stores oAuth token
-func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
+// GenerateAndStoreOAuthToken stores oAuth token
+func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
@@ -185,11 +187,19 @@ func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues u
 		return err
 	}
 
+	tokenExpiryDurationInSeconds, err := strconv.Atoi(successResponse.ExpiresIn)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return err
+	}
+
 	user := store.User{
 		MattermostUserID: mattermostUserID,
 		AccessToken:      p.encode(encryptedAccessToken),
 		RefreshToken:     p.encode(encryptedRefreshToken),
-		ExpiresIn:        successResponse.ExpiresIn,
+		ExpiresAt:        time.Now().Local().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)),
 	}
 
 	if err := p.Store.StoreUser(&user); err != nil {
@@ -207,6 +217,21 @@ func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues u
 	)
 
 	return nil
+}
+
+// isAccessTokenExpired checks if a user's access token is expired
+func (p *Plugin) isAccessTokenExpired(mattermostUserID string) bool {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
+		return false
+	}
+
+	if user.ExpiresAt.Before(time.Now()) {
+		return true
+	}
+
+	return false
 }
 
 // UserAlreadyConnected checks if a user is already connected

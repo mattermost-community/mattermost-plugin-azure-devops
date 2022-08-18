@@ -1,11 +1,19 @@
 package store
 
+<<<<<<< HEAD
 import "github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 
 type UserStore interface {
 	LoadUser(mattermostUserID string) (*serializers.User, error)
 	StoreUser(user *serializers.User) error
 	DeleteUser(mattermostUserID string) (bool, error)
+=======
+type User struct {
+	MattermostUserID string
+	AccessToken      string
+	RefreshToken     string
+	ExpiresAt        int64
+>>>>>>> [MI-1939]: Used epoch time
 }
 
 func (s *Store) StoreUser(user *serializers.User) error {

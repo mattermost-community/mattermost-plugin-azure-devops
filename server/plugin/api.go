@@ -234,7 +234,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// handleUnlinkProject unlinks a project
+// handleGetUserAccountDetails provides user details
 func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 
@@ -253,7 +253,7 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 
 	response, err := json.Marshal(&userDetails)
 	if err != nil {
-		p.API.LogError("Error marhsalling response", "Error", err.Error())
+		p.API.LogError("Error marshaling the response", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}

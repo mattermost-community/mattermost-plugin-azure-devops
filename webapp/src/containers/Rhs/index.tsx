@@ -12,35 +12,33 @@ import ProjectList from './projectList';
 import ProjectDetails from './projectDetails';
 
 const Rhs = (): JSX.Element => {
-    const usePlugin = usePluginApi();
+    const {getApiState, makeApiRequest, state} = usePluginApi();
 
     // Fetch the connected account details when RHS is opened
     useEffect(() => {
-        if (getRhsState(usePlugin.state).isSidebarOpen) {
-            usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        if (getRhsState(state).isSidebarOpen) {
+            makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
         }
     }, []);
 
-    if (!getRhsState(usePlugin.state).isSidebarOpen) {
-        return <></>;
-    }
+    const {isLoading, isError, isSuccess} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
 
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isLoading &&
+                isLoading &&
                 <LinearLoader/>
             }
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isError &&
+                isError &&
                 <AccountNotLinked/>
             }
             {
-                !usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isLoading &&
-                !usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isError &&
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName).isSuccess && (
-                    getprojectDetailsState(usePlugin.state).projectID ?
-                        <ProjectDetails title={getprojectDetailsState(usePlugin.state).projectName}/> :
+                !isLoading &&
+                !isError &&
+                isSuccess && (
+                    getprojectDetailsState(state).projectID ?
+                        <ProjectDetails title={getprojectDetailsState(state).projectName}/> :
                         <ProjectList/>
                 )
 

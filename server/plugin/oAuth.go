@@ -133,7 +133,15 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+	if err := p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues); err != nil {
+		return err
+	}
+
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // RefreshOAuthToken refreshes OAuth token
@@ -199,14 +207,10 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 		MattermostUserID: mattermostUserID,
 		AccessToken:      p.encode(encryptedAccessToken),
 		RefreshToken:     p.encode(encryptedRefreshToken),
-		ExpiresAt:        time.Now().Local().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)),
+		ExpiresAt:        time.Now().UTC().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)).Unix(),
 	}
 
 	if err := p.Store.StoreUser(&user); err != nil {
-		return err
-	}
-
-	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
 		return err
 	}
 
@@ -229,7 +233,7 @@ func (p *Plugin) isAccessTokenExpired(mattermostUserID string) bool {
 
 	// TODO: use middleware for all such places to check if user's oAuth is completed
 	// Consider some buffer for comparing expiry time
-	if user.AccessToken != "" && user.ExpiresAt.Before(time.Now().Local().Add(-(time.Minute * constants.TokenExpiryTimeBufferInMinutes))) {
+	if user.AccessToken != "" && user.ExpiresAt < time.Now().UTC().Add(-(time.Minute*constants.TokenExpiryTimeBufferInMinutes)).Unix() {
 		return true
 	}
 

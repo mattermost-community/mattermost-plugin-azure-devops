@@ -1,12 +1,10 @@
 package store
 
-import "time"
-
 type User struct {
 	MattermostUserID string
 	AccessToken      string
 	RefreshToken     string
-	ExpiresAt        time.Time
+	ExpiresAt        int64
 }
 
 func (s *Store) StoreUser(user *User) error {

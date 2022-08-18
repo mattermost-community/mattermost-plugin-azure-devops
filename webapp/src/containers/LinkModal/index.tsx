@@ -4,135 +4,123 @@ import {useDispatch} from 'react-redux';
 import Input from 'components/inputField';
 import Modal from 'components/modal';
 
-import Constants from 'plugin_constants';
 import usePluginApi from 'hooks/usePluginApi';
-import {hideLinkModal} from 'reducers/linkModal';
+import {hideLinkModal, toggleIsLinked} from 'reducers/linkModal';
+import {getLinkModalState} from 'selectors';
+import plugin_constants from 'plugin_constants';
 
 const LinkModal = () => {
-    const [state, setState] = useState({
-        linkOrganization: '',
-        linkProject: '',
+    // State variables
+    const [projectDetails, setProjectDetails] = useState<LinkPayload>({
+        organization: '',
+        project: '',
     });
-    const [error, setError] = useState({
-        linkOrganizationError: '',
-        linkProjectError: '',
+
+    const [errorState, setErrorState] = useState<LinkPayload>({
+        organization: '',
+        project: '',
     });
-    const [linkPayload, setLinkPayload] = useState<LinkPayload | null>();
+
+    // Hooks
     const usePlugin = usePluginApi();
-    const {visibility, organization, project} = usePlugin.state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
-    const [loading, setLoading] = useState(false);
-    const [APIError, setAPIError] = useState('');
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (organization && project) {
-            setState({
-                linkOrganization: organization,
-                linkProject: project,
-            });
-        }
-    }, [visibility]);
-
     // Function to hide the modal and reset all the states.
-    const onHide = useCallback(() => {
-        setState({
-            linkOrganization: '',
-            linkProject: '',
+    const resetModalState = () => {
+        setProjectDetails({
+            organization: '',
+            project: '',
         });
-        setError({
-            linkOrganizationError: '',
-            linkProjectError: '',
+        setErrorState({
+            organization: '',
+            project: '',
         });
-        setLinkPayload(null);
-        setLoading(false);
-        setAPIError('');
         dispatch(hideLinkModal());
-    }, []);
+    };
 
-    const onOrganizationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setError({...error, linkOrganizationError: ''});
-        setState({...state, linkOrganization: (e.target as HTMLInputElement).value});
-    }, [state, error]);
+    // Set organization name
+    const onOrganizationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorState({...errorState, organization: ''});
+        setProjectDetails({...projectDetails, organization: (e.target as HTMLInputElement).value});
+    };
 
-    const onProjectChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setError({...error, linkProjectError: ''});
-        setState({...state, linkProject: (e.target as HTMLInputElement).value});
-    }, [state, error]);
+    // Set project name
+    const onProjectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setErrorState({...errorState, project: ''});
+        setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
+    };
 
     const onConfirm = useCallback(() => {
-        if (state.linkOrganization === '') {
-            setError((value) => ({...value, linkOrganizationError: 'Organization is required'}));
-        }
-        if (state.linkProject === '') {
-            setError((value) => ({...value, linkProjectError: 'Project is required'}));
+        const errorStateChanges: LinkPayload = {
+            organization: '',
+            project: '',
+        };
+
+        if (projectDetails.organization === '') {
+            errorStateChanges.organization = 'Organization is required';
         }
 
-        if (!state.linkOrganization || !state.linkProject) {
+        if (projectDetails.project === '') {
+            errorStateChanges.project = 'Project is required';
+        }
+
+        if (errorStateChanges.organization || errorStateChanges.project) {
+            setErrorState(errorStateChanges);
             return;
         }
 
-        // Create payload to send in the POST request.
-        const payload = {
-            organization: state.linkOrganization,
-            project: state.linkProject,
-        };
-
-        // TODO: save the payload in a state variable to use it while reading the state
-        // we can see later if there exists a better way for this
-        setLinkPayload(payload);
-
         // Make POST api request
-        usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
-    }, [state]);
+        linkTask(projectDetails);
+    }, [errorState]);
+
+    // Make POST API request to link a project
+    const linkTask = async (payload: LinkPayload) => {
+        const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
+        if (createTaskRequest) {
+            dispatch(toggleIsLinked(true));
+            resetModalState();
+        }
+    };
 
     useEffect(() => {
-        if (linkPayload) {
-            const {isLoading, isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createLink.apiServiceName, linkPayload);
-            setLoading(isLoading);
-            if (isSuccess) {
-                onHide();
-            }
-            if (isError) {
-                setAPIError('Organization or project name is wrong');
-            }
-        }
-    }, [usePlugin.state]);
+        setProjectDetails({
+            organization: getLinkModalState(usePlugin.state).organization,
+            project: getLinkModalState(usePlugin.state).project,
+        });
+    }, [getLinkModalState(usePlugin.state)]);
 
-    if (visibility) {
-        return (
-            <Modal
-                show={visibility}
-                title='Link new project'
-                onHide={onHide}
-                onConfirm={onConfirm}
-                confirmBtnText='Link new project'
-                cancelDisabled={loading}
-                confirmDisabled={loading}
-                loading={loading}
-                error={APIError}
-            >
-                <>
-                    <Input
-                        type='text'
-                        placeholder='Organization name'
-                        value={state.linkOrganization}
-                        onChange={onOrganizationChange}
-                        error={error.linkOrganizationError}
-                        required={true}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Project name'
-                        value={state.linkProject}
-                        onChange={onProjectChange}
-                        required={true}
-                        error={error.linkProjectError}
-                    />
-                </>
-            </Modal>
-        );
-    }
-    return null;
+    const {isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
+    return (
+        <Modal
+            show={getLinkModalState(usePlugin.state).visibility}
+            title='Link new project'
+            onHide={resetModalState}
+            onConfirm={onConfirm}
+            confirmBtnText='Link new project'
+            cancelDisabled={isLoading}
+            confirmDisabled={isLoading}
+            loading={isLoading}
+        >
+            <>
+                <Input
+                    type='text'
+                    placeholder='Organization name'
+                    value={projectDetails.project}
+                    onChange={onOrganizationChange}
+                    error={errorState.organization}
+                    required={true}
+                />
+                <Input
+                    type='text'
+                    placeholder='Project name'
+                    value={projectDetails.project}
+                    onChange={onProjectChange}
+                    required={true}
+                    error={errorState.project}
+                />
+            </>
+        </Modal>
+    );
 };
 
 export default LinkModal;

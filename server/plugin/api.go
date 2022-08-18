@@ -36,7 +36,8 @@ func (p *Plugin) InitRoutes() {
 	// Plugin APIs
 	s.HandleFunc("/tasks", p.handleAuthRequired(p.handleCreateTask)).Methods(http.MethodPost)
 	s.HandleFunc("/link", p.handleAuthRequired(p.handleLink)).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.handleUnlinkProject)).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -45,7 +46,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 
 	body, err := serializers.CreateTaskRequestPayloadFromJSON(r.Body)
 	if err != nil {
-		p.API.LogError("Error in decoding the body for creating a task", "Error", err.Error())
+		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
@@ -83,7 +84,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	var body *serializers.LinkRequestPayload
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&body); err != nil {
-		p.API.LogError("Error in decoding body", "Error", err.Error())
+		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -131,21 +132,28 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if projectList == nil {
+		if _, err = w.Write([]byte("[]")); err != nil {
+			p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		}
 		return
 	}
 
 	response, err := json.Marshal(projectList)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response); err != nil {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 	}
@@ -156,8 +164,7 @@ func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
 		if mattermostUserID == "" {
-			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
-			p.handleError(w, r, &error)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized})
 			return
 		}
 
@@ -173,6 +180,54 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// handleUnlinkProject unlinks a project
+func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
+
+	var project *serializers.ProjectDetails
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&project); err != nil {
+		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	if !p.IsProjectLinked(projectList, *project) {
+		p.API.LogError(constants.ProjectNotFound, "Project", project.ProjectName)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotFound})
+		return
+	}
+
+	if err := p.Store.DeleteProject(project); err != nil {
+		p.API.LogError(constants.ErrorUnlinkProject, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+	}
+
+	successResponse := &serializers.SuccessResponse{
+		Message: "success",
+	}
+
+	response, err := json.Marshal(&successResponse)
+	if err != nil {
+		p.API.LogError("Error marshaling the response", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

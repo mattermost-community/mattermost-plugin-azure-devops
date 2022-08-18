@@ -1,4 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
+import {AnyAction} from 'redux';
 
 import services from 'services';
 
@@ -7,8 +8,8 @@ function usePluginApi() {
     const dispatch = useDispatch();
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
-    const makeApiRequest = (serviceName: ApiServiceName, payload: APIRequestPayload) => {
-        dispatch(services.endpoints[serviceName].initiate(payload));
+    const makeApiRequest = (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<AnyAction> => {
+        return dispatch(services.endpoints[serviceName].initiate(payload)); //TODO: add proper type here
     };
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument

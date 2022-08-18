@@ -9,6 +9,7 @@ type ConfirmationModalProps = {
     confirmBtnText: string
     onHide: () => void
     onConfirm?: () => void
+    isLoading?: boolean
 }
 
 const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm}: ConfirmationModalProps) => (

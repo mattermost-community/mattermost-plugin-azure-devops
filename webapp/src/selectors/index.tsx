@@ -5,3 +5,7 @@ export const getprojectDetailsState = (state: ReduxState) => {
 export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
     return state.views.rhs;
 };
+
+export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
+};

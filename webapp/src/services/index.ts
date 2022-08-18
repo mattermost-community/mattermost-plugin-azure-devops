@@ -34,6 +34,14 @@ const pluginApi = createApi({
                 method: Constants.pluginApiServiceConfigs.getAllLinkedProjectsList.method,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.unlinkProject.apiServiceName]: builder.query<void, APIRequestPayload>({
+            query: (payload) => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: Constants.pluginApiServiceConfigs.unlinkProject.path,
+                method: Constants.pluginApiServiceConfigs.unlinkProject.method,
+                body: payload,
+            }),
+        }),
     }),
 });
 

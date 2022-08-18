@@ -4,7 +4,7 @@
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject'
 
 type PluginApiService = {
     path: string,
@@ -43,7 +43,7 @@ type CreateTaskPayload = {
     fields: CreateTaskFields,
 }
 
-type APIRequestPayload = CreateTaskPayload | LinkPayload | void;
+type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
@@ -56,6 +56,7 @@ type TabsData = {
 }
 
 type ProjectDetails = {
+    mattermostUserID: string
     projectID: string,
     projectName: string,
     organizationName: string

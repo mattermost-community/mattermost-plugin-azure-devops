@@ -5,3 +5,7 @@ type Error struct {
 	Code    int
 	Message string
 }
+
+type SuccessResponse struct {
+	Message string `json:"message"`
+}

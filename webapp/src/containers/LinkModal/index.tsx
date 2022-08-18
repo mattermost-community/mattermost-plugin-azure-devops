@@ -50,7 +50,6 @@ const LinkModal = () => {
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
-    // Handles on confirming link project
     const onConfirm = () => {
         const errorStateChanges: LinkPayload = {
             organization: '',
@@ -74,7 +73,7 @@ const LinkModal = () => {
         linkTask(projectDetails);
     };
 
-    // Make POST api request to link a project
+    // Make POST API request to link a project
     const linkTask = async (payload: LinkPayload) => {
         const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
         if (createTaskRequest) {
@@ -90,6 +89,7 @@ const LinkModal = () => {
         });
     }, [getLinkModalState(usePlugin.state)]);
 
+    const {isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
     return (
         <Modal
             show={getLinkModalState(usePlugin.state).visibility}
@@ -97,9 +97,9 @@ const LinkModal = () => {
             onHide={resetModalState}
             onConfirm={onConfirm}
             confirmBtnText='Link new project'
-            cancelDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
-            confirmDisabled={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
-            loading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading}
+            cancelDisabled={isLoading}
+            confirmDisabled={isLoading}
+            loading={isLoading}
         >
             <>
                 <Input

@@ -205,7 +205,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !p.IsProjectLinked(projectList, *project) {
-		p.API.LogError(constants.ProjectNotFound, "Error")
+		p.API.LogError(constants.ProjectNotFound, "Project", project.ProjectName)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotFound})
 		return
 	}
@@ -221,7 +221,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 
 	response, err := json.Marshal(&successResponse)
 	if err != nil {
-		p.API.LogError("Error marhsalling the response", "Error", err.Error())
+		p.API.LogError("Error marshaling the response", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}

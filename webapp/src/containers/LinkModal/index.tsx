@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Input from 'components/inputField';
@@ -50,7 +50,7 @@ const LinkModal = () => {
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
-    const onConfirm = () => {
+    const onConfirm = useCallback(() => {
         const errorStateChanges: LinkPayload = {
             organization: '',
             project: '',
@@ -71,7 +71,7 @@ const LinkModal = () => {
 
         // Make POST api request
         linkTask(projectDetails);
-    };
+    }, [errorState]);
 
     // Make POST API request to link a project
     const linkTask = async (payload: LinkPayload) => {

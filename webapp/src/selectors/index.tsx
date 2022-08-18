@@ -1,11 +1,7 @@
-import plugin_constants from 'plugin_constants';
-
-const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
-
-export const getprojectDetailsState = (state: any) => {
-    return state[pluginPrefix].projectDetailsSlice;
+export const getprojectDetailsState = (state: ReduxState) => {
+    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };
 
-export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
+export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
     return state.views.rhs;
 };

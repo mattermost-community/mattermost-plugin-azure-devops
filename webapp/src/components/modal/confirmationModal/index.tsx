@@ -11,19 +11,17 @@ type ConfirmationModalProps = {
     onConfirm?: () => void
 }
 
-const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm}: ConfirmationModalProps) => {
-    return (
-        <Modal
-            show={isOpen}
-            title={title}
-            onHide={onHide}
-            onConfirm={onConfirm}
-            confirmAction={true}
-            confirmBtnText={confirmBtnText}
-        >
-            <p>{description}</p>
-        </Modal>
-    );
-};
+const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm}: ConfirmationModalProps) => (
+    <Modal
+        show={isOpen}
+        title={title}
+        onHide={onHide}
+        onConfirm={onConfirm}
+        confirmAction={true}
+        confirmBtnText={confirmBtnText}
+    >
+        <p>{description}</p>
+    </Modal>
+);
 
 export default ConfirmationModal;

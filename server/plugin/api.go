@@ -240,7 +240,7 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 
 	userDetails, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
+		p.API.LogError(constants.ErrorLoadingDataFromKVStore, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}

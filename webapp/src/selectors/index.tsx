@@ -11,5 +11,9 @@ export const getGlobalModalState = (state: ReduxState): GlobalModalState => {
 };
 
 export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
+    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalSlice;
+};
+
+export const getTaskModalState = (state: ReduxState): CreateTaskModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openTaskModalSlice;
 };

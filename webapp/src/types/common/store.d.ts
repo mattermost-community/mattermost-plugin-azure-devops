@@ -23,3 +23,7 @@ type LinkProjectModalState = {
     project: string,
     isLinked: boolean,
 }
+
+type CreateTaskModalState = {
+    visibility: boolean
+}

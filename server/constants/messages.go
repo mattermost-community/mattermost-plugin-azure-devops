@@ -27,6 +27,6 @@ const (
 	ErrorFetchProjectList           = "Error in fetching project list"
 	ErrorDecodingBody               = "Error in decoding body"
 	ErrorLoadingDataFromKVStore     = "Error in loading data from KV store"
-	ProjectNotFound                 = "Requested project does not exists"
+	ProjectNotFound                 = "Requested project does not exist"
 	ErrorUnlinkProject              = "Error in unlinking the project"
 )

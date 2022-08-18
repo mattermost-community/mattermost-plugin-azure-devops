@@ -23,6 +23,10 @@ const Rhs = (): JSX.Element => {
 
     const {isLoading, isError, isSuccess} = getApiState(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
 
+    if (!getRhsState(state).isSidebarOpen) {
+        return <></>;
+    }
+
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
             {

@@ -78,9 +78,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     // Reset the state when the component is unmounted
     useEffect(() => {
         fetchSubscriptionList();
-        return () => {
-            handleResetProjectDetails();
-        };
+        return handleResetProjectDetails;
     }, []);
 
     // Fetch the subscription list when new subscription is created
@@ -123,7 +121,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                     tooltipText='Unlink project'
                     iconClassName='fa fa-chain-broken'
                     extraClass='project-details-unlink-button unlink-button'
-                    onClick={() => handleUnlinkProject()}
+                    onClick={handleUnlinkProject}
                 />
             </div>
             {

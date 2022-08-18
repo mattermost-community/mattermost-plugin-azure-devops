@@ -1,47 +1,113 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import ProjectCard from 'components/card/project';
+import EmptyState from 'components/emptyState';
+import LinearLoader from 'components/loader/linear';
+import ConfirmationModal from 'components/modal/confirmationModal';
 
 import {setProjectDetails} from 'reducers/projectDetails';
-
-// TODO: dummy data, remove later
-const data: ProjectDetails[] = [
-    {
-        id: 'abc',
-        title: 'Project A',
-        organization: 'Organization Name',
-    },
-    {
-        id: 'abc1',
-        title: 'Project B',
-        organization: 'Organization Name',
-    },
-    {
-        id: 'abc2',
-        title: 'Project C',
-        organization: 'Organization Name',
-    },
-];
+import {showLinkModal, toggleIsLinked} from 'reducers/linkModal';
+import {getLinkModalState} from 'selectors';
+import usePluginApi from 'hooks/usePluginApi';
+import plugin_constants from 'plugin_constants';
 
 const ProjectList = () => {
-    const dispatch = useDispatch();
+    // State variables
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [projectToBeUnlinked, setProjectToBeUnlinked] = useState<ProjectDetails>();
 
+    // Hooks
+    const dispatch = useDispatch();
+    const usePlugin = usePluginApi();
+
+    // Fetch linked projects list
+    const fetchLinkedProjectsList = () => usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+
+    // Navigates to project details view
     const handleProjectTitleClick = (projectDetails: ProjectDetails) => {
         dispatch(setProjectDetails(projectDetails));
     };
+
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        dispatch(showLinkModal([]));
+    };
+
+    /**
+     * Opens a confirmation modal to confirm unlinking a project
+     * @param projectDetails
+     */
+    const handleUnlinkProject = (projectDetails: ProjectDetails) => {
+        setProjectToBeUnlinked(projectDetails);
+        setShowConfirmationModal(true);
+    };
+
+    // Handles unlinking a project and fetching the modified project list
+    const handleConfirmUnlinkProject = async () => {
+        const unlinkProjectStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked);
+
+        if (unlinkProjectStatus) {
+            fetchLinkedProjectsList();
+            setShowConfirmationModal(false);
+        }
+    };
+
+    // Fetch the linked projects list when RHS is opened
+    useEffect(() => {
+        fetchLinkedProjectsList();
+    }, []);
+
+    // Fetch the linked projects list when new project is linked
+    useEffect(() => {
+        if (getLinkModalState(usePlugin.state).isLinked) {
+            dispatch(toggleIsLinked(false));
+            fetchLinkedProjectsList();
+        }
+    }, [getLinkModalState(usePlugin.state)]);
+
+    const {data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
 
     return (
         <>
             <p className='rhs-title'>{'Linked Projects'}</p>
             {
-                data.map((item) => (
-                    <ProjectCard
-                        onProjectTitleClick={handleProjectTitleClick}
-                        projectDetails={{id: item.id, title: item.title, organization: item.organization}}
-                        key={item.id}
-                    />
-                ),
+                <ConfirmationModal
+                    isOpen={showConfirmationModal}
+                    onHide={() => setShowConfirmationModal(false)}
+                    onConfirm={handleConfirmUnlinkProject}
+                    isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
+                    confirmBtnText='Unlink'
+                    description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
+                    title='Confirm Project Unlink'
+                />
+            }
+            {
+                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isLoading && (
+                    <LinearLoader/>
+                )
+            }
+            {
+                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess &&
+                data &&
+                (
+                    data.length ?
+                        data.map((item) => (
+                            <ProjectCard
+                                onProjectTitleClick={handleProjectTitleClick}
+                                projectDetails={item}
+                                key={item.projectID}
+                                handleUnlinkProject={handleUnlinkProject}
+                            />
+                        )) :
+                        (
+                            <EmptyState
+                                title='No Project Linked'
+                                subTitle={{text: 'You can link a project by clicking the below button or using the slash command', slashCommand: '/azuredevops link'}}
+                                buttonText='Link new project'
+                                buttonAction={handleOpenLinkProjectModal}
+                            />
+                        )
                 )
             }
         </>

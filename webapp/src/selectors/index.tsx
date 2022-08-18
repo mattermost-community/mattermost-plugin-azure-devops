@@ -1,7 +1,11 @@
-import plugin_constants from 'plugin_constants';
+export const getprojectDetailsState = (state: ReduxState) => {
+    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
+};
 
-const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
+export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
+    return state.views.rhs;
+};
 
-export const getprojectDetailsState = (state: any) => {
-    return state[pluginPrefix].projectDetailsSlice;
+export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
 };

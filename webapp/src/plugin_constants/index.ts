@@ -28,6 +28,16 @@ const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
         method: 'GET',
         apiServiceName: 'testGet',
     },
+    getAllLinkedProjectsList: {
+        path: '/link/project',
+        method: 'GET',
+        apiServiceName: 'getAllLinkedProjectsList',
+    },
+    unlinkProject: {
+        path: '/unlink/project',
+        method: 'POST',
+        apiServiceName: 'unlinkProject',
+    },
 };
 
 export default {

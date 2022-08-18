@@ -4,15 +4,20 @@
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject'
 
 type PluginApiService = {
     path: string,
-    method: httpMethod,
+    method: HttpMethod,
     apiServiceName: ApiServiceName
 }
 
-type PluginState = {
+interface ReduxState extends GlobalState {
+    views: {
+        rhs: {
+            isSidebarOpen: boolean
+        }
+    }
     'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'pluginApi'>; }, never, 'pluginApi'>
 }
 
@@ -38,7 +43,7 @@ type CreateTaskPayload = {
     fields: CreateTaskFields,
 }
 
-type APIRequestPayload = CreateTaskPayload | LinkPayload | void;
+type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
@@ -51,9 +56,10 @@ type TabsData = {
 }
 
 type ProjectDetails = {
-    id: string
-    title: string
-    organization: string
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
 }
 
 type eventType = 'create' | 'update' | 'delete'

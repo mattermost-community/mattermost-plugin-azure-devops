@@ -28,7 +28,7 @@ export default class Plugin {
         registry.registerReducer(reducer);
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
-        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
+        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(App, Constants.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
         registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.AzureDevops);

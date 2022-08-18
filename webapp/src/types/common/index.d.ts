@@ -12,7 +12,12 @@ type PluginApiService = {
     apiServiceName: ApiServiceName
 }
 
-type PluginState = {
+interface ReduxState extends GlobalState {
+    views: {
+        rhs: {
+            isSidebarOpen: boolean
+        }
+    }
     'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'pluginApi'>; }, never, 'pluginApi'>
 }
 
@@ -51,7 +56,7 @@ type TabsData = {
 }
 
 type ProjectDetails = {
-    mattermostID: string
+    mattermostUserID: string
     projectID: string,
     projectName: string,
     organizationName: string

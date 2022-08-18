@@ -1,17 +1,11 @@
-import plugin_constants from 'plugin_constants';
-
-const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
-
-// TODO: create a type for global state
-
-export const getprojectDetailsState = (state: any) => {
-    return state[pluginPrefix].projectDetailsSlice;
+export const getprojectDetailsState = (state: ReduxState) => {
+    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };
 
-export const getLinkModalState = (state: any): LinkProjectModalState => {
-    return state[pluginPrefix].openLinkModalReducer;
-};
-
-export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
+export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
     return state.views.rhs;
+};
+
+export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalReducer;
 };

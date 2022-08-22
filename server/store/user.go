@@ -1,13 +1,14 @@
 package store
 
-type User struct {
-	MattermostUserID string
-	AccessToken      string
-	RefreshToken     string
-	ExpiresAt        int64
+import "github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+
+type UserStore interface {
+	LoadUser(mattermostUserID string) (*serializers.User, error)
+	StoreUser(user *serializers.User) error
+	DeleteUser(mattermostUserID string) (bool, error)
 }
 
-func (s *Store) StoreUser(user *User) error {
+func (s *Store) StoreUser(user *serializers.User) error {
 	if err := s.StoreJSON(GetOAuthKey(user.MattermostUserID), user); err != nil {
 		return err
 	}
@@ -15,8 +16,8 @@ func (s *Store) StoreUser(user *User) error {
 	return nil
 }
 
-func (s *Store) LoadUser(mattermostUserID string) (*User, error) {
-	user := User{}
+func (s *Store) LoadUser(mattermostUserID string) (*serializers.User, error) {
+	user := serializers.User{}
 	if err := s.LoadJSON(GetOAuthKey(mattermostUserID), &user); err != nil {
 		return nil, err
 	}

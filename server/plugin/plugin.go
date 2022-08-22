@@ -31,7 +31,7 @@ type Plugin struct {
 	// setConfiguration for usage.
 	configuration *config.Configuration
 	router        *mux.Router
-	Store         *store.Store
+	Store         store.KVStore
 
 	// user ID of the bot account
 	botUserID string

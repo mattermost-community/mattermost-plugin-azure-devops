@@ -6,6 +6,11 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
+type OAuthStore interface {
+	StoreOAuthState(mattermostUserID, state string) error
+	VerifyOAuthState(mattermostUserID, state string) error
+}
+
 func (s *Store) StoreOAuthState(mattermostUserID, state string) error {
 	oAuthKey := GetOAuthKey(mattermostUserID)
 	return s.StoreTTL(oAuthKey, []byte(state), constants.TTLSecondsForOAuthState)

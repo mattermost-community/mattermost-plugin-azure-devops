@@ -19,7 +19,7 @@ function usePluginApi() {
         const apiRequest = await makeApiRequest(serviceName, payload);
 
         if (apiRequest) {
-            dispatch(setApiRequestCompletionState({serviceName}));
+            dispatch(setApiRequestCompletionState(serviceName));
         }
     };
 

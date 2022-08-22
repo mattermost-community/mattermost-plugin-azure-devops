@@ -20,7 +20,7 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
     // Observe for the change in redux state after API call and do the required actions
     useEffect(() => {
         if (
-            getApiRequestCompletionState(state).serviceName === serviceName &&
+            getApiRequestCompletionState(state).requestes.includes(serviceName) &&
             getApiState(serviceName, payload)
         ) {
             const {isError, isSuccess, isUninitialized} = getApiState(serviceName, payload);
@@ -35,11 +35,11 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
             }
 
             if (!isUninitialized) {
-                dispatch(resetApiRequestCompletionState());
+                dispatch(resetApiRequestCompletionState(serviceName));
             }
         }
     }, [
-        getApiRequestCompletionState(state).serviceName,
+        getApiRequestCompletionState(state).requestes.includes(serviceName),
         getApiState(serviceName, payload),
     ]);
 }

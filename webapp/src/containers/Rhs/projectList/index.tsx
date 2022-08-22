@@ -82,11 +82,7 @@ const ProjectList = () => {
                     title='Confirm Project Unlink'
                 />
             }
-            {
-                isLoading && (
-                    <LinearLoader/>
-                )
-            }
+            {isLoading && <LinearLoader/>}
             {
                 isSuccess && data &&
                 (

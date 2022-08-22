@@ -45,7 +45,6 @@ export default class Hooks {
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops disconnect')) {
             this.closeRhs();
-
             return {
                 message,
                 args: contextArgs,

@@ -29,14 +29,8 @@ const Rhs = (): JSX.Element => {
 
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
-            {
-                isLoading &&
-                <LinearLoader/>
-            }
-            {
-                isError &&
-                <AccountNotLinked/>
-            }
+            {isLoading && <LinearLoader/>}
+            {isError && <AccountNotLinked/>}
             {
                 !isLoading &&
                 !isError &&
@@ -45,7 +39,6 @@ const Rhs = (): JSX.Element => {
                         <ProjectDetails title={getprojectDetailsState(state).projectName}/> :
                         <ProjectList/>
                 )
-
             }
         </div>
     );

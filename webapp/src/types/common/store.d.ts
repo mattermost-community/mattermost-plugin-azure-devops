@@ -1,3 +1,11 @@
+type PluginState = {
+    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'azureDevopsPluginApi'>; }, never, 'pluginApi'>
+}
+
+type ApiRequestCompletionState = {
+    serviceName: string
+}
+
 type GlobalModalState = {
     modalId: ModalId
     commandArgs: Array<string>
@@ -6,6 +14,7 @@ type GlobalModalState = {
 type GlobalModalActionPayload = {
     isVisible: boolean
     commandArgs: Array<string>
+    isActionDone?: boolean
 }
 
 type LinkProjectModalState = {
@@ -28,4 +37,8 @@ type TaskFieldsCommandArgs = {
 type CreateTaskModalState = {
     visibility: boolean
     commandArgs: TaskFieldsCommandArgs
+}
+
+type ApiQueriesState = {
+    [key: string]: Record<string, string>
 }

@@ -6,8 +6,8 @@ type DropdownProps = {
     value: string | null;
     placeholder: string;
     onChange: (newValue: string) => void;
-    options:DropdownOptionType[];
-    customOption?: DropdownOptionType & {
+    options:LabelValuePair[];
+    customOption?: LabelValuePair & {
         onClick: (customOptionValue: string) => void;
     }
     loadingOptions?: boolean;
@@ -20,7 +20,7 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
     const [open, setOpen] = useState(false);
 
     // Handles closing the popover and updating the value when someone selects an option
-    const handleInputChange = (newOption: DropdownOptionType) => {
+    const handleInputChange = (newOption: LabelValuePair) => {
         setOpen(false);
 
         // Trigger onChange only if there is a change in the dropdown value

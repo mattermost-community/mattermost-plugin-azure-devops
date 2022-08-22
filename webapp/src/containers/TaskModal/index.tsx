@@ -48,8 +48,8 @@ const TaskModal = () => {
             description: '',
         },
     });
-    const [organizationOptions, setOrganizationOptions] = useState<DropdownOptionType[]>([]);
-    const [projectOptions, setProjectOptions] = useState<DropdownOptionType[]>([]);
+    const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
+    const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
 
     // Hooks
     const usePlugin = usePluginApi();

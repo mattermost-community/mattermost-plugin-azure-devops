@@ -73,7 +73,10 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const data = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project).data as SubscriptionDetails[];
 
     // Fetch subscription list
-    const fetchSubscriptionList = () => usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+    const fetchSubscriptionList = () => usePlugin.makeApiRequest(
+        plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+        project,
+    );
 
     // Reset the state when the component is unmounted
     useEffect(() => {

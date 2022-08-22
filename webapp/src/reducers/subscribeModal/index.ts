@@ -11,7 +11,7 @@ export const openSubscribeModalSlice = createSlice({
     reducers: {
         toggleShowSubscribeModal: (state: SubscribeModalState, action: PayloadAction<GlobalModalActionPayload>) => {
             state.visibility = action.payload.isVisible;
-            state.isCreated = false;
+            state.isCreated = action.payload.isActionDone ?? false;
         },
         toggleIsSubscribed: (state: SubscribeModalState, action: PayloadAction<boolean>) => {
             state.isCreated = action.payload;

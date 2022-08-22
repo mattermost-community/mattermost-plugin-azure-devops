@@ -1,6 +1,6 @@
 import plugin_constants from 'plugin_constants';
 
-const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
+const pluginPrefix = `plugins-${plugin_constants.common.pluginId}`;
 
 // TODO: create a type for global state
 
@@ -26,4 +26,12 @@ export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
 
 export const getSubscribeModalState = (state: any): SubscribeModalState => {
     return state[pluginPrefix].openSubscribeModalSlice;
+};
+
+export const getApiRequestCompletionState = (state: any): ApiRequestCompletionState => {
+    return state[pluginPrefix].apiRequestCompletionSlice;
+};
+
+export const getApiQueriesState = (state: any): ApiQueriesState => {
+    return state[pluginPrefix].azureDevopsPluginApi?.queries;
 };

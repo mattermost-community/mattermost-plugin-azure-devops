@@ -30,12 +30,12 @@ export default class Plugin {
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
         registry.registerRootComponent(SubscribeModal);
-        registry.registerWebSocketEventHandler(`custom_${Constants.pluginId}_connect`, handleConnect(store));
-        registry.registerWebSocketEventHandler(`custom_${Constants.pluginId}_disconnect`, handleDisconnect(store));
-        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_connect`, handleConnect(store));
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_disconnect`, handleDisconnect(store));
+        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
-        registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.AzureDevops);
+        registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.common.AzureDevops);
     }
 }
 

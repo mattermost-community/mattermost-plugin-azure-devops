@@ -42,6 +42,6 @@ const (
 	CreateSubscriptionError         = "Error in creating subscription"
 	ProjectNotLinked                = "Requested project is not linked"
 	GetSubscriptionListError        = "Error getting Subscription List"
-	SubscriptionAlreadyPresent      = "Subscription is already present"
+	SubscriptionAlreadyPresent      = "Requested subscription already exists"
 	SubscriptionNotFound            = "Requested subscription does not exists"
 )

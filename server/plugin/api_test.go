@@ -174,7 +174,7 @@ func TestHandleCreateTask(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test CreateTask when marshalling gives error",
+			description: "test CreateTask when marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -190,7 +190,6 @@ func TestHandleCreateTask(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
@@ -409,7 +408,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleUnlinkProject when marshalling gives error",
+			description: "test handleUnlinkProject when marshaling gives error",
 			body: `{
 				"organizationName": "mockOrganization",
 				"projectName": "mockProject",
@@ -496,7 +495,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			statusCode:    http.StatusBadRequest,
 		},
 		{
-			description: "test handleGetUserAccountDetails when marshalling gives error",
+			description: "test handleGetUserAccountDetails when marshaling gives error",
 			statusCode:  http.StatusInternalServerError,
 			user: &serializers.User{
 				MattermostUserID: "mockMattermostUserID",
@@ -595,7 +594,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleCreateSubscriptions when marshalling gives error",
+			description: "test handleCreateSubscriptions when marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -685,7 +684,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			statusCode:  http.StatusOK,
 		},
 		{
-			description:  "test handleGetSubscriptions when marshalling gives error",
+			description:  "test handleGetSubscriptions when marshaling gives error",
 			marshalError: errors.New("mockError"),
 			statusCode:   http.StatusInternalServerError,
 		},

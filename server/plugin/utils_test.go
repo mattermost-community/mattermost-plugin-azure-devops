@@ -487,7 +487,6 @@ func TestIsProjectLinked(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			resp, isProjectLinked := p.IsProjectLinked(testCase.projectList, testCase.project)
 			if isProjectLinked {
 				assert.NotNil(t, resp)
@@ -543,7 +542,6 @@ func TestIsSubscriptionPresent(t *testing.T) {
 			}
 
 			assert.Nil(t, resp)
-
 		})
 	}
 }
@@ -610,7 +608,6 @@ func TestGetConnectAccountFirstMessage(t *testing.T) {
 			description: "test getConnectAccountFirstMessage",
 		},
 	} {
-
 		t.Run(testCase.description, func(t *testing.T) {
 			resp := p.getConnectAccountFirstMessage()
 			assert.NotNil(t, resp)

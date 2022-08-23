@@ -52,7 +52,6 @@ func TestMessageWillBePosted(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.Patch(isValidTaskLink, func(_ string) ([]string, bool) {
 				return testCase.taskData, testCase.isValid
 			})

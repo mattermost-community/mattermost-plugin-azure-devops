@@ -319,7 +319,6 @@ func TestStoreOAuthToken(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
 
 			mockedClient.EXPECT().GenerateOAuthToken(gomock.Any()).Return(&serializers.OAuthSuccessResponse{}, 200, nil)
@@ -374,7 +373,6 @@ func TestUserAlreadyConnected(t *testing.T) {
 			loadUserError: errors.New("mockError"),
 		},
 	} {
-
 		mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
 
 		mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserError)

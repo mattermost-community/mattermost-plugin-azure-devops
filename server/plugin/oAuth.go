@@ -74,7 +74,7 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
-		p.closeBrowserWindowWithHTTPResponse(w)
+		p.CloseBrowserWindowWithHTTPResponse(w)
 		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected); DMErr != nil {
 			p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
 		}
@@ -110,11 +110,15 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p.closeBrowserWindowWithHTTPResponse(w)
+	p.CloseBrowserWindowWithHTTPResponse(w)
 }
 
 // GenerateOAuthToken generates OAuth token after successful authorization
 func (p *Plugin) GenerateOAuthToken(code, state string) error {
+	if len(strings.Split(state, "_")) != 2 || strings.Split(state, "_")[1] == "" {
+		return errors.New("invalid state")
+	}
+
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
@@ -151,7 +155,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 
 // RefreshOAuthToken refreshes OAuth token
 func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error {
-	decodedRefreshToken, err := p.decode(refreshToken)
+	decodedRefreshToken, err := p.Decode(refreshToken)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
@@ -159,7 +163,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error 
 		return err
 	}
 
-	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
+	decryptedRefreshToken, err := p.Decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
@@ -188,12 +192,12 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 		return errors.Wrap(err, "failed to generate oAuth token")
 	}
 
-	encryptedAccessToken, err := p.encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
+	encryptedAccessToken, err := p.Encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err
 	}
 
-	encryptedRefreshToken, err := p.encrypt([]byte(successResponse.RefreshToken), []byte(p.getConfiguration().EncryptionSecret))
+	encryptedRefreshToken, err := p.Encrypt([]byte(successResponse.RefreshToken), []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return err
 	}
@@ -208,8 +212,8 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 
 	user := serializers.User{
 		MattermostUserID: mattermostUserID,
-		AccessToken:      p.encode(encryptedAccessToken),
-		RefreshToken:     p.encode(encryptedRefreshToken),
+		AccessToken:      p.Encode(encryptedAccessToken),
+		RefreshToken:     p.Encode(encryptedRefreshToken),
 		ExpiresAt:        time.Now().UTC().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)).Unix(),
 	}
 
@@ -252,8 +256,8 @@ func (p *Plugin) UserAlreadyConnected(mattermostUserID string) bool {
 	return false
 }
 
-// closeBrowserWindowWithHTTPResponse closes the browser window
-func (p *Plugin) closeBrowserWindowWithHTTPResponse(w http.ResponseWriter) {
+// CloseBrowserWindowWithHTTPResponse closes the browser window
+func (p *Plugin) CloseBrowserWindowWithHTTPResponse(w http.ResponseWriter) {
 	html := `
 	<!DOCTYPE html>
 	<html>

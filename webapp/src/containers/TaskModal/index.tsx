@@ -10,7 +10,7 @@ import usePluginApi from 'hooks/usePluginApi';
 import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getCreateTaskModalState} from 'selectors';
 
-import {getOrganizationList, getProjectList} from 'utils';
+import Utils from 'utils';
 import plugin_constants from 'plugin_constants';
 
 const taskTypeOptions = [
@@ -145,34 +145,27 @@ const TaskModal = () => {
         }
     };
 
-    // Get ProjectList State
-    const getProjectState = () => {
-        const {isLoading, isSuccess, isError, data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
-        return {isLoading, isSuccess, isError, data: data as ProjectDetails[]};
-    };
+    // Get organization and project state
+    const getOrganizationAndProjectState = () => {
+        const {isLoading, isSuccess, isError, data} = usePlugin.getApiState(
+            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+        );
 
-    // Get ChannelList State
-    const getChannelState = () => {
-        const {isLoading, isSuccess, isError, data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
-        return {isLoading, isSuccess, isError, data: data as ChannelList[]};
+        return {
+            isLoading,
+            isError,
+            isSuccess,
+            organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
+            projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
+        };
     };
 
     useEffect(() => {
-        if (!getChannelState().data) {
-            usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
+        if (getOrganizationAndProjectState().isSuccess) {
+            setOrganizationOptions(getOrganizationAndProjectState().organizationList);
+            setProjectOptions(getOrganizationAndProjectState().projectList);
         }
-        if (!getProjectState().data) {
-            usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
-        }
-    }, []);
-
-    useEffect(() => {
-        const projectList = getProjectState().data;
-        if (projectList) {
-            setProjectOptions(getProjectList(projectList));
-            setOrganizationOptions(getOrganizationList(projectList));
-        }
-    }, [usePlugin.state]);
+    }, [getOrganizationAndProjectState().isLoading]);
 
     useEffect(() => {
         // Pre-select the dropdown value in case of single option.

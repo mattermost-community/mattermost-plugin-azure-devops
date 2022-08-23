@@ -108,11 +108,8 @@ function useForm(initialFormFields: Record<FormFields, ModalFormFieldConfig>) {
     };
 
     // Set value for a specific form field
-    const setSpecificFieldValue = (fieldName: FormFields, value: string) => {
-        setFormFields({
-            ...formFields,
-            [fieldName]: value,
-        });
+    const setSpecificFieldValue = (modifiedFormFields:Record<FormFields, string>) => {
+        setFormFields(modifiedFormFields);
     };
 
     return {formFields, errorState, setSpecificFieldValue, onChangeOfFormField, isErrorInFormValidation, resetFormFields};

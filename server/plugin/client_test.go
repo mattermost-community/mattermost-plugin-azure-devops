@@ -38,7 +38,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -52,7 +51,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -81,7 +79,6 @@ func TestCreateTask(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -99,7 +96,6 @@ func TestCreateTask(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -128,7 +124,6 @@ func TestGetTask(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -142,7 +137,6 @@ func TestGetTask(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -171,7 +165,6 @@ func TestLink(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -185,7 +178,6 @@ func TestLink(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -214,7 +206,6 @@ func TestCreateSubscription(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -228,7 +219,6 @@ func TestCreateSubscription(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -257,7 +247,6 @@ func TestDeleteSubscription(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
@@ -271,7 +260,6 @@ func TestDeleteSubscription(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
-
 		})
 	}
 }
@@ -288,7 +276,6 @@ func TestCall(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "AddAuthorization", func(_ *Plugin, _ *http.Request, _ string) error {
 				return nil
 			})
@@ -302,7 +289,6 @@ func TestCall(t *testing.T) {
 
 			_, _, err := client.Call("mockBasePath", "mockMethod", "mockPath", "mockContentType", "mockMattermostUserID", nil, nil, url.Values{})
 			assert.Error(t, err)
-
 		})
 	}
 }

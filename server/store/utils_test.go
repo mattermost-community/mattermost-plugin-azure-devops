@@ -108,7 +108,7 @@ func TestStoreJSON(t *testing.T) {
 			description: "test StoreJSON",
 		},
 		{
-			description:  "test StoreJSON when marshalling gives error",
+			description:  "test StoreJSON when marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{

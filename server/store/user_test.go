@@ -26,7 +26,6 @@ func TestStoreUser(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.Patch(GetOAuthKey, func(string) string {
 				return "mockMattermostUserID"
 			})
@@ -62,7 +61,6 @@ func TestLoadUser(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.Patch(GetOAuthKey, func(string) string {
 				return "mockMattermostUserID"
 			})
@@ -100,7 +98,6 @@ func TestDeleteUser(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-
 			monkey.Patch(GetOAuthKey, func(string) string {
 				return "mockMattermostUserID"
 			})

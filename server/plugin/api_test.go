@@ -83,32 +83,23 @@ func TestHandleAuthRequired(t *testing.T) {
 	p.API = mockAPI
 	for _, testCase := range []struct {
 		description string
-		body        string
 	}{
 		{
-			description: "test CreateTask",
-			body: `{
-				"organization": "mockOrganization",
-				"project": "mockProject",
-				"type": "mockType",
-				"fields": {
-					"title": "mockTitle",
-					"description": "mockDescription"
-					}
-				}`,
+			description: "test handleAuthRequired",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			timerHandler := func(w http.ResponseWriter, r *http.Request) {}
 
-			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(testCase.body))
+			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
 
 			res := httptest.NewRecorder()
 
 			timerHandler(res, req)
 
-			p.handleAuthRequired(timerHandler)
+			resp := p.handleAuthRequired(timerHandler)
+			assert.NotNil(t, resp)
 		})
 	}
 }

@@ -1,7 +1,7 @@
 type FieldType = 'dropdown' | 'text' | 'timestamp'
 type ValidationTypes = 'isRequired' | 'maxCharLen' | 'minCharLen' | 'regex' | 'regexErrorMessage'
 type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp'
-type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'timestamp'
+type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp'
 type ErrorComponents = 'SubscribeModal' | 'CreateTaskModal'
 
 type ModalFormFieldConfig = {

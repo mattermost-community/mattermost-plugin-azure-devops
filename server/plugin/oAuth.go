@@ -76,8 +76,10 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.CloseBrowserWindowWithHTTPResponse(w)
 		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected); DMErr != nil {
-			p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: DMErr.Error()})
+			return
 		}
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
 		return
 	}
 

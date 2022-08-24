@@ -31,24 +31,29 @@ func TestOAuthConnect(t *testing.T) {
 		isConnected      bool
 		mattermostUserID string
 		DMErr            error
+		statusCode       int
 	}{
 		{
 			description:      "test OAuthConnect",
 			mattermostUserID: "mockMattermostUserID",
+			statusCode:       http.StatusFound,
 		},
 		{
 			description: "test OAuthConnect without mattermostUserID",
+			statusCode:  http.StatusUnauthorized,
 		},
 		{
 			description:      "test OAuthConnect with user already connected",
 			isConnected:      true,
 			mattermostUserID: "mockMattermostUserID",
+			statusCode:       http.StatusBadRequest,
 		},
 		{
 			description:      "test OAuthConnect with user already connected and failed to DM",
 			isConnected:      true,
 			DMErr:            &model.AppError{},
 			mattermostUserID: "mockMattermostUserID",
+			statusCode:       http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -69,6 +74,7 @@ func TestOAuthConnect(t *testing.T) {
 			res := httptest.NewRecorder()
 
 			p.OAuthConnect(res, req)
+			assert.Equal(t, testCase.statusCode, res.Code)
 		})
 	}
 }
@@ -83,35 +89,42 @@ func TestOAuthComplete(t *testing.T) {
 		code          string
 		state         string
 		oAuthTokenErr error
+		statusCode    int
 	}{
 		{
 			description: "test OAuthComplete",
 			code:        "mockCode",
 			state:       "mock_State",
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "test OAuthComplete without code",
 			state:       "mock_State",
+			statusCode:  http.StatusBadRequest,
 		},
 		{
 			description: "test OAuthComplete without state",
 			code:        "mockCode",
+			statusCode:  http.StatusBadRequest,
 		},
 		{
 			description: "test OAuthComplete with length of state not equal to 2",
 			code:        "mockCode",
 			state:       "mockState",
+			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test OAuthComplete with state first word empty",
+			description: "test OAuthComplete with state second word empty",
 			code:        "mockCode",
-			state:       "_mockState",
+			state:       "mockState_",
+			statusCode:  http.StatusBadRequest,
 		},
 		{
 			description:   "test OAuthComplete with oAuthTokenErr",
 			code:          "mockCode",
 			state:         "mock_State",
 			oAuthTokenErr: errors.New("mockError"),
+			statusCode:    http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -128,6 +141,7 @@ func TestOAuthComplete(t *testing.T) {
 			res := httptest.NewRecorder()
 
 			p.OAuthComplete(res, req)
+			assert.Equal(t, testCase.statusCode, res.Code)
 		})
 	}
 }
@@ -389,16 +403,19 @@ func TestCloseBrowserWindowWithHTTPResponse(t *testing.T) {
 	for _, testCase := range []struct {
 		description string
 		html        string
+		statusCode  int
 	}{
 		{
 			description: "test CloseBrowserWindowWithHTTPResponse",
 			html:        "mockHTML",
+			statusCode:  http.StatusOK,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			res := httptest.NewRecorder()
 
 			p.CloseBrowserWindowWithHTTPResponse(res)
+			assert.Equal(t, testCase.statusCode, res.Code)
 		})
 	}
 }

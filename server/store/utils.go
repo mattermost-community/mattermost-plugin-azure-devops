@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -144,4 +145,12 @@ func GetKeyHash(key string) string {
 	hash := sha256.New()
 	_, _ = hash.Write([]byte(key))
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
+}
+
+func IsValidUserKey(key string) (string, bool) {
+	res := strings.Split(key, "_")
+	if res[0] == constants.UserIDPrefix {
+		return res[1], true
+	}
+	return "", false
 }

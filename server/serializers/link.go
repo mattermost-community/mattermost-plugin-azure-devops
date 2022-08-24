@@ -1,6 +1,9 @@
 package serializers
 
 import (
+	"encoding/json"
+	"io"
+
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
@@ -28,4 +31,12 @@ func (t *LinkRequestPayload) IsLinkPayloadValid() string {
 		return constants.ProjectRequired
 	}
 	return ""
+}
+
+func LinkPayloadFromJSON(data io.Reader) (*LinkRequestPayload, error) {
+	var body *LinkRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }

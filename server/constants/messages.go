@@ -26,6 +26,7 @@ const (
 	EmptyAzureDevopsOAuthAppIDError        = "azure devops OAuth app id should not be empty"
 	EmptyAzureDevopsOAuthClientSecretError = "azure devops OAuth client secret should not be empty"
 	EmptyEncryptionSecretError             = "encryption secret should not be empty"
+	ProjectIDRequired    = "project ID is required"
 )
 
 const (

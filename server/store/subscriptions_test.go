@@ -29,6 +29,16 @@ func TestNewSubscriptionListt(t *testing.T) {
 
 func TestStoreSubscriptionAtomicModify(t *testing.T) {
 	defer monkey.UnpatchAll()
+	subscriptionList := NewSubscriptionList()
+	subscriptionList.AddSubscription("mockMattermostUserId", &serializers.SubscriptionDetails{
+		OrganizationName: "mockOrganization",
+		ProjectID:        "mockProjectID",
+		ProjectName:      "mockProject",
+		EventType:        "mockEventType",
+		ChannelID:        "mockChannelID",
+		ChannelName:      "mockChannelName",
+		SubscriptionID:   "mockSubscriptionID",
+	})
 	for _, testCase := range []struct {
 		description              string
 		subscriptionList         *SubscriptionList
@@ -37,29 +47,20 @@ func TestStoreSubscriptionAtomicModify(t *testing.T) {
 	}{
 		{
 			description:      "test StoreSubscriptionAtomicModify when subscription is added successfully",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 		},
 		{
 			description:      "test StoreSubscriptionAtomicModify when marshaling gives error",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 			marshalError:     errors.New("mockError"),
 		},
 		{
 			description:              "test StoreSubscriptionAtomicModify when SubscriptionListFromJSON gives error",
-			subscriptionList:         NewSubscriptionList(),
+			subscriptionList:         subscriptionList,
 			subscriptionListFromJSON: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.subscriptionList.AddSubscription("mockMattermostUserId", &serializers.SubscriptionDetails{
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-				ProjectName:      "mockProject",
-				EventType:        "mockEventType",
-				ChannelID:        "mockChannelID",
-				ChannelName:      "mockChannelName",
-				SubscriptionID:   "mockSubscriptionID",
-			})
 			monkey.Patch(SubscriptionListFromJSON, func([]byte) (*SubscriptionList, error) {
 				return testCase.subscriptionList, testCase.subscriptionListFromJSON
 			})
@@ -117,13 +118,14 @@ func TestStoreSubscription(t *testing.T) {
 
 func TestAddSubscription(t *testing.T) {
 	defer monkey.UnpatchAll()
+	subscriptionList := NewSubscriptionList()
 	for _, testCase := range []struct {
 		description      string
 		subscriptionList *SubscriptionList
 	}{
 		{
 			description:      "test AddSubscription when subscription is added successfully",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -156,7 +158,7 @@ func TestGetSubscription(t *testing.T) {
 			description: "test GetSubscription when subscriptions are fetched successfully",
 		},
 		{
-			description: "test GetSubscription when load gives error",
+			description: "test GetSubscription when 'Load' gives error",
 			err:         errors.New("mockError"),
 		},
 		{
@@ -224,6 +226,16 @@ func TestGetAllSubscriptions(t *testing.T) {
 
 func TestDeleteSubscriptionAtomicModify(t *testing.T) {
 	defer monkey.UnpatchAll()
+	subscriptionList := NewSubscriptionList()
+	subscriptionList.AddSubscription("mockMattermostUserId", &serializers.SubscriptionDetails{
+		OrganizationName: "mockOrganization",
+		ProjectID:        "mockProjectID",
+		ProjectName:      "mockProject",
+		EventType:        "mockEventType",
+		ChannelID:        "mockChannelID",
+		ChannelName:      "mockChannelName",
+		SubscriptionID:   "mockSubscriptionID",
+	})
 	for _, testCase := range []struct {
 		description              string
 		subscriptionList         *SubscriptionList
@@ -232,30 +244,20 @@ func TestDeleteSubscriptionAtomicModify(t *testing.T) {
 	}{
 		{
 			description:      "test DeleteSubscriptionAtomicModify when subscription is added successfully",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 		},
 		{
 			description:      "test DeleteSubscriptionAtomicModify when marshaling gives error",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 			marshalError:     errors.New("mockError"),
 		},
 		{
 			description:              "test DeleteSubscriptionAtomicModify when SubscriptionListFromJSON gives error",
-			subscriptionList:         NewSubscriptionList(),
+			subscriptionList:         subscriptionList,
 			subscriptionListFromJSON: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.subscriptionList.AddSubscription("mockMattermostUserId", &serializers.SubscriptionDetails{
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-				ProjectName:      "mockProject",
-				EventType:        "mockEventType",
-				ChannelID:        "mockChannelID",
-				ChannelName:      "mockChannelName",
-				SubscriptionID:   "mockSubscriptionID",
-			})
-
 			monkey.Patch(GetSubscriptionKey, func(string, string, string, string) string {
 				return "mockSubscriptionKey"
 			})
@@ -316,21 +318,22 @@ func TestDeleteSubscription(t *testing.T) {
 
 func TestDeleteSubscriptionByKey(t *testing.T) {
 	defer monkey.UnpatchAll()
+	subscriptionList := NewSubscriptionList()
+	subscriptionList.AddSubscription("mockMattermostUserID", &serializers.SubscriptionDetails{
+		ProjectName: "mockProjectName",
+		ChannelID:   "mockChannelID",
+		EventType:   "mockEventType",
+	})
 	for _, testCase := range []struct {
 		description      string
 		subscriptionList *SubscriptionList
 	}{
 		{
 			description:      "test DeleteSubscriptionByKey when subscription is deleted successfully",
-			subscriptionList: NewSubscriptionList(),
+			subscriptionList: subscriptionList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.subscriptionList.AddSubscription("mockMattermostUserID", &serializers.SubscriptionDetails{
-				ProjectName: "mockProjectName",
-				ChannelID:   "mockChannelID",
-				EventType:   "mockEventType",
-			})
 			testCase.subscriptionList.DeleteSubscriptionByKey("mockMattermostUserID", "mockMattermostUserID_mockProjectName_mockChannelID_mockEventType")
 		})
 	}

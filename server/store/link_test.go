@@ -29,6 +29,12 @@ func TestNewProjectList(t *testing.T) {
 
 func TestStoreProjectAtomicModify(t *testing.T) {
 	defer monkey.UnpatchAll()
+	projectList := NewProjectList()
+	projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
+		OrganizationName: "mockOrganization",
+		ProjectID:        "mockProjectID",
+		ProjectName:      "mockProject",
+	})
 	for _, testCase := range []struct {
 		description         string
 		projectList         *ProjectList
@@ -37,26 +43,20 @@ func TestStoreProjectAtomicModify(t *testing.T) {
 	}{
 		{
 			description: "test StoreProjectAtomicModify when project is added successfully",
-			projectList: NewProjectList(),
+			projectList: projectList,
 		},
 		{
 			description:  "test StoreProjectAtomicModify when marshaling gives error",
-			projectList:  NewProjectList(),
+			projectList:  projectList,
 			marshalError: errors.New("mockError"),
 		},
 		{
 			description:         "test StoreProjectAtomicModify when ProjectListFromJSON gives error",
-			projectList:         NewProjectList(),
+			projectList:         projectList,
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-				ProjectName:      "mockProject",
-			})
-
 			monkey.Patch(ProjectListFromJSON, func([]byte) (*ProjectList, error) {
 				return testCase.projectList, testCase.projectListFromJSON
 			})
@@ -117,13 +117,14 @@ func TestStoreProject(t *testing.T) {
 
 func TestAddProject(t *testing.T) {
 	defer monkey.UnpatchAll()
+	projectList := NewProjectList()
 	for _, testCase := range []struct {
 		description string
 		projectList *ProjectList
 	}{
 		{
 			description: "test AddProject when project is added successfully",
-			projectList: NewProjectList(),
+			projectList: projectList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -152,7 +153,7 @@ func TestGetProjects(t *testing.T) {
 			description: "test GetProjects when projects are fetched successfully",
 		},
 		{
-			description: "test GetProjects when load gives error",
+			description: "test GetProjects when 'Load' gives error",
 			err:         errors.New("mockError"),
 		},
 		{
@@ -220,6 +221,12 @@ func TestGetAllProjects(t *testing.T) {
 
 func TestDeleteProjectAtomicModify(t *testing.T) {
 	defer monkey.UnpatchAll()
+	projectList := NewProjectList()
+	projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
+		OrganizationName: "mockOrganization",
+		ProjectID:        "mockProjectID",
+		ProjectName:      "mockProject",
+	})
 	for _, testCase := range []struct {
 		description         string
 		projectList         *ProjectList
@@ -228,26 +235,20 @@ func TestDeleteProjectAtomicModify(t *testing.T) {
 	}{
 		{
 			description: "test DeleteProjectAtomicModify when project is added successfully",
-			projectList: NewProjectList(),
+			projectList: projectList,
 		},
 		{
 			description:  "test DeleteProjectAtomicModify when marshaling gives error",
-			projectList:  NewProjectList(),
+			projectList:  projectList,
 			marshalError: errors.New("mockError"),
 		},
 		{
 			description:         "test DeleteProjectAtomicModify when ProjectListFromJSON gives error",
-			projectList:         NewProjectList(),
+			projectList:         projectList,
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-				ProjectName:      "mockProject",
-			})
-
 			monkey.Patch(GetProjectKey, func(string, string) string {
 				return "mockProjectKey"
 			})
@@ -311,19 +312,20 @@ func TestDeleteProject(t *testing.T) {
 
 func TestDeleteProjectByKey(t *testing.T) {
 	defer monkey.UnpatchAll()
+	projectList := NewProjectList()
+	projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
+		ProjectID: "mockProjectID",
+	})
 	for _, testCase := range []struct {
 		description string
 		projectList *ProjectList
 	}{
 		{
 			description: "test DeleteProjectByKey when project is deleted successfully",
-			projectList: NewProjectList(),
+			projectList: projectList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
-				ProjectID: "mockProjectID",
-			})
 			testCase.projectList.DeleteProjectByKey("mockMattermostUserId", "mockProjectID_mockMattermostUserId")
 		})
 	}

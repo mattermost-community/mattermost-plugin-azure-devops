@@ -40,8 +40,11 @@ func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (strin
 	post := &model.Post{
 		ChannelId: channel.Id,
 		UserId:    p.botUserID,
-		Message:   fmt.Sprintf(format, args...),
 	}
+	attachment := &model.SlackAttachment{
+		Text: fmt.Sprintf(format, args...),
+	}
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	sentPost, err := p.API.CreatePost(post)
 	if err != nil {
 		p.API.LogError("Error occurred while creating post", "error", err.Error())

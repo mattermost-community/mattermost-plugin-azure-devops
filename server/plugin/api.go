@@ -90,9 +90,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := body.IsLinkPayloadValid(); err != "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
-		p.handleError(w, r, &error)
+	if err := body.IsLinkPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
@@ -175,8 +174,8 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if validationErr := project.IsValid(); validationErr != "" {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr})
+	if validationErr := project.IsValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 

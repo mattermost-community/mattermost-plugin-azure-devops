@@ -2,6 +2,7 @@ package serializers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -14,17 +15,17 @@ type ProjectDetails struct {
 	OrganizationName string `json:"organizationName"`
 }
 
-func (t *ProjectDetails) IsValid() string {
+func (t *ProjectDetails) IsValid() error {
 	if t.OrganizationName == "" {
-		return constants.OrganizationRequired
+		return errors.New(constants.OrganizationRequired)
 	}
 	if t.ProjectName == "" {
-		return constants.ProjectRequired
+		return errors.New(constants.ProjectRequired)
 	}
 	if t.ProjectID == "" {
-		return constants.ProjectIDRequired
+		return errors.New(constants.ProjectIDRequired)
 	}
-	return ""
+	return nil
 }
 
 func ProjectPayloadFromJSON(data io.Reader) (*ProjectDetails, error) {

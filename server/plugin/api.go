@@ -98,9 +98,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := body.IsLinkPayloadValid(); err != "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
-		p.handleError(w, r, &error)
+	if err := body.IsLinkPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
@@ -146,8 +145,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		error := serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()}
-		p.handleError(w, r, &error)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
@@ -182,8 +180,8 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if validationErr := project.IsValid(); validationErr != "" {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr})
+	if validationErr := project.IsValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 
@@ -521,8 +519,7 @@ func (p *Plugin) handleAuthRequired(handleFunc http.HandlerFunc) http.HandlerFun
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 		if mattermostUserID == "" {
-			error := serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized}
-			p.handleError(w, r, &error)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.NotAuthorized})
 			return
 		}
 

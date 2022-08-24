@@ -37,28 +37,24 @@ func TestStoreProjectAtomicModify(t *testing.T) {
 	})
 	for _, testCase := range []struct {
 		description         string
-		projectList         *ProjectList
 		marshalError        error
 		projectListFromJSON error
 	}{
 		{
 			description: "test StoreProjectAtomicModify when project is added successfully",
-			projectList: projectList,
 		},
 		{
 			description:  "test StoreProjectAtomicModify when marshaling gives error",
-			projectList:  projectList,
 			marshalError: errors.New("mockError"),
 		},
 		{
 			description:         "test StoreProjectAtomicModify when ProjectListFromJSON gives error",
-			projectList:         projectList,
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			monkey.Patch(ProjectListFromJSON, func([]byte) (*ProjectList, error) {
-				return testCase.projectList, testCase.projectListFromJSON
+				return projectList, testCase.projectListFromJSON
 			})
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
@@ -120,11 +116,9 @@ func TestAddProject(t *testing.T) {
 	projectList := NewProjectList()
 	for _, testCase := range []struct {
 		description string
-		projectList *ProjectList
 	}{
 		{
 			description: "test AddProject when project is added successfully",
-			projectList: projectList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -132,7 +126,7 @@ func TestAddProject(t *testing.T) {
 				return "mockMattermostUserID"
 			})
 
-			testCase.projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
+			projectList.AddProject("mockMattermostUserId", &serializers.ProjectDetails{
 				OrganizationName: "mockOrganization",
 				ProjectID:        "mockProjectID",
 				ProjectName:      "mockProject",
@@ -229,22 +223,18 @@ func TestDeleteProjectAtomicModify(t *testing.T) {
 	})
 	for _, testCase := range []struct {
 		description         string
-		projectList         *ProjectList
 		marshalError        error
 		projectListFromJSON error
 	}{
 		{
 			description: "test DeleteProjectAtomicModify when project is added successfully",
-			projectList: projectList,
 		},
 		{
 			description:  "test DeleteProjectAtomicModify when marshaling gives error",
-			projectList:  projectList,
 			marshalError: errors.New("mockError"),
 		},
 		{
 			description:         "test DeleteProjectAtomicModify when ProjectListFromJSON gives error",
-			projectList:         projectList,
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
@@ -256,7 +246,7 @@ func TestDeleteProjectAtomicModify(t *testing.T) {
 				return "mockMattermostUserID"
 			})
 			monkey.Patch(ProjectListFromJSON, func([]byte) (*ProjectList, error) {
-				return testCase.projectList, testCase.projectListFromJSON
+				return projectList, testCase.projectListFromJSON
 			})
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
@@ -318,15 +308,13 @@ func TestDeleteProjectByKey(t *testing.T) {
 	})
 	for _, testCase := range []struct {
 		description string
-		projectList *ProjectList
 	}{
 		{
 			description: "test DeleteProjectByKey when project is deleted successfully",
-			projectList: projectList,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			testCase.projectList.DeleteProjectByKey("mockMattermostUserId", "mockProjectID_mockMattermostUserId")
+			projectList.DeleteProjectByKey("mockMattermostUserId", "mockProjectID_mockMattermostUserId")
 		})
 	}
 }

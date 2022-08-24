@@ -1,6 +1,7 @@
 package store
 
 import (
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
@@ -64,4 +65,36 @@ func (s *Store) Delete(key string) error {
 		return errors.WithMessagef(appErr, "failed plugin KVDelete %q", key)
 	}
 	return nil
+}
+
+func (s *Store) DeleteUserOnSecretChange() error {
+	page := 0
+	for {
+		kvList, err := s.api.KVList(page, constants.UsersPerPage)
+		if err != nil {
+			return err
+		}
+		if len(kvList) == 0 {
+			return nil
+		}
+
+		isUserDeleted := false
+		for _, key := range kvList {
+			if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
+				isUserDeleted = true
+				if err := s.Delete(key); err != nil {
+					return err
+				}
+				s.api.PublishWebSocketEvent(
+					constants.WSEventDisconnect,
+					nil,
+					&model.WebsocketBroadcast{UserId: userID},
+				)
+			}
+		}
+
+		if !isUserDeleted {
+			page += 1
+		}
+	}
 }

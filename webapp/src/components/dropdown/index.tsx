@@ -33,7 +33,7 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
     const handleCustomOptionClick = () => {
         // Update the value on the input to indicate custom options has been chosen
         handleInputChange({
-            label: customOption?.label,
+            label: customOption?.label || '',
             value: customOption?.value as string,
         });
 

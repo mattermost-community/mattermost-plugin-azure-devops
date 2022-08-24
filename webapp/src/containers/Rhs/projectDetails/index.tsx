@@ -113,7 +113,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 onConfirm={handleConfirmDeleteSubscription}
                 isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
                 confirmBtnText='Delete'
-                description={`Are you sure you want to unsubscribe ${projectDetails.projectName} with event type ${subscriptionToBeDeleted?.eventType}?`}
+                description='Are you sure you want to delete this subscription ?'
                 title='Confirm Delete Subscription'
             />
             {isLoading && <LinearLoader/>}
@@ -147,15 +147,17 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                                 onClick={handleSubscriptionModal}
                                 className='plugin-btn no-data__btn btn btn-primary project-list-btn'
                             >
-                                {'Create new subscription'}
+                                {'Add new subscription'}
                             </button>
                         </div>
                     </> :
                     <EmptyState
-                        title='No Subscription Present'
-                        subTitle={{text: 'Create a subscription by clicking the button below'}}
-                        buttonText='Create new subscription'
+                        title='No subscriptions yet'
+                        subTitle={{text: 'You can link a subscription by clicking the below button.'}}
+                        buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}
+                        icon='subscriptions'
+                        wrapperExtraClass='margin-top-80'
                     />
             }
         </>

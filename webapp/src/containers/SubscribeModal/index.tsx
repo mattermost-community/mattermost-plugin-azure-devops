@@ -189,10 +189,10 @@ const SubscribeModal = () => {
     return (
         <Modal
             show={visibility}
-            title='Create subscription'
+            title='Add New Subscription'
             onHide={resetModalState}
             onConfirm={isAnyProjectLinked ? onConfirm : null}
-            confirmBtnText='Create subscription'
+            confirmBtnText='Add new subscription'
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
             loading={isLoading}
@@ -206,7 +206,7 @@ const SubscribeModal = () => {
                     !isAnyProjectLinked && (
                         <EmptyState
                             title='No Project Linked'
-                            subTitle={{text: 'Link a project by clicking the button below'}}
+                            subTitle={{text: 'You can link a project by clicking the below button.'}}
                             buttonText='Link new project'
                             buttonAction={handleOpenLinkProjectModal}
                         />

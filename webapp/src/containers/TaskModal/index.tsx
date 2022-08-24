@@ -166,10 +166,10 @@ const TaskModal = () => {
     return (
         <Modal
             show={visibility}
-            title='Create Task'
+            title='Create New Task'
             onHide={resetModalState}
             onConfirm={isAnyProjectLinked ? onConfirm : null}
-            confirmBtnText='Create task'
+            confirmBtnText='Create new task'
             loading={isLoading}
             confirmDisabled={isLoading}
             error={showApiErrorMessages(isError, error as ApiErrorResponse)}
@@ -182,7 +182,7 @@ const TaskModal = () => {
                     !isAnyProjectLinked && (
                         <EmptyState
                             title='No Project Linked'
-                            subTitle={{text: 'Link a project by clicking the button below'}}
+                            subTitle={{text: 'You can link a project by clicking the below button.'}}
                             buttonText='Link new project'
                             buttonAction={handleOpenLinkProjectModal}
                         />

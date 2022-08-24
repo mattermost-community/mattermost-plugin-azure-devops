@@ -31,20 +31,28 @@ func (p *Plugin) sendEphemeralPostForCommand(args *model.CommandArgs, text strin
 }
 
 // DM posts a simple Direct Message to the specified user
-func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (string, error) {
+func (p *Plugin) DM(mattermostUserID, format string, isSlackAttachment bool, args ...interface{}) (string, error) {
 	channel, err := p.API.GetDirectChannel(mattermostUserID, p.botUserID)
 	if err != nil {
 		p.API.LogError("Couldn't get bot's DM channel", "userID", mattermostUserID, "Error", err.Error())
 		return "", err
 	}
-	post := &model.Post{
+	var post *model.Post
+	post = &model.Post{
 		ChannelId: channel.Id,
 		UserId:    p.botUserID,
+		Message:   fmt.Sprintf(format, args...),
 	}
-	attachment := &model.SlackAttachment{
-		Text: fmt.Sprintf(format, args...),
+	if isSlackAttachment {
+		post = &model.Post{
+			ChannelId: channel.Id,
+			UserId:    p.botUserID,
+		}
+		attachment := &model.SlackAttachment{
+			Text: fmt.Sprintf(format, args...),
+		}
+		model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	}
-	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	sentPost, err := p.API.CreatePost(post)
 	if err != nil {
 		p.API.LogError("Error occurred while creating post", "error", err.Error())

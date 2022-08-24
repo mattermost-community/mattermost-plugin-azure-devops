@@ -74,7 +74,7 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 
 	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
 		p.closeBrowserWindowWithHTTPResponse(w)
-		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected, false); DMErr != nil {
 			p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
 		}
 		return
@@ -117,7 +117,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, "failed to verify oAuth state")
@@ -138,7 +138,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, err.Error())
@@ -146,7 +146,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 
 	decodedRefreshToken, err := p.decode(user.RefreshToken)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, err.Error())
@@ -154,7 +154,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 
 	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, err.Error())
@@ -175,7 +175,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, "failed to generate oAuth token")
@@ -202,7 +202,7 @@ func (p *Plugin) StoreOAuthToken(mattermostUserID string, oauthTokenFormValues u
 		return err
 	}
 
-	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText), false); err != nil {
 		return err
 	}
 

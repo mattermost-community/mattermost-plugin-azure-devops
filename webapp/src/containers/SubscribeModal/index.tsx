@@ -6,6 +6,7 @@ import {GlobalState} from 'mattermost-redux/types/store';
 import Modal from 'components/modal';
 import CircularLoader from 'components/loader/circular';
 import Form from 'components/form';
+import EmptyState from 'components/emptyState';
 
 import plugin_constants from 'plugin_constants';
 
@@ -14,6 +15,7 @@ import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
 
 import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getSubscribeModalState} from 'selectors';
 
 import Utils from 'utils';
@@ -94,6 +96,12 @@ const SubscribeModal = () => {
         }
     };
 
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
+        resetModalState();
+    };
+
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
         if (getChannelState().isError) {
@@ -111,7 +119,7 @@ const SubscribeModal = () => {
             // Make POST api request to create subscription
             makeApiRequestWithCompletionStatus(
                 plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
-                formFields,
+                formFields as APIRequestPayload,
             );
         }
     };
@@ -120,7 +128,7 @@ const SubscribeModal = () => {
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => resetModalState(true),
-        payload: formFields,
+        payload: formFields as APIRequestPayload,
     });
 
     // Make API request to fetch channel list
@@ -175,14 +183,15 @@ const SubscribeModal = () => {
         getOrganizationAndProjectState().isLoading,
     ]);
 
-    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields);
+    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
+    const isAnyProjectLinked = Boolean(getOrganizationAndProjectState().organizationList.length && getOrganizationAndProjectState().projectList.length);
 
     return (
         <Modal
             show={visibility}
             title='Create subscription'
             onHide={resetModalState}
-            onConfirm={onConfirm}
+            onConfirm={isAnyProjectLinked ? onConfirm : null}
             confirmBtnText='Create subscription'
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
@@ -194,6 +203,17 @@ const SubscribeModal = () => {
                     (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
                 }
                 {
+                    !isAnyProjectLinked && (
+                        <EmptyState
+                            title='No Project Linked'
+                            subTitle={{text: 'Link a project by clicking the button below'}}
+                            buttonText='Link new project'
+                            buttonAction={handleOpenLinkProjectModal}
+                        />
+                    )
+                }
+                {
+                    isAnyProjectLinked &&
                     Object.keys(plugin_constants.form.subscriptionModal).map((field) => (
                         <Form
                             key={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields].label}

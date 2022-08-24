@@ -1,7 +1,8 @@
 type FieldType = 'dropdown' | 'text' | 'timestamp'
 type ValidationTypes = 'isRequired' | 'maxCharLen' | 'minCharLen' | 'regex' | 'regexErrorMessage'
 type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp'
-type ErrorComponents = 'SubscribeModal'
+type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'timestamp'
+type ErrorComponents = 'SubscribeModal' | 'CreateTaskModal'
 
 type ModalFormFieldConfig = {
     label: string
@@ -11,4 +12,4 @@ type ModalFormFieldConfig = {
     validations?: Partial<Record<ValidationTypes, string | number | boolean>>
 }
 
-type FormFields = SubscriptionModalFields
+type FormFields = CreateTaskModalFields | SubscriptionModalFields

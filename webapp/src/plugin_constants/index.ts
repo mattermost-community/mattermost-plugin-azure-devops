@@ -8,7 +8,7 @@ import {
     pluginId,
     RightSidebarHeader,
 } from './common';
-import {subscriptionModal} from './form';
+import {subscriptionModal, createTaskModal} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
@@ -22,6 +22,7 @@ export default {
     },
     form: {
         subscriptionModal,
+        createTaskModal,
     },
     messages: {
         error,

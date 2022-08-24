@@ -72,6 +72,7 @@ const App = (): JSX.Element => {
         getCreateTaskModalState(usePlugin.state).visibility,
         getSubscribeModalState(usePlugin.state).visibility,
         getRhsState(usePlugin.state).isSidebarOpen,
+        getLinkModalState(usePlugin.state).isLinked,
     ]);
 
     return <></>;

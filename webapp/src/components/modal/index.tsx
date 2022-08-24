@@ -14,7 +14,7 @@ type ModalProps = {
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: () => void;
+    onConfirm?: (() => void) | null;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;

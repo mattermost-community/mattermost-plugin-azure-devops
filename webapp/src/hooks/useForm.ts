@@ -2,19 +2,19 @@ import {useState} from 'react';
 
 // Set initial value of form fields
 const getInitialFieldsValue = (
-    formFields: Record<FormFields, ModalFormFieldConfig>,
-): Record<FormFields, string> => {
+    formFields: Partial<Record<FormFields, ModalFormFieldConfig>>,
+): Partial<Record<FormFields, string>> => {
     let fields = {};
     Object.keys(formFields).forEach((field) => {
         fields = {
             ...fields,
             [field as FormFields]:
-                formFields[field as FormFields].value ||
+                formFields[field as FormFields]?.value ||
                 (field as FormFields === 'timestamp' ? Date.now().toString() : ''),
         };
     });
 
-    return fields as unknown as Record<FormFields, string>;
+    return fields as unknown as Partial<Record<FormFields, string>>;
 };
 
 /**
@@ -22,11 +22,11 @@ const getInitialFieldsValue = (
  * and set empty string as default error message
  */
 const getFieldslWhereErrorCheckRequired = (
-    formFields: Record<FormFields, ModalFormFieldConfig>,
+    formFields: Partial<Record<FormFields, ModalFormFieldConfig>>,
 ): Partial<Record<FormFields, string>> => {
     let fields = {};
     Object.keys(formFields).forEach((field) => {
-        if (formFields[field as FormFields].validations) {
+        if (formFields[field as FormFields]?.validations) {
             fields = {
                 ...fields,
                 [field as FormFields]: '',
@@ -39,7 +39,7 @@ const getFieldslWhereErrorCheckRequired = (
 
 // Check each type of validations and return required error message
 const getValidationErrorMessage = (
-    formFields: Record<FormFields, string>,
+    formFields: Partial<Record<FormFields, string>>,
     fieldName: FormFields,
     fieldLabel: string,
     validationType: ValidationTypes,
@@ -53,7 +53,7 @@ const getValidationErrorMessage = (
 };
 
 // Genric hook to handle form fields
-function useForm(initialFormFields: Record<FormFields, ModalFormFieldConfig>) {
+function useForm(initialFormFields: Partial<Record<FormFields, ModalFormFieldConfig>>) {
     // Form field values
     const [formFields, setFormFields] = useState(getInitialFieldsValue(initialFormFields));
 
@@ -75,12 +75,12 @@ function useForm(initialFormFields: Record<FormFields, ModalFormFieldConfig>) {
     const isErrorInFormValidation = (): boolean => {
         let fields = {};
         Object.keys(initialFormFields).forEach((field) => {
-            if (initialFormFields[field as FormFields].validations) {
-                Object.keys(initialFormFields[field as FormFields].validations ?? '').forEach((validation) => {
+            if (initialFormFields[field as FormFields]?.validations) {
+                Object.keys(initialFormFields[field as FormFields]?.validations ?? '').forEach((validation) => {
                     const validationMessage = getValidationErrorMessage(
                         formFields,
                         field as FormFields,
-                        initialFormFields[field as FormFields].label,
+                        initialFormFields[field as FormFields]?.label || '',
                         validation as ValidationTypes,
                     );
                     if (validationMessage) {
@@ -108,7 +108,7 @@ function useForm(initialFormFields: Record<FormFields, ModalFormFieldConfig>) {
     };
 
     // Set value for a specific form field
-    const setSpecificFieldValue = (modifiedFormFields:Record<FormFields, string>) => {
+    const setSpecificFieldValue = (modifiedFormFields:Partial<Record<FormFields, string>>) => {
         setFormFields(modifiedFormFields);
     };
 

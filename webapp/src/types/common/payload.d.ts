@@ -8,6 +8,7 @@ type CreateTaskPayload = {
     project: string,
     type: string,
     fields: CreateTaskFields,
+    timestamp: string
 }
 
 type SubscriptionPayload = {

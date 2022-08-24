@@ -67,6 +67,15 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 				Value:     body.Fields.Description,
 			})
 	}
+	if body.Fields.AreaPath != "" {
+		payload = append(payload,
+			&serializers.CreateTaskBodyPayload{
+				Operation: "add",
+				Path:      "/fields/System.AreaPath",
+				From:      "",
+				Value:     body.Fields.AreaPath,
+			})
+	}
 
 	var task *serializers.TaskValue
 	_, statusCode, err := c.callPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, &payload, &task, nil)

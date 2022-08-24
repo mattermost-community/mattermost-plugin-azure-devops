@@ -120,7 +120,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, "failed to verify oAuth state")
@@ -155,7 +155,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error {
 	decodedRefreshToken, err := p.Decode(refreshToken)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return err
@@ -163,7 +163,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error 
 
 	decryptedRefreshToken, err := p.Decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return err
@@ -184,7 +184,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error 
 func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, "failed to generate oAuth token")

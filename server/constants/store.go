@@ -3,9 +3,10 @@ package constants
 import "time"
 
 const (
-	AtomicRetryLimit              = 5
-	AtomicRetryWait               = 30 * time.Millisecond
-	TTLSecondsForOAuthState int64 = 60
+	AtomicRetryLimit                     = 5
+	AtomicRetryWait                      = 30 * time.Millisecond
+	TTLSecondsForOAuthState        int64 = 60
+	TokenExpiryTimeBufferInMinutes       = 5
 
 	// KV store prefix keys
 	OAuthPrefix        = "oAuth_%s"

@@ -30,12 +30,14 @@ var azureDevopsCommandHandler = Handler{
 	defaultHandler: executeDefault,
 }
 
-// TODO: add comments to explain the below code or refactor it
+// Handle function calls the respective handlers of the commands.
+// It checks whether any HandlerFunc is present for the given command by checking in the "azureDevopsCommandHandler".
+// If the command is present, it calls its handler function, else calls the default handler.
 func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	for n := len(args); n > 0; n-- {
-		h := ch.handlers[strings.Join(args[:n], "/")]
-		if h != nil {
-			return h(p, c, commandArgs, args[n:]...)
+	for arg := len(args); arg > 0; arg-- {
+		handler := ch.handlers[strings.Join(args[:arg], "/")]
+		if handler != nil {
+			return handler(p, c, commandArgs, args[arg:]...)
 		}
 	}
 	return ch.defaultHandler(p, c, commandArgs, args...)

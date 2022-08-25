@@ -44,4 +44,5 @@ const (
 	GetSubscriptionListError        = "Error getting Subscription List"
 	SubscriptionAlreadyPresent      = "Requested subscription already exists"
 	SubscriptionNotFound            = "Requested subscription does not exists"
+	ErrorLoadingUserData            = "Error in loading user data"
 )

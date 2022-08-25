@@ -106,10 +106,11 @@ const ProjectList = () => {
                             </div>
                         </> :
                         <EmptyState
-                            title='No Project Linked'
-                            subTitle={{text: 'Link a project by clicking the button below'}}
+                            title='No project linked'
+                            subTitle={{text: 'You can link a project by clicking the below button.'}}
                             buttonText='Link new project'
                             buttonAction={handleOpenLinkProjectModal}
+                            wrapperExtraClass='margin-top-80'
                         />)
             }
         </>

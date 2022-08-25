@@ -23,9 +23,10 @@ type ModalProps = {
     error?: string | JSX.Element;
     confirmDisabled?: boolean;
     cancelDisabled?: boolean;
+    showFooter?: boolean;
 }
 
-const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false}: ModalProps) => {
+const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false, showFooter = true}: ModalProps) => {
     return (
         <RBModal
             show={show}
@@ -50,15 +51,18 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
                     />
                 </>
             </ModalBody>
-            <ModalFooter
-                onHide={onHide}
-                onConfirm={onConfirm}
-                cancelBtnText={cancelBtnText}
-                confirmBtnText={confirmBtnText}
-                confirmDisabled={confirmDisabled}
-                cancelDisabled={cancelDisabled}
-                confirmAction={confirmAction}
-            />
+            {
+                showFooter &&
+                <ModalFooter
+                    onHide={onHide}
+                    onConfirm={onConfirm}
+                    cancelBtnText={cancelBtnText}
+                    confirmBtnText={confirmBtnText}
+                    confirmDisabled={confirmDisabled}
+                    cancelDisabled={cancelDisabled}
+                    confirmAction={confirmAction}
+                />
+            }
         </RBModal>
     );
 };

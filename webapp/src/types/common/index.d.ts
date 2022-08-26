@@ -22,6 +22,7 @@ type LabelValuePair = {
 type CreateTaskFields = {
     title: string,
     description: string,
+    areaPath: string,
 }
 
 type ProjectDetails = {

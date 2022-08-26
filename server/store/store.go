@@ -78,6 +78,9 @@ func (s *Store) DeleteUserOnSecretChange() error {
 			return nil
 		}
 
+		// isUserDeleted flag is used to check the condition for increasing the page number.
+		// If a key is deleted, the keys present in the list after the deleted key fills up the index of the deleted key by taking that position.
+		// If a key is deleted we don't increase the page number, else we increase it by 1.
 		isUserDeleted := false
 		for _, key := range kvList {
 			if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {

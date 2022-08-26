@@ -28,7 +28,7 @@ const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(({
     >
         <>
             {iconClass ? (
-                <i className={`fa result-panel-icon ${iconClass ?? 'fa-check-circle-o'}`}/>
+                <i className={`fa result-panel-icon ${iconClass || 'fa-check-circle-o'}`}/>
             ) : (
                 <SVGWrapper
                     className='result-panel-icon'
@@ -39,13 +39,13 @@ const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(({
                     {SVGIcons.check}
                 </SVGWrapper>
             )}
-            <h3 className='result-panel-text'>{header ?? 'Add new'}</h3>
+            <h3 className='result-panel-text'>{header || 'Add new'}</h3>
             {onPrimaryBtnClick && (
                 <button
                     className='btn btn-primary'
                     onClick={onPrimaryBtnClick}
                 >
-                    {primaryBtnText ?? 'Create new'}
+                    {primaryBtnText || 'Create new'}
                 </button>
             )}
             {onSecondaryBtnClick && (
@@ -53,7 +53,7 @@ const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(({
                     className='btn btn-link result-panel-close-btn'
                     onClick={onSecondaryBtnClick}
                 >
-                    {secondaryBtnText ?? 'Close'}
+                    {secondaryBtnText || 'Close'}
                 </button>
             )}
         </>

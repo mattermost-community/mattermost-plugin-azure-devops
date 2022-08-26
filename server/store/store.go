@@ -60,7 +60,7 @@ func (s *Store) Delete(key string) error {
 	return nil
 }
 
-func (s *Store) DeleteUserOnSecretChange() error {
+func (s *Store) DeleteUserTokenOnSecretChange() error {
 	page := 0
 	for {
 		kvList, err := s.api.KVList(page, constants.UsersPerPage)

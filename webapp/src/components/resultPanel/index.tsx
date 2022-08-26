@@ -9,8 +9,8 @@ type ResultPanelProps = {
     className?: string;
     primaryBtnText?: string;
     secondaryBtnText?: string;
-    onPrimaryBtnClick?: () => void | null;
-    onSecondaryBtnClick?: () => void | null;
+    onPrimaryBtnClick?: () => void;
+    onSecondaryBtnClick?: () => void;
 };
 
 const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(({

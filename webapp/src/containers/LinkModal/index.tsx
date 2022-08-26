@@ -119,7 +119,7 @@ const LinkModal = () => {
                     showResultPanel ? (
                         <ResultPanel
                             header='Project linked successfully.'
-                            primaryBtnText=''
+                            primaryBtnText='Link new proejct'
                             secondaryBtnText='Close'
                             onPrimaryBtnClick={handleOpenLinkProjectModal}
                             onSecondaryBtnClick={resetModalState}

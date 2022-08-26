@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+
+import {GlobalState} from 'mattermost-redux/types/store';
 
 import SubscriptionCard from 'components/card/subscription';
 import IconButton from 'components/buttons/iconButton';
@@ -13,12 +15,20 @@ import plugin_constants from 'plugin_constants';
 import EmptyState from 'components/emptyState';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {getSubscribeModalState} from 'selectors';
+import ToggleSwitch from 'components/toggleSwitch';
+import {getCurrentChannelName, getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
     // State variables
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
+    const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
+    const [currentChannelName, setCurrentChannelName] = useState('');
+    const {entities} = useSelector((state: GlobalState) => state);
+    const {currentChannelId} = entities.channels;
+    const {currentTeamId} = entities.teams;
 
     // Hooks
     const dispatch = useDispatch();
@@ -71,7 +81,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
     const {data, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionList = data as SubscriptionDetails[];
+    const {data: channelData} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: currentTeamId});
 
     // Fetch subscription list
     const fetchSubscriptionList = () => usePlugin.makeApiRequest(
@@ -79,13 +89,42 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         project,
     );
 
+    // Handles switch toggle.
+    const handleToggle = () => {
+        const subscriptions = !showAllSubscriptions;
+        if (subscriptions) {
+            setSubscriptionList(data as SubscriptionDetails[]);
+        } else {
+            setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+        }
+        setShowAllSubscriptions(!showAllSubscriptions);
+    };
+
     // Reset the state when the component is unmounted
     useEffect(() => {
         fetchSubscriptionList();
+        setCurrentChannelName(getCurrentChannelName(channelData as ChannelList[], currentChannelId));
         return () => {
             handleResetProjectDetails();
         };
     }, []);
+
+    useEffect(() => {
+        if (data !== subscriptionList) {
+            if (showAllSubscriptions) {
+                setSubscriptionList(data as SubscriptionDetails[]);
+            } else {
+                setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+            }
+        }
+    }, [data]);
+
+    // Update subscription list on switching channels
+    useEffect(() => {
+        setShowAllSubscriptions(false);
+        setCurrentChannelName(getCurrentChannelName(channelData as ChannelList[], currentChannelId));
+        setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+    }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
@@ -98,6 +137,11 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
+            <ToggleSwitch
+                active={showAllSubscriptions}
+                onChange={handleToggle}
+                label={'Show all subscriptions'}
+            />
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
@@ -152,7 +196,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                         </div>
                     </> :
                     <EmptyState
-                        title='No subscriptions yet'
+                        title={`No subscriptions yet ${showAllSubscriptions ? '' : `for ${currentChannelName}`}`}
                         subTitle={{text: 'You can link a subscription by clicking the below button.'}}
                         buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}

@@ -143,13 +143,13 @@ const SubscribeModal = () => {
         payload: formFields as APIRequestPayload,
     });
 
-    // Make API request to fetch channel list
-    useEffect(() => {
-        makeApiRequest(
-            plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: entities.teams.currentTeamId},
-        );
-    }, [visibility]);
+    // // Make API request to fetch channel list
+    // useEffect(() => {
+    //     makeApiRequest(
+    //         plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
+    //         {teamId: entities.teams.currentTeamId},
+    //     );
+    // }, [visibility]);
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {

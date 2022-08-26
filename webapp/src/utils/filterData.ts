@@ -18,3 +18,14 @@ export const getProjectList = (data: ProjectDetails[]) => {
     data.map((project) => projectList.push({value: project.projectName, label: project.projectName}));
     return projectList;
 };
+
+export const getCurrentChannelSubscriptions = (data: SubscriptionDetails[], channelID: string) => {
+    const subscriptionList = (data || []).filter(((subscription) => subscription.channelID === channelID));
+    return subscriptionList;
+};
+
+export const getCurrentChannelName = (data: ChannelList[], channelID: string) => {
+    const currentChannel = (data || []).filter(((channel) => channel.id === channelID));
+    return currentChannel[0].display_name;
+};
+

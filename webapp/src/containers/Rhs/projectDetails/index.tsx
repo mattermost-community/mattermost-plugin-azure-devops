@@ -13,6 +13,7 @@ import plugin_constants from 'plugin_constants';
 import EmptyState from 'components/emptyState';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {getSubscribeModalState} from 'selectors';
+import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
     // State variables
@@ -50,14 +51,27 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     };
 
     // Handles unlinking a project and fetching the modified project list
-    const handleConfirmUnlinkProject = async () => {
-        const unlinkProjectStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
-
-        if (unlinkProjectStatus) {
-            handleResetProjectDetails();
-            setShowProjectConfirmationModal(false);
-        }
+    const handleConfirmUnlinkProject = () => {
+        usePlugin.makeApiRequestWithCompletionStatus(
+            plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+            projectDetails,
+        );
     };
+
+    const handleAfterUnlinkingProject = () => {
+        usePlugin.makeApiRequest(
+            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+        );
+        handleResetProjectDetails();
+        setShowProjectConfirmationModal(false);
+    };
+
+    // Handle sucess/error response of API call made to unlink project
+    useApiRequestCompletionState({
+        serviceName: plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+        payload: projectDetails,
+        handleSuccess: handleAfterUnlinkingProject,
+    });
 
     // Handles deletion of a subscription and fetching the modified subscription list
     const handleConfirmDeleteSubscription = async () => {

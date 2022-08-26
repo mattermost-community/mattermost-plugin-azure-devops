@@ -7,6 +7,7 @@ import Modal from 'components/modal';
 import CircularLoader from 'components/loader/circular';
 import Form from 'components/form';
 import EmptyState from 'components/emptyState';
+import ResultPanel from 'components/resultPanel';
 
 import plugin_constants from 'plugin_constants';
 
@@ -46,12 +47,14 @@ const SubscribeModal = () => {
     const [channelOptions, setChannelOptions] = useState<LabelValuePair[]>([]);
     const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
     const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
+    const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Function to hide the modal and reset all the states.
     const resetModalState = (isActionDone?: boolean) => {
         setChannelOptions([]);
         setOrganizationOptions([]);
         setProjectOptions([]);
+        setShowResultPanel(false);
         resetFormFields();
         dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
     };
@@ -102,6 +105,12 @@ const SubscribeModal = () => {
         resetModalState();
     };
 
+    // Opens subscription modal
+    const handleSubscriptionModal = () => {
+        resetModalState();
+        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: []}));
+    };
+
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
         if (getChannelState().isError) {
@@ -127,7 +136,10 @@ const SubscribeModal = () => {
     // Observe for the change in redux state after API call and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
-        handleSuccess: () => resetModalState(true),
+        handleSuccess: () => {
+            setShowResultPanel(true);
+            dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], isActionDone: true}));
+        },
         payload: formFields as APIRequestPayload,
     });
 
@@ -174,13 +186,14 @@ const SubscribeModal = () => {
             })));
         }
 
-        if (getOrganizationAndProjectState().isSuccess) {
+        if (getOrganizationAndProjectState().isSuccess && !showResultPanel) {
             setOrganizationOptions(getOrganizationAndProjectState().organizationList);
             setProjectOptions(getOrganizationAndProjectState().projectList);
         }
     }, [
         getChannelState().isLoading,
         getOrganizationAndProjectState().isLoading,
+        showResultPanel,
     ]);
 
     const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
@@ -196,6 +209,7 @@ const SubscribeModal = () => {
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
             loading={isLoading}
+            showFooter={!showResultPanel}
             error={showApiErrorMessages(isError, error as ApiErrorResponse)}
         >
             <>
@@ -214,7 +228,7 @@ const SubscribeModal = () => {
                     )
                 }
                 {
-                    isAnyProjectLinked &&
+                    isAnyProjectLinked && !showResultPanel &&
                     Object.keys(plugin_constants.form.subscriptionModal).map((field) => (
                         <Form
                             key={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields].label}
@@ -226,6 +240,16 @@ const SubscribeModal = () => {
                             isDisabled={isLoading}
                         />
                     ))
+                }
+                {
+                    isAnyProjectLinked && showResultPanel &&
+                    <ResultPanel
+                        header='Subscription created successfully.'
+                        primaryBtnText='Add new subscription'
+                        secondaryBtnText='Close'
+                        onPrimaryBtnClick={handleSubscriptionModal}
+                        onSecondaryBtnClick={() => resetModalState(true)}
+                    />
                 }
             </>
         </Modal>

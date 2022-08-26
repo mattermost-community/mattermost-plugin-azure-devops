@@ -3,6 +3,7 @@ import {useDispatch} from 'react-redux';
 
 import Input from 'components/inputField';
 import Modal from 'components/modal';
+import ResultPanel from 'components/resultPanel';
 
 import usePluginApi from 'hooks/usePluginApi';
 import {toggleShowLinkModal, toggleIsLinked} from 'reducers/linkModal';
@@ -20,6 +21,7 @@ const LinkModal = () => {
         organization: '',
         project: '',
     });
+    const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Hooks
     const usePlugin = usePluginApi();
@@ -35,6 +37,7 @@ const LinkModal = () => {
             organization: '',
             project: '',
         });
+        setShowResultPanel(false);
         dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
     };
 
@@ -79,8 +82,14 @@ const LinkModal = () => {
         const linkProjectResponse = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
         if (linkProjectResponse) {
             dispatch(toggleIsLinked(true));
-            resetModalState();
+            setShowResultPanel(true);
         }
+    };
+
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        resetModalState();
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
     };
 
     // Set modal field values
@@ -103,26 +112,41 @@ const LinkModal = () => {
             cancelDisabled={isLoading}
             confirmDisabled={isLoading}
             loading={isLoading}
+            showFooter={!showResultPanel}
         >
             <>
-                <Input
-                    type='text'
-                    placeholder='Organization name'
-                    value={projectDetails.organization}
-                    onChange={onOrganizationChange}
-                    error={errorState.organization}
-                    disabled={isLoading}
-                    required={true}
-                />
-                <Input
-                    type='text'
-                    placeholder='Project name'
-                    value={projectDetails.project}
-                    onChange={onProjectChange}
-                    disabled={isLoading}
-                    error={errorState.project}
-                    required={true}
-                />
+                {
+                    showResultPanel ? (
+                        <ResultPanel
+                            header='Project linked successfully.'
+                            primaryBtnText='Link new proejct'
+                            secondaryBtnText='Close'
+                            onPrimaryBtnClick={handleOpenLinkProjectModal}
+                            onSecondaryBtnClick={resetModalState}
+                        />
+                    ) : (
+                        <>
+                            <Input
+                                type='text'
+                                placeholder='Organization name'
+                                value={projectDetails.organization}
+                                onChange={onOrganizationChange}
+                                error={errorState.organization}
+                                disabled={isLoading}
+                                required={true}
+                            />
+                            <Input
+                                type='text'
+                                placeholder='Project name'
+                                value={projectDetails.project}
+                                onChange={onProjectChange}
+                                disabled={isLoading}
+                                error={errorState.project}
+                                required={true}
+                            />
+                        </>
+                    )
+                }
             </>
         </Modal>
     );

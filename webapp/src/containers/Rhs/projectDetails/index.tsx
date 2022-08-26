@@ -3,19 +3,19 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
 
+import EmptyState from 'components/emptyState';
 import SubscriptionCard from 'components/card/subscription';
 import IconButton from 'components/buttons/iconButton';
 import BackButton from 'components/buttons/backButton';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
+import ToggleSwitch from 'components/toggleSwitch';
 
 import usePluginApi from 'hooks/usePluginApi';
 import {resetProjectDetails} from 'reducers/projectDetails';
-import plugin_constants from 'plugin_constants';
-import EmptyState from 'components/emptyState';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import plugin_constants from 'plugin_constants';
 import {getSubscribeModalState} from 'selectors';
-import ToggleSwitch from 'components/toggleSwitch';
 import {getCurrentChannelName, getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
@@ -91,11 +91,10 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Handles switch toggle.
     const handleToggle = () => {
-        const subscriptions = !showAllSubscriptions;
-        if (subscriptions) {
-            setSubscriptionList(data as SubscriptionDetails[]);
-        } else {
+        if (showAllSubscriptions) {
             setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+        } else {
+            setSubscriptionList(data as SubscriptionDetails[]);
         }
         setShowAllSubscriptions(!showAllSubscriptions);
     };
@@ -110,6 +109,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     }, []);
 
     useEffect(() => {
+        // Update subscription list only when it does not match with the current data
         if (data !== subscriptionList) {
             if (showAllSubscriptions) {
                 setSubscriptionList(data as SubscriptionDetails[]);

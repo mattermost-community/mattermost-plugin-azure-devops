@@ -26,6 +26,5 @@ export const getCurrentChannelSubscriptions = (data: SubscriptionDetails[], chan
 
 export const getCurrentChannelName = (data: ChannelList[], channelID: string) => {
     const currentChannel = (data || []).filter(((channel) => channel.id === channelID));
-    return currentChannel[0].display_name;
+    return currentChannel[0]?.display_name;
 };
-

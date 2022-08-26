@@ -149,7 +149,7 @@ func GetKeyHash(key string) string {
 
 func IsValidUserKey(key string) (string, bool) {
 	res := strings.Split(key, "_")
-	if res[0] == constants.UserIDPrefix {
+	if len(res) == 2 && res[0] == constants.UserIDPrefix {
 		return res[1], true
 	}
 	return "", false

@@ -203,6 +203,7 @@ const SubscribeModal = () => {
                     (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
                 }
                 {
+                    !(getChannelState().isLoading || getOrganizationAndProjectState().isLoading) &&
                     !isAnyProjectLinked && (
                         <EmptyState
                             title='No Project Linked'

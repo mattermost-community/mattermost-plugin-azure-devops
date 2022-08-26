@@ -179,6 +179,7 @@ const TaskModal = () => {
                     getOrganizationAndProjectState().isLoading && <CircularLoader/>
                 }
                 {
+                    !getOrganizationAndProjectState().isLoading &&
                     !isAnyProjectLinked && (
                         <EmptyState
                             title='No Project Linked'

@@ -18,6 +18,7 @@ const (
 	// Validations Errors
 	OrganizationRequired = "organization is required"
 	ProjectRequired      = "project is required"
+	ProjectIDRequired    = "project ID is required"
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
 	EventTypeRequired    = "event type is required"

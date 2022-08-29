@@ -71,6 +71,7 @@ const App = (): JSX.Element => {
             );
         }
     }, [
+        usePlugin.isUserAccountConnected(),
         getCreateTaskModalState(usePlugin.state).visibility,
         getSubscribeModalState(usePlugin.state).visibility,
         getRhsState(usePlugin.state).isSidebarOpen,

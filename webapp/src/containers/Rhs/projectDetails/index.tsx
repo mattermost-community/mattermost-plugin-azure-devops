@@ -122,8 +122,15 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     // Update subscription list on switching channels
     useEffect(() => {
         setShowAllSubscriptions(false);
-        setCurrentChannelName(getCurrentChannelName(channelData as ChannelList[], currentChannelId));
-        setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+        const getChannelName = getCurrentChannelName(channelData as ChannelList[], currentChannelId);
+        if (getChannelName) {
+            setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+            setShowAllSubscriptions(false);
+        } else {
+            setSubscriptionList(data as SubscriptionDetails[]);
+            setShowAllSubscriptions(true);
+        }
+        setCurrentChannelName(getChannelName);
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
@@ -137,11 +144,14 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
-            <ToggleSwitch
-                active={showAllSubscriptions}
-                onChange={handleToggle}
-                label={'Show all subscriptions'}
-            />
+            {
+                currentChannelName &&
+                <ToggleSwitch
+                    active={showAllSubscriptions}
+                    onChange={handleToggle}
+                    label={'Show all subscriptions'}
+                />
+            }
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}

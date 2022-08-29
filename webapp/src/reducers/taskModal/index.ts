@@ -10,8 +10,8 @@ const initialState: CreateTaskModalState = {
     },
 };
 
-export const openTaskModalSlice = createSlice({
-    name: 'openTaskModal',
+export const createTaskModalSlice = createSlice({
+    name: 'createTaskModalSlice',
     initialState,
     reducers: {
         toggleShowTaskModal: (state: CreateTaskModalState, action: PayloadAction<GlobalModalActionPayload>) => {
@@ -28,6 +28,6 @@ export const openTaskModalSlice = createSlice({
     },
 });
 
-export const {toggleShowTaskModal} = openTaskModalSlice.actions;
+export const {toggleShowTaskModal} = createTaskModalSlice.actions;
 
-export default openTaskModalSlice.reducer;
+export default createTaskModalSlice.reducer;

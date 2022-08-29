@@ -6,7 +6,7 @@ const initialState: GlobalModalState = {
 };
 
 export const globalModalSlice = createSlice({
-    name: 'globalModal',
+    name: 'globalModalSlice',
     initialState,
     reducers: {
         setGlobalModalState: (state: GlobalModalState, action: PayloadAction<GlobalModalState>) => {

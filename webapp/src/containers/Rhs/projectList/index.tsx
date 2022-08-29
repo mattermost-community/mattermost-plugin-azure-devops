@@ -7,7 +7,7 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
 import {setProjectDetails} from 'reducers/projectDetails';
-import {toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
 import usePluginApi from 'hooks/usePluginApi';
 import plugin_constants from 'plugin_constants';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
@@ -50,9 +50,7 @@ const ProjectList = () => {
 
     // Fetch updated project list and close the unlink confirmation modal
     const handleActionsAfterUnlinkingProject = () => {
-        makeApiRequest(
-            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
-        );
+        dispatch(toggleIsLinkedProjectListChanged(true));
         setShowConfirmationModal(false);
     };
 

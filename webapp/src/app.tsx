@@ -1,17 +1,15 @@
 import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 
-import usePluginApi from 'hooks/usePluginApi';
-
-import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState} from 'selectors';
-
-import {toggleShowLinkModal} from 'reducers/linkModal';
-import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
-import {toggleShowTaskModal} from 'reducers/taskModal';
-
 import plugin_constants from 'plugin_constants';
 
 import {resetGlobalModalState} from 'reducers/globalModal';
+import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleShowTaskModal} from 'reducers/taskModal';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState} from 'selectors';
+
+import usePluginApi from 'hooks/usePluginApi';
 
 // Global styles
 import 'styles/main.scss';
@@ -61,9 +59,13 @@ const App = (): JSX.Element => {
         getSubscribeModalState(usePlugin.state).visibility,
     ]);
 
-    // Fetch the list of linked projects list
+    // Fetch the list of linked project list
     useEffect(() => {
         if (usePlugin.isUserAccountConnected()) {
+            if (getLinkModalState(usePlugin.state).isLinked) {
+                dispatch(toggleIsLinkedProjectListChanged(false));
+            }
+
             usePlugin.makeApiRequestWithCompletionStatus(
                 plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
             );

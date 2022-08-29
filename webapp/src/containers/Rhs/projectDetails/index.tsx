@@ -13,6 +13,8 @@ import plugin_constants from 'plugin_constants';
 import EmptyState from 'components/emptyState';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {getSubscribeModalState} from 'selectors';
+import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
     // State variables
@@ -22,7 +24,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Hooks
     const dispatch = useDispatch();
-    const usePlugin = usePluginApi();
+    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -50,34 +52,39 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     };
 
     // Handles unlinking a project and fetching the modified project list
-    const handleConfirmUnlinkProject = async () => {
-        const unlinkProjectStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const handleConfirmUnlinkProject = () => {
+        makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    };
 
-        if (unlinkProjectStatus) {
+    useApiRequestCompletionState({
+        serviceName: plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+        payload: projectDetails,
+        handleSuccess: () => {
+            dispatch(toggleIsLinkedProjectListChanged(true));
             handleResetProjectDetails();
             setShowProjectConfirmationModal(false);
-        }
-    };
-
-    // Handles deletion of a subscription and fetching the modified subscription list
-    const handleConfirmDeleteSubscription = async () => {
-        const deleteSubscriptionStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
-
-        if (deleteSubscriptionStatus) {
-            fetchSubscriptionList();
-            setShowSubscriptionConfirmationModal(false);
-        }
-    };
-
-    const project: FetchSubscriptionList = {project: projectDetails.projectName};
-    const {data, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionList = data as SubscriptionDetails[];
+        },
+    });
 
     // Fetch subscription list
-    const fetchSubscriptionList = () => usePlugin.makeApiRequest(
+    const fetchSubscriptionList = () => makeApiRequest(
         plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
         project,
     );
+
+    // Handles deletion of a subscription and fetching the modified subscription list
+    const handleConfirmDeleteSubscription = () => {
+        makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+    };
+
+    useApiRequestCompletionState({
+        serviceName: plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName,
+        payload: subscriptionToBeDeleted,
+        handleSuccess: () => {
+            fetchSubscriptionList();
+            setShowSubscriptionConfirmationModal(false);
+        },
+    });
 
     // Reset the state when the component is unmounted
     useEffect(() => {
@@ -89,11 +96,15 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
-        if (getSubscribeModalState(usePlugin.state).isCreated) {
+        if (getSubscribeModalState(state).isCreated) {
             dispatch(toggleIsSubscribed(false));
             fetchSubscriptionList();
         }
-    }, [getSubscribeModalState(usePlugin.state).isCreated]);
+    }, [getSubscribeModalState(state).isCreated]);
+
+    const project: FetchSubscriptionList = {project: projectDetails.projectName};
+    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+    const subscriptionList = data as SubscriptionDetails[];
 
     return (
         <>
@@ -102,7 +113,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
                 onConfirm={handleConfirmUnlinkProject}
-                isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails).isLoading}
+                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails).isLoading}
                 confirmBtnText='Unlink'
                 description={`Are you sure you want to unlink ${projectDetails.projectName}?`}
                 title='Confirm Project Unlink'
@@ -111,7 +122,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 isOpen={showSubscriptionConfirmationModal}
                 onHide={() => setShowSubscriptionConfirmationModal(false)}
                 onConfirm={handleConfirmDeleteSubscription}
-                isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
+                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
                 confirmBtnText='Delete'
                 description='Are you sure you want to delete this subscription ?'
                 title='Confirm Delete Subscription'

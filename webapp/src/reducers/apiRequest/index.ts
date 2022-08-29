@@ -5,7 +5,7 @@ const initialState: ApiRequestCompletionState = {
 };
 
 export const apiRequestCompletionSlice = createSlice({
-    name: 'globalModal',
+    name: 'globalApiRequestSlice',
     initialState,
     reducers: {
         setApiRequestCompletionState: (state: ApiRequestCompletionState, action: PayloadAction<ApiServiceName>) => {

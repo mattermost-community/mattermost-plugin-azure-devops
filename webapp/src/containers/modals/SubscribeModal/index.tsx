@@ -49,11 +49,11 @@ const SubscribeModal = () => {
 
     // Function to hide the modal and reset all the states.
     const resetModalState = (isActionDone?: boolean) => {
-        setChannelOptions([]);
+        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
+        resetFormFields();
         setOrganizationOptions([]);
         setProjectOptions([]);
-        resetFormFields();
-        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
+        setChannelOptions([]);
     };
 
     // Get organization and project state
@@ -113,7 +113,7 @@ const SubscribeModal = () => {
         return Utils.getErrorMessage(isCreateSubscriptionError, 'SubscribeModal', error);
     };
 
-    // Handles on confirming create subscription
+    // Handles creating subscription on confirmation
     const onConfirm = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request to create subscription
@@ -124,7 +124,7 @@ const SubscribeModal = () => {
         }
     };
 
-    // Observe for the change in redux state after API call and do the required actions
+    // Observe for the change in redux state after API call to create subscription and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => resetModalState(true),

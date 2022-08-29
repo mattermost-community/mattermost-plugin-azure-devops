@@ -9,15 +9,15 @@ const initialState: LinkProjectModalState = {
     isLinked: false,
 };
 
-export const openLinkModalSlice = createSlice({
-    name: 'openLinkModal',
+export const linkProjectModalSlice = createSlice({
+    name: 'linkProjectModalSlice',
     initialState,
     reducers: {
         toggleShowLinkModal: (state: LinkProjectModalState, action: PayloadAction<GlobalModalActionPayload>) => {
             state.visibility = action.payload.isVisible;
             state.organization = '';
             state.project = '';
-            state.isLinked = false;
+            state.isLinked = action.payload.isActionDone ?? false;
 
             if (action.payload.commandArgs.length > 0) {
                 const {organization, project} = getProjectLinkModalArgs(action.payload.commandArgs[0]) as LinkPayload;
@@ -25,12 +25,12 @@ export const openLinkModalSlice = createSlice({
                 state.project = project;
             }
         },
-        toggleIsLinked: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
+        toggleIsLinkedProjectListChanged: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
             state.isLinked = action.payload;
         },
     },
 });
 
-export const {toggleShowLinkModal, toggleIsLinked} = openLinkModalSlice.actions;
+export const {toggleShowLinkModal, toggleIsLinkedProjectListChanged} = linkProjectModalSlice.actions;
 
-export default openLinkModalSlice.reducer;
+export default linkProjectModalSlice.reducer;

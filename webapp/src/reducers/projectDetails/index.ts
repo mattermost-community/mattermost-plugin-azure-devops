@@ -8,7 +8,7 @@ const initialState: ProjectDetails = {
 };
 
 export const projectDetailsSlice = createSlice({
-    name: 'projectDetails',
+    name: 'projectDetailsSlice',
     initialState,
     reducers: {
         setProjectDetails: (state: ProjectDetails, action: PayloadAction<ProjectDetails>) => {

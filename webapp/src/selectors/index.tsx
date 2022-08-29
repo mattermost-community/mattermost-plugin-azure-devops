@@ -13,7 +13,7 @@ export const getProjectDetailsState = (state: any) => {
 };
 
 export const getLinkModalState = (state: any): LinkProjectModalState => {
-    return state[pluginPrefix].openLinkModalSlice;
+    return state[pluginPrefix].linkProjectModalSlice;
 };
 
 export const getCreateTaskModalState = (state: any): CreateTaskModalState => {
@@ -25,7 +25,7 @@ export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
 };
 
 export const getSubscribeModalState = (state: any): SubscribeModalState => {
-    return state[pluginPrefix].openSubscribeModalSlice;
+    return state[pluginPrefix].subscriptionModalSlice;
 };
 
 export const getApiRequestCompletionState = (state: any): ApiRequestCompletionState => {

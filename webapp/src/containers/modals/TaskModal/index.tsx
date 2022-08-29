@@ -38,8 +38,8 @@ const TaskModal = () => {
 
     // Function to hide the modal and reset all the states
     const resetModalState = () => {
-        resetFormFields();
         dispatch(toggleShowTaskModal({isVisible: false, commandArgs: []}));
+        resetFormFields();
     };
 
     // Opens link project modal
@@ -78,6 +78,7 @@ const TaskModal = () => {
         return payload;
     };
 
+    // Handles creating a new task on confirmation
     const onConfirm = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request
@@ -88,6 +89,7 @@ const TaskModal = () => {
         }
     };
 
+    // Observe for the change in redux state after API call to create task and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
         payload: getApiPayload(),

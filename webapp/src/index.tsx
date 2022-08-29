@@ -7,20 +7,21 @@ import reducer from 'reducers';
 
 import {handleConnect, handleDisconnect} from 'websocket';
 
-import {ChannelHeaderBtn} from 'containers/action_buttons';
+import {ChannelHeaderBtn} from 'components/buttons/action_buttons';
 
 import Constants from 'plugin_constants';
 
 import Hooks from 'hooks';
 
 import Rhs from 'containers/Rhs';
-import LinkModal from 'containers/LinkModal';
-import TaskModal from 'containers/TaskModal';
-import SubscribeModal from 'containers/SubscribeModal';
+import LinkModal from 'containers/modals/LinkModal';
+import TaskModal from 'containers/modals/TaskModal';
+import SubscribeModal from 'containers/modals/SubscribeModal';
+
+import App from './app';
 
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
-import App from './app';
 import manifest from './manifest';
 
 export default class Plugin {

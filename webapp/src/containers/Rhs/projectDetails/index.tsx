@@ -25,10 +25,8 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
-    const [currentChannelName, setCurrentChannelName] = useState('');
     const {entities} = useSelector((state: GlobalState) => state);
     const {currentChannelId} = entities.channels;
-    const {currentTeamId} = entities.teams;
 
     // Hooks
     const dispatch = useDispatch();
@@ -81,7 +79,6 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
     const {data, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const {data: channelData} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: currentTeamId});
 
     // Fetch subscription list
     const fetchSubscriptionList = () => usePlugin.makeApiRequest(
@@ -102,7 +99,6 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     // Reset the state when the component is unmounted
     useEffect(() => {
         fetchSubscriptionList();
-        setCurrentChannelName(getCurrentChannelName(channelData as ChannelList[], currentChannelId));
         return () => {
             handleResetProjectDetails();
         };
@@ -122,15 +118,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     // Update subscription list on switching channels
     useEffect(() => {
         setShowAllSubscriptions(false);
-        const getChannelName = getCurrentChannelName(channelData as ChannelList[], currentChannelId);
-        if (getChannelName) {
-            setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
-            setShowAllSubscriptions(false);
-        } else {
-            setSubscriptionList(data as SubscriptionDetails[]);
-            setShowAllSubscriptions(true);
-        }
-        setCurrentChannelName(getChannelName);
+        setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
@@ -145,7 +133,6 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         <>
             <BackButton onClick={handleResetProjectDetails}/>
             {
-                currentChannelName &&
                 <ToggleSwitch
                     active={showAllSubscriptions}
                     onChange={handleToggle}
@@ -206,7 +193,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                         </div>
                     </> :
                     <EmptyState
-                        title={`No subscriptions yet ${showAllSubscriptions ? '' : `for ${currentChannelName}`}`}
+                        title='No subscriptions yet'
                         subTitle={{text: 'You can link a subscription by clicking the below button.'}}
                         buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}

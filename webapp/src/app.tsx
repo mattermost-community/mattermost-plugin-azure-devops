@@ -1,7 +1,5 @@
 import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-
-import {GlobalState} from 'mattermost-redux/types/store';
+import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
@@ -24,8 +22,6 @@ import 'styles/main.scss';
 const App = (): JSX.Element => {
     const usePlugin = usePluginApi();
     const dispatch = useDispatch();
-    const {entities} = useSelector((state: GlobalState) => state);
-    const {currentTeamId} = entities.teams;
 
     // Check if user is connected on page reload
     useEffect(() => {
@@ -77,19 +73,6 @@ const App = (): JSX.Element => {
         getSubscribeModalState(usePlugin.state).visibility,
         getRhsState(usePlugin.state).isSidebarOpen,
         getLinkModalState(usePlugin.state).isLinked,
-    ]);
-
-    // Fetch channel list of current team ID.
-    useEffect(() => {
-        if (usePlugin.isUserAccountConnected()) {
-            usePlugin.makeApiRequestWithCompletionStatus(
-                plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-                {teamId: currentTeamId},
-            );
-        }
-    }, [
-        getSubscribeModalState(usePlugin.state).visibility,
-        getRhsState(usePlugin.state).isSidebarOpen,
     ]);
 
     return <></>;

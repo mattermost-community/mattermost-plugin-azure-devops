@@ -9,12 +9,12 @@ import ModalSubTitleAndError from './subComponents/modalSubtitleAndError';
 
 type ModalProps = {
     show: boolean;
-    onHide?: () => void;
+    onHide: () => void;
     showCloseIconInHeader?: boolean;
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: (() => void) | null;
+    onConfirm?: () => void;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;
@@ -25,7 +25,7 @@ type ModalProps = {
     cancelDisabled?: boolean;
 }
 
-const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false}: ModalProps) => {
+const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmBtnText, cancelBtnText = 'Cancel', className = '', loading = false, error, confirmDisabled, cancelDisabled, confirmAction}: ModalProps) => {
     return (
         <RBModal
             show={show}

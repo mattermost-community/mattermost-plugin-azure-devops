@@ -5,7 +5,9 @@
   }
   &__error {
     width: 100%;
-    margin: 0;
+    margin: 0 0 12px;
     color: var(--error-text);
+    text-transform: capitalize;
+    text-align: center;
   }
 }

@@ -5,7 +5,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 1;
   &__spinner {
     width: 40px;
     height: 40px;
@@ -27,6 +27,7 @@
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotate-center {
   0% {
     -webkit-transform: rotate(0);

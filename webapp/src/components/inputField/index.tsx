@@ -7,7 +7,7 @@ type InputFieldProps = {
     type?: 'text' | 'password' | 'email';
     label?: string | JSX.Element;
     placeholder?: string;
-    value: string | null;
+    value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: boolean | string;
     disabled?: boolean;

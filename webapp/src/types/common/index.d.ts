@@ -15,7 +15,7 @@ type TabsData = {
 }
 
 type LabelValuePair = {
-    label: string | JSX.Element;
+    label?: string | JSX.Element;
     value: string;
 }
 

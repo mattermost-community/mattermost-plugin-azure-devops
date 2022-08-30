@@ -22,7 +22,7 @@ const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, classNam
                 onClick={onConfirm}
                 disabled={confirmDisabled}
             >
-                {confirmBtnText ?? 'Confirm'}
+                {confirmBtnText || 'Confirm'}
             </button>
         )}
         {onHide && (
@@ -31,7 +31,7 @@ const ModalFooter = ({onConfirm, onHide, cancelBtnText, confirmBtnText, classNam
                 onClick={onHide}
                 disabled={cancelDisabled}
             >
-                {cancelBtnText ?? 'Cancel'}
+                {cancelBtnText || 'Cancel'}
             </button>
         )}
     </RBModal.Footer>

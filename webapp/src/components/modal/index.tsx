@@ -9,12 +9,12 @@ import ModalSubTitleAndError from './subComponents/modalSubtitleAndError';
 
 type ModalProps = {
     show: boolean;
-    onHide?: () => void;
+    onHide: () => void;
     showCloseIconInHeader?: boolean;
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: (() => void) | null;
+    onConfirm?: () => void;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;

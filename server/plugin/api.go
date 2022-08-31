@@ -237,11 +237,10 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 // handleGetUserAccountDetails provides user details
 func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserIDAPI)
-
 	userDetails, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		p.API.LogError(constants.ErrorLoadingDataFromKVStore, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 

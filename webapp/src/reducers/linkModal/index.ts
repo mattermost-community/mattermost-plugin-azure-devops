@@ -28,6 +28,9 @@ export const openLinkModalSlice = createSlice({
         toggleIsLinked: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
             state.isLinked = action.payload;
         },
+        toggleIsLinked: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
+            state.isLinked = action.payload;
+        },
     },
 });
 

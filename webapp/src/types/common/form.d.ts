@@ -2,9 +2,10 @@ type FieldType = 'dropdown' | 'text' | 'timestamp'
 type ValidationTypes = 'isRequired' | 'maxCharLen' | 'minCharLen' | 'regex' | 'regexErrorMessage'
 type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal'
 
-type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp'
-type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'timestamp'
 type LinkProjectModalFields = 'organization' | 'project' | 'timestamp'
+type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp'
+type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp'
+type ErrorComponents = 'SubscribeModal' | 'CreateTaskModal'
 
 type ModalFormFieldConfig = {
     label: string

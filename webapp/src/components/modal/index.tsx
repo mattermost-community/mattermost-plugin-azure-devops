@@ -14,7 +14,7 @@ type ModalProps = {
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: () => void;
+    onConfirm?: (() => void) | null;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;
@@ -23,9 +23,10 @@ type ModalProps = {
     error?: string | JSX.Element;
     confirmDisabled?: boolean;
     cancelDisabled?: boolean;
+    showFooter?: boolean;
 }
 
-const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmBtnText, cancelBtnText = 'Cancel', className = '', loading = false, error, confirmDisabled, cancelDisabled, confirmAction}: ModalProps) => {
+const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText = 'Cancel', className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false, showFooter = true}: ModalProps) => {
     return (
         <RBModal
             show={show}
@@ -50,15 +51,18 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
                     />
                 </>
             </ModalBody>
-            <ModalFooter
-                onHide={onHide}
-                onConfirm={onConfirm}
-                cancelBtnText={cancelBtnText}
-                confirmBtnText={confirmBtnText}
-                confirmDisabled={confirmDisabled}
-                cancelDisabled={cancelDisabled}
-                confirmAction={confirmAction}
-            />
+            {
+                showFooter &&
+                <ModalFooter
+                    onHide={onHide}
+                    onConfirm={onConfirm}
+                    cancelBtnText={cancelBtnText}
+                    confirmBtnText={confirmBtnText}
+                    confirmDisabled={confirmDisabled}
+                    cancelDisabled={cancelDisabled}
+                    confirmAction={confirmAction}
+                />
+            }
         </RBModal>
     );
 };

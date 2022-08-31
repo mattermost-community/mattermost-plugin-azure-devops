@@ -67,6 +67,7 @@ type CreateTaskRequestPayload struct {
 type CreateTaskFieldValue struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	AreaPath    string `json:"areaPath"`
 }
 
 type CreateTaskBodyPayload struct {

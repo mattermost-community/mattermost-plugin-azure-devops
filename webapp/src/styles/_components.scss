@@ -1,5 +1,5 @@
 .height-rhs {
-    height: 100%;
+    height: calc(100% - 150px); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
 }
 
 .project-details-unlink-button {
@@ -15,7 +15,7 @@
     display: block;
 
     i {
-        margin: 6px 5px 0 0;
+        margin: 7px 3px;
     }
 }
 

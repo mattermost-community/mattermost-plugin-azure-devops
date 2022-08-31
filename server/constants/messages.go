@@ -2,12 +2,12 @@ package constants
 
 const (
 	// TODO: all these messages are to be verified from Mike at the end
-	GenericErrorMessage  = "Something went wrong, please try again later"
+	GenericErrorMessage  = "Something went wrong, please try again later."
 	ConnectAccount       = "[Click here to link your Azure DevOps account](%s%s)"
-	ConnectAccountFirst  = "You do not have any Azure DevOps account connected. Kindly connect your account first"
+	ConnectAccountFirst  = "You do not have any Azure DevOps account connected. Kindly connect your account first."
 	UserConnected        = "Your Azure DevOps account is succesfully connected!"
-	UserAlreadyConnected = "Your Azure DevOps account is already connected"
-	UserDisconnected     = "Your Azure DevOps account is now disconnected"
+	UserAlreadyConnected = "Your Azure DevOps account is already connected."
+	UserDisconnected     = "Your Azure DevOps account is now disconnected."
 	CreatedTask          = "Link for newly created task: %s"
 	TaskTitle            = "[%s #%d: %s](%s)"
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"

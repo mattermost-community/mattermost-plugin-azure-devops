@@ -2,6 +2,8 @@ import React from 'react';
 
 import './styles.scss';
 
+type DisplayIcon = 'folder' | 'azure'
+
 type EmptyStatePropTypes = {
     title: string,
     subTitle?: {
@@ -10,6 +12,7 @@ type EmptyStatePropTypes = {
     },
     buttonText?: string,
     buttonAction?: (event: React.SyntheticEvent) => void;
+    icon?: DisplayIcon;
 }
 
 const EmptyState = ({title, subTitle, buttonText, buttonAction}: EmptyStatePropTypes) => (

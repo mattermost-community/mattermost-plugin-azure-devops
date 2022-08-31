@@ -42,6 +42,13 @@ const pluginApi = createApi({
                 body: payload,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.getUserDetails.apiServiceName]: builder.query<UserDetails, void>({
+            query: () => ({
+                headers: {[Constants.HeaderMattermostUserID]: Cookies.get(Constants.MMUSERID)},
+                url: Constants.pluginApiServiceConfigs.getUserDetails.path,
+                method: Constants.pluginApiServiceConfigs.getUserDetails.method,
+            }),
+        }),
     }),
 });
 

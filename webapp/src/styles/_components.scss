@@ -18,3 +18,18 @@
         margin: 6px 5px 0 0;
     }
 }
+
+.rhs-project-list-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 15px 0 30px;
+    width: 100%;
+    background-color: var(--center-channel-bg);
+    box-shadow: 5px -1px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+    .project-list-btn {
+        width: calc(100% - 60px); // 60px is the width of padding from left and right
+    }
+}

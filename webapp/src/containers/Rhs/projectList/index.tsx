@@ -66,7 +66,7 @@ const ProjectList = () => {
         }
     }, [getLinkModalState(usePlugin.state)]);
 
-    const {data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+    const {data, isSuccess, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
 
     return (
         <>
@@ -76,20 +76,15 @@ const ProjectList = () => {
                     isOpen={showConfirmationModal}
                     onHide={() => setShowConfirmationModal(false)}
                     onConfirm={handleConfirmUnlinkProject}
-                    isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
+                    isLoading={isLoading}
                     confirmBtnText='Unlink'
                     description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
                     title='Confirm Project Unlink'
                 />
             }
+            {isLoading && <LinearLoader/>}
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isLoading && (
-                    <LinearLoader/>
-                )
-            }
-            {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess &&
-                data &&
+                isSuccess && data &&
                 (
                     data.length ?
                         data.map((item) => (

@@ -25,6 +25,13 @@ type CreateTaskFields = {
     areaPath: string,
 }
 
+type ProjectDetails = {
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
+}
+
 type UserDetails = {
     MattermostUserID: string
 }

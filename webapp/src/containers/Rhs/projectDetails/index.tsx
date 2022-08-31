@@ -20,7 +20,6 @@ import {getSubscribeModalState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
-
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
@@ -33,12 +32,12 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
-    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
-
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
+    const {entities} = useSelector((state: GlobalState) => state);
+    const {currentChannelId} = entities.channels;
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionData = data as SubscriptionDetails[];
+    const subscriptionListReturnedByApi = data as SubscriptionDetails[];
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -100,6 +99,16 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         },
     });
 
+    // Handles switch toggle.
+    const handleToggle = () => {
+        if (showAllSubscriptions) {
+            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
+        } else {
+            setSubscriptionList(subscriptionListReturnedByApi);
+        }
+        setShowAllSubscriptions(!showAllSubscriptions);
+    };
+
     // Reset the state when the component is unmounted
     useEffect(() => {
         fetchSubscriptionList();
@@ -109,21 +118,20 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     }, []);
 
     useEffect(() => {
-        if (subscriptionData) {
+        // Update subscription list only when it does not match with the current data
+        if (subscriptionListReturnedByApi !== subscriptionList) {
             if (showAllSubscriptions) {
-                setSubscriptionList(subscriptionData);
+                setSubscriptionList(subscriptionListReturnedByApi);
             } else {
-                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
             }
         }
-    }, [subscriptionData, showAllSubscriptions]);
+    }, [subscriptionListReturnedByApi]);
 
     // Update subscription list on switching channels
     useEffect(() => {
-        if (subscriptionData) {
-            setShowAllSubscriptions(false);
-            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
-        }
+        setShowAllSubscriptions(false);
+        setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
@@ -140,11 +148,13 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
-            <ToggleSwitch
-                active={showAllSubscriptions}
-                onChange={setShowAllSubscriptions}
-                label={plugin_constants.common.ToggleLabel}
-            />
+            {
+                <ToggleSwitch
+                    active={showAllSubscriptions}
+                    onChange={handleToggle}
+                    label={'Show all subscriptions'}
+                />
+            }
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}

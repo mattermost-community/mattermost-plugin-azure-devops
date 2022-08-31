@@ -93,11 +93,11 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
 	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
 	var project *serializers.Project
-
 	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to link Project")
 	}
+
 	return project, statusCode, nil
 }
 
@@ -115,7 +115,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionotifications, channelID),
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
 
 	statusData := map[string]string{
@@ -132,6 +132,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}
+
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
@@ -163,7 +164,7 @@ func (c *client) callJSON(url, path, method, mattermostUserID string, in, out in
 
 // Makes HTTP request to REST APIs
 func (c *client) call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
-	errContext := fmt.Sprintf("Azure Devops: Call failed: method:%s, path:%s", method, path)
+	errContext := fmt.Sprintf("Azure DevOps: Call failed: method:%s, path:%s", method, path)
 	pathURL, err := url.Parse(path)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)

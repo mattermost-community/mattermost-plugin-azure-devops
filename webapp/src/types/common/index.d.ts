@@ -66,3 +66,8 @@ type SubscriptionDetails = {
 }
 
 type ModalId = 'linkProject' | 'createBoardTask' | null
+
+type WebsocketEventParams = {
+    event: string,
+    data: Record<string, string>,
+}

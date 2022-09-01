@@ -21,7 +21,7 @@ const App = (): JSX.Element => {
     /**
      * When a command is issued on the Mattermost to open any modal
      * then here we first check if the user's account is connected or not
-     * if the account is connected we dispatch the action to open the required modal
+     * If the account is connected, we dispatch the action to open the required modal
      * otherwise we reset the action and don't open any modal
      */
     useEffect(() => {

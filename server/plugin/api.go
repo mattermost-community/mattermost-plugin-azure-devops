@@ -263,6 +263,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
+		ChannelType:      channel.Type,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})

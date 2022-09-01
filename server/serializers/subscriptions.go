@@ -89,7 +89,7 @@ func SubscriptionNotificationFromJSON(data io.Reader) (*SubscriptionNotification
 	return body, nil
 }
 
-func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
+func (t *CreateSubscriptionRequestPayload) IsValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
 	}

@@ -10,6 +10,7 @@ import {
     ToggleSwitchLabelPositioning,
     ToggleLabel,
 } from './common';
+import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -33,4 +34,5 @@ export default {
         error,
     },
     pluginApiServiceConfigs,
+    SVGIcons,
 };

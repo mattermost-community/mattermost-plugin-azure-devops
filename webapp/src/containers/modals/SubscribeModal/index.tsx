@@ -183,7 +183,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         if (getChannelState().isSuccess) {
             setChannelOptions(getChannelState().data?.map((channel) => ({
-                label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>,
+                label: <span><i className={`icon ${channel.type === 'P' ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }
@@ -207,7 +207,7 @@ const SubscribeModal = () => {
             title='Add New Subscription'
             onHide={resetModalState}
             onConfirm={isAnyProjectLinked ? onConfirm : null}
-            confirmBtnText='Add new subscription'
+            confirmBtnText='Add New Subscription'
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
             loading={isLoading}
@@ -246,12 +246,11 @@ const SubscribeModal = () => {
                     showResultPanel && (
                         <ResultPanel
                             header='Subscription created successfully.'
-                            primaryBtnText='Add new subscription'
+                            primaryBtnText='Add New Subscription'
                             secondaryBtnText='Close'
                             onPrimaryBtnClick={handleSubscriptionModal}
                             onSecondaryBtnClick={() => resetModalState(true)}
-                        />
-                    )
+                        />)
                 }
             </>
         </Modal>

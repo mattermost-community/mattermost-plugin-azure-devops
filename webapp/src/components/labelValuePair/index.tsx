@@ -1,16 +1,46 @@
 import React from 'react';
+import { onPressingEnterKey } from 'utils';
 
 import './styles.scss';
 
 type LabelValuePairProps = {
-    label: string;
+    onClickValue?: () => void
+    label?: string | JSX.Element;
     value: string
+    labelIconClassName?: string
+    labelExtraClassName?: string
 }
 
-const LabelValuePair = ({label, value}: LabelValuePairProps) => (
-    <p className='margin-bottom-10'>
-        <strong>{`${label}: `}</strong>
-        <span className='value'>{value}</span>
+const LabelValuePair = ({ label, labelIconClassName, labelExtraClassName, value, onClickValue }: LabelValuePairProps) => (
+    <p className='margin-bottom-10 d-flex align-item-center'>
+        {
+            labelIconClassName && (
+                <i
+                    className={`${labelIconClassName} ${labelExtraClassName} icon-mm`}
+                />
+            )
+        }
+        {
+            label && (
+                typeof (label) === 'string' ?
+                    <strong className={labelExtraClassName ?? ''}>{`${label}: `}</strong> :
+                    <span className={`icon ${labelExtraClassName}`}>{label}</span>
+            )
+        }
+        {
+            onClickValue ? (
+                <span
+                    aria-label={value}
+                    role='button'
+                    tabIndex={0}
+                    className='value font-size-14 font-bold link-title margin-0 text-truncate'
+                    onKeyDown={(event) => onPressingEnterKey(event, onClickValue)}
+                    onClick={onClickValue}
+                >
+                    {value}
+                </span>
+            ) : <span className='value text-truncate'>{value}</span>
+        }
     </p>
 );
 

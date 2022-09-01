@@ -70,7 +70,7 @@ const LinkModal = () => {
             title='Link New Project'
             onHide={resetModalState}
             onConfirm={onConfirm}
-            confirmBtnText='Link new project'
+            confirmBtnText='Link New Project'
             cancelDisabled={isLoading}
             confirmDisabled={isLoading}
             loading={isLoading}

@@ -1,7 +1,7 @@
 import React, {forwardRef} from 'react';
 
 import SVGWrapper from 'components/svgWrapper';
-import SVGIcons from 'plugin_constants/icons';
+import plugin_constants from 'plugin_constants';
 
 type ResultPanelProps = {
     iconClass?: string | null;
@@ -36,7 +36,7 @@ const ResultPanel = forwardRef<HTMLDivElement, ResultPanelProps>(({
                     height={58}
                     viewBox='0 0 58 58'
                 >
-                    {SVGIcons.check}
+                    {plugin_constants.SVGIcons.check}
                 </SVGWrapper>
             )}
             <h3 className='result-panel-text'>{header || 'Add new'}</h3>

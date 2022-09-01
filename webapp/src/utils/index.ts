@@ -6,7 +6,7 @@ import Constants from 'plugin_constants';
 import {getOrganizationList, getProjectList} from './filterData';
 import getErrorMessage from './errorHandling';
 
-const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string} => {
+const getBaseUrls = (): { pluginApiBaseUrl: string; mattermostApiBaseUrl: string } => {
     const url = new URL(window.location.href);
     const baseUrl = `${url.protocol}//${url.host}`;
     const pluginUrl = `${baseUrl}/plugins/${Constants.common.pluginId}`;
@@ -64,6 +64,16 @@ export const onPressingEnterKey = (event: Event | undefined, func: () => void) =
     }
 
     func();
+};
+
+export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => {
+    if (project1.projectName.toLocaleLowerCase() < project2.projectName.toLocaleLowerCase()) {
+        return -1;
+    }
+    if (project1.projectName.toLocaleLowerCase() > project2.projectName.toLocaleLowerCase()) {
+        return 1;
+    }
+    return 0;
 };
 
 export default {

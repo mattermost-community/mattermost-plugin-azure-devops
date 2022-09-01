@@ -61,7 +61,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	create := model.NewAutocompleteData("boards create [title] [description]", "", "Create a new task")
 	azureDevops.AddCommand(create)
 
-	subscribe := model.NewAutocompleteData("subscribe", "", "Add a subscription")
+	subscribe := model.NewAutocompleteData("boards subscribe", "", "Add a subscription")
 	azureDevops.AddCommand(subscribe)
 
 	return azureDevops

@@ -56,7 +56,7 @@ const SubscribeModal = () => {
         setOrganizationOptions([]);
         setProjectOptions([]);
         setChannelOptions([]);
-        setShowResultPanel(false)
+        setShowResultPanel(false);
     };
 
     // Get organization and project state
@@ -181,7 +181,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         if (getChannelState().isSuccess) {
             setChannelOptions(getChannelState().data?.map((channel) => ({
-                label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>,
+                label: <span><i className={`icon ${channel.type === 'P' ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }
@@ -204,7 +204,7 @@ const SubscribeModal = () => {
             title='Add New Subscription'
             onHide={resetModalState}
             onConfirm={isAnyProjectLinked ? onConfirm : null}
-            confirmBtnText='Add new subscription'
+            confirmBtnText='Add New Subscription'
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
             loading={isLoading}
@@ -220,7 +220,7 @@ const SubscribeModal = () => {
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
-                            buttonText='Link new project'
+                            buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}
                         />
                     )
@@ -241,13 +241,13 @@ const SubscribeModal = () => {
                 }
                 {
                     showResultPanel && (
-                    <ResultPanel
-                        header='Subscription created successfully.'
-                        primaryBtnText='Add new subscription'
-                        secondaryBtnText='Close'
-                        onPrimaryBtnClick={handleSubscriptionModal}
-                        onSecondaryBtnClick={() => resetModalState(true)}
-                    />)
+                        <ResultPanel
+                            header='Subscription created successfully.'
+                            primaryBtnText='Add New Subscription'
+                            secondaryBtnText='Close'
+                            onPrimaryBtnClick={handleSubscriptionModal}
+                            onSecondaryBtnClick={() => resetModalState(true)}
+                        />)
                 }
             </>
         </Modal>

@@ -186,7 +186,7 @@ const TaskModal = () => {
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
-                            buttonText='Link new project'
+                            buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}
                         />
                     )

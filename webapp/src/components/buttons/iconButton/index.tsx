@@ -31,7 +31,6 @@ const IconButton = ({tooltipText, iconClassName, extraClass = '', iconColor, onC
             >
                 <i
                     className={iconClassName}
-                    aria-hidden='true'
                 />
             </Button>
         </Tooltip>

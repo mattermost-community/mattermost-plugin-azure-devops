@@ -1,9 +1,8 @@
 import React from 'react';
 
-import {ToggleSwitchLabelPositioning} from 'plugin_constants/common';
-
 import './styles.scss';
 
+type ToggleSwitchLabelPositioning = 'left' | 'right'
 type ToggleSwitchProps = {
     active: boolean;
     onChange: (active: boolean) => void;
@@ -15,10 +14,10 @@ const ToggleSwitch = ({
     active,
     onChange,
     label,
-    labelPositioning = ToggleSwitchLabelPositioning.Left,
+    labelPositioning = 'left',
 }: ToggleSwitchProps): JSX.Element => (
-    <div className={`toggle-switch-container d-flex align-items-center ${labelPositioning === ToggleSwitchLabelPositioning.Right && 'flex-row-reverse'}`}>
-        {label && <span className={labelPositioning === ToggleSwitchLabelPositioning.Left ? 'toggle-switch-label--left' : 'toggle-switch-label--right'}>{label}</span>}
+    <div className={`toggle-switch-container d-flex align-items-center ${labelPositioning === 'right' && 'flex-row-reverse justify-content-end'}`}>
+        {label && <span className={labelPositioning === 'left' ? 'toggle-switch-label--left' : 'toggle-switch-label--right'}>{label}</span>}
         <label className='toggle-switch cursor-pointer'>
             <input
                 type='checkbox'

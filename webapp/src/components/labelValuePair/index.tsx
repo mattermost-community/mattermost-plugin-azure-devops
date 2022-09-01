@@ -3,15 +3,30 @@ import React from 'react';
 import './styles.scss';
 
 type LabelValuePairProps = {
-    label: string;
+    label?: string | JSX.Element;
     value: string
+    labelIconClassName?: string
+    labelExtraClassName?: string
 }
 
-const LabelValuePair = ({label, value}: LabelValuePairProps) => {
+const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value}: LabelValuePairProps) => {
     return (
-        <p className='margin-bottom-10'>
-            <strong>{`${label}: `}</strong>
-            <span className='value'>{value}</span>
+        <p className='margin-bottom-10 d-flex align-item-center'>
+            {
+                labelIconClassName && (
+                    <i
+                        className={`${labelIconClassName} ${labelExtraClassName} icon-mm`}
+                    />
+                )
+            }
+            {
+                label && (
+                    typeof (label) === 'string' ?
+                        <strong className={labelExtraClassName ?? ''}>{`${label}: `}</strong> :
+                        <span className={`icon ${labelExtraClassName}`}>{label}</span>
+                )
+            }
+            <span className='value text-truncate'>{value}</span>
         </p>
     );
 };

@@ -6,11 +6,15 @@ import EmptyState from 'components/emptyState';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
+import plugin_constants from 'plugin_constants';
+
 import {setProjectDetails} from 'reducers/projectDetails';
 import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
+
 import usePluginApi from 'hooks/usePluginApi';
-import plugin_constants from 'plugin_constants';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+
+import {sortProjectList} from 'utils';
 
 const ProjectList = () => {
     // State variables
@@ -63,10 +67,11 @@ const ProjectList = () => {
 
     const {data, isSuccess, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
     const projectsList = data as ProjectDetails[];
+    const sortedProjectList = [...projectsList].sort(sortProjectList);
 
     return (
         <>
-            <p className='rhs-title'>{'Linked Projects'}</p>
+            <p className='rhs-title margin-bottom-15'>{'Linked Projects'}</p>
             {
                 <ConfirmationModal
                     isOpen={showConfirmationModal}
@@ -78,13 +83,13 @@ const ProjectList = () => {
                     title='Confirm Project Unlink'
                 />
             }
-            {isLoading && <LinearLoader/> }
+            {isLoading && <LinearLoader/>}
             {
                 isSuccess && (
-                    projectsList && projectsList.length > 0 ?
+                    sortedProjectList && sortedProjectList.length > 0 ?
                         <>
                             {
-                                projectsList?.map((item: ProjectDetails) => (
+                                sortedProjectList?.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}
@@ -99,14 +104,14 @@ const ProjectList = () => {
                                     onClick={handleOpenLinkProjectModal}
                                     className='plugin-btn no-data__btn btn btn-primary project-list-btn'
                                 >
-                                    {'Link new project'}
+                                    {'Link New Project'}
                                 </button>
                             </div>
                         </> :
                         <EmptyState
                             title='No project linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
-                            buttonText='Link new project'
+                            buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}
                             wrapperExtraClass='margin-top-80'
                         />)

@@ -16,19 +16,17 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
         <BaseCard>
             <div className='d-flex'>
                 <div className='project-details'>
-                    <p className='margin-bottom-10'>
-                        <span
-                            aria-label={projectName}
-                            role='button'
-                            tabIndex={0}
-                            className='font-size-14 font-bold link-title'
-                            onKeyDown={() => onPressingEnterKey(event, () => onProjectTitleClick(projectDetails))}
-                            onClick={() => onProjectTitleClick(projectDetails)}
-                        >
-                            {projectName}
-                        </span>
+                    <p
+                        aria-label={projectName}
+                        role='button'
+                        tabIndex={0}
+                        className='font-size-14 font-bold link-title text-truncate margin-bottom-10'
+                        onKeyDown={() => onPressingEnterKey(event, () => onProjectTitleClick(projectDetails))}
+                        onClick={() => onProjectTitleClick(projectDetails)}
+                    >
+                        {projectName}
                     </p>
-                    <p className='font-size-14'>{organizationName}</p>
+                    <p className='font-size-14 text-truncate'>{organizationName}</p>
                 </div>
                 <div className='button-wrapper'>
                     <IconButton

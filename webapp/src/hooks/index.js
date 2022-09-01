@@ -30,7 +30,7 @@ export default class Hooks {
             });
         }
 
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops subscribe')) {
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards subscribe')) {
             const commandArgs = getCommandArgs(commandTrimmed);
             this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs}));
             return {

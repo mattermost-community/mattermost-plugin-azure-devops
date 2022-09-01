@@ -61,4 +61,5 @@ type SubscriptionDetails = {
     eventType: string,
     channelID: string,
     channelName: string,
+    channelType: string,
 }

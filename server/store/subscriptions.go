@@ -57,6 +57,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		EventType:        subscription.EventType,
 		SubscriptionID:   subscription.SubscriptionID,
 		ChannelName:      subscription.ChannelName,
+		ChannelType:      subscription.ChannelType,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }

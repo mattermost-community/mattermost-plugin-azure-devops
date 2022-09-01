@@ -63,6 +63,7 @@ type SubscriptionDetails struct {
 	EventType        string `json:"eventType"`
 	ChannelID        string `json:"channelID"`
 	ChannelName      string `json:"channelName"`
+	ChannelType      string `json:"channelType"`
 	SubscriptionID   string `json:"subscriptionID"`
 }
 

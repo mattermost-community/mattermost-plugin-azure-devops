@@ -8,7 +8,7 @@ type User struct {
 }
 
 func (s *Store) StoreUser(user *User) error {
-	if err := s.StoreJSON(user.MattermostUserID, user); err != nil {
+	if err := s.StoreJSON(GetOAuthKey(user.MattermostUserID), user); err != nil {
 		return err
 	}
 
@@ -17,14 +17,14 @@ func (s *Store) StoreUser(user *User) error {
 
 func (s *Store) LoadUser(mattermostUserID string) (*User, error) {
 	user := User{}
-	if err := s.LoadJSON(mattermostUserID, &user); err != nil {
+	if err := s.LoadJSON(GetOAuthKey(mattermostUserID), &user); err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
 func (s *Store) DeleteUser(mattermostUserID string) (bool, error) {
-	if err := s.Delete(mattermostUserID); err != nil {
+	if err := s.Delete(GetOAuthKey(mattermostUserID)); err != nil {
 		return false, err
 	}
 

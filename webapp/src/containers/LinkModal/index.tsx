@@ -5,7 +5,7 @@ import Input from 'components/inputField';
 import Modal from 'components/modal';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {hideLinkModal, toggleIsLinked} from 'reducers/linkModal';
+import {toggleShowLinkModal, toggleIsLinked} from 'reducers/linkModal';
 import {getLinkModalState} from 'selectors';
 import plugin_constants from 'plugin_constants';
 
@@ -35,7 +35,7 @@ const LinkModal = () => {
             organization: '',
             project: '',
         });
-        dispatch(hideLinkModal());
+        dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
     };
 
     // Set organization name
@@ -82,14 +82,16 @@ const LinkModal = () => {
         }
     };
 
+    // Set modal field values
     useEffect(() => {
         setProjectDetails({
             organization: getLinkModalState(usePlugin.state).organization,
             project: getLinkModalState(usePlugin.state).project,
         });
-    }, [getLinkModalState(usePlugin.state)]);
+    }, [getLinkModalState(usePlugin.state).visibility]);
 
     const {isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
+
     return (
         <Modal
             show={getLinkModalState(usePlugin.state).visibility}
@@ -105,7 +107,7 @@ const LinkModal = () => {
                 <Input
                     type='text'
                     placeholder='Organization name'
-                    value={projectDetails.project}
+                    value={projectDetails.organization}
                     onChange={onOrganizationChange}
                     error={errorState.organization}
                     required={true}

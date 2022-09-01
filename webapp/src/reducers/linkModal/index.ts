@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-import {getProjectLinkDetails} from 'utils';
+import {getProjectLinkModalArgs} from 'utils';
 
 const initialState: LinkProjectModalState = {
     visibility: false,
@@ -13,21 +13,17 @@ export const openLinkModalSlice = createSlice({
     name: 'openLinkModal',
     initialState,
     reducers: {
-        showLinkModal: (state: LinkProjectModalState, action: PayloadAction<Array<string>>) => {
-            if (action.payload.length > 2) {
-                const details = getProjectLinkDetails(action.payload[2]);
-                if (details.length === 2) {
-                    state.organization = details[0];
-                    state.project = details[1];
-                }
-            }
-            state.visibility = true;
-            state.isLinked = false;
-        },
-        hideLinkModal: (state: LinkProjectModalState) => {
-            state.visibility = false;
+        toggleShowLinkModal: (state: LinkProjectModalState, action: PayloadAction<GlobalModalActionPayload>) => {
+            state.visibility = action.payload.isVisible;
             state.organization = '';
             state.project = '';
+            state.isLinked = false;
+
+            if (action.payload.commandArgs.length > 0) {
+                const {organization, project} = getProjectLinkModalArgs(action.payload.commandArgs[0]) as LinkPayload;
+                state.organization = organization;
+                state.project = project;
+            }
         },
         toggleIsLinked: (state: LinkProjectModalState, action: PayloadAction<boolean>) => {
             state.isLinked = action.payload;
@@ -35,6 +31,6 @@ export const openLinkModalSlice = createSlice({
     },
 });
 
-export const {showLinkModal, hideLinkModal, toggleIsLinked} = openLinkModalSlice.actions;
+export const {toggleShowLinkModal, toggleIsLinked} = openLinkModalSlice.actions;
 
 export default openLinkModalSlice.reducer;

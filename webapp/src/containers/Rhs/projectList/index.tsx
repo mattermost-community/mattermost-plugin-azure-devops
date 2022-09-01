@@ -7,7 +7,7 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
 import {setProjectDetails} from 'reducers/projectDetails';
-import {showLinkModal, toggleIsLinked} from 'reducers/linkModal';
+import {toggleShowLinkModal, toggleIsLinked} from 'reducers/linkModal';
 import {getLinkModalState} from 'selectors';
 import usePluginApi from 'hooks/usePluginApi';
 import plugin_constants from 'plugin_constants';
@@ -31,7 +31,7 @@ const ProjectList = () => {
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {
-        dispatch(showLinkModal([]));
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
     };
 
     /**
@@ -64,7 +64,7 @@ const ProjectList = () => {
             dispatch(toggleIsLinked(false));
             fetchLinkedProjectsList();
         }
-    }, [getLinkModalState(usePlugin.state)]);
+    }, [getLinkModalState(usePlugin.state).isLinked]);
 
     const {data, isSuccess, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
 

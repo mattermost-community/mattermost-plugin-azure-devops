@@ -1,6 +1,5 @@
-import {showLinkModal} from 'reducers/linkModal';
-import {showTaskModal} from 'reducers/taskModal';
-import {splitArgs} from '../utils';
+import {setGlobalModalState} from 'reducers/globalModal';
+import {getCommandArgs} from 'utils';
 
 export default class Hooks {
     constructor(store) {
@@ -20,35 +19,18 @@ export default class Hooks {
             commandTrimmed = message.trim();
         }
 
-        if (!commandTrimmed?.startsWith('/azuredevops')) {
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops link')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'linkProject', commandArgs}));
             return Promise.resolve({
                 message,
                 args: contextArgs,
             });
         }
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
-            const args = splitArgs(commandTrimmed);
-            this.store.dispatch(showTaskModal(args));
+            // TODO: refactor
+            // const args = splitArgs(commandTrimmed);
             return Promise.resolve({});
-        }
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops link')) {
-            const args = splitArgs(commandTrimmed);
-            this.store.dispatch(showLinkModal(args));
-            return Promise.resolve({});
-        }
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops connect')) {
-            this.closeRhs();
-            return {
-                message,
-                args: contextArgs,
-            };
-        }
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops disconnect')) {
-            this.closeRhs();
-            return {
-                message,
-                args: contextArgs,
-            };
         }
         return Promise.resolve({
             message,

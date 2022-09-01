@@ -73,7 +73,7 @@ func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscripti
 	return body, nil
 }
 
-func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
+func (t *CreateSubscriptionRequestPayload) IsValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
 	}

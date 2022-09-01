@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Input from 'components/inputField';
@@ -50,8 +50,7 @@ const LinkModal = () => {
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
-    // Handles on confirming link project
-    const onConfirm = () => {
+    const onConfirm = useCallback(() => {
         const errorStateChanges: LinkPayload = {
             organization: '',
             project: '',
@@ -72,9 +71,9 @@ const LinkModal = () => {
 
         // Make POST api request
         linkTask(projectDetails);
-    };
+    }, [errorState]);
 
-    // Make POST api request to link a project
+    // Make POST API request to link a project
     const linkTask = async (payload: LinkPayload) => {
         const createTaskRequest = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, payload);
         if (createTaskRequest) {
@@ -91,7 +90,7 @@ const LinkModal = () => {
         });
     }, [getLinkModalState(usePlugin.state).visibility]);
 
-    const isLoading = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading;
+    const {isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
 
     return (
         <Modal

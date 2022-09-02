@@ -104,7 +104,7 @@ func DeleteSubscriptionRequestPayloadFromJSON(data io.Reader) (*DeleteSubscripti
 	return body, nil
 }
 
-func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
+func (t *CreateSubscriptionRequestPayload) IsValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
 	}
@@ -120,7 +120,7 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	return nil
 }
 
-func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {
+func (t *DeleteSubscriptionRequestPayload) IsValid() error {
 	if t.Organization == "" {
 		return errors.New(constants.OrganizationRequired)
 	}

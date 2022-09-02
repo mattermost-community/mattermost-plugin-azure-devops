@@ -114,13 +114,12 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 	}
 
-	isSubscriptionFound := false
 	for _, subscription := range subscriptionList {
 		if subscription.SubscriptionID == args[1] {
-			isSubscriptionFound = true
-			p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is being deleted", args[1]))
-			_, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId)
-			if err != nil {
+			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is being deleted", args[1])); err != nil {
+				p.API.LogError("Error in sending ephermal post", "Error", err.Error())
+			}
+			if _, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
 				p.API.LogError("Error in deleting a subscription", "Error", err.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 			}
@@ -135,14 +134,12 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				nil,
 				&model.WebsocketBroadcast{UserId: commandArgs.UserId},
 			)
+
+			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is successfully deleted", args[1]))
 		}
 	}
 
-	if !isSubscriptionFound {
-		return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" does not exist", args[1]))
-	}
-
-	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is successfully deleted", args[1]))
+	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" does not exist", args[1]))
 }
 
 func azureDevopsSubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

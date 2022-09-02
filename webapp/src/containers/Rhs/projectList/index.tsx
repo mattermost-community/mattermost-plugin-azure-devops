@@ -107,7 +107,7 @@ const ProjectList = () => {
             }
             {
                 usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess && (
-                    data && data?.length > 0 ? (
+                    data?.length > 0 ? (
                         <>
                             {
                                 data?.map((item: ProjectDetails) => (

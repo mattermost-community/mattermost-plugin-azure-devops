@@ -144,7 +144,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         }
     }, [getSubscribeModalState(state).isCreated]);
 
-    // Update the subscription list on RHS when a subscription is deleted using slash command
+    // Update the subscription list on RHS when a subscription is deleted using the slash command
     useEffect(() => {
         if (getWebsocketEventState(state).isSubscriptionDeleted) {
             fetchSubscriptionList();

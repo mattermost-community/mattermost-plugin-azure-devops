@@ -12,5 +12,5 @@ export interface PluginRegistry {
     registerChannelHeaderMenuAction(text: string, action: () => void);
     registerRightHandSidebarComponent(component: () => JSX.Element, title: string | JSX.Element);
     registerChannelHeaderButtonAction(icon: JSX.Element, action: () => void, dropdownText: string | null, tooltipText: string | null);
-    registerWebSocketEventHandler(event: string, handler: (msg: any) => void)
+    registerWebSocketEventHandler(event: string, handler: (msg: WebsocketEventParams) => void)
 }

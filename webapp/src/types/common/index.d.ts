@@ -12,10 +12,6 @@ type PluginApiService = {
     apiServiceName: ApiServiceName
 }
 
-type PluginState = {
-    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'pluginApi'>; }, never, 'pluginApi'>
-}
-
 type TabData = {
     title: string,
     tabPanel: JSX.Element
@@ -70,3 +66,8 @@ type SubscriptionDetails = {
 }
 
 type ModalId = 'linkProject' | 'createBoardTask' | null
+
+type WebsocketEventParams = {
+    event: string,
+    data: Record<string, string>,
+}

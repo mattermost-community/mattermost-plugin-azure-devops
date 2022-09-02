@@ -91,7 +91,7 @@ const LinkModal = () => {
         });
     }, [getLinkModalState(usePlugin.state).visibility]);
 
-    const isLoading = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails).isLoading;
+    const {isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, projectDetails);
 
     return (
         <Modal

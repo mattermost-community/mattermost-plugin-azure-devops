@@ -46,4 +46,5 @@ const (
 	ProjectNotLinked                = "Requested project is not linked"
 	GetSubscriptionListError        = "Error in getting subscription list"
 	SubscriptionAlreadyPresent      = "Subscription is already present"
+	InvalidChannelID                = "Invalid channel ID"
 )

@@ -18,7 +18,7 @@ const Rhs = (): JSX.Element => {
             {
                 isUserAccountConnected() && (
                     getprojectDetailsState(state).projectID ?
-                        <ProjectDetails title={getprojectDetailsState(state).projectName}/> :
+                        <ProjectDetails {...getprojectDetailsState(state)}/> :
                         <ProjectList/>)
             }
         </div>

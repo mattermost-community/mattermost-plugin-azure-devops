@@ -9,7 +9,7 @@ import ModalSubTitleAndError from './subComponents/modalSubtitleAndError';
 
 type ModalProps = {
     show: boolean;
-    onHide: () => void;
+    onHide?: () => void;
     showCloseIconInHeader?: boolean;
     children?: JSX.Element;
     title?: string | JSX.Element;

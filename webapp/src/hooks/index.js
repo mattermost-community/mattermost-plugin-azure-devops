@@ -32,6 +32,7 @@ export default class Hooks {
             // const args = splitArgs(commandTrimmed);
             return Promise.resolve({});
         }
+
         return Promise.resolve({
             message,
             args: contextArgs,

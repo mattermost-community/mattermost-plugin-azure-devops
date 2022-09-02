@@ -50,6 +50,7 @@ const LinkModal = () => {
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
+    // Handles on confirming link project
     const onConfirm = useCallback(() => {
         const errorStateChanges: LinkPayload = {
             organization: '',

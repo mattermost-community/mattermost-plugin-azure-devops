@@ -6,6 +6,13 @@ export default class Hooks {
         this.store = store;
     }
 
+    closeRhs() {
+        this.store.dispatch({
+            type: 'UPDATE_RHS_STATE',
+            state: null,
+        });
+    }
+
     slashCommandWillBePostedHook = (message, contextArgs) => {
         let commandTrimmed;
         if (message) {
@@ -20,7 +27,6 @@ export default class Hooks {
                 args: contextArgs,
             });
         }
-
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
             // TODO: refactor
             // const args = splitArgs(commandTrimmed);

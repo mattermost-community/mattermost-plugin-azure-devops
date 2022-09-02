@@ -20,5 +20,5 @@ type OAuthSuccessResponse struct {
 }
 
 type ConnectedResponse struct {
-	Connected bool `json:"connected"`
+	IsConnected bool `json:"connected"`
 }

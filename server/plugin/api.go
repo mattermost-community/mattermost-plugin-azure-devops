@@ -335,6 +335,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := body.IsValid(); err != nil {
+		p.API.LogDebug("Request payload is not valid", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
@@ -346,7 +347,12 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType})
+	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{
+		OrganizationName: body.Organization,
+		ProjectName:      body.Project,
+		ChannelID:        body.ChannelID,
+		EventType:        body.EventType,
+	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})

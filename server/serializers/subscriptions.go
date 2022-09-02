@@ -131,7 +131,7 @@ func (t *DeleteSubscriptionRequestPayload) IsValid() error {
 		return errors.New(constants.EventTypeRequired)
 	}
 	if t.ChannelID == "" {
-		return errors.New(constants.ChannelNameRequired)
+		return errors.New(constants.ChannelIDRequired)
 	}
 	return nil
 }

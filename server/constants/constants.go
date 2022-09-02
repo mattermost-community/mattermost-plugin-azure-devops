@@ -3,8 +3,8 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops"
-	BotDescription = "A bot account created by the Azure Devops plugin."
+	BotDisplayName = "Azure DevOps"
+	BotDescription = "A bot account created by the Azure DevOps plugin."
 
 	// Plugin configs
 	PluginID               = "mattermost-plugin-azure-devops"
@@ -13,7 +13,7 @@ const (
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
-	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
+	HelpText           = "###### Mattermost Azure DevOps Plugin - Slash Command Help\n"
 	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Get task link preview constants
@@ -40,7 +40,7 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	ProjectParam = "project"
+	QueryParamProject = "project"
 
 	// Authorization constants
 	Bearer        = "Bearer"

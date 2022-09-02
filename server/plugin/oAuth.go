@@ -199,7 +199,7 @@ func (p *Plugin) closeBrowserWindowWithHTTPResponse(w http.ResponseWriter) {
 			</script>
 		</head>
 		<body>
-			<p>Completed connecting to Azure Devops. Please close this window.</p>
+			<p>Completed connecting to Azure DevOps. Please close this window.</p>
 		</body>
 	</html>
 	`

@@ -5,7 +5,7 @@ import {GlobalState} from 'mattermost-redux/types/store';
 
 import reducer from 'reducers';
 
-import {handleConnect, handleDisconnect} from 'websocket';
+import {handleConnect, handleDisconnect, handleSubscriptionDeleted} from 'websocket';
 
 import {ChannelHeaderBtn} from 'components/buttons/action_buttons';
 
@@ -33,6 +33,7 @@ export default class Plugin {
         registry.registerRootComponent(SubscribeModal);
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_connect`, handleConnect(store));
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_disconnect`, handleDisconnect(store));
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_subscriptionDeleted`, handleSubscriptionDeleted(store));
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);

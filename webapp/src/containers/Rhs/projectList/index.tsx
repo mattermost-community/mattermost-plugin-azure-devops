@@ -23,7 +23,7 @@ const ProjectList = () => {
 
     // Hooks
     const dispatch = useDispatch();
-    const {getApiState, makeApiRequest, makeApiRequestWithCompletionStatus} = usePluginApi();
+    const {getApiState, makeApiRequestWithCompletionStatus} = usePluginApi();
 
     // Navigates to project details view
     const handleProjectTitleClick = (projectDetails: ProjectDetails) => {

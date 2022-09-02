@@ -11,13 +11,17 @@ import ConfirmationModal from 'components/modal/confirmationModal';
 import ToggleSwitch from 'components/toggleSwitch';
 import PrimaryButton from 'components/buttons/primaryButton';
 
+import plugin_constants from 'plugin_constants';
+
 import usePluginApi from 'hooks/usePluginApi';
 import {resetProjectDetails} from 'reducers/projectDetails';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
-import plugin_constants from 'plugin_constants';
-import {getSubscribeModalState} from 'selectors';
+import {toggleIsSubscriptionDeleted} from 'reducers/websocketEvent';
+import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
+
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
+
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
@@ -139,6 +143,14 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
             fetchSubscriptionList();
         }
     }, [getSubscribeModalState(state).isCreated]);
+
+    // Update the subscription list on RHS when a subscription is deleted using slash command
+    useEffect(() => {
+        if (getWebsocketEventState(state).isSubscriptionDeleted) {
+            fetchSubscriptionList();
+            dispatch(toggleIsSubscriptionDeleted(false));
+        }
+    }, [getWebsocketEventState(state).isSubscriptionDeleted]);
 
     return (
         <>

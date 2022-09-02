@@ -42,3 +42,8 @@ type CreateTaskModalState = {
 type ApiQueriesState = {
     [key: string]: Record<string, string>
 }
+
+type WebsocketEventState = {
+    isConnected: boolean;
+    isSubscriptionDeleted: boolean;
+};

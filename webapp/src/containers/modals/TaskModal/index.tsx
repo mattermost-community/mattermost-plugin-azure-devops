@@ -197,7 +197,7 @@ const TaskModal = () => {
                         <Form
                             key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
                             fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
-                            value={formFields[field as CreateTaskModalFields]}
+                            value={formFields[field as CreateTaskModalFields] ?? ''}
                             optionsList={getDropDownOptions(field as CreateTaskModalFields)}
                             onChange={(newValue) => onChangeOfFormField(field as CreateTaskModalFields, newValue)}
                             error={errorState[field as CreateTaskModalFields]}

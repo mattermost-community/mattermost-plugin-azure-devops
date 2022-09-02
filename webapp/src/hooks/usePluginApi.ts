@@ -11,7 +11,7 @@ function usePluginApi() {
     const dispatch = useDispatch();
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
-    const makeApiRequest = async (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<AnyAction> | any => {
+    const makeApiRequest = (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<AnyAction> | any => {
         return dispatch(services.endpoints[serviceName].initiate(payload)); //TODO: add proper type here
     };
 
@@ -29,11 +29,7 @@ function usePluginApi() {
         return {data, isError, isLoading, isSuccess, error, isUninitialized};
     };
 
-    const isUserAccountConnected = (): boolean => {
-        return state['plugins-mattermost-plugin-azure-devops'].userConnectedSlice.isConnected;
-    };
-
-    return {makeApiRequest, makeApiRequestWithCompletionStatus, getApiState, state, isUserAccountConnected};
+    return {makeApiRequest, makeApiRequestWithCompletionStatus, getApiState, state};
 }
 
 export default usePluginApi;

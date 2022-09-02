@@ -7,6 +7,7 @@ import {
     MMCSRF,
     pluginId,
     RightSidebarHeader,
+    boardsEventTypeMap,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
@@ -20,6 +21,7 @@ export default {
         HeaderCSRFToken,
         AzureDevops,
         RightSidebarHeader,
+        boardsEventTypeMap,
     },
     form: {
         linkProjectModal,

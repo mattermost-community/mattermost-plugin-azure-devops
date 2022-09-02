@@ -4,7 +4,7 @@ import {Modal as RBModal} from 'react-bootstrap';
 import './styles.scss';
 
 type ModalFooterProps = {
-    onConfirm?: () => void;
+    onConfirm?: (() => void) | null;
     confirmBtnText?: string;
     cancelBtnText?: string;
     onHide?: () => void;

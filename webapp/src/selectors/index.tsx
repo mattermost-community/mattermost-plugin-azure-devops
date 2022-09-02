@@ -35,3 +35,7 @@ export const getApiRequestCompletionState = (state: any): ApiRequestCompletionSt
 export const getApiQueriesState = (state: any): ApiQueriesState => {
     return state[pluginPrefix].azureDevopsPluginApi?.queries;
 };
+
+export const getWebsocketEventState = (state: any): WebsocketEventState => {
+    return state[pluginPrefix].websocketEventSlice;
+};

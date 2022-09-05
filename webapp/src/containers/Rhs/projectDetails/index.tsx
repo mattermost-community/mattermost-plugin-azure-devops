@@ -165,7 +165,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 ) : (
                     <EmptyState
                         title='No subscriptions yet'
-                        subTitle={{text: 'You can link a subscription by clicking the below button.'}}
+                        subTitle={{text: 'You can add a subscription by clicking the below button.'}}
                         buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}
                         icon='subscriptions'

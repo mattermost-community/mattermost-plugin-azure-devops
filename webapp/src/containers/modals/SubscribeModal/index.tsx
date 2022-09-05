@@ -29,7 +29,7 @@ const SubscribeModal = () => {
     const {
         formFields,
         errorState,
-        onChangeOfFormField,
+        onChangeFormField,
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
@@ -205,7 +205,19 @@ const SubscribeModal = () => {
                     (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
                 }
                 {
-                    !isAnyProjectLinked && (
+                    isAnyProjectLinked ? (
+                        Object.keys(subscriptionModal).map((field) => (
+                            <Form
+                                key={subscriptionModal[field as SubscriptionModalFields].label}
+                                fieldConfig={subscriptionModal[field as SubscriptionModalFields]}
+                                value={formFields[field as SubscriptionModalFields] ?? ''}
+                                optionsList={getDropDownOptions(field as SubscriptionModalFields)}
+                                onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                error={errorState[field as SubscriptionModalFields]}
+                                isDisabled={isLoading}
+                            />
+                        ))
+                    ) : (
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
@@ -213,20 +225,6 @@ const SubscribeModal = () => {
                             buttonAction={handleOpenLinkProjectModal}
                         />
                     )
-                }
-                {
-                    isAnyProjectLinked &&
-                    Object.keys(subscriptionModal).map((field) => (
-                        <Form
-                            key={subscriptionModal[field as SubscriptionModalFields].label}
-                            fieldConfig={subscriptionModal[field as SubscriptionModalFields]}
-                            value={formFields[field as SubscriptionModalFields] ?? ''}
-                            optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                            onChange={(newValue) => onChangeOfFormField(field as SubscriptionModalFields, newValue)}
-                            error={errorState[field as SubscriptionModalFields]}
-                            isDisabled={isLoading}
-                        />
-                    ))
                 }
             </>
         </Modal>

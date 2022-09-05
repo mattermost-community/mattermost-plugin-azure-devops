@@ -21,7 +21,7 @@ const LinkModal = () => {
         formFields,
         errorState,
         setSpecificFieldValue,
-        onChangeOfFormField,
+        onChangeFormField,
         resetFormFields,
         isErrorInFormValidation,
     } = useForm(linkProjectModal);
@@ -82,7 +82,7 @@ const LinkModal = () => {
                             key={linkProjectModal[field as LinkProjectModalFields].label}
                             fieldConfig={linkProjectModal[field as LinkProjectModalFields]}
                             value={formFields[field as LinkProjectModalFields] ?? null}
-                            onChange={(newValue) => onChangeOfFormField(field as LinkProjectModalFields, newValue)}
+                            onChange={(newValue) => onChangeFormField(field as LinkProjectModalFields, newValue)}
                             error={errorState[field as LinkProjectModalFields]}
                             isDisabled={isLoading}
                         />

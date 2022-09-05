@@ -17,7 +17,7 @@ func TestNewProjectList(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test NewProjectList",
+			description: "NewProjectList: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -41,14 +41,14 @@ func TestStoreProjectAtomicModify(t *testing.T) {
 		projectListFromJSON error
 	}{
 		{
-			description: "test StoreProjectAtomicModify when project is added successfully",
+			description: "StoreProjectAtomicModify: project is added successfully",
 		},
 		{
-			description:  "test StoreProjectAtomicModify when marshaling gives error",
+			description:  "StoreProjectAtomicModify: marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{
-			description:         "test StoreProjectAtomicModify when ProjectListFromJSON gives error",
+			description:         "StoreProjectAtomicModify: ProjectListFromJSON gives error",
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
@@ -81,10 +81,10 @@ func TestStoreProject(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test StoreProject when project is stored successfully",
+			description: "StoreProject: project is stored successfully",
 		},
 		{
-			description: "test StoreProject when project is not stored successfully",
+			description: "StoreProject: project is not stored successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -118,7 +118,7 @@ func TestAddProject(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test AddProject when project is added successfully",
+			description: "AddProject: project is added successfully",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -144,14 +144,14 @@ func TestGetProjects(t *testing.T) {
 		projectListError error
 	}{
 		{
-			description: "test GetProjects when projects are fetched successfully",
+			description: "GetProjects: projects are fetched successfully",
 		},
 		{
-			description: "test GetProjects when 'Load' gives error",
+			description: "GetProjects: 'Load' gives error",
 			err:         errors.New("mockError"),
 		},
 		{
-			description:      "test GetProjects when projects are not fetched successfully",
+			description:      "GetProjects: projects are not fetched successfully",
 			projectListError: errors.New("mockError"),
 		},
 	} {
@@ -188,10 +188,10 @@ func TestGetAllProjects(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test GetAllProjects when projects are fetched successfully",
+			description: "GetAllProjects: projects are fetched successfully",
 		},
 		{
-			description: "test GetAllProjects when projects are not fetched successfully",
+			description: "GetAllProjects: projects are not fetched successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -227,14 +227,14 @@ func TestDeleteProjectAtomicModify(t *testing.T) {
 		projectListFromJSON error
 	}{
 		{
-			description: "test DeleteProjectAtomicModify when project is added successfully",
+			description: "DeleteProjectAtomicModify: project is added successfully",
 		},
 		{
-			description:  "test DeleteProjectAtomicModify when marshaling gives error",
+			description:  "DeleteProjectAtomicModify: marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{
-			description:         "test DeleteProjectAtomicModify when ProjectListFromJSON gives error",
+			description:         "DeleteProjectAtomicModify: ProjectListFromJSON gives error",
 			projectListFromJSON: errors.New("mockError"),
 		},
 	} {
@@ -273,10 +273,10 @@ func TestDeleteProject(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test DeleteProject when project is deleted successfully",
+			description: "DeleteProject: project is deleted successfully",
 		},
 		{
-			description: "test DeleteProject when project is not deleted successfully",
+			description: "DeleteProject: project is not deleted successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -310,7 +310,7 @@ func TestDeleteProjectByKey(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test DeleteProjectByKey when project is deleted successfully",
+			description: "DeleteProjectByKey: project is deleted successfully",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -327,11 +327,11 @@ func TestProjectListFromJSON(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test NewProjectList",
+			description: "NewProjectList: valid",
 			bytes:       make([]byte, 0),
 		},
 		{
-			description: "test NewProjectList when unmarshaling gives error",
+			description: "NewProjectList: unmarshaling gives error",
 			bytes:       make([]byte, 10),
 			err:         errors.New("mockError"),
 		},

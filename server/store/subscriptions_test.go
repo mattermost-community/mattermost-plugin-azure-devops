@@ -17,7 +17,7 @@ func TestNewSubscriptionListt(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test NewSubscriptionList",
+			description: "NewSubscriptionList: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -45,14 +45,14 @@ func TestStoreSubscriptionAtomicModify(t *testing.T) {
 		subscriptionListFromJSON error
 	}{
 		{
-			description: "test StoreSubscriptionAtomicModify when subscription is added successfully",
+			description: "StoreSubscriptionAtomicModify: subscription is added successfully",
 		},
 		{
-			description:  "test StoreSubscriptionAtomicModify when marshaling gives error",
+			description:  "StoreSubscriptionAtomicModify: marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{
-			description:              "test StoreSubscriptionAtomicModify when SubscriptionListFromJSON gives error",
+			description:              "StoreSubscriptionAtomicModify: SubscriptionListFromJSON gives error",
 			subscriptionListFromJSON: errors.New("mockError"),
 		},
 	} {
@@ -85,10 +85,10 @@ func TestStoreSubscription(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test StoreSubscription when subscription is stored successfully",
+			description: "StoreSubscription: subscription is stored successfully",
 		},
 		{
-			description: "test StoreSubscription when subscription is not stored successfully",
+			description: "StoreSubscription: subscription is not stored successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -119,7 +119,7 @@ func TestAddSubscription(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test AddSubscription when subscription is added successfully",
+			description: "AddSubscription: subscription is added successfully",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -149,14 +149,14 @@ func TestGetSubscription(t *testing.T) {
 		subscriptionListError error
 	}{
 		{
-			description: "test GetSubscription when subscriptions are fetched successfully",
+			description: "GetSubscription: subscriptions are fetched successfully",
 		},
 		{
-			description: "test GetSubscription when 'Load' gives error",
+			description: "GetSubscription: 'Load' gives error",
 			err:         errors.New("mockError"),
 		},
 		{
-			description:           "test GetSubscription when subscriptions are not fetched successfully",
+			description:           "GetSubscription: subscriptions are not fetched successfully",
 			subscriptionListError: errors.New("mockError"),
 		},
 	} {
@@ -193,10 +193,10 @@ func TestGetAllSubscriptions(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test GetAllSubscriptions when subscriptions are fetched successfully",
+			description: "GetAllSubscriptions: subscriptions are fetched successfully",
 		},
 		{
-			description: "test GetAllSubscriptions when subscriptions are not fetched successfully",
+			description: "GetAllSubscriptions: subscriptions are not fetched successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -236,14 +236,14 @@ func TestDeleteSubscriptionAtomicModify(t *testing.T) {
 		subscriptionListFromJSON error
 	}{
 		{
-			description: "test DeleteSubscriptionAtomicModify when subscription is added successfully",
+			description: "DeleteSubscriptionAtomicModify: subscription is added successfully",
 		},
 		{
-			description:  "test DeleteSubscriptionAtomicModify when marshaling gives error",
+			description:  "DeleteSubscriptionAtomicModify: marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{
-			description:              "test DeleteSubscriptionAtomicModify when SubscriptionListFromJSON gives error",
+			description:              "DeleteSubscriptionAtomicModify: SubscriptionListFromJSON gives error",
 			subscriptionListFromJSON: errors.New("mockError"),
 		},
 	} {
@@ -279,10 +279,10 @@ func TestDeleteSubscription(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test DeleteSubscription when subscription is deleted successfully",
+			description: "DeleteSubscription: subscription is deleted successfully",
 		},
 		{
-			description: "test DeleteSubscription when subscription is not deleted successfully",
+			description: "DeleteSubscription: subscription is not deleted successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -318,7 +318,7 @@ func TestDeleteSubscriptionByKey(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test DeleteSubscriptionByKey when subscription is deleted successfully",
+			description: "DeleteSubscriptionByKey: subscription is deleted successfully",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -335,11 +335,11 @@ func TestSubscriptionListFromJSON(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test SubscriptionListFromJSON",
+			description: "SubscriptionListFromJSON: valid",
 			bytes:       make([]byte, 0),
 		},
 		{
-			description: "test SubscriptionListFromJSON when unmarshaling gives error",
+			description: "SubscriptionListFromJSON: unmarshaling gives error",
 			bytes:       make([]byte, 10),
 			err:         errors.New("mockError"),
 		},

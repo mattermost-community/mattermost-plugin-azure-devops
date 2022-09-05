@@ -31,54 +31,54 @@ func TestExecuteCommand(t *testing.T) {
 		patchAPICalls    func()
 	}{
 		{
-			description:      "empty command",
+			description:      "ExecuteCommand: empty command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops"},
 			ephemeralMessage: constants.InvalidCommand,
 		},
 		{
-			description:      "help command",
+			description:      "ExecuteCommand: help command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops help"},
 			ephemeralMessage: constants.HelpText,
 		},
 		{
-			description:      "connect command",
+			description:      "ExecuteCommand: connect command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops connect"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect),
 		},
 		{
-			description:      "connect command with user already connected",
+			description:      "ExecuteCommand: connect command with user already connected",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops connect"},
 			isConnected:      true,
 			ephemeralMessage: constants.UserAlreadyConnected,
 		},
 		{
-			description:      "disconnect command with user not connected",
+			description:      "ExecuteCommand: disconnect command with user not connected",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops disconnect"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{
-			description:      "disconnect command with user connected",
+			description:      "ExecuteCommand: disconnect command with user connected",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops disconnect", UserId: "mockUserID"},
 			isConnected:      true,
 			ephemeralMessage: constants.UserDisconnected,
 		},
 		{
-			description:      "link command",
+			description:      "ExecuteCommand: link command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops link"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{
-			description:      "subscribe command",
+			description:      "ExecuteCommand: subscribe command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops subscribe"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{
-			description:      "boards create command",
+			description:      "ExecuteCommand: boards create command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards create"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{
-			description:      "invalid command",
+			description:      "ExecuteCommand: invalid command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops abc"},
 			ephemeralMessage: constants.InvalidCommand,
 		},

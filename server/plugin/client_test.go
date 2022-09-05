@@ -27,12 +27,12 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test ClientGenerateOAuthToken",
+			description: "GenerateOAuthToken: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test ClientGenerateOAuthToken with error",
+			description: "GenerateOAuthToken: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -68,12 +68,12 @@ func TestCreateTask(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test CreateTask",
+			description: "CreateTask: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test CreateTask with error",
+			description: "CreateTask: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -113,12 +113,12 @@ func TestGetTask(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test GetTask",
+			description: "GetTask: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test GetTask with error",
+			description: "GetTask: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -154,12 +154,12 @@ func TestLink(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test Link",
+			description: "Link: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test Link with error",
+			description: "Link: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -195,12 +195,12 @@ func TestCreateSubscription(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test CreateSubscription",
+			description: "CreateSubscription: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test CreateSubscription with error",
+			description: "CreateSubscription: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -236,12 +236,12 @@ func TestDeleteSubscription(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test DeleteSubscription",
+			description: "DeleteSubscription: valid",
 			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test DeleteSubscription with error",
+			description: "DeleteSubscription: with error",
 			err:         errors.New("mock-error"),
 			statusCode:  http.StatusInternalServerError,
 		},
@@ -272,7 +272,7 @@ func TestCall(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test Call",
+			description: "Call: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

@@ -22,7 +22,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                             role='button'
                             tabIndex={0}
                             className='font-size-14 font-bold link-title'
-                            onKeyDown={() => onPressingEnterKey(event, () => onProjectTitleClick(projectDetails))}
+                            onKeyDown={(event) => onPressingEnterKey(event, () => onProjectTitleClick(projectDetails))}
                             onClick={() => onProjectTitleClick(projectDetails)}
                         >
                             {projectName}

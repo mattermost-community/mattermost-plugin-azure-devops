@@ -6,7 +6,7 @@ import globalModalSlice from './globalModal';
 import apiRequestCompletionSlice from './apiRequest';
 import openLinkModalSlice from './linkModal';
 import openSubscribeModalSlice from './subscribeModal';
-import openTaskModalReducer from './taskModal';
+import openTaskModalSlice from './taskModal';
 import projectDetailsSlice from './projectDetails';
 import userConnectedSlice from './userConnected';
 
@@ -14,7 +14,7 @@ const reducers = combineReducers({
     apiRequestCompletionSlice,
     globalModalSlice,
     openLinkModalSlice,
-    openTaskModalReducer,
+    openTaskModalSlice,
     openSubscribeModalSlice,
     projectDetailsSlice,
     userConnectedSlice,

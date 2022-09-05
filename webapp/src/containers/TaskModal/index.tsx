@@ -6,9 +6,12 @@ import Dropdown from 'components/dropdown';
 import Input from 'components/inputField';
 import Modal from 'components/modal';
 
-import usePluginApi from 'hooks/usePluginApi';
+import Constants from 'plugin_constants';
+
 import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getCreateTaskModalState} from 'selectors';
+
+import usePluginApi from 'hooks/usePluginApi';
 
 import {getOrganizationList, getProjectList} from 'utils';
 import plugin_constants from 'plugin_constants';
@@ -39,6 +42,7 @@ const TaskModal = () => {
             description: '',
         },
     });
+
     const [taskDetailsError, setTaskDetailsError] = useState<CreateTaskPayload>({
         organization: '',
         project: '',
@@ -157,6 +161,7 @@ const TaskModal = () => {
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
 
+    // Set modal field values
     useEffect(() => {
         if (!getChannelState().data) {
             usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});

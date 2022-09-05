@@ -215,6 +215,12 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 		req.Header.Add("Content-Type", contentType)
 	}
 
+	if isAccessTokenExpired, refreshToken := c.plugin.isAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
+		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, resp.StatusCode, err
@@ -231,13 +237,6 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	switch resp.StatusCode {
-	case http.StatusUnauthorized, http.StatusNonAuthoritativeInfo:
-		if refreshTokenErr := c.plugin.RefreshOAuthToken(mattermostUserID); refreshTokenErr != nil {
-			return nil, http.StatusInternalServerError, refreshTokenErr
-		}
-
-		_, statusCode, callErr := c.call(basePath, method, path, contentType, mattermostUserID, inBody, out, formValues)
-		return nil, statusCode, callErr
 	case http.StatusOK, http.StatusCreated:
 		if out != nil {
 			if err = json.Unmarshal(responseData, out); err != nil {

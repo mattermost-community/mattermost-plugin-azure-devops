@@ -179,7 +179,19 @@ const TaskModal = () => {
                     getOrganizationAndProjectState().isLoading && <CircularLoader/>
                 }
                 {
-                    !isAnyProjectLinked && (
+                    isAnyProjectLinked ? (
+                        Object.keys(plugin_constants.form.createTaskModal).map((field) => (
+                            <Form
+                                key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
+                                fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
+                                value={formFields[field as CreateTaskModalFields]}
+                                optionsList={getDropDownOptions(field as CreateTaskModalFields)}
+                                onChange={(newValue) => onChangeOfFormField(field as CreateTaskModalFields, newValue)}
+                                error={errorState[field as CreateTaskModalFields]}
+                                isDisabled={isLoading}
+                            />
+                        ))
+                    ) : (
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
@@ -187,20 +199,6 @@ const TaskModal = () => {
                             buttonAction={handleOpenLinkProjectModal}
                         />
                     )
-                }
-                {
-                    isAnyProjectLinked &&
-                    Object.keys(plugin_constants.form.createTaskModal).map((field) => (
-                        <Form
-                            key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
-                            fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
-                            value={formFields[field as CreateTaskModalFields]}
-                            optionsList={getDropDownOptions(field as CreateTaskModalFields)}
-                            onChange={(newValue) => onChangeOfFormField(field as CreateTaskModalFields, newValue)}
-                            error={errorState[field as CreateTaskModalFields]}
-                            isDisabled={isLoading}
-                        />
-                    ))
                 }
             </>
         </Modal>

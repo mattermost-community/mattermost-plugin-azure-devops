@@ -16,7 +16,7 @@ type DropdownProps = {
     error?: boolean | string;
 }
 
-const Dropdown = ({value, placeholder, options, onChange, customOption, loadingOptions, disabled = false, error='', required}: DropdownProps): JSX.Element => {
+const Dropdown = ({value, placeholder, options, onChange, customOption, loadingOptions, disabled = false, error = '', required}: DropdownProps): JSX.Element => {
     const [open, setOpen] = useState(false);
 
     // Handles closing the popover and updating the value when someone selects an option

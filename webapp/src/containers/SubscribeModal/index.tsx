@@ -20,7 +20,7 @@ import Utils, {getOrganizationList, getProjectList} from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
-    const {subscriptionModal} = plugin_constants.form
+    const {subscriptionModal} = plugin_constants.form;
 
     // Hooks
     const {

@@ -6,8 +6,6 @@ import Dropdown from 'components/dropdown';
 import Input from 'components/inputField';
 import Modal from 'components/modal';
 
-import Constants from 'plugin_constants';
-
 import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getCreateTaskModalState} from 'selectors';
 

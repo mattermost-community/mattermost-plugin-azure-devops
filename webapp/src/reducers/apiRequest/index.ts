@@ -12,7 +12,7 @@ export const apiRequestCompletionSlice = createSlice({
             state.requests = [...state.requests, action.payload];
         },
         resetApiRequestCompletionState: (state: ApiRequestCompletionState, action: PayloadAction<ApiServiceName>) => {
-            state.requests = state.requests.filter(request => request !== action.payload);
+            state.requests = state.requests.filter((request) => request !== action.payload);
         },
     },
 });

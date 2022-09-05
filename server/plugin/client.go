@@ -192,9 +192,12 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 		path = baseURL.String() + path
 	}
 
-	if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
-		if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
-			return nil, http.StatusInternalServerError, errRefreshingToken
+	// Check refresh token only for APIs other than OAuth
+	if basePath != constants.BaseOauthURL {
+		if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
+			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+				return nil, http.StatusInternalServerError, errRefreshingToken
+			}
 		}
 	}
 

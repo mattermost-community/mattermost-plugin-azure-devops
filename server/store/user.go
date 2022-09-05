@@ -4,7 +4,7 @@ type User struct {
 	MattermostUserID string
 	AccessToken      string
 	RefreshToken     string
-	ExpiresIn        string
+	ExpiresAt        int64
 }
 
 func (s *Store) StoreUser(user *User) error {

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
@@ -131,6 +133,54 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
+	if err := p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues); err != nil {
+		return err
+	}
+
+	p.API.PublishWebSocketEvent(
+		constants.WSEventConnect,
+		nil,
+		&model.WebsocketBroadcast{UserId: mattermostUserID},
+	)
+
+	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RefreshOAuthToken refreshes OAuth token
+func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error {
+	decodedRefreshToken, err := p.decode(refreshToken)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return err
+	}
+
+	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return err
+	}
+
+	oauthTokenFormValues := url.Values{
+		"client_assertion_type": {constants.ClientAssertionType},
+		"client_assertion":      {p.getConfiguration().AzureDevopsOAuthClientSecret},
+		"grant_type":            {constants.GrantTypeRefresh},
+		"assertion":             {string(decryptedRefreshToken)},
+		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
+	}
+
+	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+}
+
+// GenerateAndStoreOAuthToken stores oAuth token
+func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
@@ -149,28 +199,43 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		return err
 	}
 
+	tokenExpiryDurationInSeconds, err := strconv.Atoi(successResponse.ExpiresIn)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
+			return DMErr
+		}
+		return err
+	}
+
 	user := store.User{
 		MattermostUserID: mattermostUserID,
 		AccessToken:      p.encode(encryptedAccessToken),
 		RefreshToken:     p.encode(encryptedRefreshToken),
-		ExpiresIn:        successResponse.ExpiresIn,
+		ExpiresAt:        time.Now().UTC().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)).Unix(),
 	}
 
 	if err := p.Store.StoreUser(&user); err != nil {
 		return err
 	}
 
-	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
-		return err
+	return nil
+}
+
+// isAccessTokenExpired checks if a user's access token is expired
+func (p *Plugin) isAccessTokenExpired(mattermostUserID string) (bool, string) {
+	user, err := p.Store.LoadUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
+		return false, ""
 	}
 
-	p.API.PublishWebSocketEvent(
-		constants.WSEventConnect,
-		nil,
-		&model.WebsocketBroadcast{UserId: mattermostUserID},
-	)
+	// TODO: use middleware for all such places to check if user's oAuth is completed
+	// Consider some buffer for comparing expiry time
+	if user.AccessToken != "" && user.ExpiresAt < time.Now().UTC().Add(-(time.Minute*constants.TokenExpiryTimeBufferInMinutes)).Unix() {
+		return true, user.RefreshToken
+	}
 
-	return nil
+	return false, ""
 }
 
 // UserAlreadyConnected checks if a user is already connected

@@ -12,7 +12,7 @@ const BackButton = ({onClick}: BackButtonProps) => {
             <span
                 tabIndex={0}
                 className='link-title'
-                onKeyDown={() => onPressingEnterKey(event, onClick)}
+                onKeyDown={(event) => onPressingEnterKey(event, onClick)}
                 onClick={onClick}
             >
                 <i

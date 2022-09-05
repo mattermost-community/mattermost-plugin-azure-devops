@@ -84,7 +84,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                     tooltipText='Unlink project'
                     iconClassName='fa fa-chain-broken'
                     extraClass='project-details-unlink-button unlink-button'
-                    onClick={() => handleUnlinkProject()}
+                    onClick={handleUnlinkProject}
                 />
             </div>
             <div className='bottom-divider'>

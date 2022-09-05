@@ -20,7 +20,7 @@ func TestInitBotUser(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test initializing of bot",
+			description: "InitBotUser: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -48,7 +48,7 @@ func TestMessageWillBePosted(t *testing.T) {
 			isValid:     true,
 		},
 		{
-			description: "not a valid link",
+			description: "MessageWillBePosted: invalid link",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -84,37 +84,37 @@ func TestIsValidTaskLink(t *testing.T) {
 		isValid      bool
 	}{
 		{
-			description:  "test valid link 1",
+			description:  "IsValidTaskLink: valid link 1",
 			msg:          "https://dev.azure.com/abc/xyz/_workitems/edit/1/",
 			expectedData: []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 			isValid:      true,
 		},
 		{
-			description:  "test valid link 2",
+			description:  "IsValidTaskLink: valid link 2",
 			msg:          "https://dev.azure.com/abc/xyz/_workitems/edit/1",
 			expectedData: []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 			isValid:      true,
 		},
 		{
-			description:  "test valid link 3",
+			description:  "IsValidTaskLink: valid link 3",
 			msg:          "http://dev.azure.com/abc/xyz/_workitems/edit/1",
 			expectedData: []string{"http:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 			isValid:      true,
 		},
 		{
-			description: "test invalid link 1",
+			description: "IsValidTaskLink: invalid link 1",
 			msg:         "https://abc/xyz/_workitems/edit/1",
 		},
 		{
-			description: "test invalid link 2",
+			description: "IsValidTaskLink: invalid link 2",
 			msg:         "https://dev.azure.com/abc/xyz/_workitems/edit",
 		},
 		{
-			description: "test invalid link 3",
+			description: "IsValidTaskLink: invalid link 3",
 			msg:         "https://dev.azure.com/xyz/_workitems/edit/1",
 		},
 		{
-			description: "test invalid link 4",
+			description: "IsValidTaskLink: invalid link 4",
 			msg:         "http://dev.azure/abc/xyz/items/it/1",
 		},
 	} {

@@ -20,7 +20,7 @@ func TestPostTaskPreview(t *testing.T) {
 		linkData    []string
 	}{
 		{
-			description: "test CreateTask",
+			description: "CreateTask: valid",
 			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 		},
 	} {

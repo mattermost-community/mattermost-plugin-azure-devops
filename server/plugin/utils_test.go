@@ -52,7 +52,7 @@ func TestSendEphemeralPostForCommand(t *testing.T) {
 		args        model.CommandArgs
 	}{
 		{
-			description: "test sendEphemeralPostForCommand",
+			description: "SendEphemeralPostForCommand: valid",
 			text:        "mockText",
 			args: model.CommandArgs{
 				UserId:    "mockUserId",
@@ -82,7 +82,7 @@ func TestDM(t *testing.T) {
 		channelErr       *model.AppError
 	}{
 		{
-			description:      "test sending DM",
+			description:      "DM: valid",
 			mattermostUserID: "mockMattermostUserID",
 			format:           "mockFormat",
 			args: model.CommandArgs{
@@ -100,7 +100,7 @@ func TestDM(t *testing.T) {
 			postErr: nil,
 		},
 		{
-			description:      "test sending DM with channelErr",
+			description:      "DM: with channelErr",
 			mattermostUserID: "mockMattermostUserID",
 			format:           "mockFormat",
 			args: model.CommandArgs{
@@ -113,7 +113,7 @@ func TestDM(t *testing.T) {
 			},
 		},
 		{
-			description:      "test sending DM with postErr",
+			description:      "DM: with postErr",
 			mattermostUserID: "mockMattermostUserID",
 			format:           "mockFormat",
 			args: model.CommandArgs{
@@ -152,11 +152,11 @@ func TestEncode(t *testing.T) {
 		encrypted   string
 	}{
 		{
-			description: "test Encode",
+			description: "Encode: valid",
 			encrypted:   "mockData",
 		},
 		{
-			description: "test Encode with empty encrypted string",
+			description: "Encode: empty encrypted string",
 			encrypted:   "",
 		},
 	} {
@@ -175,11 +175,11 @@ func TestDecode(t *testing.T) {
 		decodingError error
 	}{
 		{
-			description: "test Decode",
+			description: "Decode: valid",
 			encoded:     "mockData",
 		},
 		{
-			description: "test Decode with empty encoded string",
+			description: "Decode: empty encoded string",
 			encoded:     "",
 		},
 	} {
@@ -204,23 +204,23 @@ func TestEncrypt(t *testing.T) {
 		secret         string
 	}{
 		{
-			description: "test Encrypt with length of secret equal to 0",
+			description: "Encrypt: length of secret equal to 0",
 			plain:       "mockPlain",
 		},
 		{
-			description:    "test Encrypt with aes.NewCipher give error",
+			description:    "Encrypt: aes.NewCipher give error",
 			secret:         "mockSecret",
 			expectedError:  "mockError",
 			newCipherError: errors.New("mockError"),
 		},
 		{
-			description:   "test Encrypt with cipher.NewGCM give error",
+			description:   "Encrypt: cipher.NewGCM give error",
 			secret:        "mockSecret",
 			expectedError: "mockError",
 			newGCMError:   errors.New("mockError"),
 		},
 		{
-			description:   "test Encrypt with io.ReadFull give error",
+			description:   "Encrypt: io.ReadFull give error",
 			secret:        "mockSecret",
 			expectedError: "mockError",
 			resdFullError: errors.New("mockError"),
@@ -262,17 +262,17 @@ func TestDecrypt(t *testing.T) {
 		secret         string
 	}{
 		{
-			description: "test Decrypt with length of secret equal to 0",
+			description: "Decrypt: length of secret equal to 0",
 			encrypted:   "mockPlain",
 		},
 		{
-			description:    "test Decrypt with aes.NewCipher give error",
+			description:    "Decrypt: aes.NewCipher give error",
 			secret:         "mockSecret",
 			expectedError:  "mockError",
 			newCipherError: errors.New("mockError"),
 		},
 		{
-			description:   "test Decrypt with cipher.NewGCM give error",
+			description:   "Decrypt: cipher.NewGCM give error",
 			secret:        "mockSecret",
 			expectedError: "mockError",
 			newGCMError:   errors.New("mockError"),
@@ -304,7 +304,7 @@ func TestGetSiteURL(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test GetSiteURL",
+			description: "GetSiteURL: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -324,7 +324,7 @@ func TestGetPluginURLPath(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test GetPluginURLPath",
+			description: "GetPluginURLPath: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -340,7 +340,7 @@ func TestGetPluginURL(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test GetPluginURLPath",
+			description: "GetPluginURLPath: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -363,19 +363,19 @@ func TestParseAuthToken(t *testing.T) {
 		encodedToken   string
 	}{
 		{
-			description:    "test ParseAuthToken when token is parsed successfully",
+			description:    "ParseAuthToken: token is parsed successfully",
 			encodedToken:   "mockEncodedToken",
 			decodedToken:   []byte("mockDecodedToken"),
 			decryptedToken: []byte("mockDecryptedToken"),
 		},
 		{
-			description:   "test ParseAuthToken when token is not decoded successfully",
+			description:   "ParseAuthToken: token is not decoded successfully",
 			expectedError: "mockError",
 			decodeError:   errors.New("mockError"),
 			encodedToken:  "mockEncodedToken",
 		},
 		{
-			description:   "test ParseAuthToken when token is not decrypted successfully",
+			description:   "ParseAuthToken: token is not decrypted successfully",
 			expectedError: "mockError",
 			decodedToken:  []byte("mockDecryptedToken"),
 			decryptError:  errors.New("mockError"),
@@ -419,18 +419,18 @@ func TestAddAuthorization(t *testing.T) {
 		loadUserErr       error
 	}{
 		{
-			description: "test AddAuthorization",
+			description: "AddAuthorization: valid",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
 			},
 			token: "mockToken",
 		},
 		{
-			description: "test AddAuthorization with error while loading user",
+			description: "AddAuthorization: error while loading user",
 			loadUserErr: errors.New("mockError"),
 		},
 		{
-			description: "test AddAuthorization with empty user",
+			description: "AddAuthorization: empty user",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
 			},
@@ -464,7 +464,7 @@ func TestIsProjectLinked(t *testing.T) {
 		project     serializers.ProjectDetails
 	}{
 		{
-			description: "test IsProjectLinked with project present in project list",
+			description: "IsProjectLinked: project present in project list",
 			projectList: []serializers.ProjectDetails{
 				{
 					ProjectName:      "mockProjectName",
@@ -477,7 +477,7 @@ func TestIsProjectLinked(t *testing.T) {
 			},
 		},
 		{
-			description: "test IsProjectLinked with project not present in project list",
+			description: "IsProjectLinked: project not present in project list",
 			projectList: []serializers.ProjectDetails{
 				{
 					ProjectName:      "mockProjectName",
@@ -557,7 +557,7 @@ func TestIsAnyProjectLinked(t *testing.T) {
 		projectErr       error
 	}{
 		{
-			description:      "test IsAnyProjectLinked",
+			description:      "IsAnyProjectLinked: valid",
 			mattermostUserID: "mockMattermostUserID",
 			projectList: []serializers.ProjectDetails{
 				{
@@ -567,11 +567,11 @@ func TestIsAnyProjectLinked(t *testing.T) {
 			},
 		},
 		{
-			description:      "test IsAnyProjectLinked with empty project list",
+			description:      "IsAnyProjectLinked: empty project list",
 			mattermostUserID: "mockMattermostUserID",
 		},
 		{
-			description:      "test IsAnyProjectLinked with error while getting project list",
+			description:      "IsAnyProjectLinked: error while getting project list",
 			mattermostUserID: "mockMattermostUserID",
 			projectErr:       errors.New("mockError"),
 		},
@@ -605,7 +605,7 @@ func TestGetConnectAccountFirstMessage(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test getConnectAccountFirstMessage",
+			description: "GetConnectAccountFirstMessage: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

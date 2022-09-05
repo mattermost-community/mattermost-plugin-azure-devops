@@ -14,6 +14,6 @@ export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
     return state['plugins-mattermost-plugin-azure-devops'].openLinkModalSlice;
 };
 
-export const getTaskModalState = (state: ReduxState): CreateTaskModalState => {
+export const getCreateTaskModalState = (state: ReduxState): CreateTaskModalState => {
     return state['plugins-mattermost-plugin-azure-devops'].openTaskModalSlice;
 };

@@ -9,6 +9,8 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/mattermost/mattermost-server/v5/model"
+
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
@@ -163,6 +165,14 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if projectList == nil {
+		_, _ = w.Write([]byte("[]"))
+		return
+	}
+
 	response, err := json.Marshal(projectList)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
@@ -271,6 +281,12 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
+
+	p.API.PublishWebSocketEvent(
+		constants.WSEventConnect,
+		nil,
+		&model.WebsocketBroadcast{UserId: mattermostUserID},
+	)
 
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

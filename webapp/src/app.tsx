@@ -3,9 +3,12 @@ import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-import {getGlobalModalState, getLinkModalState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getCreateTaskModalState} from 'selectors';
+
+import plugin_constants from 'plugin_constants';
 
 import {toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleShowTaskModal} from 'reducers/taskModal';
 import {resetGlobalModalState} from 'reducers/globalModal';
 
 // Global styles
@@ -18,10 +21,15 @@ const App = (): JSX.Element => {
     const usePlugin = usePluginApi();
     const dispatch = useDispatch();
 
+    // Check if user is connected on page reload
+    useEffect(() => {
+        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+    }, []);
+
     /**
      * When a command is issued on the Mattermost to open any modal
      * then here we first check if the user's account is connected or not
-     * If the account is connected, we dispatch the action to open the required modal
+     * if the account is connected we dispatch the action to open the required modal
      * otherwise we reset the action and don't open any modal
      */
     useEffect(() => {
@@ -32,6 +40,8 @@ const App = (): JSX.Element => {
             case 'linkProject':
                 dispatch(toggleShowLinkModal({isVisible: true, commandArgs}));
                 break;
+            case 'createBoardTask':
+                dispatch(toggleShowTaskModal({isVisible: true, commandArgs}));
             }
         } else {
             dispatch(resetGlobalModalState());
@@ -40,7 +50,10 @@ const App = (): JSX.Element => {
 
     useEffect(() => {
         dispatch(resetGlobalModalState());
-    }, [getLinkModalState(usePlugin.state).visibility]);
+    }, [
+        getLinkModalState(usePlugin.state).visibility,
+        getCreateTaskModalState(usePlugin.state).visibility,
+    ]);
 
     return <></>;
 };

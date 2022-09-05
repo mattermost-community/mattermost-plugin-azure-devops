@@ -23,7 +23,7 @@ import Utils from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
-    const {subscriptionModal} = plugin_constants.form
+    const {subscriptionModal} = plugin_constants.form;
 
     // Hooks
     const {

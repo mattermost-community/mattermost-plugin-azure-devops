@@ -13,20 +13,20 @@ type TooltipProps = {
 }
 
 const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) => (
-        <OverlayTrigger
-            placement={placement}
-            overlay={
-                <ReactTooltip
-                    id='tooltip'
-                    className='tooltip-wrapper'
-                    placement={placement}
-                >
-                    {tooltipContent}
-                </ReactTooltip>
-            }
-        >
-            {children}
-        </OverlayTrigger>
-    );
+    <OverlayTrigger
+        placement={placement}
+        overlay={
+            <ReactTooltip
+                id='tooltip'
+                className='tooltip-wrapper'
+                placement={placement}
+            >
+                {tooltipContent}
+            </ReactTooltip>
+        }
+    >
+        {children}
+    </OverlayTrigger>
+);
 
 export default Tooltip;

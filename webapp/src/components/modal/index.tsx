@@ -26,39 +26,39 @@ type ModalProps = {
 }
 
 const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false}: ModalProps) => (
-        <RBModal
-            show={show}
+    <RBModal
+        show={show}
+        onHide={onHide}
+        centered={true}
+        className={`modal ${className}`}
+    >
+        <ModalHeader
+            title={title}
+            showCloseIconInHeader={showCloseIconInHeader}
             onHide={onHide}
-            centered={true}
-            className={`modal ${className}`}
-        >
-            <ModalHeader
-                title={title}
-                showCloseIconInHeader={showCloseIconInHeader}
-                onHide={onHide}
-            />
-            <ModalLoader loading={loading}/>
-            <ModalBody>
-                <>
-                    <ModalSubTitleAndError
-                        subTitle={subTitle}
-                    />
-                    {children}
-                    <ModalSubTitleAndError
-                        error={error}
-                    />
-                </>
-            </ModalBody>
-            <ModalFooter
-                onHide={onHide}
-                onConfirm={onConfirm}
-                cancelBtnText={cancelBtnText}
-                confirmBtnText={confirmBtnText}
-                confirmDisabled={confirmDisabled}
-                cancelDisabled={cancelDisabled}
-                confirmAction={confirmAction}
-            />
-        </RBModal>
-    );
+        />
+        <ModalLoader loading={loading}/>
+        <ModalBody>
+            <>
+                <ModalSubTitleAndError
+                    subTitle={subTitle}
+                />
+                {children}
+                <ModalSubTitleAndError
+                    error={error}
+                />
+            </>
+        </ModalBody>
+        <ModalFooter
+            onHide={onHide}
+            onConfirm={onConfirm}
+            cancelBtnText={cancelBtnText}
+            confirmBtnText={confirmBtnText}
+            confirmDisabled={confirmDisabled}
+            cancelDisabled={cancelDisabled}
+            confirmAction={confirmAction}
+        />
+    </RBModal>
+);
 
 export default Modal;

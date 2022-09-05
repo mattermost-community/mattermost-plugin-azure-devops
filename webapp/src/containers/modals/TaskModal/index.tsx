@@ -19,7 +19,7 @@ import {getCreateTaskModalState} from 'selectors';
 import Utils from 'utils';
 
 const TaskModal = () => {
-    const {createTaskModal} = plugin_constants.form
+    const {createTaskModal} = plugin_constants.form;
 
     // Hooks
     const {

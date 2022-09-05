@@ -7,11 +7,11 @@ import {setApiRequestCompletionState} from 'reducers/apiRequest';
 import services from 'services';
 
 function usePluginApi() {
-    const state = useSelector((pluginState: PluginState) => pluginState);
+    const state = useSelector((pluginState: ReduxState) => pluginState);
     const dispatch = useDispatch();
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
-    const makeApiRequest = async (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<AnyAction> | any => {
+    const makeApiRequest = async (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<any> => {
         return dispatch(services.endpoints[serviceName].initiate(payload)); //TODO: add proper type here
     };
 

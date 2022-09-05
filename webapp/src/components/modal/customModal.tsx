@@ -9,13 +9,13 @@ type ModalProps = {
 }
 
 const CustomModal = ({show, onHide, children, className = ''}: ModalProps) => (
-        <RBModal
-            show={show}
-            onHide={onHide}
-            className={`modal ${className}`}
-        >
-            {children}
-        </RBModal>
-    );
+    <RBModal
+        show={show}
+        onHide={onHide}
+        className={`modal ${className}`}
+    >
+        {children}
+    </RBModal>
+);
 
 export default CustomModal;

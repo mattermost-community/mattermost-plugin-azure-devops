@@ -44,7 +44,7 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     };
 };
 
-export const getCreateTaskModalCommandArgs = (arr: Array<string>): TaskFieldsCommandArgs => {
+export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCommandArgs => {
     if (arr.length < 3) {
         return {
             title: '',
@@ -58,7 +58,7 @@ export const getCreateTaskModalCommandArgs = (arr: Array<string>): TaskFieldsCom
     };
 };
 
-export const onPressingEnterKey = (event: Event | undefined, func: () => void) => {
+export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement>, func: () => void) => {
     if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
         return;
     }

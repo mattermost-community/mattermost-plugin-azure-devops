@@ -14,7 +14,7 @@ import useForm from 'hooks/useForm';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 const LinkModal = () => {
-    const {linkProjectModal} = plugin_constants.form
+    const {linkProjectModal} = plugin_constants.form;
 
     // Hooks
     const {

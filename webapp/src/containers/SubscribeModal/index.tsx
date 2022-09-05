@@ -107,8 +107,8 @@ const SubscribeModal = () => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        resetModalState();
         dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: []}));
+        resetModalState();
     };
 
     // Return different types of error messages occurred on API call

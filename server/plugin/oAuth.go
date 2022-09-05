@@ -117,10 +117,6 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 
 // GenerateOAuthToken generates OAuth token after successful authorization
 func (p *Plugin) GenerateOAuthToken(code, state string) error {
-	if len(strings.Split(state, "_")) != 2 || strings.Split(state, "_")[1] == "" {
-		return errors.New("invalid state")
-	}
-
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {

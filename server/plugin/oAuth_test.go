@@ -34,22 +34,22 @@ func TestOAuthConnect(t *testing.T) {
 		statusCode       int
 	}{
 		{
-			description:      "test OAuthConnect",
+			description:      "OAuthConnect: valid",
 			mattermostUserID: "mockMattermostUserID",
 			statusCode:       http.StatusFound,
 		},
 		{
-			description: "test OAuthConnect without mattermostUserID",
+			description: "OAuthConnect: without mattermostUserID",
 			statusCode:  http.StatusUnauthorized,
 		},
 		{
-			description:      "test OAuthConnect with user already connected",
+			description:      "OAuthConnect: user already connected",
 			isConnected:      true,
 			mattermostUserID: "mockMattermostUserID",
 			statusCode:       http.StatusBadRequest,
 		},
 		{
-			description:      "test OAuthConnect with user already connected and failed to DM",
+			description:      "OAuthConnect: user already connected and failed to DM",
 			isConnected:      true,
 			DMErr:            &model.AppError{},
 			mattermostUserID: "mockMattermostUserID",
@@ -92,35 +92,35 @@ func TestOAuthComplete(t *testing.T) {
 		statusCode    int
 	}{
 		{
-			description: "test OAuthComplete",
+			description: "OAuthComplete: valid",
 			code:        "mockCode",
 			state:       "mock_State",
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test OAuthComplete without code",
+			description: "OAuthComplete: without code",
 			state:       "mock_State",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test OAuthComplete without state",
+			description: "OAuthComplete: without state",
 			code:        "mockCode",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test OAuthComplete with length of state not equal to 2",
+			description: "OAuthComplete: length of state not equal to 2",
 			code:        "mockCode",
 			state:       "mockState",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test OAuthComplete with state second word empty",
+			description: "OAuthComplete: state second word empty",
 			code:        "mockCode",
 			state:       "mockState_",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description:   "test OAuthComplete with oAuthTokenErr",
+			description:   "OAuthComplete: with oAuthTokenErr",
 			code:          "mockCode",
 			state:         "mock_State",
 			oAuthTokenErr: errors.New("mockError"),
@@ -163,19 +163,9 @@ func TestGenerateOAuthToken(t *testing.T) {
 		DMError          error
 	}{
 		{
-			description: "test GenerateOAuthToken",
+			description: "GenerateOAuthToken: valid",
 			code:        "mockCode",
 			state:       "mock_state",
-		},
-		{
-			description:   "test GenerateOAuthToken without state",
-			code:          "mockCode",
-			expectedError: "mockError",
-		},
-		{
-			description:   "test GenerateOAuthToken with length of state not equal to 2",
-			state:         "mockState",
-			expectedError: "mockError",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -216,43 +206,43 @@ func TestRefreshOAuthToken(t *testing.T) {
 		expectedError string
 	}{
 		{
-			description: "test RefreshOAuthToken when token is parsed successfully",
+			description: "RefreshOAuthToken: token is parsed successfully",
 			user: &serializers.User{
 				RefreshToken: "mockRefreshToken",
 			},
 		},
 		{
-			description:   "test RefreshOAuthToken when user is not loaded successfully",
+			description:   "RefreshOAuthToken: user is not loaded successfully",
 			loadUserErr:   errors.New("mockError"),
 			expectedError: "mockError",
 		},
 		{
-			description:   "test RefreshOAuthToken when user is not loaded successfully and DM error occurs",
+			description:   "RefreshOAuthToken: user is not loaded successfully and DM error occurs",
 			loadUserErr:   errors.New("mockError"),
 			DMErr:         errors.New("mockError"),
 			expectedError: "mockError",
 		},
 		{
-			description:   "test RefreshOAuthToken when token is not decoded successfully",
+			description:   "RefreshOAuthToken: token is not decoded successfully",
 			user:          &serializers.User{},
 			decodeError:   errors.New("mockError"),
 			expectedError: "mockError",
 		},
 		{
-			description:   "test RefreshOAuthToken when token is not decoded successfully and DM error occurs",
+			description:   "RefreshOAuthToken: token is not decoded successfully and DM error occurs",
 			user:          &serializers.User{},
 			decodeError:   errors.New("mockError"),
 			DMErr:         errors.New("mockError"),
 			expectedError: "mockError",
 		},
 		{
-			description:   "test RefreshOAuthToken when token is not decrypted successfully",
+			description:   "RefreshOAuthToken: token is not decrypted successfully",
 			user:          &serializers.User{},
 			decryptError:  errors.New("mockError"),
 			expectedError: "mockError",
 		},
 		{
-			description:   "test RefreshOAuthToken when token is not decrypted successfully and DM error occurs",
+			description:   "RefreshOAuthToken: token is not decrypted successfully and DM error occurs",
 			user:          &serializers.User{},
 			decryptError:  errors.New("mockError"),
 			DMErr:         errors.New("mockError"),
@@ -316,17 +306,17 @@ func TestStoreOAuthToken(t *testing.T) {
 		expectedError  string
 	}{
 		{
-			description: "test StoreOAuthToken",
+			description: "StoreOAuthToken: valid",
 			user:        &serializers.User{},
 		},
 		{
-			description:    "test StoreOAuthToken when storing user gives error",
+			description:    "StoreOAuthToken: storing user gives error",
 			user:           &serializers.User{},
 			storeUserError: errors.New("mockError"),
 			expectedError:  "mockError",
 		},
 		{
-			description:   "test StoreOAuthToken when DM gives error",
+			description:   "StoreOAuthToken: DM gives error",
 			user:          &serializers.User{},
 			DMErr:         errors.New("mockError"),
 			expectedError: "mockError",
@@ -379,11 +369,11 @@ func TestUserAlreadyConnected(t *testing.T) {
 		loadUserError error
 	}{
 		{
-			description: "test UserAlreadyConnected",
+			description: "UserAlreadyConnected: valid",
 			user:        &serializers.User{},
 		},
 		{
-			description:   "test UserAlreadyConnected when user is not loaded successfully",
+			description:   "UserAlreadyConnected: user is not loaded successfully",
 			loadUserError: errors.New("mockError"),
 		},
 	} {
@@ -406,7 +396,7 @@ func TestCloseBrowserWindowWithHTTPResponse(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test CloseBrowserWindowWithHTTPResponse",
+			description: "CloseBrowserWindowWithHTTPResponse: valid",
 			html:        "mockHTML",
 			statusCode:  http.StatusOK,
 		},

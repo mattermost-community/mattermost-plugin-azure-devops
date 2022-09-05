@@ -152,52 +152,12 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
-	if projectList == nil {
+	if len(projectList) == 0 {
 		if _, err = w.Write([]byte("[]")); err != nil {
 			p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		}
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if len(projectList) <= 0 {
-		_, _ = w.Write([]byte("[]"))
 		return
 	}
 

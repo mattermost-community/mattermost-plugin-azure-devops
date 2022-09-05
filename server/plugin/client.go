@@ -193,8 +193,8 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 	}
 
 	if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
-		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
-			return nil, http.StatusInternalServerError, err
+		if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+			return nil, http.StatusInternalServerError, errRefreshingToken
 		}
 	}
 

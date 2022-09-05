@@ -238,23 +238,6 @@ func (p *Plugin) IsAccessTokenExpired(mattermostUserID string) (bool, string) {
 	return false, ""
 }
 
-// isAccessTokenExpired checks if a user's access token is expired
-func (p *Plugin) isAccessTokenExpired(mattermostUserID string) bool {
-	user, err := p.Store.LoadUser(mattermostUserID)
-	if err != nil {
-		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
-		return false
-	}
-
-	// TODO: use middleware for all such places to check if user's oAuth is completed
-	// Consider some buffer for comparing expiry time
-	if user.AccessToken != "" && user.ExpiresAt < time.Now().UTC().Add(-(time.Minute*constants.TokenExpiryTimeBufferInMinutes)).Unix() {
-		return true
-	}
-
-	return false
-}
-
 // UserAlreadyConnected checks if a user is already connected
 func (p *Plugin) UserAlreadyConnected(mattermostUserID string) bool {
 	user, err := p.Store.LoadUser(mattermostUserID)

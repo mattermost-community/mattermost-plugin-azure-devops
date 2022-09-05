@@ -201,14 +201,6 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
 	response, err := json.Marshal(projectList)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())

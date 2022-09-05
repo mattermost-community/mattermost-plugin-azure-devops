@@ -44,4 +44,5 @@ const (
 	GetSubscriptionListError        = "Error getting Subscription List"
 	SubscriptionAlreadyPresent      = "Subscription is already present"
 	SubscriptionNotFound            = "Requested subscription does not exists"
+	GetChannelError                 = "Error in getting channels for team and user"
 )

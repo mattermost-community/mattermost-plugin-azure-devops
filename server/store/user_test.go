@@ -18,10 +18,10 @@ func TestStoreUser(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test StoreUser when user is stored successfully",
+			description: "StoreUser: user is stored successfully",
 		},
 		{
-			description: "test StoreUser when user is not stored successfully",
+			description: "StoreUser: user is not stored successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -53,10 +53,10 @@ func TestLoadUser(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test LoadUser when user is loaded successfully",
+			description: "LoadUser: user is loaded successfully",
 		},
 		{
-			description: "test LoadUser when user is not loaded successfully",
+			description: "LoadUser: user is not loaded successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -90,10 +90,10 @@ func TestDeleteUser(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test DeleteUser when user is deleted successfully",
+			description: "DeleteUser: user is deleted successfully",
 		},
 		{
-			description: "test DeleteUser when user is not deleted successfully",
+			description: "DeleteUser: user is not deleted successfully",
 			err:         errors.New("mockError"),
 		},
 	} {

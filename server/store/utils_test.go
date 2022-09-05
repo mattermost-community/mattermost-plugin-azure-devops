@@ -20,14 +20,14 @@ func TestEnsure(t *testing.T) {
 		storeError  error
 	}{
 		{
-			description: "test Ensure",
+			description: "Ensure: valid",
 		},
 		{
-			description: "test Ensure when load gives error",
+			description: "Ensure: load gives error",
 			loadError:   errors.New("mockError"),
 		},
 		{
-			description: "test Ensure when store gives error",
+			description: "Ensure: store gives error",
 			loadError:   ErrNotFound,
 			storeError:  errors.New("mockError"),
 		},
@@ -63,15 +63,15 @@ func TestLoadJSON(t *testing.T) {
 		loadError   error
 	}{
 		{
-			description: "test LoadJSON",
+			description: "LoadJSON: valid",
 			data:        []byte{},
 		},
 		{
-			description: "test LoadJSON when load gives error",
+			description: "LoadJSON: load gives error",
 			loadError:   errors.New("mockError"),
 		},
 		{
-			description: "test LoadJSON when data is nil",
+			description: "LoadJSON: data is nil",
 			data:        nil,
 		},
 	} {
@@ -105,14 +105,14 @@ func TestStoreJSON(t *testing.T) {
 		marshalError error
 	}{
 		{
-			description: "test StoreJSON",
+			description: "StoreJSON: valid",
 		},
 		{
-			description:  "test StoreJSON when marshaling gives error",
+			description:  "StoreJSON: marshaling gives error",
 			marshalError: errors.New("mockError"),
 		},
 		{
-			description: "test StoreJSON when store gives error",
+			description: "StoreJSON: store gives error",
 			storeError:  errors.New("mockError"),
 		},
 	} {

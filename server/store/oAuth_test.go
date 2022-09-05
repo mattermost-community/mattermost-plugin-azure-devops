@@ -17,10 +17,10 @@ func TestStoreOAuthState(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test StoreOAuthState when oAuth state is stored successfully",
+			description: "StoreOAuthState: oAuth state is stored successfully",
 		},
 		{
-			description: "test StoreOAuthState when oAuth is not stored successfully",
+			description: "StoreOAuthState: oAuth state is not stored successfully",
 			err:         errors.New("mockError"),
 		},
 	} {
@@ -52,14 +52,14 @@ func TestVerifyOAuthState(t *testing.T) {
 		err         error
 	}{
 		{
-			description: "test VerifyOAuthState when oAuth is verified successfully",
+			description: "VerifyOAuthState: oAuth state is verified successfully",
 		},
 		{
-			description: "test VerifyOAuthState when oAuth is not verified successfully",
+			description: "VerifyOAuthState: oAuth state is not verified successfully",
 			err:         errors.New("mockError"),
 		},
 		{
-			description: "test VerifyOAuthState when oAuth is not found",
+			description: "VerifyOAuthState: oAuth state is not found",
 			err:         ErrNotFound,
 		},
 	} {

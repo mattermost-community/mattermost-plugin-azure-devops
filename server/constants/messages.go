@@ -48,4 +48,5 @@ const (
 	SubscriptionNotFound            = "Requested subscription does not exists"
 	InvalidChannelID                = "Invalid channel ID"
 	DeleteSubscriptionError         = "Error in deleting subscription"
+	GetChannelError                 = "Error in getting channels for team and user"
 )

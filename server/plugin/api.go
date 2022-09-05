@@ -381,8 +381,8 @@ func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) 
 
 	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
 	if channelErr != nil {
-		p.API.LogError("Error in getting channels for team and user", "Error", channelErr.Error())
-		http.Error(w, fmt.Sprintf("Error in getting channels for team and user. Error: %s", channelErr.Error()), channelErr.StatusCode)
+		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
+		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetChannelError, channelErr.Error()), channelErr.StatusCode)
 		return
 	}
 

@@ -173,7 +173,10 @@ const SubscribeModal = () => {
             setProjectOptions(getProjectList(projectList));
             setOrganizationOptions(getOrganizationList(projectList));
         }
-    }, [usePlugin.state]);
+    }, [
+        getChannelState().isLoading,
+        getProjectState().isLoading,
+    ]);
 
     const APIResponse = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, subscriptionDetails);
 

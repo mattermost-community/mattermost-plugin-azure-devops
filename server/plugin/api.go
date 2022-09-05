@@ -196,7 +196,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if projectList == nil {
+	if len(projectList) <= 0 {
 		_, _ = w.Write([]byte("[]"))
 		return
 	}

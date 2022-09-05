@@ -3,12 +3,14 @@ import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-import {getGlobalModalState, getLinkModalState, getCreateTaskModalState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState} from 'selectors';
+
+import {toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleShowTaskModal} from 'reducers/taskModal';
 
 import plugin_constants from 'plugin_constants';
 
-import {toggleShowLinkModal} from 'reducers/linkModal';
-import {toggleShowTaskModal} from 'reducers/taskModal';
 import {resetGlobalModalState} from 'reducers/globalModal';
 
 // Global styles
@@ -40,6 +42,9 @@ const App = (): JSX.Element => {
             case 'linkProject':
                 dispatch(toggleShowLinkModal({isVisible: true, commandArgs}));
                 break;
+            case 'subscribeProject':
+                dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs}));
+                break;
             case 'createBoardTask':
                 dispatch(toggleShowTaskModal({isVisible: true, commandArgs}));
             }
@@ -53,6 +58,7 @@ const App = (): JSX.Element => {
     }, [
         getLinkModalState(usePlugin.state).visibility,
         getCreateTaskModalState(usePlugin.state).visibility,
+        getSubscribeModalState(usePlugin.state).visibility,
     ]);
 
     return <></>;

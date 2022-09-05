@@ -1,13 +1,14 @@
 /**
  * Utils
 */
-
 import Constants from 'plugin_constants';
+
+import getErrorMessage from './errorHandling';
 
 const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string} => {
     const url = new URL(window.location.href);
     const baseUrl = `${url.protocol}//${url.host}`;
-    const pluginUrl = `${baseUrl}/plugins/${Constants.pluginId}`;
+    const pluginUrl = `${baseUrl}/plugins/${Constants.common.pluginId}`;
     const pluginApiBaseUrl = `${pluginUrl}/api/v1`;
     const mattermostApiBaseUrl = `${baseUrl}/api/v4`;
 
@@ -64,6 +65,26 @@ export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement>, 
     func();
 };
 
+export const getProjectList = (data: ProjectDetails[]) => {
+    const projectList: LabelValuePair[] = [];
+    data.map((project) => projectList.push({value: project.projectName, label: project.projectName}));
+    return projectList;
+};
+
+export const getOrganizationList = (data: ProjectDetails[]) => {
+    const uniqueOrganization: Record<string, boolean> = {};
+    const organizationList: LabelValuePair[] = [];
+    data.map((organization) => {
+        if (!(organization.organizationName in uniqueOrganization)) {
+            uniqueOrganization[organization.organizationName] = true;
+            organizationList.push({value: organization.organizationName, label: organization.organizationName});
+        }
+        return organizationList;
+    });
+    return organizationList;
+};
+
 export default {
     getBaseUrls,
+    getErrorMessage,
 };

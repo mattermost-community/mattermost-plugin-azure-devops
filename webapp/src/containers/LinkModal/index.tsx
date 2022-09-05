@@ -111,6 +111,7 @@ const LinkModal = () => {
                     value={projectDetails.organization}
                     onChange={onOrganizationChange}
                     error={errorState.organization}
+                    disabled={isLoading}
                     required={true}
                 />
                 <Input
@@ -118,8 +119,9 @@ const LinkModal = () => {
                     placeholder='Project name'
                     value={projectDetails.project}
                     onChange={onProjectChange}
-                    required={true}
+                    disabled={isLoading}
                     error={errorState.project}
+                    required={true}
                 />
             </>
         </Modal>

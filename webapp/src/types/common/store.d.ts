@@ -15,6 +15,7 @@ type GlobalModalState = {
 type GlobalModalActionPayload = {
     isVisible: boolean
     commandArgs: Array<string>
+    isActionDone?: boolean
 }
 
 type LinkProjectModalState = {
@@ -22,6 +23,11 @@ type LinkProjectModalState = {
     organization: string,
     project: string,
     isLinked: boolean,
+}
+
+type SubscribeModalState = {
+    visibility: boolean,
+    isCreated: boolean,
 }
 
 type CreateTaskCommandArgs = {
@@ -32,4 +38,12 @@ type CreateTaskCommandArgs = {
 type CreateTaskModalState = {
     visibility: boolean
     commandArgs: CreateTaskCommandArgs
+}
+
+type ApiQueriesState = {
+    [key: string]: Record<string, string>
+}
+
+type ApiRequestCompletionState = {
+    requests: ApiServiceName[]
 }

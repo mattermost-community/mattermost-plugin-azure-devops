@@ -9,7 +9,8 @@ const (
 	TokenExpiryTimeBufferInMinutes       = 5
 
 	// KV store prefix keys
-	OAuthPrefix   = "oAuth_%s"
-	ProjectKey    = "%s_%s"
-	ProjectPrefix = "project_list"
+	OAuthPrefix        = "oAuth_%s"
+	ProjectKey         = "%s_%s"
+	ProjectPrefix      = "project_list"
+	SubscriptionPrefix = "subscription_list"
 )

@@ -4,7 +4,7 @@
  */
 
 export interface PluginRegistry {
-    registerSlashCommandWillBePostedHook(slashCommandWillBePostedHook: (message: any, contextArgs: any) => Promise<{}>);
+    registerSlashCommandWillBePostedHook(slashCommandWillBePostedHook: (message: any, contextArgs: any) => Promise<{ message: any; args: any; }> | { message: any; args: any; });
     registerPostTypeComponent(typeName: string, component: React.ElementType);
     registerReducer(reducer);
     registerRootComponent(component: ReactDOM);

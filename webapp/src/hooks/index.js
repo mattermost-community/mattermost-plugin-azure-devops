@@ -27,6 +27,7 @@ export default class Hooks {
                 args: contextArgs,
             });
         }
+
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
             const commandArgs = getCommandArgs(commandTrimmed);
             this.store.dispatch(setGlobalModalState({modalId: 'createBoardTask', commandArgs}));
@@ -34,6 +35,15 @@ export default class Hooks {
                 message,
                 args: contextArgs,
             });
+        }
+
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops subscribe')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs}));
+            return {
+                message,
+                args: contextArgs,
+            };
         }
 
         return Promise.resolve({

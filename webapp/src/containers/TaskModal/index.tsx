@@ -1,47 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {GlobalState} from 'mattermost-redux/types/store';
 
 import Dropdown from 'components/dropdown';
 import Input from 'components/inputField';
 import Modal from 'components/modal';
-
-import Constants from 'plugin_constants';
 
 import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getCreateTaskModalState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-// TODO: fetch the organization and project options from API later.
-const organizationOptions = [
-    {
-        value: 'bs-test',
-        label: 'bs-test',
-    },
-    {
-        value: 'brightscout-test',
-        label: 'brightscout-test',
-    },
-];
-
-const projectOptions = [
-    {
-        value: 'bs',
-        label: 'bs',
-    },
-    {
-        value: 'bs-2',
-        label: 'bs-2',
-    },
-    {
-        value: 'bs-3',
-        label: 'bs-3',
-    },
-    {
-        value: 'azure-test',
-        label: 'azure-test',
-    },
-];
+import {getOrganizationList, getProjectList} from 'utils';
+import plugin_constants from 'plugin_constants';
 
 const taskTypeOptions = [
     {
@@ -79,10 +50,13 @@ const TaskModal = () => {
             description: '',
         },
     });
+    const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
+    const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
 
     // Hooks
     const usePlugin = usePluginApi();
     const dispatch = useDispatch();
+    const {entities} = useSelector((state: GlobalState) => state);
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
@@ -167,23 +141,55 @@ const TaskModal = () => {
 
     // Make POST api request to create a task
     const createTask = async () => {
-        const createTaskResponse = await usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails);
+        const createTaskResponse = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails);
         if (createTaskResponse) {
             resetModalState();
         }
     };
 
+    // Get ProjectList State
+    const getProjectState = () => {
+        const {isLoading, isSuccess, isError, data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+        return {isLoading, isSuccess, isError, data: data as ProjectDetails[]};
+    };
+
+    // Get ChannelList State
+    const getChannelState = () => {
+        const {isLoading, isSuccess, isError, data} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
+        return {isLoading, isSuccess, isError, data: data as ChannelList[]};
+    };
+
+    // Set modal field values
+    useEffect(() => {
+        if (!getChannelState().data) {
+            usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName, {teamId: entities.teams.currentTeamId});
+        }
+        if (!getProjectState().data) {
+            usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+        }
+    }, []);
+
+    useEffect(() => {
+        const projectList = getProjectState().data;
+        if (projectList) {
+            setProjectOptions(getProjectList(projectList));
+            setOrganizationOptions(getOrganizationList(projectList));
+        }
+    }, [usePlugin.state]);
+
+    useEffect(() => {
+        // Pre-select the dropdown value in case of single option.
+        if (organizationOptions.length === 1) {
+            setTaskDetails((value) => ({...value, organization: organizationOptions[0].value}));
+        }
+        if (projectOptions.length === 1) {
+            setTaskDetails((value) => ({...value, project: projectOptions[0].value}));
+        }
+    }, [projectOptions, organizationOptions]);
+
     // Set modal field values
     useEffect(() => {
         if (getCreateTaskModalState(usePlugin.state).visibility) {
-            // Pre-select the dropdown value in case of single option.
-            if (organizationOptions.length === 1) {
-                setTaskDetails({...taskDetails, organization: organizationOptions[0].value});
-            }
-            if (projectOptions.length === 1) {
-                setTaskDetails({...taskDetails, project: projectOptions[0].value});
-            }
-
             setTaskDetails({
                 ...taskDetails,
                 fields: {
@@ -194,7 +200,7 @@ const TaskModal = () => {
         }
     }, [getCreateTaskModalState(usePlugin.state).visibility]);
 
-    const apiResponse = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails);
+    const apiResponse = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, taskDetails);
     return (
         <Modal
             show={getCreateTaskModalState(usePlugin.state).visibility}

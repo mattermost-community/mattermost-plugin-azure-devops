@@ -18,8 +18,7 @@ type CardProps = {
     onEdit?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-const Card = ({cardHeader, cardSubHeader, cardBody, onDelete, onEdit}: CardProps) => {
-    return (
+const Card = ({cardHeader, cardSubHeader, cardBody, onDelete, onEdit}: CardProps) => (
         <div className='details-card'>
             <div className='details-card__header d-flex align-items-center justify-content-between'>
                 <h3 className='details-card__header-text text-ellipsis'>
@@ -73,6 +72,5 @@ const Card = ({cardHeader, cardSubHeader, cardBody, onDelete, onEdit}: CardProps
             </div>
         </div>
     );
-};
 
 export default Card;

@@ -7,18 +7,14 @@ import {onPressingEnterKey} from 'utils';
 
 import './styles.scss';
 
-type IconColor = 'danger'
-
 type IconButtonProps = {
     iconClassName: string
     tooltipText: string
-    iconColor?: IconColor
     extraClass?: string
     onClick?: () => void
 }
 
-const IconButton = ({tooltipText, iconClassName, extraClass = '', iconColor, onClick}: IconButtonProps) => {
-    return (
+const IconButton = ({tooltipText, iconClassName, extraClass = '', onClick}: IconButtonProps) => (
         <Tooltip tooltipContent={tooltipText}>
             <Button
                 variant='outline-danger'
@@ -36,6 +32,5 @@ const IconButton = ({tooltipText, iconClassName, extraClass = '', iconColor, onC
             </Button>
         </Tooltip>
     );
-};
 
 export default IconButton;

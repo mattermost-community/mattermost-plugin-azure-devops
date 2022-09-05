@@ -3,7 +3,7 @@ type PluginState = {
 }
 
 type ApiRequestCompletionState = {
-    requestes: ApiServiceName[]
+    requests: ApiServiceName[]
 }
 
 type GlobalModalState = {

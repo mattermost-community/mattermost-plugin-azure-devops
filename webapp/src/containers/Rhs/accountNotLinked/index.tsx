@@ -11,7 +11,6 @@ const AccountNotLinked = () => {
     };
 
     return (
-        <>
             <EmptyState
                 title='No account connected'
                 subTitle={{text: 'Connect your account by clicking the button below'}}
@@ -20,7 +19,6 @@ const AccountNotLinked = () => {
                 icon='azure'
                 wrapperExtraClass='margin-top-80'
             />
-        </>
     );
 };
 

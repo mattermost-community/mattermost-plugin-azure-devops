@@ -11,8 +11,7 @@ type ProjectCardProps = {
     projectDetails: ProjectDetails
 }
 
-const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, projectName}, projectDetails, handleUnlinkProject}: ProjectCardProps) => {
-    return (
+const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, projectName}, projectDetails, handleUnlinkProject}: ProjectCardProps) => (
         <BaseCard>
             <div className='d-flex'>
                 <div className='project-details'>
@@ -41,7 +40,6 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
             </div>
         </BaseCard>
     );
-};
 
 export default ProjectCard;
 

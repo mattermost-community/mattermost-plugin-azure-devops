@@ -23,6 +23,8 @@ import Utils from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
+    const {subscriptionModal} = plugin_constants.form
+
     // Hooks
     const {
         formFields,
@@ -31,7 +33,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(plugin_constants.form.subscriptionModal);
+    } = useForm(subscriptionModal);
     const {
         getApiState,
         makeApiRequest,
@@ -39,7 +41,7 @@ const SubscribeModal = () => {
         state,
     } = usePluginApi();
     const {visibility} = getSubscribeModalState(state);
-    const {entities} = useSelector((reduxState: GlobalState) => reduxState);
+    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const dispatch = useDispatch();
 
     // State variables
@@ -75,7 +77,7 @@ const SubscribeModal = () => {
     const getChannelState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
             plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: entities.teams.currentTeamId},
+            {teamId: currentTeamId},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
@@ -88,7 +90,7 @@ const SubscribeModal = () => {
         case 'project':
             return projectOptions;
         case 'eventType':
-            return plugin_constants.form.subscriptionModal.eventType.optionsList;
+            return subscriptionModal.eventType.optionsList;
         case 'channelID':
             return channelOptions;
         default:
@@ -135,13 +137,13 @@ const SubscribeModal = () => {
     useEffect(() => {
         makeApiRequest(
             plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: entities.teams.currentTeamId},
+            {teamId: currentTeamId},
         );
     }, [visibility]);
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFields, string>, 'organization' | 'project' | 'channelID'> = {
+        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
             organization: '',
             project: '',
             channelID: '',
@@ -214,11 +216,11 @@ const SubscribeModal = () => {
                 }
                 {
                     isAnyProjectLinked &&
-                    Object.keys(plugin_constants.form.subscriptionModal).map((field) => (
+                    Object.keys(subscriptionModal).map((field) => (
                         <Form
-                            key={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields].label}
-                            fieldConfig={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields]}
-                            value={formFields[field as SubscriptionModalFields]}
+                            key={subscriptionModal[field as SubscriptionModalFields].label}
+                            fieldConfig={subscriptionModal[field as SubscriptionModalFields]}
+                            value={formFields[field as SubscriptionModalFields] ?? ''}
                             optionsList={getDropDownOptions(field as SubscriptionModalFields)}
                             onChange={(newValue) => onChangeOfFormField(field as SubscriptionModalFields, newValue)}
                             error={errorState[field as SubscriptionModalFields]}

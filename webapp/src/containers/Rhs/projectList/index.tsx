@@ -19,7 +19,7 @@ const ProjectList = () => {
 
     // Hooks
     const dispatch = useDispatch();
-    const {getApiState, makeApiRequest, makeApiRequestWithCompletionStatus} = usePluginApi();
+    const {getApiState, makeApiRequestWithCompletionStatus} = usePluginApi();
 
     // Navigates to project details view
     const handleProjectTitleClick = (projectDetails: ProjectDetails) => {
@@ -81,10 +81,10 @@ const ProjectList = () => {
             {isLoading && <LinearLoader/> }
             {
                 isSuccess && (
-                    projectsList && projectsList.length > 0 ?
+                    projectsList?.length > 0 ?
                         <>
                             {
-                                projectsList?.map((item: ProjectDetails) => (
+                                projectsList.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}

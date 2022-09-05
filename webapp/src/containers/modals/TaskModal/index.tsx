@@ -19,6 +19,8 @@ import {getCreateTaskModalState} from 'selectors';
 import Utils from 'utils';
 
 const TaskModal = () => {
+    const {createTaskModal} = plugin_constants.form
+
     // Hooks
     const {
         formFields,
@@ -27,7 +29,7 @@ const TaskModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(plugin_constants.form.createTaskModal);
+    } = useForm(createTaskModal);
     const {getApiState, makeApiRequestWithCompletionStatus, state} = usePluginApi();
     const dispatch = useDispatch();
 
@@ -56,7 +58,7 @@ const TaskModal = () => {
         case 'project':
             return projectOptions;
         case 'type':
-            return plugin_constants.form.createTaskModal.type.optionsList;
+            return createTaskModal.type.optionsList;
         default:
             return [];
         }
@@ -121,7 +123,7 @@ const TaskModal = () => {
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFields, string>, 'organization' | 'project'> = {
+        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project'> = {
             organization: '',
             project: '',
         };
@@ -192,11 +194,11 @@ const TaskModal = () => {
                 }
                 {
                     isAnyProjectLinked &&
-                    Object.keys(plugin_constants.form.createTaskModal).map((field) => (
+                    Object.keys(createTaskModal).map((field) => (
                         <Form
-                            key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
-                            fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
-                            value={formFields[field as CreateTaskModalFields]}
+                            key={createTaskModal[field as CreateTaskModalFields].label}
+                            fieldConfig={createTaskModal[field as CreateTaskModalFields]}
+                            value={formFields[field as CreateTaskModalFields] ?? ''}
                             optionsList={getDropDownOptions(field as CreateTaskModalFields)}
                             onChange={(newValue) => onChangeOfFormField(field as CreateTaskModalFields, newValue)}
                             error={errorState[field as CreateTaskModalFields]}

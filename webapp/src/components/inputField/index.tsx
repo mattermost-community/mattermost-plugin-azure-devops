@@ -21,7 +21,7 @@ const Input = ({type = 'text', label, placeholder = '', value = '', onChange, er
             {label && <label className='form-group__label'>{label}</label>}
             <FormControl
                 type={type}
-                value={value}
+                value={value ?? ''}
                 onChange={(e) => onChange?.(e as React.ChangeEvent<HTMLInputElement>)}
                 disabled={disabled}
                 className={`form-group__control ${error && 'form-group__control--err'}`}

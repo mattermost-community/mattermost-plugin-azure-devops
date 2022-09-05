@@ -12,9 +12,7 @@ const Rhs = (): JSX.Element => {
 
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
-            {
-                !isUserAccountConnected() && <AccountNotLinked/>
-            }
+            {!isUserAccountConnected() && <AccountNotLinked/>}
             {
                 isUserAccountConnected() && (
                     getProjectDetailsState(state).projectID ?

@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 const initialState: ApiRequestCompletionState = {
-    requestes: [],
+    requests: [],
 };
 
 export const apiRequestCompletionSlice = createSlice({
@@ -9,10 +9,10 @@ export const apiRequestCompletionSlice = createSlice({
     initialState,
     reducers: {
         setApiRequestCompletionState: (state: ApiRequestCompletionState, action: PayloadAction<ApiServiceName>) => {
-            state.requestes = [...state.requestes, action.payload];
+            state.requests = [...state.requests, action.payload];
         },
         resetApiRequestCompletionState: (state: ApiRequestCompletionState, action: PayloadAction<ApiServiceName>) => {
-            state.requestes = state.requestes.filter(((request) => request !== action.payload));
+            state.requests = state.requests.filter(((request) => request !== action.payload));
         },
     },
 });

@@ -11,8 +11,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projectName, eventType, channelName}, subscriptionDetails}: SubscriptionCardProps) => {
-    return (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projectName, eventType, channelName}, subscriptionDetails}: SubscriptionCardProps) => (
         <BaseCard>
             <div className='d-flex'>
                 <div className='project-details'>
@@ -41,6 +40,5 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projec
             </div>
         </BaseCard>
     );
-};
 
 export default SubscriptionCard;

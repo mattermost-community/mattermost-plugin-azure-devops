@@ -35,7 +35,7 @@ const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onCh
             <Input
                 type='text'
                 placeholder={label}
-                value={value}
+                value={value ?? ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
                 error={error}
                 required={validations?.isRequired as boolean}

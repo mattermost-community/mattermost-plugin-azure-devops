@@ -6,8 +6,7 @@ type BackButtonProps = {
     onClick: () => void
 }
 
-const BackButton = ({onClick}: BackButtonProps) => {
-    return (
+const BackButton = ({onClick}: BackButtonProps) => (
         <p className='margin-bottom-25'>
             <span
                 tabIndex={0}
@@ -22,6 +21,5 @@ const BackButton = ({onClick}: BackButtonProps) => {
             </span>
         </p>
     );
-};
 
 export default BackButton;

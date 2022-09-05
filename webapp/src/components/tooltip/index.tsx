@@ -12,8 +12,7 @@ type TooltipProps = {
     placement?: Placement
 }
 
-const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) => {
-    return (
+const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) => (
         <OverlayTrigger
             placement={placement}
             overlay={
@@ -29,6 +28,5 @@ const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) =>
             {children}
         </OverlayTrigger>
     );
-};
 
 export default Tooltip;

@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import SubscriptionCard from 'components/card/subscription';
 import IconButton from 'components/buttons/iconButton';
@@ -8,13 +8,13 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {resetProjectDetails} from 'reducers/projectDetails';
+import { resetProjectDetails } from 'reducers/projectDetails';
 import plugin_constants from 'plugin_constants';
 import EmptyState from 'components/emptyState';
-import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
-import {getSubscribeModalState} from 'selectors';
+import { toggleIsSubscribed, toggleShowSubscribeModal } from 'reducers/subscribeModal';
+import { getSubscribeModalState } from 'selectors';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
-import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
+import { toggleIsLinkedProjectListChanged } from 'reducers/linkModal';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
     // State variables
@@ -24,7 +24,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Hooks
     const dispatch = useDispatch();
-    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
+    const { makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state } = usePluginApi();
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -32,7 +32,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: []}));
+        dispatch(toggleShowSubscribeModal({ isVisible: true, commandArgs: [] }));
     };
 
     // Opens a confirmation modal to confirm unlinking a project
@@ -102,13 +102,13 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         }
     }, [getSubscribeModalState(state).isCreated]);
 
-    const project: FetchSubscriptionList = {project: projectDetails.projectName};
-    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+    const project: FetchSubscriptionList = { project: projectDetails.projectName };
+    const { data, isLoading } = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
     const subscriptionList = data as SubscriptionDetails[];
 
     return (
         <>
-            <BackButton onClick={handleResetProjectDetails}/>
+            <BackButton onClick={handleResetProjectDetails} />
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
@@ -127,7 +127,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 description='Are you sure you want to delete this subscription ?'
                 title='Confirm Delete Subscription'
             />
-            {isLoading && <LinearLoader/>}
+            {isLoading && <LinearLoader />}
             <div className='d-flex'>
                 <p className='rhs-title'>{projectDetails.projectName}</p>
                 <IconButton
@@ -138,7 +138,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 />
             </div>
             {
-                subscriptionList && subscriptionList.length ?
+                subscriptionList?.length ? (
                     <>
                         <div className='bottom-divider'>
                             <p className='font-size-14 font-bold margin-0 show-selected'>{'Subscriptions'}</p>
@@ -161,15 +161,17 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                                 {'Add new subscription'}
                             </button>
                         </div>
-                    </> :
+                    </>
+                ) : (
                     <EmptyState
                         title='No subscriptions yet'
-                        subTitle={{text: 'You can link a subscription by clicking the below button.'}}
+                        subTitle={{ text: 'You can link a subscription by clicking the below button.' }}
                         buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}
                         icon='subscriptions'
                         wrapperExtraClass='margin-top-80'
                     />
+                )
             }
         </>
     );

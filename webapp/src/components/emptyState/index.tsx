@@ -17,8 +17,7 @@ type EmptyStatePropTypes = {
 }
 
 // TODO: UI to be changed
-const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder', wrapperExtraClass}: EmptyStatePropTypes) => {
-    return (
+const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder', wrapperExtraClass}: EmptyStatePropTypes) => (
         <div className={`no-data d-flex ${wrapperExtraClass}`}>
             <div className='d-flex flex-column align-items-center'>
                 <div className='no-data__icon d-flex justify-content-center align-items-center'>
@@ -110,6 +109,5 @@ const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder',
             </div>
         </div>
     );
-};
 
 export default EmptyState;

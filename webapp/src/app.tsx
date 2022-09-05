@@ -3,7 +3,7 @@ import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState} from 'selectors';
 
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
@@ -59,6 +59,20 @@ const App = (): JSX.Element => {
         getLinkModalState(usePlugin.state).visibility,
         getCreateTaskModalState(usePlugin.state).visibility,
         getSubscribeModalState(usePlugin.state).visibility,
+    ]);
+
+    // Fetch the list of linked projects list
+    useEffect(() => {
+        if (usePlugin.isUserAccountConnected()) {
+            usePlugin.makeApiRequestWithCompletionStatus(
+                plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+            );
+        }
+    }, [
+        getCreateTaskModalState(usePlugin.state).visibility,
+        getSubscribeModalState(usePlugin.state).visibility,
+        getRhsState(usePlugin.state).isSidebarOpen,
+        getLinkModalState(usePlugin.state).isLinked,
     ]);
 
     return <></>;

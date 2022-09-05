@@ -96,7 +96,7 @@ const LinkModal = () => {
     return (
         <Modal
             show={getLinkModalState(usePlugin.state).visibility}
-            title='Link new project'
+            title='Link New Project'
             onHide={resetModalState}
             onConfirm={onConfirm}
             confirmBtnText='Link new project'

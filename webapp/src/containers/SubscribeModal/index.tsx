@@ -4,7 +4,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 
 import Modal from 'components/modal';
+import CircularLoader from 'components/loader/circular';
 import Form from 'components/form';
+import EmptyState from 'components/emptyState';
 
 import plugin_constants from 'plugin_constants';
 
@@ -13,27 +15,31 @@ import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
 
 import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getSubscribeModalState} from 'selectors';
 
-import Utils, {getOrganizationList, getProjectList} from 'utils';
+import Utils from 'utils';
 
 import './styles.scss';
 
 const SubscribeModal = () => {
-    const {subscriptionModal} = plugin_constants.form;
-
     // Hooks
     const {
         formFields,
         errorState,
-        onChangeFormField,
+        onChangeOfFormField,
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(subscriptionModal);
-    const {getApiState, makeApiRequest, makeApiRequestWithCompletionStatus, state} = usePluginApi();
+    } = useForm(plugin_constants.form.subscriptionModal);
+    const {
+        getApiState,
+        makeApiRequest,
+        makeApiRequestWithCompletionStatus,
+        state,
+    } = usePluginApi();
     const {visibility} = getSubscribeModalState(state);
-    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
+    const {entities} = useSelector((reduxState: GlobalState) => reduxState);
     const dispatch = useDispatch();
 
     // State variables
@@ -50,23 +56,31 @@ const SubscribeModal = () => {
         dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
     };
 
-    // Get ProjectList State
-    const getProjectState = () => {
+    // Get organization and project state
+    const getOrganizationAndProjectState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
             plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
         );
-        return {isLoading, isSuccess, isError, data: data as ProjectDetails[]};
+
+        return {
+            isLoading,
+            isError,
+            isSuccess,
+            organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
+            projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
+        };
     };
 
-    // Get ChannelList State
+    // Get channel state
     const getChannelState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
             plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: currentTeamId},
+            {teamId: entities.teams.currentTeamId},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
 
+    // Get option list for each types of dropdown fields
     const getDropDownOptions = (fieldName: SubscriptionModalFields) => {
         switch (fieldName) {
         case 'organization':
@@ -74,12 +88,29 @@ const SubscribeModal = () => {
         case 'project':
             return projectOptions;
         case 'eventType':
-            return subscriptionModal.eventType.optionsList;
+            return plugin_constants.form.subscriptionModal.eventType.optionsList;
         case 'channelID':
             return channelOptions;
         default:
             return [];
         }
+    };
+
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
+        resetModalState();
+    };
+
+    // Return different types of error messages occurred on API call
+    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
+        if (getChannelState().isError) {
+            return plugin_constants.messages.error.errorFetchingChannelsList;
+        }
+        if (getOrganizationAndProjectState().isError) {
+            return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
+        }
+        return Utils.getErrorMessage(isCreateSubscriptionError, 'SubscribeModal', error);
     };
 
     // Handles on confirming create subscription
@@ -88,7 +119,7 @@ const SubscribeModal = () => {
             // Make POST api request to create subscription
             makeApiRequestWithCompletionStatus(
                 plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
-                formFields,
+                formFields as APIRequestPayload,
             );
         }
     };
@@ -97,75 +128,99 @@ const SubscribeModal = () => {
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => resetModalState(true),
-        payload: formFields,
+        payload: formFields as APIRequestPayload,
     });
 
-    // Make API request to fetch channel and project list
+    // Make API request to fetch channel list
     useEffect(() => {
-        if (!getChannelState().data) {
-            makeApiRequest(
-                plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-                {teamId: currentTeamId},
-            );
-        }
-        if (!getProjectState().data) {
-            makeApiRequest(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
-        }
+        makeApiRequest(
+            plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
+            {teamId: entities.teams.currentTeamId},
+        );
     }, [visibility]);
 
-    // Pre-select the dropdown value in case of single option.
+    // Pre-select the dropdown value in case of single option
     useEffect(() => {
+        const autoSelectedValues: Pick<Record<FormFields, string>, 'organization' | 'project' | 'channelID'> = {
+            organization: '',
+            project: '',
+            channelID: '',
+        };
+
         if (organizationOptions.length === 1) {
-            setSpecificFieldValue('organization', organizationOptions[0].value);
+            autoSelectedValues.organization = organizationOptions[0].value;
         }
         if (projectOptions.length === 1) {
-            setSpecificFieldValue('project', projectOptions[0].value);
+            autoSelectedValues.project = projectOptions[0].value;
         }
         if (channelOptions.length === 1) {
-            setSpecificFieldValue('channelID', channelOptions[0].value);
+            autoSelectedValues.channelID = channelOptions[0].value;
+        }
+
+        if (autoSelectedValues.organization || autoSelectedValues.project || autoSelectedValues.channelID) {
+            setSpecificFieldValue({
+                ...formFields,
+                ...autoSelectedValues,
+            });
         }
     }, [projectOptions, organizationOptions, channelOptions]);
 
-    // Set channel and project list values
+    // Set organization, project and channel list values
     useEffect(() => {
-        const channelList = getChannelState().data;
-        if (channelList) {
-            setChannelOptions(channelList.map((channel) => ({
+        if (getChannelState().isSuccess) {
+            setChannelOptions(getChannelState().data?.map((channel) => ({
                 label: <span><i className='fa fa-globe dropdown-option-icon'/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }
 
-        const projectList = getProjectState().data;
-        if (projectList) {
-            setProjectOptions(getProjectList(projectList));
-            setOrganizationOptions(getOrganizationList(projectList));
+        if (getOrganizationAndProjectState().isSuccess) {
+            setOrganizationOptions(getOrganizationAndProjectState().organizationList);
+            setProjectOptions(getOrganizationAndProjectState().projectList);
         }
-    }, [state]);
+    }, [
+        getChannelState().isLoading,
+        getOrganizationAndProjectState().isLoading,
+    ]);
 
-    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields);
+    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
+    const isAnyProjectLinked = Boolean(getOrganizationAndProjectState().organizationList.length && getOrganizationAndProjectState().projectList.length);
 
     return (
         <Modal
             show={visibility}
-            title='Create subscription'
+            title='Add New Subscription'
             onHide={resetModalState}
-            onConfirm={onConfirm}
-            confirmBtnText='Create subscription'
+            onConfirm={isAnyProjectLinked ? onConfirm : null}
+            confirmBtnText='Add new subscription'
             confirmDisabled={isLoading}
             cancelDisabled={isLoading}
             loading={isLoading}
-            error={Utils.getErrorMessage(isError, 'SubscribeModal', error as unknown as ApiErrorResponse)}
+            error={showApiErrorMessages(isError, error as ApiErrorResponse)}
         >
             <>
                 {
-                    Object.keys(subscriptionModal).map((field) => (
+                    (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
+                }
+                {
+                    !isAnyProjectLinked && (
+                        <EmptyState
+                            title='No Project Linked'
+                            subTitle={{text: 'You can link a project by clicking the below button.'}}
+                            buttonText='Link new project'
+                            buttonAction={handleOpenLinkProjectModal}
+                        />
+                    )
+                }
+                {
+                    isAnyProjectLinked &&
+                    Object.keys(plugin_constants.form.subscriptionModal).map((field) => (
                         <Form
-                            key={subscriptionModal[field as SubscriptionModalFields].label}
-                            fieldConfig={subscriptionModal[field as SubscriptionModalFields]}
+                            key={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields].label}
+                            fieldConfig={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields]}
                             value={formFields[field as SubscriptionModalFields]}
                             optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                            onChange={(newValue) => onChangeOfFormField(field as SubscriptionModalFields, newValue)}
                             error={errorState[field as SubscriptionModalFields]}
                             isDisabled={isLoading}
                         />

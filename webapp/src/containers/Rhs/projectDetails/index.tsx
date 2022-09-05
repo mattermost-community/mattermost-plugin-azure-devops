@@ -70,7 +70,8 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     };
 
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
-    const data = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project).data as SubscriptionDetails[];
+    const {data, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+    const subscriptionList = data as SubscriptionDetails[];
 
     // Fetch subscription list
     const fetchSubscriptionList = () => usePlugin.makeApiRequest(
@@ -112,56 +113,52 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 onConfirm={handleConfirmDeleteSubscription}
                 isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
                 confirmBtnText='Delete'
-                description={`Are you sure you want to unsubscribe ${projectDetails.projectName} with event type ${subscriptionToBeDeleted?.eventType}?`}
+                description='Are you sure you want to delete this subscription?'
                 title='Confirm Delete Subscription'
             />
-            {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project).isLoading && (
-                    <LinearLoader/>
-                )
-            }
+            {isLoading && <LinearLoader/>}
             <div className='d-flex'>
                 <p className='rhs-title'>{projectDetails.projectName}</p>
                 <IconButton
                     tooltipText='Unlink project'
                     iconClassName='fa fa-chain-broken'
                     extraClass='project-details-unlink-button unlink-button'
-                    onClick={handleUnlinkProject}
+                    onClick={() => handleUnlinkProject()}
                 />
             </div>
             {
-                usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess && (
-                    data && data.length > 0 ?
-                        <>
-                            <div className='bottom-divider'>
-                                <p className='font-size-14 font-bold margin-0 show-selected'>{'Subscriptions'}</p>
-                            </div>
-                            {
-                                data.map((item) => (
-                                    <SubscriptionCard
-                                        subscriptionDetails={item}
-                                        key={item.mattermostUserID}
-                                        handleDeleteSubscrption={handleDeleteSubscription}
-                                    />
-                                ),
-                                )
-                            }
-                            <div className='rhs-project-list-wrapper'>
-                                <button
-                                    onClick={handleSubscriptionModal}
-                                    className='plugin-btn no-data__btn btn btn-primary project-list-btn'
-                                >
-                                    {'Create new subscription'}
-                                </button>
-                            </div>
-                        </> :
-                        <EmptyState
-                            title='No Subscription Present'
-                            subTitle={{text: 'Create a subscription by clicking the button below'}}
-                            buttonText='Create new subscription'
-                            buttonAction={handleSubscriptionModal}
-                        />
-                )
+                subscriptionList && subscriptionList.length ?
+                    <>
+                        <div className='bottom-divider'>
+                            <p className='font-size-14 font-bold margin-0 show-selected'>{'Subscriptions'}</p>
+                        </div>
+                        {
+                            subscriptionList.map((item) => (
+                                <SubscriptionCard
+                                    subscriptionDetails={item}
+                                    key={item.mattermostUserID}
+                                    handleDeleteSubscrption={handleDeleteSubscription}
+                                />
+                            ),
+                            )
+                        }
+                        <div className='rhs-project-list-wrapper'>
+                            <button
+                                onClick={handleSubscriptionModal}
+                                className='plugin-btn no-data__btn btn btn-primary project-list-btn'
+                            >
+                                {'Add new subscription'}
+                            </button>
+                        </div>
+                    </> :
+                    <EmptyState
+                        title='No subscriptions yet'
+                        subTitle={{text: 'You can add a subscription by clicking the below button.'}}
+                        buttonText='Add new subscription'
+                        buttonAction={handleSubscriptionModal}
+                        icon='subscriptions'
+                        wrapperExtraClass='margin-top-80'
+                    />
             }
         </>
     );

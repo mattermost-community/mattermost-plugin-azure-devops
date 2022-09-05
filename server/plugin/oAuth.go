@@ -179,7 +179,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error 
 	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
 }
 
-// GenerateAndStoreOAuthToken stores oAuth token
+// GenerateAndStoreOAuthToken generates and stores OAuth token
 func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
@@ -221,8 +221,8 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 	return nil
 }
 
-// isAccessTokenExpired checks if a user's access token is expired
-func (p *Plugin) isAccessTokenExpired(mattermostUserID string) (bool, string) {
+// IsAccessTokenExpired checks if a user's access token is expired
+func (p *Plugin) IsAccessTokenExpired(mattermostUserID string) (bool, string) {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())

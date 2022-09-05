@@ -14,7 +14,7 @@ type ModalProps = {
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: () => void;
+    onConfirm?: (() => void) | null;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;
@@ -51,7 +51,7 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
         </ModalBody>
         <ModalFooter
             onHide={onHide}
-            onConfirm={onConfirm}
+            onConfirm={onConfirm ?? null}
             cancelBtnText={cancelBtnText}
             confirmBtnText={confirmBtnText}
             confirmAction={confirmAction}

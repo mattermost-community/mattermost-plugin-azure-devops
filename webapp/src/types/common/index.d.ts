@@ -101,3 +101,5 @@ type WebsocketEventParams = {
     event: string,
     data: Record<string, string>,
 }
+
+type ModalId = 'linkProject' | 'createBoardTask' | null

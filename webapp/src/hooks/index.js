@@ -6,13 +6,6 @@ export default class Hooks {
         this.store = store;
     }
 
-    closeRhs() {
-        this.store.dispatch({
-            type: 'UPDATE_RHS_STATE',
-            state: null,
-        });
-    }
-
     slashCommandWillBePostedHook = (message, contextArgs) => {
         let commandTrimmed;
         if (message) {

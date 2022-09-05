@@ -85,7 +85,7 @@ func TestHandleAuthRequired(t *testing.T) {
 		description string
 	}{
 		{
-			description: "test handleAuthRequired",
+			description: "HandleAuthRequired: valid",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -122,7 +122,7 @@ func TestHandleCreateTask(t *testing.T) {
 		clientError        error
 	}{
 		{
-			description: "test CreateTask",
+			description: "CreateTask: valid fields",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -137,14 +137,14 @@ func TestHandleCreateTask(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 		},
 		{
-			description:        "test CreateTask with empty body",
+			description:        "CreateTask: empty body",
 			body:               `{}`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test CreateTask with invalid body",
+			description: "CreateTask: invalid body",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -154,7 +154,7 @@ func TestHandleCreateTask(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test CreateTask with missing fields",
+			description: "CreateTask: missing fields",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -165,7 +165,7 @@ func TestHandleCreateTask(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test CreateTask when marshaling gives error",
+			description: "CreateTask: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -222,7 +222,7 @@ func TestHandleLink(t *testing.T) {
 		project     serializers.ProjectDetails
 	}{
 		{
-			description: "test handleLink",
+			description: "HandleLink: valid",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject"
@@ -245,13 +245,13 @@ func TestHandleLink(t *testing.T) {
 			},
 		},
 		{
-			description: "test handleLink with empty body",
+			description: "HandleLink: empty body",
 			body:        `{}`,
 			err:         errors.New("mockError"),
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test handleLink with invalid body",
+			description: "HandleLink: invalid body",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",`,
@@ -259,7 +259,7 @@ func TestHandleLink(t *testing.T) {
 			statusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleLink with missing fields",
+			description: "HandleLink: missing fields",
 			body: `{
 				"organization": "mockOrganization",
 				}`,
@@ -307,17 +307,17 @@ func TestHandleGetAllLinkedProjects(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test handleGetAllLinkedProjects",
+			description: "HandleGetAllLinkedProjects: valid",
 			projectList: []serializers.ProjectDetails{},
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test handleGetAllLinkedProjects with error while fetching project list",
+			description: "HandleGetAllLinkedProjects: error while fetching project list",
 			err:         errors.New("mockError"),
 			statusCode:  http.StatusInternalServerError,
 		},
 		{
-			description: "test handleGetAllLinkedProjects with empty project list",
+			description: "HandleGetAllLinkedProjects: empty project list",
 			statusCode:  http.StatusOK,
 		},
 	} {
@@ -356,7 +356,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 		project            serializers.ProjectDetails
 	}{
 		{
-			description: "test handleUnlinkProject",
+			description: "HandleUnlinkProject: valid",
 			body: `{
 				"organizationName": "mockOrganization",
 				"projectName": "mockProject",
@@ -381,7 +381,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 		},
 		{
-			description: "handle handleUnlinkProject with invalid body",
+			description: "HandleUnlinkProject: invalid body",
 			body: `{
 				"organizationName": "mockOrganization",
 				"projectName": "mockProject",`,
@@ -390,7 +390,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "handle handleUnlinkProject with missing fields",
+			description: "HandleUnlinkProject: missing fields",
 			body: `{
 				"organization": "mockOrganization",
 				}`,
@@ -399,7 +399,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleUnlinkProject when marshaling gives error",
+			description: "HandleUnlinkProject: marshaling gives error",
 			body: `{
 				"organizationName": "mockOrganization",
 				"projectName": "mockProject",
@@ -468,25 +468,25 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 		loadUserError error
 	}{
 		{
-			description: "test handleGetUserAccountDetails",
+			description: "HandleGetUserAccountDetails: valid",
 			statusCode:  http.StatusOK,
 			user: &serializers.User{
 				MattermostUserID: "mockMattermostUserID",
 			},
 		},
 		{
-			description: "test handleGetUserAccountDetails with empty user details",
+			description: "HandleGetUserAccountDetails: empty user details",
 			err:         nil,
 			statusCode:  http.StatusUnauthorized,
 			user:        &serializers.User{},
 		},
 		{
-			description:   "handle handleGetUserAccountDetails with error while loading user",
+			description:   "HandleGetUserAccountDetails: error while loading user",
 			loadUserError: errors.New("mockError"),
 			statusCode:    http.StatusBadRequest,
 		},
 		{
-			description: "test handleGetUserAccountDetails when marshaling gives error",
+			description: "HandleGetUserAccountDetails: marshaling gives error",
 			statusCode:  http.StatusInternalServerError,
 			user: &serializers.User{
 				MattermostUserID: "mockMattermostUserID",
@@ -539,7 +539,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 		isProjectLinked    bool
 	}{
 		{
-			description: "test handleCreateSubscriptions",
+			description: "HandleCreateSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -560,14 +560,14 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			},
 		},
 		{
-			description:        "test handleCreateSubscriptions with empty body",
+			description:        "HandleCreateSubscriptions: empty body",
 			body:               `{}`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleCreateSubscriptions with invalid body",
+			description: "HandleCreateSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",`,
@@ -576,7 +576,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleCreateSubscriptions with missing fields",
+			description: "HandleCreateSubscriptions: missing fields",
 			body: `{
 				"organization": "mockOrganization",
 				}`,
@@ -585,7 +585,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleCreateSubscriptions when marshaling gives error",
+			description: "HandleCreateSubscriptions: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -656,26 +656,26 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		statusCode       int
 	}{
 		{
-			description:      "test handleGetSubscriptions",
+			description:      "HandleGetSubscriptions: valid",
 			subscriptionList: []serializers.SubscriptionDetails{},
 			statusCode:       http.StatusOK,
 		},
 		{
-			description: "test handleGetSubscriptions with project as a query param",
+			description: "HandleGetSubscriptions: project as a query param",
 			project:     "mockProject",
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test handleGetSubscriptions with error while fetching subscription list",
+			description: "HandleGetSubscriptions: error while fetching subscription list",
 			err:         errors.New("mockError"),
 			statusCode:  http.StatusInternalServerError,
 		},
 		{
-			description: "test handleGetSubscriptions with empty subscription list",
+			description: "HandleGetSubscriptions: empty subscription list",
 			statusCode:  http.StatusOK,
 		},
 		{
-			description:  "test handleGetSubscriptions when marshaling gives error",
+			description:  "HandleGetSubscriptions: marshaling gives error",
 			marshalError: errors.New("mockError"),
 			statusCode:   http.StatusInternalServerError,
 		},
@@ -713,7 +713,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test SubscriptionNotifications",
+			description: "SubscriptionNotifications: valid",
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"
@@ -723,14 +723,14 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			statusCode: http.StatusOK,
 		},
 		{
-			description: "test SubscriptionNotifications with empty body",
+			description: "SubscriptionNotifications: empty body",
 			body:        `{}`,
 			err:         errors.New("mockError"),
 			channelID:   "mockChannelID",
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test SubscriptionNotifications with invalid body",
+			description: "SubscriptionNotifications: invalid body",
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"`,
@@ -739,7 +739,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			statusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test SubscriptionNotifications without channelID",
+			description: "SubscriptionNotifications: without channelID",
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"
@@ -781,7 +781,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 		subscription     *serializers.SubscriptionDetails
 	}{
 		{
-			description: "test handleDeleteSubscriptions",
+			description: "HandleDeleteSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",
@@ -799,13 +799,13 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			},
 		},
 		{
-			description: "test handleDeleteSubscriptions with empty body",
+			description: "HandleDeleteSubscriptions: empty body",
 			body:        `{}`,
 			err:         errors.New("mockError"),
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test handleDeleteSubscriptions with invalid body",
+			description: "HandleDeleteSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
 				"project": "mockProject",`,
@@ -813,7 +813,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			statusCode: http.StatusBadRequest,
 		},
 		{
-			description: "test handleDeleteSubscriptions with missing fields",
+			description: "HandleDeleteSubscriptions: missing fields",
 			body: `{
 				"organization": "mockOrganization",
 				}`,
@@ -858,7 +858,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 		statusCode  int
 	}{
 		{
-			description: "test GetUserChannelsForTeam",
+			description: "GetUserChannelsForTeam: valid",
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{
@@ -870,20 +870,20 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			statusCode: http.StatusOK,
 		},
 		{
-			description: "test GetUserChannelsForTeam with no channels",
+			description: "GetUserChannelsForTeam: no channels",
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels:    nil,
 			channelErr:  nil,
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "test GetUserChannelsForTeam with invalid teamID",
+			description: "GetUserChannelsForTeam: invalid teamID",
 			teamID:      "invalid-teamID",
 			channelErr:  nil,
 			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description: "test GetUserChannelsForTeam with no required channels",
+			description: "GetUserChannelsForTeam: no required channels",
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{

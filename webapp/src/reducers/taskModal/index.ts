@@ -20,7 +20,7 @@ export const openTaskModalSlice = createSlice({
             state.commandArgs.description = '';
 
             if (action.payload.commandArgs.length > 1) {
-                const {title, description} = getCreateTaskModalCommandArgs(action.payload.commandArgs) as TaskFieldsCommandArgs;
+                const {title, description} = getCreateTaskModalCommandArgs(action.payload.commandArgs) as CreateTaskCommandArgs;
                 state.commandArgs.title = title;
                 state.commandArgs.description = description;
             }

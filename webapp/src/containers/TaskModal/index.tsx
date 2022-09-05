@@ -68,6 +68,7 @@ const TaskModal = () => {
             description: '',
         },
     });
+
     const [taskDetailsError, setTaskDetailsError] = useState<CreateTaskPayload>({
         organization: '',
         project: '',

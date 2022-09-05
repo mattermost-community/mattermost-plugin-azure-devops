@@ -42,7 +42,7 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     };
 };
 
-export const getCreateTaskModalCommandArgs = (arr: Array<string>): TaskFieldsCommandArgs => {
+export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCommandArgs => {
     if (arr.length < 3) {
         return {
             title: '',

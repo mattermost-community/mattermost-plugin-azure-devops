@@ -15,12 +15,12 @@ type LinkProjectModalState = {
     isLinked: boolean,
 }
 
-type TaskFieldsCommandArgs = {
+type CreateTaskCommandArgs = {
     title: string;
     description: string;
 }
 
 type CreateTaskModalState = {
     visibility: boolean
-    commandArgs: TaskFieldsCommandArgs
+    commandArgs: CreateTaskCommandArgs
 }

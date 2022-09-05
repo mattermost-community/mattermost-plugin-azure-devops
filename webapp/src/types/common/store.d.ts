@@ -1,3 +1,12 @@
+interface ReduxState extends GlobalState {
+    views: {
+        rhs: {
+            isSidebarOpen: boolean
+        }
+    }
+    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'pluginApi'>; }, never, 'pluginApi'>
+}
+
 type GlobalModalState = {
     modalId: ModalId
     commandArgs: Array<string>
@@ -6,6 +15,7 @@ type GlobalModalState = {
 type GlobalModalActionPayload = {
     isVisible: boolean
     commandArgs: Array<string>
+    isActionDone?: boolean
 }
 
 type LinkProjectModalState = {
@@ -13,4 +23,27 @@ type LinkProjectModalState = {
     organization: string,
     project: string,
     isLinked: boolean,
+}
+
+type SubscribeModalState = {
+    visibility: boolean,
+    isCreated: boolean,
+}
+
+type CreateTaskCommandArgs = {
+    title: string;
+    description: string;
+}
+
+type CreateTaskModalState = {
+    visibility: boolean
+    commandArgs: CreateTaskCommandArgs
+}
+
+type ApiQueriesState = {
+    [key: string]: Record<string, string>
+}
+
+type ApiRequestCompletionState = {
+    requests: ApiServiceName[]
 }

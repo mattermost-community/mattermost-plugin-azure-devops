@@ -18,6 +18,7 @@ const AccountNotLinked = () => {
                 buttonText='Connect your account'
                 buttonAction={handleConnectAccount}
                 icon='azure'
+                wrapperExtraClass='margin-top-80'
             />
         </>
     );

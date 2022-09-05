@@ -25,7 +25,7 @@ var azureDevopsCommandHandler = Handler{
 		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
-		"link":       azureDevopsAccountConnectionCheck,
+		"boards":     azureDevopsAccountConnectionCheck,
 	},
 	defaultHandler: executeDefault,
 }
@@ -42,7 +42,7 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.Comma
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link, subscribe")
 
 	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
@@ -53,11 +53,14 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure DevOps account")
 	azureDevops.AddCommand(disconnect)
 
-	create := model.NewAutocompleteData("boards create", "", "create a new task")
+	link := model.NewAutocompleteData("link", "[projectURL]", "Link a project")
+	azureDevops.AddCommand(link)
+
+	create := model.NewAutocompleteData("boards create [title] [description]", "", "Create a new task")
 	azureDevops.AddCommand(create)
 
-	link := model.NewAutocompleteData("link", "[link]", "link a project")
-	azureDevops.AddCommand(link)
+	subscribe := model.NewAutocompleteData("subscribe", "", "Add a subscription")
+	azureDevops.AddCommand(subscribe)
 
 	return azureDevops
 }
@@ -65,7 +68,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 func (p *Plugin) getCommand() (*model.Command, error) {
 	iconData, err := command.GetIconData(p.API, "assets/azurebot.svg")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get Azure Devops icon")
+		return nil, errors.Wrap(err, "failed to get Azure DevOps icon")
 	}
 
 	return &model.Command{
@@ -80,7 +83,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 
 func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
-		return p.sendEphemeralPostForCommand(commandArgs, constants.ConnectAccountFirst)
+		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
 
 	return &model.CommandResponse{}, nil
@@ -101,7 +104,7 @@ func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.
 func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	message := constants.UserDisconnected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
-		message = constants.ConnectAccountFirst
+		message = p.getConnectAccountFirstMessage()
 	} else {
 		if isDeleted, err := p.Store.DeleteUser(commandArgs.UserId); !isDeleted {
 			if err != nil {

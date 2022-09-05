@@ -14,7 +14,7 @@ type ModalProps = {
     children?: JSX.Element;
     title?: string | JSX.Element;
     subTitle?: string | JSX.Element;
-    onConfirm?: () => void;
+    onConfirm?: (() => void) | null;
     confirmBtnText?: string;
     cancelBtnText?: string;
     confirmAction?: boolean;
@@ -25,40 +25,40 @@ type ModalProps = {
     cancelDisabled?: boolean;
 }
 
-const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error}: ModalProps) => {
-    return (
-        <RBModal
-            show={show}
+const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, subTitle, onConfirm, confirmAction, confirmBtnText, cancelBtnText, className = '', loading = false, error, confirmDisabled = false, cancelDisabled = false}: ModalProps) => (
+    <RBModal
+        show={show}
+        onHide={onHide}
+        centered={true}
+        className={`modal ${className}`}
+    >
+        <ModalHeader
+            title={title}
+            showCloseIconInHeader={showCloseIconInHeader}
             onHide={onHide}
-            centered={true}
-            className={`modal ${className}`}
-        >
-            <ModalHeader
-                title={title}
-                showCloseIconInHeader={showCloseIconInHeader}
-                onHide={onHide}
-            />
-            <ModalLoader loading={loading}/>
-            <ModalBody>
-                <>
-                    <ModalSubTitleAndError
-                        subTitle={subTitle}
-                    />
-                    {children}
-                    <ModalSubTitleAndError
-                        error={error}
-                    />
-                </>
-            </ModalBody>
-            <ModalFooter
-                onHide={onHide}
-                onConfirm={onConfirm}
-                cancelBtnText={cancelBtnText}
-                confirmBtnText={confirmBtnText}
-                confirmAction={confirmAction}
-            />
-        </RBModal>
-    );
-};
+        />
+        <ModalLoader loading={loading}/>
+        <ModalBody>
+            <>
+                <ModalSubTitleAndError
+                    subTitle={subTitle}
+                />
+                {children}
+                <ModalSubTitleAndError
+                    error={error}
+                />
+            </>
+        </ModalBody>
+        <ModalFooter
+            onHide={onHide}
+            onConfirm={onConfirm ?? null}
+            cancelBtnText={cancelBtnText}
+            confirmBtnText={confirmBtnText}
+            confirmAction={confirmAction}
+            confirmDisabled={confirmDisabled}
+            cancelDisabled={cancelDisabled}
+        />
+    </RBModal>
+);
 
 export default Modal;

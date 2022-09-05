@@ -1,26 +1,33 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-export interface CreateTaskModal {
-    visibility: boolean
-}
+import {getCreateTaskModalCommandArgs} from 'utils';
 
-const initialState: CreateTaskModal = {
+const initialState: CreateTaskModalState = {
     visibility: false,
+    commandArgs: {
+        title: '',
+        description: '',
+    },
 };
 
 export const openTaskModalSlice = createSlice({
     name: 'openTaskModal',
     initialState,
     reducers: {
-        showTaskModal: (state) => {
-            state.visibility = true;
-        },
-        hideTaskModal: (state) => {
-            state.visibility = false;
+        toggleShowTaskModal: (state: CreateTaskModalState, action: PayloadAction<GlobalModalActionPayload>) => {
+            state.visibility = action.payload.isVisible;
+            state.commandArgs.title = '';
+            state.commandArgs.description = '';
+
+            if (action.payload.commandArgs.length > 1) {
+                const {title, description} = getCreateTaskModalCommandArgs(action.payload.commandArgs) as CreateTaskCommandArgs;
+                state.commandArgs.title = title;
+                state.commandArgs.description = description;
+            }
         },
     },
 });
 
-export const {showTaskModal, hideTaskModal} = openTaskModalSlice.actions;
+export const {toggleShowTaskModal} = openTaskModalSlice.actions;
 
 export default openTaskModalSlice.reducer;

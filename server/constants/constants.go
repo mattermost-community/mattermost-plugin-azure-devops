@@ -3,20 +3,23 @@ package constants
 const (
 	// Bot configs
 	BotUsername    = "azuredevops"
-	BotDisplayName = "Azure Devops"
-	BotDescription = "A bot account created by the Azure Devops plugin."
+	BotDisplayName = "Azure DevOps"
+	BotDescription = "A bot account created by the Azure DevOps plugin."
 
 	// Plugin configs
 	PluginID               = "mattermost-plugin-azure-devops"
 	ChannelID              = "channel_id"
 	HeaderMattermostUserID = "Mattermost-User-ID"
-	// TODO: Change later according to the needs.
-	HeaderMattermostUserIDAPI = "User-ID"
 
 	// Command configs
 	CommandTriggerName = "azuredevops"
-	HelpText           = "###### Mattermost Azure Devops Plugin - Slash Command Help\n"
-	InvalidCommand     = "Invalid command parameters. Please use `/azuredevops help` for more information."
+	HelpText           = "###### Mattermost Azure DevOps Plugin - Slash Command Help\n" +
+		"* `/azuredevops connect` - Connect your Mattermost account to your Azure DevOps account.\n" +
+		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
+		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
+		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
+		"* `/azuredevops subscribe` - Create subscriptions to track changes in tasks for your linked projects.\n"
+	InvalidCommand = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Get task link preview constants
 	HTTPS              = "https:"
@@ -37,6 +40,12 @@ const (
 	Create           = "create"
 	Update           = "update"
 	Delete           = "delete"
+
+	// Path params
+	PathParamTeamID = "team_id"
+
+	// URL query params constants
+	ProjectParam = "project"
 
 	// Authorization constants
 	Bearer        = "Bearer"

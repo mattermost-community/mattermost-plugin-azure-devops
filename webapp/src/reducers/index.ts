@@ -3,19 +3,21 @@ import {combineReducers} from 'redux';
 import services from 'services';
 
 import globalModalSlice from './globalModal';
+import apiRequestCompletionSlice from './apiRequest';
 import openLinkModalSlice from './linkModal';
-import openTaskModalReducer from './taskModal';
+import openSubscribeModalSlice from './subscribeModal';
+import openTaskModalSlice from './taskModal';
 import projectDetailsSlice from './projectDetails';
 import userConnectedSlice from './userConnected';
-import testReducer from './testReducer';
 
 const reducers = combineReducers({
+    apiRequestCompletionSlice,
     globalModalSlice,
     openLinkModalSlice,
-    openTaskModalReducer,
+    openTaskModalSlice,
+    openSubscribeModalSlice,
     projectDetailsSlice,
     userConnectedSlice,
-    testReducer,
     [services.reducerPath]: services.reducer,
 });
 

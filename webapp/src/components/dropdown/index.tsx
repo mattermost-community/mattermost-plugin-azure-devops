@@ -6,8 +6,8 @@ type DropdownProps = {
     value: string | null;
     placeholder: string;
     onChange: (newValue: string) => void;
-    options:DropdownOptionType[];
-    customOption?: DropdownOptionType & {
+    options: LabelValuePair[];
+    customOption?: LabelValuePair & {
         onClick: (customOptionValue: string) => void;
     }
     loadingOptions?: boolean;
@@ -16,11 +16,11 @@ type DropdownProps = {
     error?: boolean | string;
 }
 
-const Dropdown = ({value, placeholder, options, onChange, customOption, loadingOptions, disabled, error, required}: DropdownProps): JSX.Element => {
+const Dropdown = ({value, placeholder, options, onChange, customOption, loadingOptions, disabled = false, error = '', required}: DropdownProps): JSX.Element => {
     const [open, setOpen] = useState(false);
 
     // Handles closing the popover and updating the value when someone selects an option
-    const handleInputChange = (newOption: DropdownOptionType) => {
+    const handleInputChange = (newOption: LabelValuePair) => {
         setOpen(false);
 
         // Trigger onChange only if there is a change in the dropdown value
@@ -33,7 +33,7 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
     const handleCustomOptionClick = () => {
         // Update the value on the input to indicate custom options has been chosen
         handleInputChange({
-            label: customOption?.label,
+            label: customOption?.label ?? '',
             value: customOption?.value as string,
         });
 

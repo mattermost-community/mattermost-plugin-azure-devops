@@ -191,3 +191,7 @@ func (p *Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
 
 	return true, nil
 }
+
+func (p *Plugin) getConnectAccountFirstMessage() string {
+	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
+}

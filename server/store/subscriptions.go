@@ -51,9 +51,12 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 	subscriptionListValue := serializers.SubscriptionDetails{
 		MattermostUserID: userID,
 		ProjectName:      subscription.ProjectName,
+		ProjectID:        subscription.ProjectID,
 		OrganizationName: subscription.OrganizationName,
 		ChannelID:        subscription.ChannelID,
 		EventType:        subscription.EventType,
+		SubscriptionID:   subscription.SubscriptionID,
+		ChannelName:      subscription.ChannelName,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }

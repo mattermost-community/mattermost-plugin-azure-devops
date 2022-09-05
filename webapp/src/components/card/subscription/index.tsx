@@ -7,22 +7,27 @@ import LabelValuePair from 'components/labelValuePair';
 import './styles.scss';
 
 type SubscriptionCardProps = {
+    handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({subscriptionDetails: {id, name, eventType}}: SubscriptionCardProps) => {
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projectName, eventType, channelName}, subscriptionDetails}: SubscriptionCardProps) => {
     return (
         <BaseCard>
             <div className='d-flex'>
                 <div className='project-details'>
-                    <p className='margin-bottom-10 font-size-14 font-bold'>{id}</p>
-                    <LabelValuePair
+                    {/* TODO: discuss if this is required and it should be the subscription's name not the project name */}
+                    {/* <LabelValuePair
                         label='Name'
-                        value={name}
-                    />
+                        value={projectName}
+                    /> */}
                     <LabelValuePair
                         label='Event'
                         value={eventType}
+                    />
+                    <LabelValuePair
+                        label='Channel'
+                        value={channelName}
                     />
                 </div>
                 <div className='button-wrapper'>
@@ -30,6 +35,7 @@ const SubscriptionCard = ({subscriptionDetails: {id, name, eventType}}: Subscrip
                         tooltipText='Delete subscription'
                         iconClassName='fa fa-trash-o'
                         extraClass='delete-button'
+                        onClick={() => handleDeleteSubscrption(subscriptionDetails)}
                     />
                 </div>
             </div>

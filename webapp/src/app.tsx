@@ -3,9 +3,14 @@ import {useDispatch} from 'react-redux';
 
 import usePluginApi from 'hooks/usePluginApi';
 
-import {getGlobalModalState, getLinkModalState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState} from 'selectors';
 
 import {toggleShowLinkModal} from 'reducers/linkModal';
+import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleShowTaskModal} from 'reducers/taskModal';
+
+import plugin_constants from 'plugin_constants';
+
 import {resetGlobalModalState} from 'reducers/globalModal';
 
 // Global styles
@@ -17,6 +22,11 @@ import 'styles/main.scss';
 const App = (): JSX.Element => {
     const usePlugin = usePluginApi();
     const dispatch = useDispatch();
+
+    // Check if user is connected on page reload
+    useEffect(() => {
+        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+    }, []);
 
     /**
      * When a command is issued on the Mattermost to open any modal
@@ -32,6 +42,11 @@ const App = (): JSX.Element => {
             case 'linkProject':
                 dispatch(toggleShowLinkModal({isVisible: true, commandArgs}));
                 break;
+            case 'subscribeProject':
+                dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs}));
+                break;
+            case 'createBoardTask':
+                dispatch(toggleShowTaskModal({isVisible: true, commandArgs}));
             }
         } else {
             dispatch(resetGlobalModalState());
@@ -40,7 +55,25 @@ const App = (): JSX.Element => {
 
     useEffect(() => {
         dispatch(resetGlobalModalState());
-    }, [getLinkModalState(usePlugin.state).visibility]);
+    }, [
+        getLinkModalState(usePlugin.state).visibility,
+        getCreateTaskModalState(usePlugin.state).visibility,
+        getSubscribeModalState(usePlugin.state).visibility,
+    ]);
+
+    // Fetch the list of linked projects list
+    useEffect(() => {
+        if (usePlugin.isUserAccountConnected()) {
+            usePlugin.makeApiRequestWithCompletionStatus(
+                plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+            );
+        }
+    }, [
+        getCreateTaskModalState(usePlugin.state).visibility,
+        getSubscribeModalState(usePlugin.state).visibility,
+        getRhsState(usePlugin.state).isSidebarOpen,
+        getLinkModalState(usePlugin.state).isLinked,
+    ]);
 
     return <></>;
 };

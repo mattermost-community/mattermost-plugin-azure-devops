@@ -1,25 +1,19 @@
-import plugin_constants from 'plugin_constants';
-
-const pluginPrefix = `plugins-${plugin_constants.pluginId}`;
-
-// TODO: create a type for global state
-
-export const getGlobalModalState = (state: any): GlobalModalState => {
-    return state[pluginPrefix].globalModalSlice;
+export const getprojectDetailsState = (state: ReduxState) => {
+    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };
 
-export const getprojectDetailsState = (state: any): ProjectDetails => {
-    return state[pluginPrefix].projectDetailsSlice;
-};
-
-export const getLinkModalState = (state: any): LinkProjectModalState => {
-    return state[pluginPrefix].openLinkModalSlice;
-};
-
-export const getCreateTaskModalState = (state: any): CreateTaskModalState => {
-    return state[pluginPrefix].openTaskModalReducer;
-};
-
-export const getRhsState = (state: any): {isSidebarOpen: boolean} => {
+export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
     return state.views.rhs;
+};
+
+export const getGlobalModalState = (state: ReduxState): GlobalModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].globalModalSlice;
+};
+
+export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalSlice;
+};
+
+export const getCreateTaskModalState = (state: ReduxState): CreateTaskModalState => {
+    return state['plugins-mattermost-plugin-azure-devops'].openTaskModalSlice;
 };

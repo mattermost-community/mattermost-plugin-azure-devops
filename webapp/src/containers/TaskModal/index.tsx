@@ -7,9 +7,10 @@ import Modal from 'components/modal';
 
 import Constants from 'plugin_constants';
 
-import usePluginApi from 'hooks/usePluginApi';
 import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getCreateTaskModalState} from 'selectors';
+
+import usePluginApi from 'hooks/usePluginApi';
 
 // TODO: fetch the organization and project options from API later.
 const organizationOptions = [

@@ -19,7 +19,6 @@
     }
 }
 
-
 .rhs-project-list-wrapper {
     position: fixed;
     bottom: 0;
@@ -31,6 +30,6 @@
     text-align: center;
 
     .project-list-btn {
-        width: calc(100% - 60px);
+        width: calc(100% - 60px); // 60px is the width of padding from left and right
     }
 }

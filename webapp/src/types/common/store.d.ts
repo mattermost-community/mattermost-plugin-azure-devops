@@ -1,9 +1,9 @@
 type PluginState = {
-    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'azureDevopsPluginApi'>; }, never, 'pluginApi'>
+    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, void, 'azureDevOpsPluginApi'>; }, never, 'pluginApi'>
 }
 
 type ApiRequestCompletionState = {
-    requestes: ApiServiceName[]
+    requests: ApiServiceName[]
 }
 
 type GlobalModalState = {

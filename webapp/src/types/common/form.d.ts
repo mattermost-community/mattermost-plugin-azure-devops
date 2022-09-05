@@ -11,4 +11,4 @@ type ModalFormFieldConfig = {
     validations?: Partial<Record<ValidationTypes, string | number | boolean>>
 }
 
-type FormFields = SubscriptionModalFields
+type FormFieldNames = SubscriptionModalFields

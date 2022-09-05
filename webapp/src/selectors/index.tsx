@@ -33,5 +33,5 @@ export const getApiRequestCompletionState = (state: any): ApiRequestCompletionSt
 };
 
 export const getApiQueriesState = (state: any): ApiQueriesState => {
-    return state[pluginPrefix].azureDevopsPluginApi?.queries;
+    return state[pluginPrefix].azureDevOpsPluginApi?.queries;
 };

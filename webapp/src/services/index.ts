@@ -6,8 +6,8 @@ import Constants from 'plugin_constants';
 import Utils from 'utils';
 
 // Service to make plugin API requests
-const azureDevopsPluginApi = createApi({
-    reducerPath: 'azureDevopsPluginApi',
+const azureDevOpsPluginApi = createApi({
+    reducerPath: 'azureDevOpsPluginApi',
     baseQuery: fetchBaseQuery({baseUrl: Utils.getBaseUrls().pluginApiBaseUrl}),
     tagTypes: ['Posts'],
     endpoints: (builder) => ({
@@ -82,4 +82,4 @@ const azureDevopsPluginApi = createApi({
     }),
 });
 
-export default azureDevopsPluginApi;
+export default azureDevOpsPluginApi;

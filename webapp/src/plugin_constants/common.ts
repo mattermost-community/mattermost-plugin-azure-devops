@@ -1,4 +1,3 @@
-// Plugin configs
 export const pluginId = 'mattermost-plugin-azure-devops';
 
 export const AzureDevops = 'Azure DevOps';

@@ -36,8 +36,6 @@ const (
 	GetProjectListError             = "Error getting Project List"
 	ErrorFetchProjectList           = "Error in fetching project list"
 	ErrorDecodingBody               = "Error in decoding body"
-	ProjectNotFound                 = "Requested project does not exists"
-	ErrorUnlinkProject              = "Error in unlinking the project"
 	FetchSubscriptionListError      = "Error in fetching subscription list"
 	CreateSubscriptionError         = "Error in creating subscription"
 	ProjectNotLinked                = "Requested project is not linked"
@@ -45,4 +43,7 @@ const (
 	SubscriptionAlreadyPresent      = "Requested subscription already exists"
 	SubscriptionNotFound            = "Requested subscription does not exists"
 	ErrorLoadingUserData            = "Error in loading user data"
+	ErrorLoadingDataFromKVStore     = "Error in loading data from KV store"
+	ProjectNotFound                 = "Requested project does not exist"
+	ErrorUnlinkProject              = "Error in unlinking the project"
 )

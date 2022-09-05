@@ -137,6 +137,12 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		return err
 	}
 
+	p.API.PublishWebSocketEvent(
+		constants.WSEventConnect,
+		nil,
+		&model.WebsocketBroadcast{UserId: mattermostUserID},
+	)
+
 	if _, err := p.DM(mattermostUserID, fmt.Sprintf("%s\n\n%s", constants.UserConnected, constants.HelpText)); err != nil {
 		return err
 	}
@@ -145,21 +151,13 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 }
 
 // RefreshOAuthToken refreshes OAuth token
-func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
-	user, err := p.Store.LoadUser(mattermostUserID)
+func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error {
+	decodedRefreshToken, err := p.decode(refreshToken)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
 		}
-		return errors.Wrap(err, err.Error())
-	}
-
-	decodedRefreshToken, err := p.decode(user.RefreshToken)
-	if err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
-			return DMErr
-		}
-		return errors.Wrap(err, err.Error())
+		return err
 	}
 
 	decryptedRefreshToken, err := p.decrypt(decodedRefreshToken, []byte(p.getConfiguration().EncryptionSecret))
@@ -167,7 +165,7 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID string) error {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage); DMErr != nil {
 			return DMErr
 		}
-		return errors.Wrap(err, err.Error())
+		return err
 	}
 
 	oauthTokenFormValues := url.Values{
@@ -220,30 +218,24 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 		return err
 	}
 
-	p.API.PublishWebSocketEvent(
-		constants.WSEventConnect,
-		nil,
-		&model.WebsocketBroadcast{UserId: mattermostUserID},
-	)
-
 	return nil
 }
 
 // isAccessTokenExpired checks if a user's access token is expired
-func (p *Plugin) isAccessTokenExpired(mattermostUserID string) bool {
+func (p *Plugin) isAccessTokenExpired(mattermostUserID string) (bool, string) {
 	user, err := p.Store.LoadUser(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
-		return false
+		return false, ""
 	}
 
 	// TODO: use middleware for all such places to check if user's oAuth is completed
 	// Consider some buffer for comparing expiry time
 	if user.AccessToken != "" && user.ExpiresAt < time.Now().UTC().Add(-(time.Minute*constants.TokenExpiryTimeBufferInMinutes)).Unix() {
-		return true
+		return true, user.RefreshToken
 	}
 
-	return false
+	return false, ""
 }
 
 // UserAlreadyConnected checks if a user is already connected

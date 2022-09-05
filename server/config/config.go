@@ -3,6 +3,8 @@ package config
 import (
 	"errors"
 	"strings"
+
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 )
 
 // Configuration captures the plugin's external configuration as exposed in the Mattermost server
@@ -44,16 +46,16 @@ func (c *Configuration) ProcessConfiguration() error {
 // Used for config validations.
 func (c *Configuration) IsValid() error {
 	if c.AzureDevopsAPIBaseURL == "" {
-		return errors.New("azure devops API base URL should not be empty")
+		return errors.New(constants.EmptyAzureDevopsAPIBaseURLError)
 	}
 	if c.AzureDevopsOAuthAppID == "" {
-		return errors.New("azure devops OAuth app id should not be empty")
+		return errors.New(constants.EmptyAzureDevopsOAuthAppIDError)
 	}
 	if c.AzureDevopsOAuthClientSecret == "" {
-		return errors.New("azure devops OAuth client secret should not be empty")
+		return errors.New(constants.EmptyAzureDevopsOAuthClientSecretError)
 	}
 	if c.EncryptionSecret == "" {
-		return errors.New("encryption secret should not be empty")
+		return errors.New(constants.EmptyEncryptionSecretError)
 	}
 
 	return nil

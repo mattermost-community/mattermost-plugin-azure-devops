@@ -3,6 +3,7 @@ package config
 import (
 	"testing"
 
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,7 @@ func TestIsValid(t *testing.T) {
 		errMsg      string
 	}{
 		{
-			description: "valid configuration",
+			description: "configuration: valid",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
@@ -24,44 +25,44 @@ func TestIsValid(t *testing.T) {
 			errMsg: "",
 		},
 		{
-			description: "invalid configuration with AzureDevopsAPIBaseURL empty",
+			description: "configuration: empty AzureDevopsAPIBaseURL",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "",
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
 			},
-			errMsg: "azure devops API base URL should not be empty",
+			errMsg: constants.EmptyAzureDevopsAPIBaseURLError,
 		},
 		{
-			description: "invalid configuration with AzureDevopsOAuthAppID empty",
+			description: "configuration: empty AzureDevopsOAuthAppID",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
 				AzureDevopsOAuthAppID:        "",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
 			},
-			errMsg: "azure devops OAuth app id should not be empty",
+			errMsg: constants.EmptyAzureDevopsOAuthAppIDError,
 		},
 		{
-			description: "invalid configuration with AzureDevopsOAuthClientSecret empty",
+			description: "configuration: empty AzureDevopsOAuthClientSecret",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "",
 				EncryptionSecret:             "mockEncryptionSecret",
 			},
-			errMsg: "azure devops OAuth client secret should not be empty",
+			errMsg: constants.EmptyAzureDevopsOAuthClientSecretError,
 		},
 		{
-			description: "invalid configuration with EncryptionSecret empty",
+			description: "configuration: empty EncryptionSecret",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "",
 			},
-			errMsg: "encryption secret should not be empty",
+			errMsg: constants.EmptyEncryptionSecretError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -84,7 +85,7 @@ func TestProcessConfiguration(t *testing.T) {
 		afterProcessConfig *Configuration
 	}{
 		{
-			description: "valid process configuration for AzureDevopsAPIBaseURL",
+			description: "ProcessConfiguration: valid AzureDevopsAPIBaseURL",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL: "  mockAzureDevopsAPIBaseURL/  ",
 			},
@@ -93,7 +94,7 @@ func TestProcessConfiguration(t *testing.T) {
 			},
 		},
 		{
-			description: "valid process configuration for AzureDevopsOAuthAppID",
+			description: "ProcessConfiguration: valid AzureDevopsOAuthAppID",
 			config: &Configuration{
 				AzureDevopsOAuthAppID: "  mockAzureDevopsOAuthAppID  ",
 			},
@@ -102,7 +103,7 @@ func TestProcessConfiguration(t *testing.T) {
 			},
 		},
 		{
-			description: "valid process configuration for AzureDevopsOAuthClientSecret",
+			description: "ProcessConfiguration: valid AzureDevopsOAuthClientSecret",
 			config: &Configuration{
 				AzureDevopsOAuthClientSecret: "  mockAzureDevopsOAuthClientSecret  ",
 			},
@@ -111,7 +112,7 @@ func TestProcessConfiguration(t *testing.T) {
 			},
 		},
 		{
-			description: "valid process configuration for EncryptionSecret",
+			description: "ProcessConfiguration: valid EncryptionSecret",
 			config: &Configuration{
 				EncryptionSecret: "  mockEncryptionSecret  ",
 			},
@@ -134,7 +135,7 @@ func TestCloneConfiguration(t *testing.T) {
 		config      *Configuration
 	}{
 		{
-			description: "valid clone configuration",
+			description: "CloneConfiguration: valid",
 			config: &Configuration{
 				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",

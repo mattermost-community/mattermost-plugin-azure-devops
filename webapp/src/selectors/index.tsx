@@ -1,4 +1,4 @@
-export const getprojectDetailsState = (state: ReduxState) => {
+export const getProjectDetailsState = (state: ReduxState): ProjectDetails => {
     return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };
 
@@ -11,15 +11,15 @@ export const getGlobalModalState = (state: ReduxState): GlobalModalState => {
 };
 
 export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].openLinkModalSlice;
+    return state['plugins-mattermost-plugin-azure-devops'].linkProjectModalSlice;
 };
 
 export const getCreateTaskModalState = (state: ReduxState): CreateTaskModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].openTaskModalSlice;
+    return state['plugins-mattermost-plugin-azure-devops'].createTaskModalSlice;
 };
 
 export const getSubscribeModalState = (state: ReduxState): SubscribeModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].openSubscribeModalSlice;
+    return state['plugins-mattermost-plugin-azure-devops'].subscriptionModalSlice;
 };
 
 export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompletionState => {
@@ -28,8 +28,4 @@ export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompl
 
 export const getApiQueriesState = (state: ReduxState): ApiQueriesState => {
     return state['plugins-mattermost-plugin-azure-devops'].azureDevOpsPluginApi?.queries;
-};
-
-export const getProjectDetailsState = (state: ReduxState): ProjectDetails => {
-    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };

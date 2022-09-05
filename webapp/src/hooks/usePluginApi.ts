@@ -1,7 +1,4 @@
 import {useSelector, useDispatch} from 'react-redux';
-import {AnyAction} from 'redux';
-
-import {AnyAction} from 'redux';
 
 import {setApiRequestCompletionState} from 'reducers/apiRequest';
 

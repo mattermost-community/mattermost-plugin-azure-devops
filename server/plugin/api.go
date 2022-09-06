@@ -36,7 +36,6 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
 	// Plugin APIs
 	s.HandleFunc(constants.PathCreateTasks, p.handleAuthRequired(p.checkOAuth(p.handleCreateTask))).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathLinkedProjects, p.handleAuthRequired(p.handleGetAllLinkedProjects)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathLinkProject, p.handleAuthRequired(p.checkOAuth(p.handleLink))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.checkOAuth(p.handleGetAllLinkedProjects))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
@@ -83,17 +82,16 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 // API to link a project and an organization to a user.
 func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	var body *serializers.LinkRequestPayload
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&body); err != nil {
+
+	body, err := serializers.LinkPayloadFromJSON(r.Body)
+	if err != nil {
 		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	if err := body.IsLinkPayloadValid(); err != "" {
-		error := serializers.Error{Code: http.StatusBadRequest, Message: err}
-		p.handleError(w, r, &error)
+	if err := body.IsLinkPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
@@ -169,11 +167,15 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
-	var project *serializers.ProjectDetails
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&project); err != nil {
+	project, err := serializers.ProjectPayloadFromJSON(r.Body)
+	if err != nil {
 		p.API.LogError(constants.ErrorDecodingBody, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if validationErr := project.IsValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 

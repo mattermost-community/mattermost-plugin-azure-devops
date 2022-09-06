@@ -50,4 +50,5 @@ const (
 	ProjectNotFound                 = "Requested project does not exist"
 	ErrorUnlinkProject              = "Error in unlinking the project"
 	InvalidChannelID                = "Invalid channel ID"
+	DeleteSubscriptionError         = "Error in deleting subscription"
 )

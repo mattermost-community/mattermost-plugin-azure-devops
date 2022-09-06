@@ -126,7 +126,7 @@ const SubscribeModal = () => {
         }
     };
 
-    // Observe for the change in redux state after API call to create subscription and do the required actions
+    // Observe for the change in redux state after the API call to create a subscription and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => resetModalState(true),

@@ -52,7 +52,7 @@ const getValidationErrorMessage = (
     }
 };
 
-// Genric hook to handle form fields
+// Generic hook to handle form fields
 function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFieldConfig>>) {
     // Form field values
     const [formFields, setFormFields] = useState(getInitialFieldValues(initialFormFields));

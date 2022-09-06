@@ -257,8 +257,8 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 
 	channel, channelErr := p.API.GetChannel(body.ChannelID)
 	if channelErr != nil {
-		p.API.LogError("Error in getting channels for team and user", "Error", channelErr.Error())
-		http.Error(w, fmt.Sprintf("Error in getting channels for team and user. Error: %s", channelErr.Error()), channelErr.StatusCode)
+		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
+		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetChannelError, channelErr.Error()), channelErr.StatusCode)
 		return
 	}
 

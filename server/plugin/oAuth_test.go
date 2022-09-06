@@ -7,7 +7,9 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strconv"
 	"testing"
+	"time"
 
 	"bou.ke/monkey"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
@@ -169,10 +171,12 @@ func TestGenerateOAuthToken(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
+
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
 				return "", testCase.DMError
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "StoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
 				return nil
 			})
 
@@ -193,9 +197,6 @@ func TestGenerateOAuthToken(t *testing.T) {
 func TestRefreshOAuthToken(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := Plugin{}
-	mockCtrl := gomock.NewController(t)
-	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.Store = mockedStore
 	for _, testCase := range []struct {
 		description   string
 		decodeError   error
@@ -210,17 +211,6 @@ func TestRefreshOAuthToken(t *testing.T) {
 			user: &serializers.User{
 				RefreshToken: "mockRefreshToken",
 			},
-		},
-		{
-			description:   "RefreshOAuthToken: user is not loaded successfully",
-			loadUserErr:   errors.New("mockError"),
-			expectedError: "mockError",
-		},
-		{
-			description:   "RefreshOAuthToken: user is not loaded successfully and DM error occurs",
-			loadUserErr:   errors.New("mockError"),
-			DMErr:         errors.New("mockError"),
-			expectedError: "mockError",
 		},
 		{
 			description:   "RefreshOAuthToken: token is not decoded successfully",
@@ -271,11 +261,9 @@ func TestRefreshOAuthToken(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "Decrypt", func(_ *Plugin, _, _ []byte) ([]byte, error) {
 				return nil, testCase.decryptError
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "StoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
 				return nil
 			})
-
-			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserErr)
 
 			err := p.RefreshOAuthToken("mockMattermostUserID", "mockRefreshToken")
 			if testCase.expectedError != "" {
@@ -288,44 +276,36 @@ func TestRefreshOAuthToken(t *testing.T) {
 	}
 }
 
-func TestStoreOAuthToken(t *testing.T) {
+func TestGenerateAndStoreOAuthToken(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := Plugin{}
-	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
 	p.Store = mockedStore
 	p.Client = mockedClient
 	for _, testCase := range []struct {
 		description    string
-		user           *serializers.User
 		storeUserError error
 		DMErr          error
 		expectedError  string
+		storeError     error
 	}{
 		{
-			description: "StoreOAuthToken: valid",
-			user:        &serializers.User{},
+			description: "GenerateAndStoreOAuthToken: valid",
 		},
 		{
-			description:    "StoreOAuthToken: storing user gives error",
-			user:           &serializers.User{},
+			description:    "GenerateAndStoreOAuthToken: storing user gives error",
 			storeUserError: errors.New("mockError"),
 			expectedError:  "mockError",
 		},
-		{
-			description:   "StoreOAuthToken: DM gives error",
-			user:          &serializers.User{},
-			DMErr:         errors.New("mockError"),
-			expectedError: "mockError",
-		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
-
 			mockedClient.EXPECT().GenerateOAuthToken(gomock.Any()).Return(&serializers.OAuthSuccessResponse{}, 200, nil)
+
+			monkey.Patch(strconv.Atoi, func(string) (int, error) {
+				return 0, nil
+			})
 
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
 				return "", testCase.DMErr
@@ -337,7 +317,11 @@ func TestStoreOAuthToken(t *testing.T) {
 				return ""
 			})
 
-			mockedStore.EXPECT().StoreUser(testCase.user).Return(testCase.storeUserError)
+			if testCase.storeError == nil {
+				mockedStore.EXPECT().StoreUser(&serializers.User{
+					ExpiresAt: time.Now().UTC().Add(time.Second * time.Duration(0)).Unix(),
+				}).Return(testCase.storeUserError)
+			}
 
 			p.setConfiguration(
 				&config.Configuration{
@@ -352,6 +336,54 @@ func TestStoreOAuthToken(t *testing.T) {
 			}
 
 			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestIsAccessTokenExpired(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedStore := mocks.NewMockKVStore(mockCtrl)
+	p.API = mockAPI
+	p.Store = mockedStore
+	for _, testCase := range []struct {
+		description   string
+		loadUserError error
+		clientError   error
+		DMErr         error
+		expectedError string
+	}{
+		{
+			description: "IsAccessTokenExpired: valid",
+		},
+		{
+			description:   "IsAccessTokenExpired: loading user gives error",
+			loadUserError: errors.New("mockError"),
+			expectedError: "mockError",
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+
+			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(&serializers.User{}, testCase.loadUserError)
+
+			p.setConfiguration(
+				&config.Configuration{
+					EncryptionSecret:             "mockEncryptionSecret",
+					AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
+				})
+
+			isAccessTokenExpired, err := p.IsAccessTokenExpired("mockMattermostUserID")
+			if testCase.expectedError != "" {
+				assert.NotNil(t, err)
+				assert.NotNil(t, isAccessTokenExpired)
+				return
+			}
+
+			assert.NotNil(t, isAccessTokenExpired)
+			assert.Equal(t, "", err)
 		})
 	}
 }

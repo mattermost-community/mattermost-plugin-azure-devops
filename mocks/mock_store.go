@@ -94,10 +94,10 @@ func (mr *MockKVStoreMockRecorder) GetAllProjects(arg0 interface{}) *gomock.Call
 }
 
 // GetAllSubscriptions mocks base method.
-func (m *MockKVStore) GetAllSubscriptions(arg0 string) ([]serializers.SubscriptionDetails, error) {
+func (m *MockKVStore) GetAllSubscriptions(arg0 string) ([]*serializers.SubscriptionDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllSubscriptions", arg0)
-	ret0, _ := ret[0].([]serializers.SubscriptionDetails)
+	ret0, _ := ret[0].([]*serializers.SubscriptionDetails)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

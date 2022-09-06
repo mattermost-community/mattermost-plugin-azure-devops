@@ -483,7 +483,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 		{
 			description:   "HandleGetUserAccountDetails: error while loading user",
 			loadUserError: errors.New("mockError"),
-			statusCode:    http.StatusBadRequest,
+			statusCode:    http.StatusInternalServerError,
 		},
 		{
 			description: "HandleGetUserAccountDetails: marshaling gives error",
@@ -534,7 +534,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 		statusCode         int
 		projectList        []serializers.ProjectDetails
 		project            serializers.ProjectDetails
-		subscriptionList   []serializers.SubscriptionDetails
+		subscriptionList   []*serializers.SubscriptionDetails
 		subscription       *serializers.SubscriptionDetails
 		isProjectLinked    bool
 	}{
@@ -550,7 +550,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			expectedStatusCode: http.StatusOK,
 			projectList:        []serializers.ProjectDetails{},
 			project:            serializers.ProjectDetails{},
-			subscriptionList:   []serializers.SubscriptionDetails{},
+			subscriptionList:   []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
 				MattermostUserID: "mockMattermostUserID",
 				ProjectName:      "mockProject",
@@ -597,7 +597,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			expectedStatusCode: http.StatusInternalServerError,
 			projectList:        []serializers.ProjectDetails{},
 			project:            serializers.ProjectDetails{},
-			subscriptionList:   []serializers.SubscriptionDetails{},
+			subscriptionList:   []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
 				MattermostUserID: "mockMattermostUserID",
 				ProjectName:      "mockProject",
@@ -617,7 +617,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
 				return &serializers.ProjectDetails{}, true
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []serializers.SubscriptionDetails, serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 				return &serializers.SubscriptionDetails{}, false
 			})
 
@@ -649,7 +649,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	p.Store = mockedStore
 	for _, testCase := range []struct {
 		description      string
-		subscriptionList []serializers.SubscriptionDetails
+		subscriptionList []*serializers.SubscriptionDetails
 		project          string
 		err              error
 		marshalError     error
@@ -657,7 +657,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
-			subscriptionList: []serializers.SubscriptionDetails{},
+			subscriptionList: []*serializers.SubscriptionDetails{},
 			statusCode:       http.StatusOK,
 		},
 		{
@@ -706,11 +706,12 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p.API = mockAPI
 	for _, testCase := range []struct {
-		description string
-		body        string
-		channelID   string
-		err         error
-		statusCode  int
+		description      string
+		body             string
+		channelID        string
+		isValidChannelID bool
+		err              error
+		statusCode       int
 	}{
 		{
 			description: "SubscriptionNotifications: valid",
@@ -719,24 +720,34 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:  "mockChannelID",
-			statusCode: http.StatusOK,
+			channelID:        "mockChannelID",
+			isValidChannelID: true,
+			statusCode:       http.StatusOK,
 		},
 		{
-			description: "SubscriptionNotifications: empty body",
+			description:      "SubscriptionNotifications: empty body",
+			body:             `{}`,
+			err:              errors.New("mockError"),
+			channelID:        "mockChannelID",
+			isValidChannelID: true,
+			statusCode:       http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: invalid channel ID",
 			body:        `{}`,
 			err:         errors.New("mockError"),
 			channelID:   "mockChannelID",
-			statusCode:  http.StatusOK,
+			statusCode:  http.StatusBadRequest,
 		},
 		{
 			description: "SubscriptionNotifications: invalid body",
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"`,
-			err:        errors.New("mockError"),
-			channelID:  "mockChannelID",
-			statusCode: http.StatusBadRequest,
+			err:              errors.New("mockError"),
+			channelID:        "mockChannelID",
+			isValidChannelID: true,
+			statusCode:       http.StatusBadRequest,
 		},
 		{
 			description: "SubscriptionNotifications: without channelID",
@@ -745,12 +756,17 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			statusCode: http.StatusBadRequest,
+			isValidChannelID: true,
+			statusCode:       http.StatusBadRequest,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
+
+			monkey.Patch(model.IsValidId, func(string) bool {
+				return testCase.isValidChannelID
+			})
 
 			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/notification?channelID=%s", testCase.channelID), bytes.NewBufferString(testCase.body))
 
@@ -777,7 +793,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 		body             string
 		err              error
 		statusCode       int
-		subscriptionList []serializers.SubscriptionDetails
+		subscriptionList []*serializers.SubscriptionDetails
 		subscription     *serializers.SubscriptionDetails
 	}{
 		{
@@ -788,8 +804,8 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				"eventType": "mockEventType",
 				"channelID": "mockChannelID"
 				}`,
-			statusCode:       http.StatusNoContent,
-			subscriptionList: []serializers.SubscriptionDetails{},
+			statusCode:       http.StatusOK,
+			subscriptionList: []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
 				MattermostUserID: "mockMattermostUserID",
 				ProjectName:      "mockProject",
@@ -823,12 +839,13 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []serializers.SubscriptionDetails, serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 				return &serializers.SubscriptionDetails{}, true
 			})
 
-			if testCase.statusCode == http.StatusNoContent {
+			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(testCase.subscription).Return(nil)

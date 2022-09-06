@@ -71,10 +71,10 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, task)
-	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
+	message := fmt.Sprintf(constants.CreatedTask, task.Fields.Type, task.ID, task.Link.HTML.Href, task.Fields.Title, task.Fields.CreatedBy.DisplayName)
 
 	// Send message to DM.
-	if _, DMErr := p.DM(mattermostUserID, message); DMErr != nil {
+	if _, DMErr := p.DM(mattermostUserID, message, true); DMErr != nil {
 		p.API.LogError("Failed to DM", "Error", DMErr.Error())
 	}
 }
@@ -103,7 +103,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
 		return

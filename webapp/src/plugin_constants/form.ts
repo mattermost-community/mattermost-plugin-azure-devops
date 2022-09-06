@@ -112,6 +112,11 @@ export const createTaskModal: Record<CreateTaskModalFields, ModalFormFieldConfig
         value: '',
         type: 'text',
     },
+    areaPath: {
+        label: 'Area Path',
+        value: '',
+        type: 'text',
+    },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
     timestamp: {

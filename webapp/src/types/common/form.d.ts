@@ -3,7 +3,7 @@ type ValidationTypes = 'isRequired' | 'maxCharLen' | 'minCharLen' | 'regex' | 'r
 type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal'
 
 type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp'
-type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'timestamp'
+type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp';
 type LinkProjectModalFields = 'organization' | 'project' | 'timestamp'
 
 type ModalFormFieldConfig = {

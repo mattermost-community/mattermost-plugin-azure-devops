@@ -26,13 +26,20 @@ func (p *Plugin) OnConfigurationChange() error {
 		return err
 	}
 
-	p.setConfiguration(configuration)
-
+	oldEncryptionSecret := p.getConfiguration().EncryptionSecret
 	mattermostSiteURL := p.API.GetConfig().ServiceSettings.SiteURL
 	if mattermostSiteURL == nil {
 		return errors.New("plugin requires Mattermost Site URL to be set")
 	}
 	configuration.MattermostSiteURL = *mattermostSiteURL
+	p.setConfiguration(configuration)
+
+	if oldEncryptionSecret != "" && oldEncryptionSecret != p.getConfiguration().EncryptionSecret {
+		if err := p.Store.DeleteUserTokenOnEncryptionSecretChange(); err != nil {
+			p.API.LogError("Error in deleting Users.", "Error", err.Error())
+			return err
+		}
+	}
 
 	return nil
 }

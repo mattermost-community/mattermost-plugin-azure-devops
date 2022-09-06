@@ -16,17 +16,18 @@ const (
 	NoProjectLinked      = "No project is linked, please link a project."
 
 	// Validations Errors
-	OrganizationRequired                   = "organization is required"
-	ProjectRequired                        = "project is required"
-	TaskTypeRequired                       = "task type is required"
-	TaskTitleRequired                      = "task title is required"
-	EventTypeRequired                      = "event type is required"
-	ChannelIDRequired                      = "channel ID is required"
-	EmptyAzureDevopsAPIBaseURLError        = "azure devops API base URL should not be empty"
-	EmptyAzureDevopsOAuthAppIDError        = "azure devops OAuth app id should not be empty"
+	OrganizationRequired            = "organization is required"
+	ProjectRequired                 = "project is required"
+	TaskTypeRequired                = "task type is required"
+	TaskTitleRequired               = "task title is required"
+	EventTypeRequired               = "event type is required"
+	ChannelIDRequired               = "channel ID is required"
+	EmptyAzureDevopsAPIBaseURLError = "azure devops API base URL should not be empty"
+	EmptyAzureDevopsOAuthAppIDError = "azure devops OAuth app id should not be empty"
+	// #nosec G101 -- This is a false positive. The below line is not a hardcoded credential
 	EmptyAzureDevopsOAuthClientSecretError = "azure devops OAuth client secret should not be empty"
 	EmptyEncryptionSecretError             = "encryption secret should not be empty"
-	ProjectIDRequired    = "project ID is required"
+	ProjectIDRequired                      = "project ID is required"
 )
 
 const (

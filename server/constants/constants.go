@@ -61,5 +61,5 @@ const (
 	// Websocket events
 	WSEventConnect             = "connect"
 	WSEventDisconnect          = "disconnect"
-	WSEventSubscriptionDeleted = "subscriptionDeleted"
+	WSEventSubscriptionDeleted = "subscription_deleted"
 )

@@ -33,7 +33,7 @@ export default class Plugin {
         registry.registerRootComponent(SubscribeModal);
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_connect`, handleConnect(store));
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_disconnect`, handleDisconnect(store));
-        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_subscriptionDeleted`, handleSubscriptionDeleted(store));
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_subscription_deleted`, handleSubscriptionDeleted(store));
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);

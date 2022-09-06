@@ -92,6 +92,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
+
 	if len(args) > 0 {
 		switch {
 		case args[0] == "subscriptions":
@@ -100,6 +101,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
 		}
 	}
+
 	return &model.CommandResponse{}, nil
 }
 
@@ -116,16 +118,16 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 
 	for _, subscription := range subscriptionList {
 		if subscription.SubscriptionID == args[1] {
-			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is being deleted", args[1])); err != nil {
-				p.API.LogError("Error in sending ephermal post", "Error", err.Error())
+			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", args[1])); err != nil {
+				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
 			if _, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
-				p.API.LogError("Error in deleting a subscription", "Error", err.Error())
+				p.API.LogError("Error in deleting subscription", "Error", err.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 			}
 
 			if deleteErr := p.Store.DeleteSubscription(&subscription); deleteErr != nil {
-				p.API.LogError("Error in deleting a subscription", "Error", deleteErr.Error())
+				p.API.LogError("Error in deleting subscription", "Error", deleteErr.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 			}
 
@@ -135,11 +137,11 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				&model.WebsocketBroadcast{UserId: commandArgs.UserId},
 			)
 
-			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" is successfully deleted", args[1]))
+			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", args[1]))
 		}
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: \"%s\" does not exist", args[1]))
+	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", args[1]))
 }
 
 func azureDevopsSubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

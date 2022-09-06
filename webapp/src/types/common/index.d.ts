@@ -1,7 +1,7 @@
 /**
  * Keep all common types here which are to be used throughout the project
 */
-type eventType = 'create' | 'update' | 'delete'
+type EventType = 'create' | 'update' | 'delete'
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
 type TabData = {

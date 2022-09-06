@@ -210,7 +210,7 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []serializers.SubscriptionDetails, channelID string) string {
 	var sb strings.Builder
 
-	if len(subscriptionsList) <= 0 {
+	if len(subscriptionsList) == 0 {
 		sb.WriteString(constants.NoSubscriptionFound)
 		return sb.String()
 	}

@@ -40,7 +40,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetAllLinkedProjects, p.handleAuthRequired(p.checkOAuth(p.handleGetAllLinkedProjects))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscriptions))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscription))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
@@ -127,8 +127,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
 	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", "application/json")
+	returnStatusOK(w)
 }
 
 // handleGetAllLinkedProjects returns all linked projects list
@@ -151,16 +150,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response, err := json.Marshal(projectList)
-	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
-	}
-
-	if _, err := w.Write(response); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-	}
+	p.writeJSON(w, projectList)
 }
 
 // handleUnlinkProject unlinks a project
@@ -209,7 +199,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	p.writeJSON(w, &successResponse)
 }
 
-func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
 	if err != nil {
@@ -278,16 +268,7 @@ func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Reques
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
 	}
 
-	response, err := json.Marshal(subscription)
-	if err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	if _, err = w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	p.writeJSON(w, subscription)
 }
 
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {

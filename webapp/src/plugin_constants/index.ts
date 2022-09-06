@@ -7,6 +7,8 @@ import {
     MMCSRF,
     pluginId,
     RightSidebarHeader,
+    ToggleSwitchLabelPositioning,
+    ToggleLabel,
 } from './common';
 import {subscriptionModal, createTaskModal} from './form';
 import {pluginApiServiceConfigs} from './apiService';
@@ -19,6 +21,8 @@ export default {
         HeaderCSRFToken,
         AzureDevops,
         RightSidebarHeader,
+        ToggleSwitchLabelPositioning,
+        ToggleLabel,
     },
     form: {
         subscriptionModal,

@@ -632,7 +632,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
 
 			w := httptest.NewRecorder()
-			p.handleCreateSubscriptions(w, req)
+			p.handleCreateSubscription(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.expectedStatusCode, resp.StatusCode)
 		})

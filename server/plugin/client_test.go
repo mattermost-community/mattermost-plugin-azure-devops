@@ -279,7 +279,10 @@ func TestCall(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "AddAuthorization", func(_ *Plugin, _ *http.Request, _ string) error {
 				return nil
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "RefreshOAuthToken", func(_ *Plugin, _ string) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsAccessTokenExpired", func(_ *Plugin, _ string) (bool, string) {
+				return false, ""
+			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "RefreshOAuthToken", func(_ *Plugin, _ string, _ string) error {
 				return nil
 			})
 			client := &client{

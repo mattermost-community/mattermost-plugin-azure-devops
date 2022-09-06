@@ -63,18 +63,8 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: constants.UserDisconnected,
 		},
 		{
-			description:      "ExecuteCommand: link command",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops link"},
-			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
-		},
-		{
-			description:      "ExecuteCommand: subscribe command",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops subscribe"},
-			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
-		},
-		{
 			description:      "ExecuteCommand: boards create command",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards create"},
+			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards create [title] [description]"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{

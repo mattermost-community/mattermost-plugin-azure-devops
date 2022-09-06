@@ -106,8 +106,8 @@ func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionD
 
 	var subscriptionList []*serializers.SubscriptionDetails
 	for _, subscription := range subscriptions.ByMattermostUserID[userID] {
-		subscription := &subscription
-		subscriptionList = append(subscriptionList, subscription)
+		subscription := subscription
+		subscriptionList = append(subscriptionList, &subscription)
 	}
 
 	return subscriptionList, nil

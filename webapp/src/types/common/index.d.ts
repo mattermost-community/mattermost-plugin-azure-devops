@@ -37,6 +37,7 @@ type TabData = {
 type CreateTaskFields = {
     title: string,
     description: string,
+    areaPath: string,
 }
 
 type ProjectDetails = {

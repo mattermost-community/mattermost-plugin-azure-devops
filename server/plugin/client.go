@@ -67,6 +67,15 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 				Value:     body.Fields.Description,
 			})
 	}
+	if body.Fields.AreaPath != "" {
+		payload = append(payload,
+			&serializers.CreateTaskBodyPayload{
+				Operation: "add",
+				Path:      "/fields/System.AreaPath",
+				From:      "",
+				Value:     body.Fields.AreaPath,
+			})
+	}
 
 	var task *serializers.TaskValue
 	_, statusCode, err := c.CallPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodPost, mattermostUserID, &payload, &task, nil)
@@ -215,7 +224,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		req.Header.Add("Content-Type", contentType)
 	}
 
-	if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
+	if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
 			return nil, http.StatusInternalServerError, err
 		}

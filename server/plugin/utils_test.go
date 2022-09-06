@@ -139,7 +139,7 @@ func TestDM(t *testing.T) {
 			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(testCase.channel, testCase.channelErr)
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(testCase.post, testCase.postErr)
 
-			resp, _ := p.DM(testCase.mattermostUserID, testCase.format, &testCase.args)
+			resp, _ := p.DM(testCase.mattermostUserID, testCase.format, false, &testCase.args)
 			assert.NotNil(t, resp)
 		})
 	}

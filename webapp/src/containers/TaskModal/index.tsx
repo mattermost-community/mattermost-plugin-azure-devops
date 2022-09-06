@@ -71,6 +71,7 @@ const TaskModal = () => {
             fields: {
                 title: formFields.title ?? '',
                 description: formFields.description ?? '',
+                areaPath: formFields.areaPath ?? '',
             },
             timestamp: formFields.timestamp ?? '',
         };

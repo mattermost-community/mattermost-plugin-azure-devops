@@ -101,15 +101,16 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	// Check if message is a work item link.
 	if taskData, isValid := isValidTaskLink(post.Message); isValid {
-		post, msg := p.postTaskPreview(taskData, post.UserId, post.ChannelId)
-		return post, msg
+		newPost, msg := p.postTaskPreview(taskData, post.UserId, post.ChannelId)
+		return newPost, msg
 	}
 	return nil, ""
 }
 
 // Function to validate the work item link.
 func isValidTaskLink(msg string) ([]string, bool) {
-	data := strings.Split(msg, "/")
+	trimmedLink := strings.TrimRight(msg, "/")
+	data := strings.Split(trimmedLink, "/")
 	if len(data) != 8 {
 		return nil, false
 	}

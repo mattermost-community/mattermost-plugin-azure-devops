@@ -170,10 +170,10 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 	return nil, false
 }
 
-func (p *Plugin) IsSubscriptionPresent(subscriptionList []*serializers.SubscriptionDetails, subscription *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+func (p *Plugin) IsSubscriptionPresent(subscriptionList []serializers.SubscriptionDetails, subscription serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 	for _, a := range subscriptionList {
 		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType {
-			return a, true
+			return &a, true
 		}
 	}
 	return nil, false
@@ -190,4 +190,8 @@ func (p *Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (p *Plugin) getConnectAccountFirstMessage() string {
+	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }

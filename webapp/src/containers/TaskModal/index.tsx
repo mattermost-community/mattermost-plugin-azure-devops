@@ -1,231 +1,208 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-import Dropdown from 'components/dropdown';
-import Input from 'components/inputField';
 import Modal from 'components/modal';
+import CircularLoader from 'components/loader/circular';
+import EmptyState from 'components/emptyState';
+import Form from 'components/form';
 
-import Constants from 'plugin_constants';
+import plugin_constants from 'plugin_constants';
+
 import usePluginApi from 'hooks/usePluginApi';
-import {hideTaskModal} from 'reducers/taskModal';
-import {getTaskModalState} from 'selectors'
+import useForm from 'hooks/useForm';
+import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
-// TODO: fetch the organization and project options from API later.
-const organizationOptions = [
-    {
-        value: 'bs-test',
-        label: 'bs-test',
-    },
-    {
-        value: 'brightscout-test',
-        label: 'brightscout-test',
-    },
-];
+import {toggleShowTaskModal} from 'reducers/taskModal';
+import {toggleShowLinkModal} from 'reducers/linkModal';
+import {getCreateTaskModalState} from 'selectors';
 
-const projectOptions = [
-    {
-        value: 'bs',
-        label: 'bs',
-    },
-    {
-        value: 'bs-2',
-        label: 'bs-2',
-    },
-    {
-        value: 'bs-3',
-        label: 'bs-3',
-    },
-    {
-        value: 'azure-test',
-        label: 'azure-test',
-    },
-];
-
-const taskTypeOptions = [
-    {
-        value: 'Task',
-        label: 'Task',
-    },
-    {
-        value: 'Epic',
-        label: 'Epic',
-    },
-    {
-        value: 'Issue',
-        label: 'Issue',
-    },
-];
+import Utils from 'utils';
 
 const TaskModal = () => {
-    const [state, setState] = useState({
-        taskOrganization: '',
-        taskProject: '',
-        taskType: '',
-        taskTitle: '',
-        taskDescription: '',
-    });
-    const [taskOrganizationError, setTaskOrganizationError] = useState('');
-    const [taskProjectError, setTaskProjectError] = useState('');
-    const [taskTypeError, setTaskTypeError] = useState('');
-    const [taskTitleError, setTaskTitleError] = useState('');
-    const [taskPayload, setTaskPayload] = useState<CreateTaskPayload | null>();
-    const usePlugin = usePluginApi();
-    const {visibility} = getTaskModalState(usePlugin.state);
+    // Hooks
+    const {
+        formFields,
+        errorState,
+        onChangeFormField,
+        setSpecificFieldValue,
+        resetFormFields,
+        isErrorInFormValidation,
+    } = useForm(plugin_constants.form.createTaskModal);
+    const {getApiState, makeApiRequestWithCompletionStatus, state} = usePluginApi();
     const dispatch = useDispatch();
 
+    // State variables
+    const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
+    const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
+    const {visibility, commandArgs} = getCreateTaskModalState(state);
+
+    // Function to hide the modal and reset all the states
+    const resetModalState = () => {
+        resetFormFields();
+        dispatch(toggleShowTaskModal({isVisible: false, commandArgs: []}));
+    };
+
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
+        resetModalState();
+    };
+
+    // Get option list for each types of dropdown fields
+    const getDropDownOptions = (fieldName: CreateTaskModalFields) => {
+        switch (fieldName) {
+        case 'organization':
+            return organizationOptions;
+        case 'project':
+            return projectOptions;
+        case 'type':
+            return plugin_constants.form.createTaskModal.type.optionsList;
+        default:
+            return [];
+        }
+    };
+
+    // Form payload to send in API request
+    const getApiPayload = (): CreateTaskPayload => {
+        const payload: CreateTaskPayload = {
+            organization: formFields.organization ?? '',
+            project: formFields.project ?? '',
+            type: formFields.type ?? '',
+            fields: {
+                title: formFields.title ?? '',
+                description: formFields.description ?? '',
+            },
+            timestamp: formFields.timestamp ?? '',
+        };
+
+        return payload;
+    };
+
+    const onConfirm = () => {
+        if (!isErrorInFormValidation()) {
+            // Make POST api request
+            makeApiRequestWithCompletionStatus(
+                plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
+                getApiPayload(),
+            );
+        }
+    };
+
+    useApiRequestCompletionState({
+        serviceName: plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
+        payload: getApiPayload(),
+        handleSuccess: () => resetModalState(),
+    });
+
+    // Get organization and project state
+    const getOrganizationAndProjectState = () => {
+        const {isLoading, isSuccess, isError, data} = getApiState(
+            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+        );
+
+        return {
+            isLoading,
+            isError,
+            isSuccess,
+            organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
+            projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
+        };
+    };
+
+    // Return different types of error messages occurred on API call
+    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
+        if (getOrganizationAndProjectState().isError) {
+            return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
+        }
+        return Utils.getErrorMessage(isCreateSubscriptionError, 'CreateTaskModal', error);
+    };
+
+    // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        if (visibility === true) {
-            // Pre-select the dropdown value in case of single option.
-            if (organizationOptions.length === 1) {
-                setState({...state, taskOrganization: organizationOptions[0].value});
-            }
-            if (projectOptions.length === 1) {
-                setState({...state, taskProject: projectOptions[0].value});
-            }
+        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project'> = {
+            organization: '',
+            project: '',
+        };
+
+        if (organizationOptions.length === 1) {
+            autoSelectedValues.organization = organizationOptions[0].value;
+        }
+        if (projectOptions.length === 1) {
+            autoSelectedValues.project = projectOptions[0].value;
+        }
+
+        if (autoSelectedValues.organization || autoSelectedValues.project) {
+            setSpecificFieldValue({
+                ...formFields,
+                ...autoSelectedValues,
+            });
+        }
+    }, [projectOptions, organizationOptions]);
+
+    // Set organization and project list values
+    useEffect(() => {
+        if (getOrganizationAndProjectState().isSuccess) {
+            setOrganizationOptions(getOrganizationAndProjectState().organizationList);
+            setProjectOptions(getOrganizationAndProjectState().projectList);
+        }
+    }, [
+        getOrganizationAndProjectState().isLoading,
+    ]);
+
+    // Set modal field values
+    useEffect(() => {
+        if (visibility) {
+            setSpecificFieldValue({
+                ...formFields,
+                title: commandArgs.title,
+                description: commandArgs.description,
+            });
         }
     }, [visibility]);
 
-    // Function to hide the modal and reset all the states.
-    const onHide = useCallback(() => {
-        setState({
-            taskOrganization: '',
-            taskProject: '',
-            taskType: '',
-            taskTitle: '',
-            taskDescription: '',
-        });
-        setTaskOrganizationError('');
-        setTaskProjectError('');
-        setTaskTitleError('');
-        setTaskTypeError('');
-        setTaskPayload(null);
-        dispatch(hideTaskModal());
-    }, []);
+    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
+    const isAnyProjectLinked = Boolean(getOrganizationAndProjectState().organizationList.length && getOrganizationAndProjectState().projectList.length);
 
-    const onOrganizationChange = useCallback((value: string) => {
-        setTaskOrganizationError('');
-        setState({...state, taskOrganization: value});
-    }, [state]);
-
-    const onProjectChange = useCallback((value: string) => {
-        setTaskProjectError('');
-        setState({...state, taskProject: value});
-    }, [state]);
-
-    const onTaskTypeChange = useCallback((value: string) => {
-        setTaskTypeError('');
-        setState({...state, taskType: value});
-    }, [state]);
-
-    const onTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setTaskTitleError('');
-        setState({...state, taskTitle: (e.target as HTMLInputElement).value});
-    }, [state]);
-
-    const onDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setState({...state, taskDescription: (e.target as HTMLInputElement).value});
-    }, [state]);
-
-    const onConfirm = useCallback(() => {
-        if (state.taskOrganization === '') {
-            setTaskOrganizationError('Organization is required');
-        }
-        if (state.taskProject === '') {
-            setTaskProjectError('Project is required');
-        }
-        if (state.taskType === '') {
-            setTaskTypeError('Work item type is required');
-        }
-        if (state.taskTitle === '') {
-            setTaskTitleError('Title is required');
-        }
-
-        if (!state.taskOrganization || !state.taskProject || !state.taskTitle || !state.taskType) {
-            return;
-        }
-
-        // Create payload to send in the POST request.
-        const payload = {
-            organization: state.taskOrganization,
-            project: state.taskProject,
-            type: state.taskType,
-            fields: {
-                title: state.taskTitle,
-                description: state.taskDescription,
-            },
-        };
-
-        // TODO: save the payload in a state variable to use it while reading the state
-        // we can see later if there exists a better way for this
-        setTaskPayload(payload);
-
-        // Make POST api request
-        usePlugin.makeApiRequest(Constants.pluginApiServiceConfigs.createTask.apiServiceName, payload);
-    }, [state]);
-
-    useEffect(() => {
-        if (taskPayload) {
-            const {isSuccess, isError} = usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload);
-            if ((isSuccess && !isError) || (!isSuccess && isError)) {
-                onHide();
-            }
-        }
-    }, [usePlugin.state]);
-
-    if (visibility) {
-        return (
-            <Modal
-                show={visibility}
-                title='Create Task'
-                onHide={onHide}
-                onConfirm={onConfirm}
-                confirmBtnText='Create task'
-                loading={taskPayload ? usePlugin.getApiState(Constants.pluginApiServiceConfigs.createTask.apiServiceName, taskPayload).isLoading : false}
-            >
-                <>
-                    <Dropdown
-                        placeholder='Organization name'
-                        value={state.taskOrganization}
-                        onChange={(newValue) => onOrganizationChange(newValue)}
-                        options={organizationOptions}
-                        required={true}
-                        error={taskOrganizationError}
-                    />
-                    <Dropdown
-                        placeholder='Project name'
-                        value={state.taskProject}
-                        onChange={(newValue) => onProjectChange(newValue)}
-                        options={projectOptions}
-                        required={true}
-                        error={taskProjectError}
-                    />
-                    <Dropdown
-                        placeholder='Work item type'
-                        value={state.taskType}
-                        onChange={(newValue) => onTaskTypeChange(newValue)}
-                        options={taskTypeOptions}
-                        required={true}
-                        error={taskTypeError}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Title'
-                        value={state.taskTitle}
-                        onChange={onTitleChange}
-                        error={taskTitleError}
-                        required={true}
-                    />
-                    <Input
-                        type='text'
-                        placeholder='Description'
-                        value={state.taskDescription}
-                        onChange={onDescriptionChange}
-                    />
-                </>
-            </Modal>
-        );
-    }
-    return null;
+    return (
+        <Modal
+            show={visibility}
+            title='Create New Task'
+            onHide={resetModalState}
+            onConfirm={isAnyProjectLinked ? onConfirm : null}
+            confirmBtnText='Create new task'
+            loading={isLoading}
+            confirmDisabled={isLoading}
+            error={showApiErrorMessages(isError, error as ApiErrorResponse)}
+        >
+            <>
+                {
+                    getOrganizationAndProjectState().isLoading && <CircularLoader/>
+                }
+                {
+                    isAnyProjectLinked ? (
+                        Object.keys(plugin_constants.form.createTaskModal).map((field) => (
+                            <Form
+                                key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
+                                fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
+                                value={formFields[field as CreateTaskModalFields]}
+                                optionsList={getDropDownOptions(field as CreateTaskModalFields)}
+                                onChange={(newValue) => onChangeFormField(field as CreateTaskModalFields, newValue)}
+                                error={errorState[field as CreateTaskModalFields]}
+                                isDisabled={isLoading}
+                            />
+                        ))
+                    ) : (
+                        <EmptyState
+                            title='No Project Linked'
+                            subTitle={{text: 'You can link a project by clicking the below button.'}}
+                            buttonText='Link new project'
+                            buttonAction={handleOpenLinkProjectModal}
+                        />
+                    )
+                }
+            </>
+        </Modal>
+    );
 };
 
 export default TaskModal;

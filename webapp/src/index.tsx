@@ -16,6 +16,7 @@ import Hooks from 'hooks';
 import Rhs from 'containers/Rhs';
 import LinkModal from 'containers/LinkModal';
 import TaskModal from 'containers/TaskModal';
+import SubscribeModal from 'containers/SubscribeModal';
 
 // eslint-disable-next-line import/no-unresolved
 import {PluginRegistry} from './types/mattermost-webapp';
@@ -28,12 +29,13 @@ export default class Plugin {
         registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
-        registry.registerWebSocketEventHandler(`custom_${Constants.pluginId}_connect`, handleConnect(store));
-        registry.registerWebSocketEventHandler(`custom_${Constants.pluginId}_disconnect`, handleDisconnect(store));
-        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.RightSidebarHeader);
+        registry.registerRootComponent(SubscribeModal);
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_connect`, handleConnect(store));
+        registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_disconnect`, handleDisconnect(store));
+        const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
-        registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.AzureDevops);
+        registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.common.AzureDevops);
     }
 }
 

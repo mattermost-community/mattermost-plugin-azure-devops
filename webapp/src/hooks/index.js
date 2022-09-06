@@ -6,13 +6,6 @@ export default class Hooks {
         this.store = store;
     }
 
-    closeRhs() {
-        this.store.dispatch({
-            type: 'UPDATE_RHS_STATE',
-            state: null,
-        });
-    }
-
     slashCommandWillBePostedHook = (message, contextArgs) => {
         let commandTrimmed;
         if (message) {
@@ -27,11 +20,25 @@ export default class Hooks {
                 args: contextArgs,
             });
         }
+
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
-            // TODO: refactor
-            // const args = splitArgs(commandTrimmed);
-            return Promise.resolve({});
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'createBoardTask', commandArgs}));
+            return Promise.resolve({
+                message,
+                args: contextArgs,
+            });
         }
+
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops subscribe')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs}));
+            return {
+                message,
+                args: contextArgs,
+            };
+        }
+
         return Promise.resolve({
             message,
             args: contextArgs,

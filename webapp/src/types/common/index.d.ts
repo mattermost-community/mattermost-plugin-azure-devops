@@ -1,10 +1,27 @@
 /**
  * Keep all common types here which are to be used throughout the project
 */
+type eventType = 'create' | 'update' | 'delete'
+type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
+
+type TabData = {
+    title: string,
+    tabPanel: JSX.Element
+}
+
+type TabsData = {
+    title: string
+    component: JSX.Element
+}
+
+type LabelValuePair = {
+    label: string | JSX.Element;
+    value: string;
+}
 
 type HttpMethod = 'GET' | 'POST';
 
-type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject' | 'getUserDetails'
+type ApiServiceName = 'createTask' | 'testGet' | 'createLink' | 'getAllLinkedProjectsList' | 'unlinkProject' | 'getUserDetails' | 'getChannels' | 'createSubscription'
 
 type PluginApiService = {
     path: string,
@@ -22,28 +39,39 @@ type CreateTaskFields = {
     description: string,
 }
 
-type LinkPayload = {
-    organization: string,
-    project: string,
+type ProjectDetails = {
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
 }
 
-type CreateTaskPayload = {
-    organization: string,
-    project: string,
-    type: string,
-    fields: CreateTaskFields,
+type UserDetails = {
+    MattermostUserID: string
 }
 
-type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | UserDetails | void;
+type ChannelList = {
+    display_name: string,
+    id: string,
+    name: string,
+    team_id: string,
+    team_name: string,
+    type: string
+}
+
+type APIRequestPayload = CreateTaskPayload | LinkPayload | ProjectDetails | UserDetails | ChannelList | {teamId: string} | void;
 
 type DropdownOptionType = {
     label?: string | JSX.Element;
     value: string;
 }
 
-type TabsData = {
-    title: string
-    component: JSX.Element
+type FetchChannelParams = {
+    teamId: string;
+}
+
+type FetchSubscriptionList = {
+    project: string;
 }
 
 type ProjectDetails = {
@@ -57,12 +85,21 @@ type UserDetails = {
     MattermostUserID: string
 }
 
-type eventType = 'create' | 'update' | 'delete'
-
 type SubscriptionDetails = {
-    id: string
-    name: string
-    eventType: eventType
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string,
+    eventType: string,
+    channelID: string,
+    channelName: string,
+}
+
+type ModalId = 'linkProject' | 'createBoardTask' | null
+
+type WebsocketEventParams = {
+    event: string,
+    data: Record<string, string>,
 }
 
 type ModalId = 'linkProject' | 'createBoardTask' | null

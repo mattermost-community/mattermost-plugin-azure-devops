@@ -50,6 +50,7 @@ const LinkModal = () => {
         setProjectDetails({...projectDetails, project: (e.target as HTMLInputElement).value});
     };
 
+    // Handles on confirming link project
     const onConfirm = useCallback(() => {
         const errorStateChanges: LinkPayload = {
             organization: '',
@@ -95,7 +96,7 @@ const LinkModal = () => {
     return (
         <Modal
             show={getLinkModalState(usePlugin.state).visibility}
-            title='Link new project'
+            title='Link New Project'
             onHide={resetModalState}
             onConfirm={onConfirm}
             confirmBtnText='Link new project'
@@ -110,6 +111,7 @@ const LinkModal = () => {
                     value={projectDetails.organization}
                     onChange={onOrganizationChange}
                     error={errorState.organization}
+                    disabled={isLoading}
                     required={true}
                 />
                 <Input
@@ -117,8 +119,9 @@ const LinkModal = () => {
                     placeholder='Project name'
                     value={projectDetails.project}
                     onChange={onProjectChange}
-                    required={true}
+                    disabled={isLoading}
                     error={errorState.project}
+                    required={true}
                 />
             </>
         </Modal>

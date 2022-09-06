@@ -14,10 +14,12 @@ const (
 	PathLinkProject               = "/link"
 	PathSubscriptions             = "/subscriptions"
 	PathSubscriptionNotifications = "/notification"
+	PathGetUserChannelsForTeam    = "/channels/{team_id:[A-Za-z0-9]+}"
 
 	// Azure API paths
 	CreateTask         = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 	GetTask            = "%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
 	GetProject         = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 	CreateSubscription = "/%s/_apis/hooks/subscriptions?api-version=6.0"
+	DeleteSubscription = "/%s/_apis/hooks/subscriptions/%s?api-version=6.0"
 )

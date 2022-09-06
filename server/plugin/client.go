@@ -21,6 +21,7 @@ type Client interface {
 	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
+	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 }
 
 type client struct {
@@ -97,7 +98,6 @@ func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID str
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to link Project")
 	}
-
 	return project, statusCode, nil
 }
 
@@ -127,12 +127,11 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	payload := serializers.CreateSubscriptionBodyPayload{
 		PublisherID:      constants.PublisherID,
 		EventType:        statusData[body.EventType],
-		ConsumerId:       constants.ConsumerID,
-		ConsumerActionId: constants.ConsumerActionID,
+		ConsumerID:       constants.ConsumerID,
+		ConsumerActionID: constants.ConsumerActionID,
 		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}
-
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
@@ -140,6 +139,16 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	return subscription, statusCode, nil
+}
+
+func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error) {
+	subscriptionURL := fmt.Sprintf(constants.DeleteSubscription, organization, subscriptionID)
+	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodDelete, mattermostUserID, nil, nil, nil)
+	if err != nil {
+		return statusCode, errors.Wrap(err, "failed to delete subscription")
+	}
+
+	return statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content
@@ -203,6 +212,12 @@ func (c *client) call(basePath, method, path, contentType string, mattermostUser
 
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
+	}
+
+	if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
+		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
 	}
 
 	resp, err := c.httpClient.Do(req)

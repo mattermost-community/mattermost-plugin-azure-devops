@@ -1,13 +1,15 @@
 /**
  * Utils
 */
-
 import Constants from 'plugin_constants';
+
+import {getOrganizationList, getProjectList} from './filterData';
+import getErrorMessage from './errorHandling';
 
 const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string} => {
     const url = new URL(window.location.href);
     const baseUrl = `${url.protocol}//${url.host}`;
-    const pluginUrl = `${baseUrl}/plugins/${Constants.pluginId}`;
+    const pluginUrl = `${baseUrl}/plugins/${Constants.common.pluginId}`;
     const pluginApiBaseUrl = `${pluginUrl}/api/v1`;
     const mattermostApiBaseUrl = `${baseUrl}/api/v4`;
 
@@ -42,7 +44,21 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     };
 };
 
-export const onPressingEnterKey = (event: Event | undefined, func: () => void) => {
+export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCommandArgs => {
+    if (arr.length < 3) {
+        return {
+            title: '',
+            description: '',
+        };
+    }
+
+    return {
+        title: arr[1] ?? '',
+        description: arr[2] ?? '',
+    };
+};
+
+export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement>, func: () => void) => {
     if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
         return;
     }
@@ -52,4 +68,7 @@ export const onPressingEnterKey = (event: Event | undefined, func: () => void) =
 
 export default {
     getBaseUrls,
+    getErrorMessage,
+    getOrganizationList,
+    getProjectList,
 };

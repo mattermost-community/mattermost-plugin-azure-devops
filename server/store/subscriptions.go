@@ -9,7 +9,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
-type SubscriptionListMap map[string]*serializers.SubscriptionDetails
+type SubscriptionListMap map[string]serializers.SubscriptionDetails
 
 type SubscriptionList struct {
 	ByMattermostUserID map[string]SubscriptionListMap
@@ -56,11 +56,12 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelID:        subscription.ChannelID,
 		EventType:        subscription.EventType,
 		SubscriptionID:   subscription.SubscriptionID,
+		ChannelName:      subscription.ChannelName,
 	}
-	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = &subscriptionListValue
+	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }
 
-func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {
+func (s *Store) GetSubscription() (*SubscriptionList, error) {
 	key := GetSubscriptionListMapKey()
 	initialBytes, appErr := s.Load(key)
 	if appErr != nil {
@@ -75,13 +76,13 @@ func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {
 	return subscriptions, nil
 }
 
-func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error) {
-	subscriptions, err := s.GetSubscriptionList()
+func (s *Store) GetAllSubscriptions(userID string) ([]serializers.SubscriptionDetails, error) {
+	subscriptions, err := s.GetSubscription()
 	if err != nil {
 		return nil, err
 	}
 
-	var subscriptionList []*serializers.SubscriptionDetails
+	var subscriptionList []serializers.SubscriptionDetails
 	for _, subscription := range subscriptions.ByMattermostUserID[userID] {
 		subscriptionList = append(subscriptionList, subscription)
 	}
@@ -115,7 +116,6 @@ func (subscriptionList *SubscriptionList) DeleteSubscriptionByKey(userID, subscr
 	for key := range subscriptionList.ByMattermostUserID[userID] {
 		if key == subscriptionKey {
 			delete(subscriptionList.ByMattermostUserID[userID], key)
-			return
 		}
 	}
 }
@@ -123,7 +123,8 @@ func (subscriptionList *SubscriptionList) DeleteSubscriptionByKey(userID, subscr
 func SubscriptionListFromJSON(bytes []byte) (*SubscriptionList, error) {
 	var subscriptionList *SubscriptionList
 	if len(bytes) != 0 {
-		if unmarshalErr := json.Unmarshal(bytes, &subscriptionList); unmarshalErr != nil {
+		unmarshalErr := json.Unmarshal(bytes, &subscriptionList)
+		if unmarshalErr != nil {
 			return nil, unmarshalErr
 		}
 	} else {

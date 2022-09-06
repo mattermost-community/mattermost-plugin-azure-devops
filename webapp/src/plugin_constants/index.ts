@@ -1,55 +1,31 @@
 /**
  * Keep all plugin related constants here
 */
-
-// Plugin configs
-const pluginId = 'mattermost-plugin-azure-devops';
-
-const AzureDevops = 'Azure Devops';
-const RightSidebarHeader = 'Azure Devops';
-
-const MMUSERID = 'MMUSERID';
-const HeaderMattermostUserID = 'User-ID';
-
-// Plugin api service (RTK query) configs
-const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
-    createTask: {
-        path: '/tasks',
-        method: 'POST',
-        apiServiceName: 'createTask',
-    },
-    createLink: {
-        path: '/link',
-        method: 'POST',
-        apiServiceName: 'createLink',
-    },
-    testGet: {
-        path: '/test',
-        method: 'GET',
-        apiServiceName: 'testGet',
-    },
-    getAllLinkedProjectsList: {
-        path: '/project/link',
-        method: 'GET',
-        apiServiceName: 'getAllLinkedProjectsList',
-    },
-    unlinkProject: {
-        path: '/project/unlink',
-        method: 'POST',
-        apiServiceName: 'unlinkProject',
-    },
-    getUserDetails: {
-        path: '/user',
-        method: 'GET',
-        apiServiceName: 'getUserDetails',
-    },
-};
+import {
+    AzureDevops,
+    HeaderCSRFToken,
+    MMCSRF,
+    pluginId,
+    RightSidebarHeader,
+} from './common';
+import {subscriptionModal, createTaskModal} from './form';
+import {pluginApiServiceConfigs} from './apiService';
+import {error} from './messages';
 
 export default {
-    MMUSERID,
-    HeaderMattermostUserID,
-    pluginId,
+    common: {
+        pluginId,
+        MMCSRF,
+        HeaderCSRFToken,
+        AzureDevops,
+        RightSidebarHeader,
+    },
+    form: {
+        subscriptionModal,
+        createTaskModal,
+    },
+    messages: {
+        error,
+    },
     pluginApiServiceConfigs,
-    AzureDevops,
-    RightSidebarHeader,
 };

@@ -50,15 +50,15 @@ func (p *Plugin) DM(mattermostUserID, format string, args ...interface{}) (strin
 	return sentPost.Id, nil
 }
 
-// encode encodes bytes into base64 string
-func (p *Plugin) encode(encrypted []byte) string {
+// Encode encodes bytes into base64 string
+func (p *Plugin) Encode(encrypted []byte) string {
 	encoded := make([]byte, base64.URLEncoding.EncodedLen(len(encrypted)))
 	base64.URLEncoding.Encode(encoded, encrypted)
 	return string(encoded)
 }
 
-// decode decodes a base64 string into bytes
-func (p *Plugin) decode(encoded string) ([]byte, error) {
+// Decode decodes a base64 string into bytes
+func (p *Plugin) Decode(encoded string) ([]byte, error) {
 	decoded := make([]byte, base64.URLEncoding.DecodedLen(len(encoded)))
 	noOfBytes, err := base64.URLEncoding.Decode(decoded, []byte(encoded))
 	if err != nil {
@@ -67,8 +67,8 @@ func (p *Plugin) decode(encoded string) ([]byte, error) {
 	return decoded[:noOfBytes], nil
 }
 
-// encrypt used for generating encrypted bytes
-func (p *Plugin) encrypt(plain, secret []byte) ([]byte, error) {
+// Encrypt used for generating encrypted bytes
+func (p *Plugin) Encrypt(plain, secret []byte) ([]byte, error) {
 	if len(secret) == 0 {
 		return plain, nil
 	}
@@ -92,8 +92,8 @@ func (p *Plugin) encrypt(plain, secret []byte) ([]byte, error) {
 	return append(nonce, sealed...), nil
 }
 
-// decrypt used for generating decrypted bytes
-func (p *Plugin) decrypt(encrypted, secret []byte) ([]byte, error) {
+// Decrypt used for generating decrypted bytes
+func (p *Plugin) Decrypt(encrypted, secret []byte) ([]byte, error) {
 	if len(secret) == 0 {
 		return encrypted, nil
 	}
@@ -135,11 +135,11 @@ func (p *Plugin) GetPluginURL() string {
 }
 
 func (p *Plugin) ParseAuthToken(encoded string) (string, error) {
-	decodedAccessToken, err := p.decode(encoded)
+	decodedAccessToken, err := p.Decode(encoded)
 	if err != nil {
 		return "", err
 	}
-	decryptedAccessToken, err := p.decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
+	decryptedAccessToken, err := p.Decrypt(decodedAccessToken, []byte(p.getConfiguration().EncryptionSecret))
 	if err != nil {
 		return "", err
 	}

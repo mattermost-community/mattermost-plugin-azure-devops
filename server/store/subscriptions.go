@@ -9,6 +9,13 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 )
 
+type SubscriptionStore interface {
+	StoreSubscription(subscription *serializers.SubscriptionDetails) error
+	GetSubscription() (*SubscriptionList, error)
+	GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error)
+	DeleteSubscription(subscription *serializers.SubscriptionDetails) error
+}
+
 type SubscriptionListMap map[string]serializers.SubscriptionDetails
 
 type SubscriptionList struct {

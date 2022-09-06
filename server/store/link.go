@@ -8,6 +8,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+type LinkStore interface {
+	StoreProject(project *serializers.ProjectDetails) error
+	GetProject() (*ProjectList, error)
+	GetAllProjects(userID string) ([]serializers.ProjectDetails, error)
+	DeleteProject(project *serializers.ProjectDetails) error
+}
+
 type ProjectListMap map[string]serializers.ProjectDetails
 
 type ProjectList struct {

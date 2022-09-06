@@ -366,8 +366,9 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
+	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
+		p.API.LogDebug("Request payload is not valid", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
@@ -378,32 +379,33 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType})
+	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{
+		OrganizationName: body.Organization,
+		ProjectName:      body.Project,
+		ChannelID:        body.ChannelID,
+		EventType:        body.EventType,
+	})
 	if !isSubscriptionPresent {
-		p.API.LogError(constants.SubscriptionNotFound, "Error")
+		p.API.LogError(constants.SubscriptionNotFound)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})
 		return
 	}
 
-	statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID)
-	if err != nil {
+	if statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID); err != nil {
+		p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
 
-	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
+	p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
-	}); deleteErr != nil {
-		p.API.LogError("Error in deleting a subscription", "Error", deleteErr.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
-	}
+	})
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+	returnStatusOK(w)
 }
 
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {

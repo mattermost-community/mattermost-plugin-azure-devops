@@ -140,7 +140,7 @@ func TestAddSubscription(t *testing.T) {
 	}
 }
 
-func TestGetSubscription(t *testing.T) {
+func TestGetSubscriptionList(t *testing.T) {
 	defer monkey.UnpatchAll()
 	s := Store{}
 	for _, testCase := range []struct {
@@ -149,14 +149,14 @@ func TestGetSubscription(t *testing.T) {
 		subscriptionListError error
 	}{
 		{
-			description: "GetSubscription: subscriptions are fetched successfully",
+			description: "GetSubscriptionList: subscriptions are fetched successfully",
 		},
 		{
-			description: "GetSubscription: 'Load' gives error",
+			description: "GetSubscriptionList: 'Load' gives error",
 			err:         errors.New("mockError"),
 		},
 		{
-			description:           "GetSubscription: subscriptions are not fetched successfully",
+			description:           "GetSubscriptionList: subscriptions are not fetched successfully",
 			subscriptionListError: errors.New("mockError"),
 		},
 	} {
@@ -171,7 +171,7 @@ func TestGetSubscription(t *testing.T) {
 				return []byte("mockState"), testCase.err
 			})
 
-			subscriptionList, err := s.GetSubscription()
+			subscriptionList, err := s.GetSubscriptionList()
 
 			if testCase.err != nil || testCase.subscriptionListError != nil {
 				assert.Nil(t, subscriptionList)
@@ -201,7 +201,7 @@ func TestGetAllSubscriptions(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "GetSubscription", func(*Store) (*SubscriptionList, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "GetSubscriptionList", func(*Store) (*SubscriptionList, error) {
 				return &SubscriptionList{}, testCase.err
 			})
 

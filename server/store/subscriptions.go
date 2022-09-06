@@ -11,7 +11,7 @@ import (
 
 type SubscriptionStore interface {
 	StoreSubscription(subscription *serializers.SubscriptionDetails) error
-	GetSubscription() (*SubscriptionList, error)
+	GetSubscriptionList() (*SubscriptionList, error)
 	GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error)
 	DeleteSubscription(subscription *serializers.SubscriptionDetails) error
 }
@@ -70,21 +70,6 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelName:      subscription.ChannelName,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
-}
-
-func (s *Store) GetSubscription() (*SubscriptionList, error) {
-	key := GetSubscriptionListMapKey()
-	initialBytes, appErr := s.Load(key)
-	if appErr != nil {
-		return nil, errors.New(constants.GetSubscriptionListError)
-	}
-
-	subscriptions, err := SubscriptionListFromJSON(initialBytes)
-	if err != nil {
-		return nil, errors.New(constants.GetSubscriptionListError)
-	}
-
-	return subscriptions, nil
 }
 
 func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {

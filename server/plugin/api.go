@@ -90,8 +90,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := body.IsLinkPayloadValid(); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if linkValidationErr := body.IsLinkPayloadValid(); linkValidationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: linkValidationErr.Error()})
 		return
 	}
 

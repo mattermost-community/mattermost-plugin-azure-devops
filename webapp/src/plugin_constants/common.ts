@@ -11,3 +11,5 @@ export enum ToggleSwitchLabelPositioning {
     Left = 'left',
     Right = 'right',
 }
+
+export const ToggleLabel = 'Show all subscriptions';

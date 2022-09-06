@@ -16,7 +16,7 @@ import {resetProjectDetails} from 'reducers/projectDetails';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import plugin_constants from 'plugin_constants';
 import {getSubscribeModalState} from 'selectors';
-import {getCurrentChannelName, getCurrentChannelSubscriptions} from 'utils/filterData';
+import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
     // State variables
@@ -24,13 +24,13 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
-    const {entities} = useSelector((state: GlobalState) => state);
-    const {currentChannelId} = entities.channels;
+    const [subscriptionData, setSubscriptionData] = useState<SubscriptionDetails[]>([]);
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
+    const {currentChannelId} = useSelector((state: GlobalState) => state.entities.channels);
+    const {getApiState, makeApiRequest, state} = usePluginApi();
 
     // Hooks
     const dispatch = useDispatch();
-    const usePlugin = usePluginApi();
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -59,7 +59,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = async () => {
-        const unlinkProjectStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        const unlinkProjectStatus = await makeApiRequest(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
 
         if (unlinkProjectStatus) {
             handleResetProjectDetails();
@@ -69,7 +69,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Handles deletion of a subscription and fetching the modified subscription list
     const handleConfirmDeleteSubscription = async () => {
-        const deleteSubscriptionStatus = await usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+        const deleteSubscriptionStatus = await makeApiRequest(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
         if (deleteSubscriptionStatus) {
             fetchSubscriptionList();
@@ -78,23 +78,26 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     };
 
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
-    const {data, isLoading} = usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+
+    // Get subscription list state
+    const getSubscriptionListState = () => {
+        const {isLoading, isSuccess, data} = getApiState(
+            plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+            project,
+        );
+
+        return {
+            isLoading,
+            isSuccess,
+            data: data as SubscriptionDetails[],
+        };
+    };
 
     // Fetch subscription list
-    const fetchSubscriptionList = () => usePlugin.makeApiRequest(
+    const fetchSubscriptionList = () => makeApiRequest(
         plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
         project,
     );
-
-    // Handles switch toggle.
-    const handleToggle = () => {
-        if (showAllSubscriptions) {
-            setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
-        } else {
-            setSubscriptionList(data as SubscriptionDetails[]);
-        }
-        setShowAllSubscriptions(!showAllSubscriptions);
-    };
 
     // Reset the state when the component is unmounted
     useEffect(() => {
@@ -105,45 +108,50 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     }, []);
 
     useEffect(() => {
-        // Update subscription list only when it does not match with the current data
-        if (data !== subscriptionList) {
+        if (getSubscriptionListState().isSuccess) {
+            setSubscriptionData(getSubscriptionListState().data);
+        }
+    }, [getSubscriptionListState().isLoading]);
+
+    useEffect(() => {
+        if (subscriptionData) {
             if (showAllSubscriptions) {
-                setSubscriptionList(data as SubscriptionDetails[]);
+                setSubscriptionList(subscriptionData);
             } else {
-                setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
             }
         }
-    }, [data]);
+    }, [subscriptionData, showAllSubscriptions]);
 
     // Update subscription list on switching channels
     useEffect(() => {
-        setShowAllSubscriptions(false);
-        setSubscriptionList(getCurrentChannelSubscriptions(data as SubscriptionDetails[], currentChannelId));
+        if (subscriptionData) {
+            setShowAllSubscriptions(false);
+            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+        }
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
-        if (getSubscribeModalState(usePlugin.state).isCreated) {
+        if (getSubscribeModalState(state).isCreated) {
             dispatch(toggleIsSubscribed(false));
             fetchSubscriptionList();
         }
-    }, [getSubscribeModalState(usePlugin.state).isCreated]);
+    }, [getSubscribeModalState(state).isCreated]);
 
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
-            {
-                <ToggleSwitch
-                    active={showAllSubscriptions}
-                    onChange={handleToggle}
-                    label={'Show all subscriptions'}
-                />
-            }
+            <ToggleSwitch
+                active={showAllSubscriptions}
+                onChange={setShowAllSubscriptions}
+                label={plugin_constants.common.ToggleLabel}
+            />
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
                 onConfirm={handleConfirmUnlinkProject}
-                isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails).isLoading}
+                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails).isLoading}
                 confirmBtnText='Unlink'
                 description={`Are you sure you want to unlink ${projectDetails.projectName}?`}
                 title='Confirm Project Unlink'
@@ -152,12 +160,12 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 isOpen={showSubscriptionConfirmationModal}
                 onHide={() => setShowSubscriptionConfirmationModal(false)}
                 onConfirm={handleConfirmDeleteSubscription}
-                isLoading={usePlugin.getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
+                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
                 confirmBtnText='Delete'
                 description='Are you sure you want to delete this subscription ?'
                 title='Confirm Delete Subscription'
             />
-            {isLoading && <LinearLoader/>}
+            {getSubscriptionListState().isLoading && <LinearLoader/>}
             <div className='d-flex'>
                 <p className='rhs-title'>{projectDetails.projectName}</p>
                 <IconButton

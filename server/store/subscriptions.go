@@ -76,15 +76,30 @@ func (s *Store) GetSubscription() (*SubscriptionList, error) {
 	return subscriptions, nil
 }
 
-func (s *Store) GetAllSubscriptions(userID string) ([]serializers.SubscriptionDetails, error) {
-	subscriptions, err := s.GetSubscription()
+func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {
+	key := GetSubscriptionListMapKey()
+	initialBytes, appErr := s.Load(key)
+	if appErr != nil {
+		return nil, errors.New(constants.GetSubscriptionListError)
+	}
+
+	subscriptions, err := SubscriptionListFromJSON(initialBytes)
+	if err != nil {
+		return nil, errors.New(constants.GetSubscriptionListError)
+	}
+
+	return subscriptions, nil
+}
+
+func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error) {
+	subscriptions, err := s.GetSubscriptionList()
 	if err != nil {
 		return nil, err
 	}
 
-	var subscriptionList []serializers.SubscriptionDetails
+	var subscriptionList []*serializers.SubscriptionDetails
 	for _, subscription := range subscriptions.ByMattermostUserID[userID] {
-		subscriptionList = append(subscriptionList, subscription)
+		subscriptionList = append(subscriptionList, &subscription)
 	}
 
 	return subscriptionList, nil

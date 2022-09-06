@@ -21,7 +21,6 @@ const (
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
 	EventTypeRequired    = "event type is required"
-	ChannelNameRequired  = "channel name is required"
 	ChannelIDRequired    = "channel ID is required"
 )
 
@@ -34,9 +33,11 @@ const (
 	UnableToStoreOauthState         = "Unable to store oAuth state for the userID %s"
 	AuthAttemptExpired              = "Authentication attempt expired, please try again"
 	InvalidAuthState                = "Invalid oauth state, please try again"
-	GetProjectListError             = "Error getting Project List"
+	GetProjectListError             = "Error in getting project list"
 	ErrorFetchProjectList           = "Error in fetching project list"
 	ErrorDecodingBody               = "Error in decoding body"
+	ErrorCreateTask                 = "Error in creating task"
+	ErrorLinkProject                = "Error in linking the project"
 	FetchSubscriptionListError      = "Error in fetching subscription list"
 	CreateSubscriptionError         = "Error in creating subscription"
 	ProjectNotLinked                = "Requested project is not linked"
@@ -47,4 +48,7 @@ const (
 	ErrorLoadingDataFromKVStore     = "Error in loading data from KV store"
 	ProjectNotFound                 = "Requested project does not exist"
 	ErrorUnlinkProject              = "Error in unlinking the project"
+	InvalidChannelID                = "Invalid channel ID"
+	DeleteSubscriptionError         = "Error in deleting subscription"
+	GetChannelError                 = "Error in getting channels for team and user"
 )

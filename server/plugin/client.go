@@ -94,7 +94,6 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
 	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
 	var project *serializers.Project
-
 	_, statusCode, err := c.callJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, projectURL, http.MethodGet, mattermostUserID, nil, &project, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to link Project")

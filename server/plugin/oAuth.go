@@ -13,7 +13,6 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
 )
 
 type OAuthConfig struct {
@@ -207,7 +206,7 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 		return err
 	}
 
-	user := store.User{
+	user := serializers.User{
 		MattermostUserID: mattermostUserID,
 		AccessToken:      p.encode(encryptedAccessToken),
 		RefreshToken:     p.encode(encryptedRefreshToken),

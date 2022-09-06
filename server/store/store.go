@@ -7,11 +7,18 @@ import (
 	"github.com/pkg/errors"
 )
 
+type KVStore interface {
+	OAuthStore
+	UserStore
+	LinkStore
+	SubscriptionStore
+}
+
 type Store struct {
 	api plugin.API
 }
 
-func NewStore(api plugin.API) *Store {
+func NewStore(api plugin.API) KVStore {
 	return &Store{
 		api,
 	}

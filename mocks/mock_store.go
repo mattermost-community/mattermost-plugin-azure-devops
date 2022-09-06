@@ -78,6 +78,20 @@ func (mr *MockKVStoreMockRecorder) DeleteUser(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockKVStore)(nil).DeleteUser), arg0)
 }
 
+// DeleteUserTokenOnEncryptionSecretChange mocks base method.
+func (m *MockKVStore) DeleteUserTokenOnEncryptionSecretChange() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserTokenOnEncryptionSecretChange")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserTokenOnEncryptionSecretChange indicates an expected call of DeleteUserTokenOnEncryptionSecretChange.
+func (mr *MockKVStoreMockRecorder) DeleteUserTokenOnEncryptionSecretChange() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserTokenOnEncryptionSecretChange", reflect.TypeOf((*MockKVStore)(nil).DeleteUserTokenOnEncryptionSecretChange))
+}
+
 // GetAllProjects mocks base method.
 func (m *MockKVStore) GetAllProjects(arg0 string) ([]serializers.ProjectDetails, error) {
 	m.ctrl.T.Helper()

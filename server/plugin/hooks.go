@@ -35,7 +35,7 @@ func (p *Plugin) OnConfigurationChange() error {
 	p.setConfiguration(configuration)
 
 	if oldEncryptionSecret != "" && oldEncryptionSecret != p.getConfiguration().EncryptionSecret {
-		if err := p.Store.DeleteUserTokenOnSecretChange(); err != nil {
+		if err := p.Store.DeleteUserTokenOnEncryptionSecretChange(); err != nil {
 			p.API.LogError("Error in deleting Users.", "Error", err.Error())
 			return err
 		}

@@ -13,6 +13,7 @@ type KVStore interface {
 	UserStore
 	LinkStore
 	SubscriptionStore
+	DeleteUserTokenOnEncryptionSecretChange() error
 }
 
 type Store struct {
@@ -67,7 +68,7 @@ func (s *Store) Delete(key string) error {
 	return nil
 }
 
-func (s *Store) DeleteUserTokenOnSecretChange() error {
+func (s *Store) DeleteUserTokenOnEncryptionSecretChange() error {
 	page := 0
 	for {
 		kvList, err := s.api.KVList(page, constants.UsersPerPage)

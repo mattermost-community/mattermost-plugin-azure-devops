@@ -27,19 +27,23 @@ func NewProjectList() *ProjectList {
 	}
 }
 
+func storeProjectAtomicModify(project *serializers.ProjectDetails, initialBytes []byte) ([]byte, error) {
+	projectList, err := ProjectListFromJSON(initialBytes)
+	if err != nil {
+		return nil, err
+	}
+	projectList.AddProject(project.MattermostUserID, project)
+	modifiedBytes, marshalErr := json.Marshal(projectList)
+	if marshalErr != nil {
+		return nil, marshalErr
+	}
+	return modifiedBytes, nil
+}
+
 func (s *Store) StoreProject(project *serializers.ProjectDetails) error {
 	key := GetProjectListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
-		projectList, err := ProjectListFromJSON(initialBytes)
-		if err != nil {
-			return nil, err
-		}
-		projectList.AddProject(project.MattermostUserID, project)
-		modifiedBytes, marshalErr := json.Marshal(projectList)
-		if marshalErr != nil {
-			return nil, marshalErr
-		}
-		return modifiedBytes, nil
+		return storeProjectAtomicModify(project, initialBytes)
 	}); err != nil {
 		return err
 	}
@@ -86,20 +90,24 @@ func (s *Store) GetAllProjects(userID string) ([]serializers.ProjectDetails, err
 	return projectList, nil
 }
 
+func deleteProjectAtomicModify(project *serializers.ProjectDetails, initialBytes []byte) ([]byte, error) {
+	projectList, err := ProjectListFromJSON(initialBytes)
+	if err != nil {
+		return nil, err
+	}
+	projectKey := GetProjectKey(project.ProjectID, project.MattermostUserID)
+	projectList.DeleteProjectByKey(project.MattermostUserID, projectKey)
+	modifiedBytes, marshalErr := json.Marshal(projectList)
+	if marshalErr != nil {
+		return nil, marshalErr
+	}
+	return modifiedBytes, nil
+}
+
 func (s *Store) DeleteProject(project *serializers.ProjectDetails) error {
 	key := GetProjectListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
-		projectList, err := ProjectListFromJSON(initialBytes)
-		if err != nil {
-			return nil, err
-		}
-		projectKey := GetProjectKey(project.ProjectID, project.MattermostUserID)
-		projectList.DeleteProjectByKey(project.MattermostUserID, projectKey)
-		modifiedBytes, marshalErr := json.Marshal(projectList)
-		if marshalErr != nil {
-			return nil, marshalErr
-		}
-		return modifiedBytes, nil
+		return deleteProjectAtomicModify(project, initialBytes)
 	}); err != nil {
 		return err
 	}

@@ -137,19 +137,19 @@ func (mr *MockKVStoreMockRecorder) GetProject() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockKVStore)(nil).GetProject))
 }
 
-// GetSubscription mocks base method.
-func (m *MockKVStore) GetSubscription() (*store.SubscriptionList, error) {
+// GetSubscriptionList mocks base method.
+func (m *MockKVStore) GetSubscriptionList() (*store.SubscriptionList, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSubscription")
+	ret := m.ctrl.Call(m, "GetSubscriptionList")
 	ret0, _ := ret[0].(*store.SubscriptionList)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetSubscription indicates an expected call of GetSubscription.
-func (mr *MockKVStoreMockRecorder) GetSubscription() *gomock.Call {
+// GetSubscriptionList indicates an expected call of GetSubscriptionList.
+func (mr *MockKVStoreMockRecorder) GetSubscriptionList() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscription", reflect.TypeOf((*MockKVStore)(nil).GetSubscription))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionList", reflect.TypeOf((*MockKVStore)(nil).GetSubscriptionList))
 }
 
 // LoadUser mocks base method.

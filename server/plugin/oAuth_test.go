@@ -66,7 +66,7 @@ func TestOAuthConnect(t *testing.T) {
 				return "mockRedirectURL"
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "CloseBrowserWindowWithHTTPResponse", func(_ *Plugin, _ http.ResponseWriter) {})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
 				return "", testCase.DMErr
 			})
 
@@ -173,7 +173,7 @@ func TestGenerateOAuthToken(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
 				return "", testCase.DMError
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
@@ -246,7 +246,7 @@ func TestRefreshOAuthToken(t *testing.T) {
 					AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
 				return "", testCase.DMErr
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "Decode", func(_ *Plugin, _ string) ([]byte, error) {
@@ -307,7 +307,7 @@ func TestGenerateAndStoreOAuthToken(t *testing.T) {
 				return 0, nil
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ ...interface{}) (string, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
 				return "", testCase.DMErr
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "Encrypt", func(_ *Plugin, _, _ []byte) ([]byte, error) {

@@ -11,7 +11,7 @@ import (
 
 type SubscriptionStore interface {
 	StoreSubscription(subscription *serializers.SubscriptionDetails) error
-	GetSubscription() (*SubscriptionList, error)
+	GetSubscriptionList() (*SubscriptionList, error)
 	GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error)
 	DeleteSubscription(subscription *serializers.SubscriptionDetails) error
 }
@@ -28,20 +28,24 @@ func NewSubscriptionList() *SubscriptionList {
 	}
 }
 
+func storeSubscriptionAtomicModify(subscription *serializers.SubscriptionDetails, initialBytes []byte) ([]byte, error) {
+	subscriptionList, err := SubscriptionListFromJSON(initialBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	subscriptionList.AddSubscription(subscription.MattermostUserID, subscription)
+	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
+	if marshalErr != nil {
+		return nil, marshalErr
+	}
+	return modifiedBytes, nil
+}
+
 func (s *Store) StoreSubscription(subscription *serializers.SubscriptionDetails) error {
 	key := GetSubscriptionListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
-		subscriptionList, err := SubscriptionListFromJSON(initialBytes)
-		if err != nil {
-			return nil, err
-		}
-
-		subscriptionList.AddSubscription(subscription.MattermostUserID, subscription)
-		modifiedBytes, marshalErr := json.Marshal(subscriptionList)
-		if marshalErr != nil {
-			return nil, marshalErr
-		}
-		return modifiedBytes, nil
+		return storeSubscriptionAtomicModify(subscription, initialBytes)
 	}); err != nil {
 		return err
 	}
@@ -66,21 +70,6 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelName:      subscription.ChannelName,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
-}
-
-func (s *Store) GetSubscription() (*SubscriptionList, error) {
-	key := GetSubscriptionListMapKey()
-	initialBytes, appErr := s.Load(key)
-	if appErr != nil {
-		return nil, errors.New(constants.GetSubscriptionListError)
-	}
-
-	subscriptions, err := SubscriptionListFromJSON(initialBytes)
-	if err != nil {
-		return nil, errors.New(constants.GetSubscriptionListError)
-	}
-
-	return subscriptions, nil
 }
 
 func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {
@@ -112,21 +101,24 @@ func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionD
 	return subscriptionList, nil
 }
 
+func deleteSubscriptionAtomicModify(subscription *serializers.SubscriptionDetails, initialBytes []byte) ([]byte, error) {
+	subscriptionList, err := SubscriptionListFromJSON(initialBytes)
+	if err != nil {
+		return nil, err
+	}
+	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType)
+	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
+	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
+	if marshalErr != nil {
+		return nil, marshalErr
+	}
+	return modifiedBytes, nil
+}
+
 func (s *Store) DeleteSubscription(subscription *serializers.SubscriptionDetails) error {
 	key := GetSubscriptionListMapKey()
 	if err := s.AtomicModify(key, func(initialBytes []byte) ([]byte, error) {
-		subscriptionList, err := SubscriptionListFromJSON(initialBytes)
-		if err != nil {
-			return nil, err
-		}
-
-		subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType)
-		subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
-		modifiedBytes, marshalErr := json.Marshal(subscriptionList)
-		if marshalErr != nil {
-			return nil, marshalErr
-		}
-		return modifiedBytes, nil
+		return deleteSubscriptionAtomicModify(subscription, initialBytes)
 	}); err != nil {
 		return err
 	}

@@ -21,7 +21,6 @@ const (
 	TaskTypeRequired     = "task type is required"
 	TaskTitleRequired    = "task title is required"
 	EventTypeRequired    = "event type is required"
-	ChannelNameRequired  = "channel name is required"
 	ChannelIDRequired    = "channel ID is required"
 )
 
@@ -51,4 +50,5 @@ const (
 	ErrorUnlinkProject              = "Error in unlinking the project"
 	InvalidChannelID                = "Invalid channel ID"
 	DeleteSubscriptionError         = "Error in deleting subscription"
+	GetChannelError                 = "Error in getting channels for team and user"
 )

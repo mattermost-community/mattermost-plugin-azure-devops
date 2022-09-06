@@ -43,7 +43,7 @@
                 "key": "EncryptionSecret",
                 "display_name": "Encryption Secret:",
                 "type": "generated",
-                "help_text": "The secret key is used to encrypt and decrypt the OAuth token.\nRegenerating the secret key will cause the loss of data."
+                "help_text": "The secret key used to encrypt and decrypt the OAuth token.\nRegenerating the secret will require all users to re-connect their accounts to Azure DevOps."
             }
         ]
     }

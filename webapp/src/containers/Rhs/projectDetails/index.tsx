@@ -16,10 +16,12 @@ import plugin_constants from 'plugin_constants';
 import {resetProjectDetails} from 'reducers/projectDetails';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
-import {getSubscribeModalState} from 'selectors';
+import {toggleIsSubscriptionDeleted} from 'reducers/websocketEvent';
+import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
@@ -144,6 +146,14 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
     const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+
+    // Update the subscription list on RHS when a subscription is deleted using the slash command
+    useEffect(() => {
+        if (getWebsocketEventState(state).isSubscriptionDeleted) {
+            fetchSubscriptionList();
+            dispatch(toggleIsSubscriptionDeleted(false));
+        }
+    }, [getWebsocketEventState(state).isSubscriptionDeleted]);
 
     return (
         <>

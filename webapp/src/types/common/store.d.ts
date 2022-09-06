@@ -54,3 +54,8 @@ type ProjectDetails = {
     projectName: string,
     organizationName: string
 }
+
+type WebsocketEventState = {
+    isConnected: boolean;
+    isSubscriptionDeleted: boolean;
+};

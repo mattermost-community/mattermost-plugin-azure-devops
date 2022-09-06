@@ -28,7 +28,7 @@ const SubscriptionCard = ({ handleDeleteSubscrption, subscriptionDetails: { chan
                             </SVGWrapper>
                         }
                         labelExtraClassName='margin-left-5'
-                        value={eventType}
+                        value={plugin_constants.common.boardsEventTypeMap[eventType as EventType]}
                     />
                     <LabelValuePair
                         labelIconClassName={`icon ${channelType === 'P' ? 'icon-lock-outline' : 'icon-globe'} icon-label`}

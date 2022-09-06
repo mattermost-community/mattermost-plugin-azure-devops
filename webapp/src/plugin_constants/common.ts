@@ -12,3 +12,9 @@ export enum ToggleSwitchLabelPositioning {
 }
 
 export const ToggleLabel = 'Show all subscriptions';
+
+export const boardsEventTypeMap: Record<EventType, string> = {
+    create: 'Work Item Created',
+    update: 'Work Item Updated',
+    delete: 'Work Item Deleted',
+};

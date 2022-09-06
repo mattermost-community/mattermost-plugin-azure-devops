@@ -29,3 +29,7 @@ export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompl
 export const getApiQueriesState = (state: ReduxState): ApiQueriesState => {
     return state['plugins-mattermost-plugin-azure-devops'].azureDevOpsPluginApi?.queries;
 };
+
+export const getWebsocketEventState = (state: ReduxState): WebsocketEventState => {
+    return state['plugins-mattermost-plugin-azure-devops'].websocketEventSlice;
+};

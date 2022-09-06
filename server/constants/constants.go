@@ -59,6 +59,7 @@ const (
 	IDsQueryParam        = "ids"
 
 	// Websocket events
-	WSEventConnect    = "connect"
-	WSEventDisconnect = "disconnect"
+	WSEventConnect             = "connect"
+	WSEventDisconnect          = "disconnect"
+	WSEventSubscriptionDeleted = "subscription_deleted"
 )

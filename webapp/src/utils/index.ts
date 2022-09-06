@@ -39,8 +39,8 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     }
 
     return {
-        organization: data[3] ?? '',
-        project: data[4] ?? '',
+        organization: decodeURI(data[3]) ?? '',
+        project: decodeURI(data[4]) ?? '',
     };
 };
 

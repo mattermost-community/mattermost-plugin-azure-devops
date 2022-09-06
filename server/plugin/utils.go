@@ -206,3 +206,41 @@ func (p *Plugin) IsAnyProjectLinked(mattermostUserID string) (bool, error) {
 func (p *Plugin) getConnectAccountFirstMessage() string {
 	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }
+
+func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID string) string {
+	var sb strings.Builder
+
+	if len(subscriptionsList) == 0 {
+		sb.WriteString(constants.NoSubscriptionFound)
+		return sb.String()
+	}
+
+	sb.WriteString("###### Board subscription(s) for this channel\n")
+	sb.WriteString("| Subscription ID | Organization | Project | Event Type |\n")
+	sb.WriteString("| :-------------- | :----------- | :------ | :--------- |\n")
+
+	noSubscriptionFound := true
+
+	for _, subscription := range subscriptionsList {
+		if subscription.ChannelID == channelID {
+			noSubscriptionFound = false
+			displayEventType := ""
+			switch {
+			case subscription.EventType == "create":
+				displayEventType = "Work Item Created"
+			case subscription.EventType == "update":
+				displayEventType = "Work Item Updated"
+			case subscription.EventType == "delete":
+				displayEventType = "Work Item Deleted"
+			}
+			sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType))
+		}
+	}
+
+	if noSubscriptionFound {
+		sb.Reset()
+		sb.WriteString(constants.NoSubscriptionFound)
+	}
+
+	return sb.String()
+}

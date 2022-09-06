@@ -1,20 +1,22 @@
 import React from 'react';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {getProjectDetailsState} from 'selectors';
+
+import {getProjectDetailsState, getWebsocketEventState} from 'selectors';
 
 import AccountNotLinked from './accountNotLinked';
 import ProjectList from './projectList';
 import ProjectDetails from './projectDetails';
 
 const Rhs = (): JSX.Element => {
-    const {isUserAccountConnected, state} = usePluginApi();
+    const {state} = usePluginApi();
+    const {isConnected} = getWebsocketEventState(state);
 
     return (
         <div className='overflow-auto height-rhs position-relative padding-16'>
-            {!isUserAccountConnected() && <AccountNotLinked/>}
+            {!isConnected && <AccountNotLinked/>}
             {
-                isUserAccountConnected() && (
+                isConnected && (
                     getProjectDetailsState(state).projectID ?
                         <ProjectDetails {...getProjectDetailsState(state)}/> :
                         <ProjectList/>)

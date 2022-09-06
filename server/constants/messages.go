@@ -14,6 +14,7 @@ const (
 	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 	AlreadyLinkedProject = "This project is already linked."
 	NoProjectLinked      = "No project is linked, please link a project."
+	NoSubscriptionFound  = "No boards subscription exists for this channel"
 
 	// Validations Errors
 	OrganizationRequired            = "organization is required"

@@ -9,6 +9,7 @@ import {
     RightSidebarHeader,
     ToggleSwitchLabelPositioning,
     ToggleLabel,
+    boardsEventTypeMap,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
@@ -24,6 +25,7 @@ export default {
         RightSidebarHeader,
         ToggleSwitchLabelPositioning,
         ToggleLabel,
+        boardsEventTypeMap,
     },
     form: {
         linkProjectModal,

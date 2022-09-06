@@ -49,4 +49,5 @@ const (
 	ErrorLoadingDataFromKVStore     = "Error in loading data from KV store"
 	ProjectNotFound                 = "Requested project does not exist"
 	ErrorUnlinkProject              = "Error in unlinking the project"
+	InvalidChannelID                = "Invalid channel ID"
 )

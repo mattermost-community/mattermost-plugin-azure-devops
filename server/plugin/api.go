@@ -330,7 +330,14 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 	channelID := r.URL.Query().Get("channelID")
 	if channelID == "" {
+		p.API.LogError(constants.ChannelIDRequired)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelIDRequired})
+		return
+	}
+
+	if !model.IsValidId(channelID) {
+		p.API.LogError(constants.InvalidChannelID)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidChannelID})
 		return
 	}
 
@@ -347,8 +354,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		p.API.LogError("Error in creating post", "Error", err.Error())
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	returnStatusOK(w)
 }
 
 func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Request) {
@@ -455,6 +461,13 @@ func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {
 		}
 		handler(w, r)
 	}
+}
+
+func returnStatusOK(w http.ResponseWriter) {
+	m := make(map[string]string)
+	w.Header().Set("Content-Type", "application/json")
+	m[model.STATUS] = model.STATUS_OK
+	_, _ = w.Write([]byte(model.MapToJson(m)))
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.

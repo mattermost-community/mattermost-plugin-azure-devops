@@ -113,37 +113,6 @@ const ProjectList = () => {
                             wrapperExtraClass='margin-top-80'
                         />)
             }
-            {
-                getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName).isSuccess && (
-                    data?.length > 0 ?
-                        <>
-                            {
-                                data.map((item) => (
-                                    <ProjectCard
-                                        onProjectTitleClick={handleProjectTitleClick}
-                                        projectDetails={item}
-                                        key={item.projectID}
-                                        handleUnlinkProject={handleUnlinkProject}
-                                    />
-                                ),
-                                )
-                            }
-                            <div className='rhs-project-list-wrapper'>
-                                <button
-                                    onClick={handleOpenLinkProjectModal}
-                                    className='plugin-btn no-data__btn btn btn-primary project-list-btn'
-                                >
-                                    {'Link new project'}
-                                </button>
-                            </div>
-                        </> :
-                        <EmptyState
-                            title='No Project Linked'
-                            subTitle={{text: 'Link a project by clicking the button below'}}
-                            buttonText='Link new project'
-                            buttonAction={handleOpenLinkProjectModal}
-                        />)
-            }
         </>
     );
 };

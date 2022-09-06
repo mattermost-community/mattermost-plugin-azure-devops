@@ -66,20 +66,12 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 
 	task, statusCode, err := p.Client.CreateTask(body, mattermostUserID)
 	if err != nil {
+		p.API.LogError(constants.ErrorCreateTask)
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
-	response, err := json.Marshal(task)
-	if err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
-	}
 
-	w.Header().Add("Content-Type", "application/json")
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
+	p.writeJSON(w, task)
 	message := fmt.Sprintf(constants.CreatedTask, task.Link.HTML.Href)
 
 	// Send message to DM.
@@ -152,60 +144,12 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
 	if projectList == nil {
 		if _, err = w.Write([]byte("[]")); err != nil {
 			p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		}
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if projectList == nil {
-		_, _ = w.Write([]byte("[]"))
 		return
 	}
 
@@ -260,18 +204,7 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		Message: "success",
 	}
 
-	response, err := json.Marshal(&successResponse)
-	if err != nil {
-		p.API.LogError("Error marshaling the response", "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	p.writeJSON(w, &successResponse)
 }
 
 func (p *Plugin) handleCreateSubscriptions(w http.ResponseWriter, r *http.Request) {
@@ -561,15 +494,8 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 	}
 
 	if userDetails.MattermostUserID == "" {
-		p.API.LogError(constants.ConnectAccountFirst, "Error")
+		p.API.LogError(constants.ConnectAccountFirst)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
-		return
-	}
-
-	response, err := json.Marshal(&userDetails)
-	if err != nil {
-		p.API.LogError("Error marshaling the response", "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
@@ -579,10 +505,92 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 		&model.WebsocketBroadcast{UserId: mattermostUserID},
 	)
 
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(response); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	p.writeJSON(w, &userDetails)
+}
+
+func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	body, err := serializers.CreateSubscriptionRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for creating subscriptions", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	project, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project})
+	if !isProjectLinked {
+		p.API.LogError(constants.ProjectNotFound)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.ProjectNotLinked})
+		return
+	}
+
+	// TODO: remove later
+	teamID := "qteks46as3befxj4ec1mip5ume"
+	channel, channelErr := p.API.GetChannelByName(teamID, body.ChannelID, false)
+	if channelErr != nil {
+		p.API.LogError("Error in getting channel name", "Error", channelErr.DetailedError)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: channelErr.DetailedError})
+		return
+	}
+
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: channel.Id, EventType: body.EventType}); isSubscriptionPresent {
+		p.API.LogError(constants.SubscriptionAlreadyPresent)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
+		return
+	}
+
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, channel.Id, p.GetPluginURL(), mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.CreateSubscriptionError, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	p.Store.StoreSubscription(&serializers.SubscriptionDetails{
+		MattermostUserID: mattermostUserID,
+		ProjectName:      body.Project,
+		ProjectID:        subscription.PublisherInputs.ProjectID,
+		OrganizationName: body.Organization,
+		EventType:        body.EventType,
+		ChannelID:        channel.Id,
+		SubscriptionID:   subscription.ID,
+	})
+
+	p.writeJSON(w, subscription)
+}
+
+func (p *Plugin) writeJSON(w http.ResponseWriter, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	b, err := json.Marshal(v)
+	if err != nil {
+		p.API.LogError("Failed to marshal JSON response", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if _, err = w.Write(b); err != nil {
+		p.API.LogError("Failed to write JSON response", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 

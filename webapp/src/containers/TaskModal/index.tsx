@@ -23,7 +23,7 @@ const TaskModal = () => {
     const {
         formFields,
         errorState,
-        onChangeOfFormField,
+        onChangeFormField,
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
@@ -119,7 +119,7 @@ const TaskModal = () => {
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFields, string>, 'organization' | 'project'> = {
+        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project'> = {
             organization: '',
             project: '',
         };
@@ -186,7 +186,7 @@ const TaskModal = () => {
                                 fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
                                 value={formFields[field as CreateTaskModalFields]}
                                 optionsList={getDropDownOptions(field as CreateTaskModalFields)}
-                                onChange={(newValue) => onChangeOfFormField(field as CreateTaskModalFields, newValue)}
+                                onChange={(newValue) => onChangeFormField(field as CreateTaskModalFields, newValue)}
                                 error={errorState[field as CreateTaskModalFields]}
                                 isDisabled={isLoading}
                             />

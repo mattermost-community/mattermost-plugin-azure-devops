@@ -27,7 +27,7 @@ const SubscribeModal = () => {
     const {
         formFields,
         errorState,
-        onChangeOfFormField,
+        onChangeFormField,
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
@@ -141,7 +141,7 @@ const SubscribeModal = () => {
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFields, string>, 'organization' | 'project' | 'channelID'> = {
+        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
             organization: '',
             project: '',
             channelID: '',
@@ -220,7 +220,7 @@ const SubscribeModal = () => {
                             fieldConfig={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields]}
                             value={formFields[field as SubscriptionModalFields]}
                             optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                            onChange={(newValue) => onChangeOfFormField(field as SubscriptionModalFields, newValue)}
+                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
                             error={errorState[field as SubscriptionModalFields]}
                             isDisabled={isLoading}
                         />

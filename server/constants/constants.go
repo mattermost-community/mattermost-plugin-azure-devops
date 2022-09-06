@@ -45,7 +45,7 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	ProjectParam = "project"
+	QueryParamProject = "project"
 
 	// Authorization constants
 	Bearer        = "Bearer"

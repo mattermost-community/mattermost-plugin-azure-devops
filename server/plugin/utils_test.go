@@ -532,6 +532,7 @@ func TestIsSubscriptionPresent(t *testing.T) {
 					EventType:        "mockEventType",
 				},
 			},
+			subscription: &serializers.SubscriptionDetails{},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

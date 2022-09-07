@@ -24,7 +24,7 @@ import Utils from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
-    const {subscriptionModalFields} = plugin_constants.form;
+    const {subscriptionModal: subscriptionModalFields} = plugin_constants.form;
 
     // Hooks
     const {

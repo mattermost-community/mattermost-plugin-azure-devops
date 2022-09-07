@@ -10,7 +10,7 @@ import {
     ToggleSwitchLabelPositioning,
     ToggleLabel,
 } from './common';
-import {subscriptionModal, createTaskModal} from './form';
+import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
@@ -25,8 +25,9 @@ export default {
         ToggleLabel,
     },
     form: {
-        subscriptionModal,
+        linkProjectModal,
         createTaskModal,
+        subscriptionModal,
     },
     messages: {
         error,

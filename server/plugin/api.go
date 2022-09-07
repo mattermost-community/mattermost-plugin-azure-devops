@@ -90,8 +90,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := body.IsLinkPayloadValid(); err != nil {
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if linkValidationErr := body.IsLinkPayloadValid(); linkValidationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: linkValidationErr.Error()})
 		return
 	}
 
@@ -142,7 +142,7 @@ func (p *Plugin) handleGetAllLinkedProjects(w http.ResponseWriter, r *http.Reque
 
 	w.Header().Add("Content-Type", "application/json")
 
-	if projectList == nil {
+	if len(projectList) == 0 {
 		if _, err = w.Write([]byte("[]")); err != nil {
 			p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -340,9 +340,9 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := body.IsSubscriptionRequestPayloadValid(); err != nil {
-		p.API.LogDebug("Request payload is not valid", "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
+		p.API.LogDebug("Request payload is not valid", "Error", validationErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
 		return
 	}
 
@@ -371,13 +371,16 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
+	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
-	})
+	}); deleteErr != nil {
+		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
+	}
 
 	returnStatusOK(w)
 }

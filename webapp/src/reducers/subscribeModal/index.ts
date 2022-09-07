@@ -5,8 +5,8 @@ const initialState: SubscribeModalState = {
     isCreated: false,
 };
 
-export const openSubscribeModalSlice = createSlice({
-    name: 'openSubscribeModal',
+export const subscriptionModalSlice = createSlice({
+    name: 'subscriptionModalSlice',
     initialState,
     reducers: {
         toggleShowSubscribeModal: (state: SubscribeModalState, action: PayloadAction<GlobalModalActionPayload>) => {
@@ -19,6 +19,6 @@ export const openSubscribeModalSlice = createSlice({
     },
 });
 
-export const {toggleShowSubscribeModal, toggleIsSubscribed} = openSubscribeModalSlice.actions;
+export const {toggleShowSubscribeModal, toggleIsSubscribed} = subscriptionModalSlice.actions;
 
-export default openSubscribeModalSlice.reducer;
+export default subscriptionModalSlice.reducer;

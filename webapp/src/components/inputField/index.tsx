@@ -7,7 +7,7 @@ type InputFieldProps = {
     type?: 'text' | 'password' | 'email';
     label?: string | JSX.Element;
     placeholder?: string;
-    value?: string;
+    value: string | null;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: boolean | string;
     disabled?: boolean;
@@ -21,7 +21,7 @@ const Input = ({type = 'text', label, placeholder = '', value = '', onChange, er
             {label && <label className='form-group__label'>{label}</label>}
             <FormControl
                 type={type}
-                value={value}
+                value={value ?? ''}
                 onChange={(e) => onChange?.(e as React.ChangeEvent<HTMLInputElement>)}
                 disabled={disabled}
                 className={`form-group__control ${error && 'form-group__control--err'}`}

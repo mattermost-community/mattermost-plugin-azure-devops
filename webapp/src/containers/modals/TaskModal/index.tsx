@@ -19,6 +19,8 @@ import {getCreateTaskModalState} from 'selectors';
 import Utils from 'utils';
 
 const TaskModal = () => {
+    const {createTaskModal} = plugin_constants.form;
+
     // Hooks
     const {
         formFields,
@@ -27,7 +29,7 @@ const TaskModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(plugin_constants.form.createTaskModal);
+    } = useForm(createTaskModal);
     const {getApiState, makeApiRequestWithCompletionStatus, state} = usePluginApi();
     const dispatch = useDispatch();
 
@@ -38,8 +40,8 @@ const TaskModal = () => {
 
     // Function to hide the modal and reset all the states
     const resetModalState = () => {
-        resetFormFields();
         dispatch(toggleShowTaskModal({isVisible: false, commandArgs: []}));
+        resetFormFields();
     };
 
     // Opens link project modal
@@ -56,7 +58,7 @@ const TaskModal = () => {
         case 'project':
             return projectOptions;
         case 'type':
-            return plugin_constants.form.createTaskModal.type.optionsList;
+            return createTaskModal.type.optionsList;
         default:
             return [];
         }
@@ -79,6 +81,7 @@ const TaskModal = () => {
         return payload;
     };
 
+    // Handles creating a new task on confirmation
     const onConfirm = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request
@@ -89,6 +92,7 @@ const TaskModal = () => {
         }
     };
 
+    // Observe the change in redux state after the API call to create task and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
         payload: getApiPayload(),
@@ -181,11 +185,11 @@ const TaskModal = () => {
                 }
                 {
                     isAnyProjectLinked ? (
-                        Object.keys(plugin_constants.form.createTaskModal).map((field) => (
+                        Object.keys(createTaskModal).map((field) => (
                             <Form
-                                key={plugin_constants.form.createTaskModal[field as CreateTaskModalFields].label}
-                                fieldConfig={plugin_constants.form.createTaskModal[field as CreateTaskModalFields]}
-                                value={formFields[field as CreateTaskModalFields]}
+                                key={createTaskModal[field as CreateTaskModalFields].label}
+                                fieldConfig={createTaskModal[field as CreateTaskModalFields]}
+                                value={formFields[field as CreateTaskModalFields] ?? ''}
                                 optionsList={getDropDownOptions(field as CreateTaskModalFields)}
                                 onChange={(newValue) => onChangeFormField(field as CreateTaskModalFields, newValue)}
                                 error={errorState[field as CreateTaskModalFields]}

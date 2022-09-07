@@ -24,6 +24,8 @@ import Utils from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
+    const {subscriptionModal: subscriptionModalFields} = plugin_constants.form;
+
     // Hooks
     const {
         formFields,
@@ -32,7 +34,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(plugin_constants.form.subscriptionModal);
+    } = useForm(subscriptionModalFields);
     const {
         getApiState,
         makeApiRequest,
@@ -40,7 +42,7 @@ const SubscribeModal = () => {
         state,
     } = usePluginApi();
     const {visibility} = getSubscribeModalState(state);
-    const {entities} = useSelector((reduxState: GlobalState) => reduxState);
+    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const dispatch = useDispatch();
 
     // State variables
@@ -51,12 +53,12 @@ const SubscribeModal = () => {
 
     // Function to hide the modal and reset all the states.
     const resetModalState = (isActionDone?: boolean) => {
-        setChannelOptions([]);
+        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
+        resetFormFields();
         setOrganizationOptions([]);
         setProjectOptions([]);
+        setChannelOptions([]);
         setShowResultPanel(false);
-        resetFormFields();
-        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
     };
 
     // Get organization and project state
@@ -78,7 +80,7 @@ const SubscribeModal = () => {
     const getChannelState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
             plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: entities.teams.currentTeamId},
+            {teamId: currentTeamId},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
@@ -91,7 +93,7 @@ const SubscribeModal = () => {
         case 'project':
             return projectOptions;
         case 'eventType':
-            return plugin_constants.form.subscriptionModal.eventType.optionsList;
+            return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
             return channelOptions;
         default:
@@ -122,7 +124,7 @@ const SubscribeModal = () => {
         return Utils.getErrorMessage(isCreateSubscriptionError, 'SubscribeModal', error);
     };
 
-    // Handles on confirming create subscription
+    // Handles creating subscription on confirmation
     const onConfirm = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request to create subscription
@@ -133,7 +135,7 @@ const SubscribeModal = () => {
         }
     };
 
-    // Observe for the change in redux state after API call and do the required actions
+    // Observe for the change in redux state after the API call to create a subscription and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => {
@@ -147,7 +149,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         makeApiRequest(
             plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: entities.teams.currentTeamId},
+            {teamId: currentTeamId},
         );
     }, [visibility]);
 
@@ -217,38 +219,39 @@ const SubscribeModal = () => {
                     (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
                 }
                 {
-                    !isAnyProjectLinked && (
-                        <EmptyState
-                            title='No Project Linked'
-                            subTitle={{text: 'You can link a project by clicking the below button.'}}
-                            buttonText='Link new project'
-                            buttonAction={handleOpenLinkProjectModal}
-                        />
+                    !showResultPanel && (
+                        isAnyProjectLinked ? (
+                            Object.keys(subscriptionModalFields).map((field) => (
+                                <Form
+                                    key={subscriptionModalFields[field as SubscriptionModalFields].label}
+                                    fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
+                                    value={formFields[field as SubscriptionModalFields] ?? ''}
+                                    optionsList={getDropDownOptions(field as SubscriptionModalFields)}
+                                    onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                    error={errorState[field as SubscriptionModalFields]}
+                                    isDisabled={isLoading}
+                                />
+                            ))
+                        ) : (
+                            <EmptyState
+                                title='No Project Linked'
+                                subTitle={{text: 'You can link a project by clicking the below button.'}}
+                                buttonText='Link new project'
+                                buttonAction={handleOpenLinkProjectModal}
+                            />
+                        )
                     )
                 }
                 {
-                    isAnyProjectLinked && !showResultPanel &&
-                    Object.keys(plugin_constants.form.subscriptionModal).map((field) => (
-                        <Form
-                            key={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields].label}
-                            fieldConfig={plugin_constants.form.subscriptionModal[field as SubscriptionModalFields]}
-                            value={formFields[field as SubscriptionModalFields]}
-                            optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
-                            error={errorState[field as SubscriptionModalFields]}
-                            isDisabled={isLoading}
+                    showResultPanel && (
+                        <ResultPanel
+                            header='Subscription created successfully.'
+                            primaryBtnText='Add new subscription'
+                            secondaryBtnText='Close'
+                            onPrimaryBtnClick={handleSubscriptionModal}
+                            onSecondaryBtnClick={() => resetModalState(true)}
                         />
-                    ))
-                }
-                {
-                    isAnyProjectLinked && showResultPanel &&
-                    <ResultPanel
-                        header='Subscription created successfully.'
-                        primaryBtnText='Add new subscription'
-                        secondaryBtnText='Close'
-                        onPrimaryBtnClick={handleSubscriptionModal}
-                        onSecondaryBtnClick={() => resetModalState(true)}
-                    />
+                    )
                 }
             </>
         </Modal>

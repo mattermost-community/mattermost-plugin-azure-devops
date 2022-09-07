@@ -7,13 +7,11 @@ type LabelValuePairProps = {
     value: string
 }
 
-const LabelValuePair = ({label, value}: LabelValuePairProps) => {
-    return (
-        <p className='margin-bottom-10'>
-            <strong>{`${label}: `}</strong>
-            <span className='value'>{value}</span>
-        </p>
-    );
-};
+const LabelValuePair = ({label, value}: LabelValuePairProps) => (
+    <p className='margin-bottom-10'>
+        <strong>{`${label}: `}</strong>
+        <span className='value'>{value}</span>
+    </p>
+);
 
 export default LabelValuePair;

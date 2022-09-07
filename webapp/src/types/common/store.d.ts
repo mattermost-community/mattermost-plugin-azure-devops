@@ -4,7 +4,7 @@ interface ReduxState extends GlobalState {
             isSidebarOpen: boolean
         }
     }
-    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, WellList[], 'pluginApi'>; }, never, 'pluginApi'>
+    'plugins-mattermost-plugin-azure-devops': RootState<{ [x: string]: QueryDefinition<void, BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, {}, FetchBaseQueryMeta>, never, void, 'azureDevOpsPluginApi'>; }, never, 'azureDevOpsPluginApi'>
 }
 
 type GlobalModalState = {
@@ -46,4 +46,11 @@ type ApiQueriesState = {
 
 type ApiRequestCompletionState = {
     requests: ApiServiceName[]
+}
+
+type ProjectDetails = {
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
 }

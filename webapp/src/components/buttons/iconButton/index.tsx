@@ -7,8 +7,6 @@ import {onPressingEnterKey} from 'utils';
 
 import './styles.scss';
 
-type IconColor = 'danger'
-
 type IconButtonProps = {
     iconClassName: string
     tooltipText: string

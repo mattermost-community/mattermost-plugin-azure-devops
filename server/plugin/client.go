@@ -201,6 +201,15 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		path = baseURL.String() + path
 	}
 
+	// Check refresh token only for APIs other than OAuth
+	if basePath != constants.BaseOauthURL {
+		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
+			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+				return nil, http.StatusInternalServerError, errRefreshingToken
+			}
+		}
+	}
+
 	var req *http.Request
 	if formValues != nil {
 		req, err = http.NewRequest(method, path, strings.NewReader(formValues.Encode()))
@@ -222,12 +231,6 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
-	}
-
-	if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
-		if err := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); err != nil {
-			return nil, http.StatusInternalServerError, err
-		}
 	}
 
 	resp, err := c.httpClient.Do(req)

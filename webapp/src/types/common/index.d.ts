@@ -38,28 +38,12 @@ type ChannelList = {
     type: string
 }
 
-type DropdownOptionType = {
-    label?: string | JSX.Element;
-    value: string;
-}
-
 type FetchChannelParams = {
     teamId: string;
 }
 
 type FetchSubscriptionList = {
     project: string;
-}
-
-type ProjectDetails = {
-    mattermostUserID: string
-    projectID: string,
-    projectName: string,
-    organizationName: string
-}
-
-type UserDetails = {
-    MattermostUserID: string
 }
 
 type SubscriptionDetails = {

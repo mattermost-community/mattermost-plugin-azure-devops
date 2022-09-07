@@ -1,7 +1,7 @@
 import React from 'react';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {getprojectDetailsState, getRhsState} from 'selectors';
+import {getProjectDetailsState} from 'selectors';
 
 import AccountNotLinked from './accountNotLinked';
 import ProjectList from './projectList';
@@ -12,13 +12,11 @@ const Rhs = (): JSX.Element => {
 
     return (
         <div className='overflow-auto height-rhs bg-sidebar padding-25'>
-            {
-                !isUserAccountConnected() && <AccountNotLinked/>
-            }
+            {!isUserAccountConnected() && <AccountNotLinked/>}
             {
                 isUserAccountConnected() && (
-                    getprojectDetailsState(state).projectID ?
-                        <ProjectDetails {...getprojectDetailsState(state)}/> :
+                    getProjectDetailsState(state).projectID ?
+                        <ProjectDetails {...getProjectDetailsState(state)}/> :
                         <ProjectList/>)
             }
         </div>

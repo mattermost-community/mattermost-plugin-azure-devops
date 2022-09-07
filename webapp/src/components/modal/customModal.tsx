@@ -8,16 +8,14 @@ type ModalProps = {
     className?: string;
 }
 
-const CustomModal = ({show, onHide, children, className = ''}: ModalProps) => {
-    return (
-        <RBModal
-            show={show}
-            onHide={onHide}
-            className={`modal ${className}`}
-        >
-            {children}
-        </RBModal>
-    );
-};
+const CustomModal = ({show, onHide, children, className = ''}: ModalProps) => (
+    <RBModal
+        show={show}
+        onHide={onHide}
+        className={`modal ${className}`}
+    >
+        {children}
+    </RBModal>
+);
 
 export default CustomModal;

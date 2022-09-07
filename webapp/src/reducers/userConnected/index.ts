@@ -9,7 +9,7 @@ const initialState: UserConnectedState = {
 };
 
 export const userConnectedSlice = createSlice({
-    name: 'userConnected',
+    name: 'userConnectedSlice',
     initialState,
     reducers: {
         toggleIsConnected: (state: UserConnectedState, action: PayloadAction<boolean>) => {

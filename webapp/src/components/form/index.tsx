@@ -5,8 +5,8 @@ import Input from 'components/inputField';
 
 type Props = {
     fieldConfig: Pick<ModalFormFieldConfig, 'label' | 'type' | 'validations'>
-    value: any
-    optionsList: any
+    value: string | null
+    optionsList?: LabelValuePair[]
     onChange: (newValue: string) => void;
     error?: string
     isDisabled?: boolean
@@ -35,7 +35,7 @@ const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onCh
             <Input
                 type='text'
                 placeholder={label}
-                value={value}
+                value={value ?? ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
                 error={error}
                 required={validations?.isRequired as boolean}

@@ -125,3 +125,30 @@ export const createTaskModal: Record<CreateTaskModalFields, ModalFormFieldConfig
         value: '',
     },
 };
+
+// Link project modal
+export const linkProjectModal: Record<LinkProjectModalFields, ModalFormFieldConfig> = {
+    organization: {
+        label: 'Organization name',
+        type: 'text',
+        value: '',
+        validations: {
+            isRequired: true,
+        },
+    },
+    project: {
+        label: 'Project name',
+        value: '',
+        type: 'text',
+        validations: {
+            isRequired: true,
+        },
+    },
+
+    // add 'timestamp' field only if you don't want to use cached RTK API query
+    timestamp: {
+        label: 'time',
+        type: 'timestamp',
+        value: '',
+    },
+};

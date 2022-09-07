@@ -24,7 +24,7 @@ import Utils from 'utils';
 import './styles.scss';
 
 const SubscribeModal = () => {
-    const {subscriptionModal} = plugin_constants.form;
+    const {subscriptionModal: subscriptionModalFields} = plugin_constants.form;
 
     // Hooks
     const {
@@ -34,7 +34,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(subscriptionModal);
+    } = useForm(subscriptionModalFields);
     const {
         getApiState,
         makeApiRequest,
@@ -93,7 +93,7 @@ const SubscribeModal = () => {
         case 'project':
             return projectOptions;
         case 'eventType':
-            return subscriptionModal.eventType.optionsList;
+            return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
             return channelOptions;
         default:
@@ -221,10 +221,10 @@ const SubscribeModal = () => {
                 {
                     !showResultPanel && (
                         isAnyProjectLinked ? (
-                            Object.keys(subscriptionModal).map((field) => (
+                            Object.keys(subscriptionModalFields).map((field) => (
                                 <Form
-                                    key={subscriptionModal[field as SubscriptionModalFields].label}
-                                    fieldConfig={subscriptionModal[field as SubscriptionModalFields]}
+                                    key={subscriptionModalFields[field as SubscriptionModalFields].label}
+                                    fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
                                     value={formFields[field as SubscriptionModalFields] ?? ''}
                                     optionsList={getDropDownOptions(field as SubscriptionModalFields)}
                                     onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}

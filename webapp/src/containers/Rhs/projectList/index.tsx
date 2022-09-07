@@ -10,7 +10,6 @@ import plugin_constants from 'plugin_constants';
 
 import {setProjectDetails} from 'reducers/projectDetails';
 import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
-
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 

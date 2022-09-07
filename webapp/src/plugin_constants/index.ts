@@ -7,8 +7,6 @@ import {
     MMCSRF,
     pluginId,
     RightSidebarHeader,
-    ToggleSwitchLabelPositioning,
-    ToggleLabel,
     boardsEventTypeMap,
     channelType,
 } from './common';
@@ -24,8 +22,6 @@ export default {
         HeaderCSRFToken,
         AzureDevops,
         RightSidebarHeader,
-        ToggleSwitchLabelPositioning,
-        ToggleLabel,
         boardsEventTypeMap,
         channelType,
     },

@@ -37,6 +37,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
     const {entities} = useSelector((globalState: GlobalState) => globalState);
     const {currentChannelId} = entities.channels;
+
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[];

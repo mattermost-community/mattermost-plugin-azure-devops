@@ -203,7 +203,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 
 	// Check refresh token only for APIs other than OAuth
 	if basePath != constants.BaseOauthURL {
-		if IsAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); IsAccessTokenExpired {
+		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
 				return nil, http.StatusInternalServerError, errRefreshingToken
 			}

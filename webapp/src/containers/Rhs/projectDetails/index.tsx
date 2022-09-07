@@ -134,6 +134,9 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         }
     }, [getSubscribeModalState(state).isCreated]);
 
+    const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
@@ -146,7 +149,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
                 onConfirm={handleConfirmUnlinkProject}
-                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails).isLoading}
+                isLoading={isUnlinkProjectLoading}
                 confirmBtnText='Unlink'
                 description={`Are you sure you want to unlink ${projectDetails.projectName}?`}
                 title='Confirm Project Unlink'
@@ -155,9 +158,9 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 isOpen={showSubscriptionConfirmationModal}
                 onHide={() => setShowSubscriptionConfirmationModal(false)}
                 onConfirm={handleConfirmDeleteSubscription}
-                isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted).isLoading}
+                isLoading={isDeleteSubscriptionLoading}
                 confirmBtnText='Delete'
-                description='Are you sure you want to delete this subscription ?'
+                description='Are you sure you want to delete this subscription?'
                 title='Confirm Delete Subscription'
             />
             {isLoading && <LinearLoader/>}

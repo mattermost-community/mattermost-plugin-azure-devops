@@ -45,7 +45,6 @@ const Card = ({cardHeader, cardSubHeader, cardBody, onDelete, onEdit}: CardProps
             </div>
         </div>
         <div className='card-body'>
-
             {cardBody.map((body) => (
                 <div
                     key={body.sectionHeading as string}

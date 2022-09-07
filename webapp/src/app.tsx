@@ -59,7 +59,7 @@ const App = (): JSX.Element => {
         getSubscribeModalState(usePlugin.state).visibility,
     ]);
 
-    // Fetch the list of linked project list
+    // Fetch the list of linked projects
     useEffect(() => {
         if (usePlugin.isUserAccountConnected()) {
             if (getLinkModalState(usePlugin.state).isLinked) {

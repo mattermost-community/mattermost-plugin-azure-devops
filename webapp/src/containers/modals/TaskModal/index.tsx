@@ -92,7 +92,7 @@ const TaskModal = () => {
         }
     };
 
-    // Observe for the change in redux state after API call to create task and do the required actions
+    // Observe the change in redux state after the API call to create task and do the required actions
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
         payload: getApiPayload(),

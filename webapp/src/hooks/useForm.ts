@@ -108,7 +108,7 @@ function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFiel
     };
 
     // Set value for a specific form field
-    const setSpecificFieldValue = (modifiedFormFields:Partial<Record<FormFieldNames, string>>) => {
+    const setSpecificFieldValue = (modifiedFormFields: Partial<Record<FormFieldNames, string>>) => {
         setFormFields(modifiedFormFields);
     };
 

@@ -25,7 +25,7 @@ const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, 
             label && (
                 typeof (label) === 'string' ?
                     <strong className={labelExtraClassName ?? ''}>{`${label}: `}</strong> :
-                    <span className={`icon ${labelExtraClassName}`}>{label}</span>
+                    <span className={`icon label-icon ${labelExtraClassName}`}>{label}</span>
             )
         }
         {

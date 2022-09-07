@@ -59,54 +59,54 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
 
     return (
         <div
-            className={`dropdown ${error && 'dropdown--error'}`}
+            className={`dropdown-component ${error && 'dropdown-component--error'}`}
             ref={dropdownRef}
         >
             <div
-                className={`dropdown__field cursor-pointer d-flex align-items-center justify-content-between ${open && 'dropdown__field--open'} ${disabled && 'dropdown__field--disabled'}`}
+                className={`dropdown-component__field cursor-pointer d-flex align-items-center justify-content-between ${open && 'dropdown-component__field--open'} ${disabled && 'dropdown-component__field--disabled'}`}
             >
-                {placeholder && <label className={`dropdown__field-text dropdown__field-placeholder ${value && 'dropdown__field-placeholder--shifted'}`}>
+                {placeholder && <label className={`dropdown-component__field-text dropdown-component__field-placeholder ${value && 'dropdown-component__field-placeholder--shifted'}`}>
                     {placeholder}
                     {required && '*'}
                 </label>}
-                {value && <p className='dropdown__field-text text-ellipses'>
+                {value && <p className='dropdown-component__field-text text-ellipses'>
                     {getLabel(value)?.label || getLabel(value)?.value}
                 </p>}
-                {!loadingOptions && <i className={`fa fa-angle-down dropdown__field-angle ${open && 'dropdown__field-angle--rotated'}`}/>}
-                {loadingOptions && <div className='dropdown__loader'/>}
+                {!loadingOptions && <i className={`fa fa-angle-down dropdown-component__field-angle ${open && 'dropdown-component__field-angle--rotated'}`}/>}
+                {loadingOptions && <div className='dropdown-component__loader'/>}
                 <input
                     type='checkbox'
-                    className='dropdown__field-input cursor-pointer'
+                    className='dropdown-component__field-input cursor-pointer'
                     checked={open}
                     onChange={(e) => setOpen(e.target.checked)}
                     disabled={disabled}
                 />
             </div>
-            <ul className={`dropdown__options-list ${open && 'dropdown__options-list--open'}`}>
+            <ul className={`dropdown-component__options-list ${open && 'dropdown-component__options-list--open'}`}>
                 {
                     options.map((option) => (
                         <li
                             key={option.value}
                             onClick={() => !disabled && handleInputChange(option)}
-                            className='dropdown__option-item cursor-pointer text-ellipses'
+                            className='dropdown-component__option-item cursor-pointer text-ellipses'
                         >
                             {option.label || option.value}
                         </li>
                     ))
                 }
                 {
-                    !options.length && <li className='dropdown__option-item cursor-pointer text-ellipses'>{'Nothing to show'}</li>
+                    !options.length && <li className='dropdown-component__option-item cursor-pointer text-ellipses'>{'Nothing to show'}</li>
                 }
                 {customOption && (
                     <li
                         onClick={() => !disabled && handleCustomOptionClick()}
-                        className='dropdown__option-item cursor-pointer dropdown__custom-option text-ellipses'
+                        className='dropdown-component__option-item cursor-pointer dropdown-component__custom-option text-ellipses'
                     >
                         {customOption.label || customOption.value}
                     </li>
                 )}
             </ul>
-            {typeof error === 'string' && <p className='dropdown__err-text'>{error}</p>}
+            {typeof error === 'string' && <p className='dropdown-component__err-text'>{error}</p>}
         </div>
     );
 };

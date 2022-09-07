@@ -3,7 +3,7 @@ import React from 'react';
 import BaseCard from 'components/card/base';
 import IconButton from 'components/buttons/iconButton';
 
-import { onPressingEnterKey } from 'utils';
+import {onPressingEnterKey} from 'utils';
 import SVGWrapper from 'components/svgWrapper';
 import plugin_constants from 'plugin_constants';
 import LabelValuePair from 'components/labelValuePair';
@@ -14,7 +14,7 @@ type ProjectCardProps = {
     projectDetails: ProjectDetails
 }
 
-const ProjectCard = ({ onProjectTitleClick, projectDetails: { organizationName, projectName }, projectDetails, handleUnlinkProject }: ProjectCardProps) => (
+const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, projectName}, projectDetails, handleUnlinkProject}: ProjectCardProps) => (
     <BaseCard>
         <div className='d-flex'>
             <div className='project-details'>
@@ -23,7 +23,7 @@ const ProjectCard = ({ onProjectTitleClick, projectDetails: { organizationName, 
                         <SVGWrapper
                             width={16}
                             height={16}
-                            viewBox="0 0 14 12"
+                            viewBox='0 0 14 12'
                         >
                             {plugin_constants.SVGIcons.project}
                         </SVGWrapper>

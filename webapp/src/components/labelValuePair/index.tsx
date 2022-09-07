@@ -1,5 +1,6 @@
 import React from 'react';
-import { onPressingEnterKey } from 'utils';
+
+import {onPressingEnterKey} from 'utils';
 
 import './styles.scss';
 
@@ -11,7 +12,7 @@ type LabelValuePairProps = {
     labelExtraClassName?: string
 }
 
-const LabelValuePair = ({ label, labelIconClassName, labelExtraClassName, value, onClickValue }: LabelValuePairProps) => (
+const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, onClickValue}: LabelValuePairProps) => (
     <p className='margin-bottom-10 d-flex align-item-center'>
         {
             labelIconClassName && (

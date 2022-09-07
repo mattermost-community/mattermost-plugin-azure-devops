@@ -22,6 +22,11 @@ const App = (): JSX.Element => {
     const dispatch = useDispatch();
 
     const {isConnected} = getWebsocketEventState(state);
+    const {modalId, commandArgs} = getGlobalModalState(state);
+    const {isSidebarOpen} = getRhsState(state);
+    const {visibility: linkProjectModalVisibility, isLinked} = getLinkModalState(state);
+    const {visibility: createTaskModalVisibility} = getCreateTaskModalState(state);
+    const {visibility: subscribeModalVisibility} = getSubscribeModalState(state);
 
     // Check if user is connected on page reload
     useEffect(() => {
@@ -35,8 +40,6 @@ const App = (): JSX.Element => {
      * otherwise we reset the action and don't open any modal
      */
     useEffect(() => {
-        const {modalId, commandArgs} = getGlobalModalState(state);
-
         if (isConnected && modalId) {
             switch (modalId) {
             case 'linkProject':
@@ -51,20 +54,20 @@ const App = (): JSX.Element => {
         } else {
             dispatch(resetGlobalModalState());
         }
-    }, [getGlobalModalState(state).modalId]);
+    }, [modalId]);
 
     useEffect(() => {
         dispatch(resetGlobalModalState());
     }, [
-        getLinkModalState(state).visibility,
-        getCreateTaskModalState(state).visibility,
-        getSubscribeModalState(state).visibility,
+        linkProjectModalVisibility,
+        createTaskModalVisibility,
+        subscribeModalVisibility,
     ]);
 
     // Fetch the list of linked projects
     useEffect(() => {
         if (isConnected) {
-            if (getLinkModalState(state).isLinked) {
+            if (isLinked) {
                 dispatch(toggleIsLinkedProjectListChanged(false));
             }
 
@@ -73,11 +76,11 @@ const App = (): JSX.Element => {
             );
         }
     }, [
+        isLinked,
+        isSidebarOpen,
         isConnected,
-        getCreateTaskModalState(state).visibility,
-        getSubscribeModalState(state).visibility,
-        getRhsState(state).isSidebarOpen,
-        getLinkModalState(state).isLinked,
+        createTaskModalVisibility,
+        subscribeModalVisibility,
     ]);
 
     return <></>;

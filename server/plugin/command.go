@@ -25,6 +25,7 @@ var azureDevopsCommandHandler = Handler{
 		"help":       azureDevopsHelpCommand,
 		"connect":    azureDevopsConnectCommand,
 		"disconnect": azureDevopsDisconnectCommand,
+		"link":       azureDevopsAccountConnectionCheck,
 		"boards":     azureDevopsAccountConnectionCheck,
 	},
 	defaultHandler: executeDefault,

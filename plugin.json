@@ -1,6 +1,6 @@
 {
     "id": "mattermost-plugin-azure-devops",
-    "name": "Mattermost Azure Devops plugin",
+    "name": "Mattermost Azure DevOps plugin",
     "description": "This plugin provides services of Azure DevOps such as Boards, Repos and Pipelines",
     "icon_path": "assets/azurebot.svg",
     "version": "0.1.0",
@@ -23,21 +23,21 @@
         "settings": [
             {
                 "key": "azureDevopsAPIBaseURL",
-                "display_name": "Azure Devops API base URL",
+                "display_name": "Azure DevOps API base URL",
                 "type": "text",
-                "help_text": "Enter the base URL for Azure Devops API"
+                "help_text": "Enter the base URL for Azure DevOps API"
             },
             {
                 "key": "azureDevopsOAuthAppID",
-                "display_name": "Azure Devops OAuth App ID",
+                "display_name": "Azure DevOps OAuth App ID",
                 "type": "text",
-                "help_text": "Enter the app ID for the OAuth app registered with Azure Devops"
+                "help_text": "Enter the app ID for the OAuth app registered with Azure DevOps"
             },
             {
                 "key": "azureDevopsOAuthClientSecret",
-                "display_name": "Azure Devops OAuth Client Secret",
+                "display_name": "Azure DevOps OAuth Client Secret",
                 "type": "text",
-                "help_text": "Enter the client secret for the OAuth app registered with Azure Devops."
+                "help_text": "Enter the client secret for the OAuth app registered with Azure DevOps."
             },
             {
                 "key": "EncryptionSecret",

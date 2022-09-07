@@ -19,24 +19,24 @@ This plugin integrates the services of Azure DevOps in Mattermost. For a stable 
 ## Features
 
 This plugin contains the following features:
-- Right-hand sidebar (RHS) shows the list of linked projects and subscriptions created for each projects with separate buttons to connect account, link a project, unlink a project, add a subscription and delete a subscription.
+- Right-hand sidebar (RHS) shows the list of linked projects and subscriptions created for each project with separate buttons to connect an account, link or unlink a project and add or delete a subscription.
 
 - Preview work item: A preview of the work item will be created when a work item URL is posted in a channel.
 
-- OAuth: A user can connect or disconnect to their Azure DevOps account using the slash command below or clicking on "Connect Your Account" button in RHS.
+- OAuth: A user can connect or disconnect to their Azure DevOps account using the slash command below or clicking on the "Connect Your Account" button in RHS.
 
     ```
     - /azuredevops connect
     - /azuredevops disconnect
     ```
 
-- Link projects: A user can link a project existing on Azure DevOps using the slash command below or clicking on "Link new project" button in RHS.
+- Link projects: A user can link a project existing on Azure DevOps using the slash command below or clicking on the "Link new project" button in RHS.
 
     ```
     - /azuredevops link [project link]
     ```
 
-- Unink projects: A user can unlink a project appearing in the RHS under "Linked Projects" by clicking on unlink-icon button.
+- Unlink projects: A user can unlink a project appearing in the RHS under "Linked Projects" by clicking on the unlink-icon button.
 
 - Create work items: A work item can be created using the slash command below.
 
@@ -46,19 +46,19 @@ This plugin contains the following features:
     On successful creation of a work item, you will get a message from the bot with the details of the newly created work item.
 
 - Add subscriptions: A user can create subscriptions for a linked project to get messages in a selected channel for selected events on work items like Create, Update and Delete.
-To add a new subscription for a linked project click on the project title under "Linked Projects" in RHS then click on "Add new subscription" button in the subscription view. User can also create subscription using the slash command below.
+To add a new subscription for a linked project click on the project title under "Linked Projects" in RHS then click on the "Add new subscription" button in the subscription view. Users can also create subscriptions using the slash command below.
 
     ```
     - /azuredevops boards subscribe
     ```
 
-- View/List subscriptions: A user can view the list of subscriptions for a project by going on the subscriptions list page after clicking on the project title under "Linked Projects". User can also view the list of all subscriptions for a channel by using the below slash command in the channel.
+- View/List subscriptions: A user can view the list of subscriptions for a project by going on the subscriptions list page after clicking on the project title under "Linked Projects". Users can also view the list of all subscriptions for a channel by using the below slash command in the channel.
 
     ```
     - /azuredevops boards subscriptions
     ```
 
-- Delete subscriptions: A user can delete subscriptions for a project from RHS by going on the subscriptions list page after clicking on the project title under "Linked Projects". User can also delete a subscription for a project by using the slash command below.
+- Delete subscriptions: A user can delete subscriptions for a project from RHS by going on the subscriptions list page after clicking on the project title under "Linked Projects". Users can also delete a subscription for a project by using the slash command below.
 
     ```
     - /azuredevops boards unsubscribe [subscription id]
@@ -84,4 +84,4 @@ To add a new subscription for a linked project click on the project title under 
 
 After connecting successfully, you will get a direct message from the Azure DevOps bot containing a Welcome message and some useful information. 
 
-**Note:** You will only get a direct message from the bot if your Mattermost server is configured to allow direct messages between any users on the server. If your server is configured to allow direct messages only between two users of the same team, then you will not get any direct message.
+**Note:** You will only get a direct message from the bot if your Mattermost server is configured to allow direct messages between any users on the server. If your server is configured to allow direct messages only between two users of the same team, then you will not get any direct messages.

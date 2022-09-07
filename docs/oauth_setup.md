@@ -2,7 +2,7 @@
 
 ## Register your oAuth application on Azure DevOps
   - Log in to [AzureDevops](https://app.vsaex.visualstudio.com).
-  - Click on "Create new application" button in the bottom left corner.
+  - Click on the "Create new application" button in the bottom left corner.
   - Fill in details like Company name, Application name.
     ![Screenshot from 2022-07-29 13-24-47](https://user-images.githubusercontent.com/100013900/181712515-89efdb18-0f51-4194-b954-c0edb4188423.png)
   - For the "Application website" put the link of your Mattermost server, for example: If the Mattermost server is running on `https://<your-mattermost-url>` then the value would be `https://<your-mattermost-url>` and "Authorization callback URL" will be `https://<your-mattermost-url>/plugins/mattermost-plugin-azure-devops/api/v1/oauth/complete`

@@ -14,7 +14,7 @@ const ToggleSwitch = ({
     active,
     onChange,
     label,
-    labelPositioning = 'left',
+    labelPositioning = 'left', // TODO: create constant/enum for string literals to prevent changing hard coded string values at multiple places in case of modifications
 }: ToggleSwitchProps): JSX.Element => (
     <div className={`toggle-switch-container d-flex align-items-center ${labelPositioning === 'right' && 'flex-row-reverse justify-content-end'}`}>
         {label && <span className={labelPositioning === 'left' ? 'toggle-switch-label--left' : 'toggle-switch-label--right'}>{label}</span>}

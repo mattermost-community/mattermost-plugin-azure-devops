@@ -230,9 +230,9 @@ func (p *Plugin) IsAccessTokenExpired(mattermostUserID string) (bool, string) {
 		return false, ""
 	}
 
-	// TODO: use middleware for all such places to check if user's oAuth is completed
 	// Consider some buffer for comparing expiry time
-	if user.AccessToken != "" && user.ExpiresAt < time.Now().UTC().Add(-(time.Minute*constants.TokenExpiryTimeBufferInMinutes)).Unix() {
+	localExpiryTime := time.Unix(user.ExpiresAt, 0).Local()
+	if user.AccessToken != "" && time.Until(localExpiryTime) <= time.Minute*constants.TokenExpiryTimeBufferInMinutes {
 		return true, user.RefreshToken
 	}
 

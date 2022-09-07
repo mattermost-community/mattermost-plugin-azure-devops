@@ -10,6 +10,7 @@ import {
     ToggleSwitchLabelPositioning,
     ToggleLabel,
     boardsEventTypeMap,
+    channelType,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
@@ -26,6 +27,7 @@ export default {
         ToggleSwitchLabelPositioning,
         ToggleLabel,
         boardsEventTypeMap,
+        channelType,
     },
     form: {
         linkProjectModal,

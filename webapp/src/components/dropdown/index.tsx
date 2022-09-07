@@ -69,7 +69,7 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
                     {placeholder}
                     {required && '*'}
                 </label>}
-                {value && <p className='dropdown-component__field-text text-ellipses'>
+                {value && <p className='dropdown-component__field-text text-truncate'>
                     {getLabel(value)?.label || getLabel(value)?.value}
                 </p>}
                 {!loadingOptions && <i className={`fa fa-angle-down dropdown-component__field-angle ${open && 'dropdown-component__field-angle--rotated'}`}/>}
@@ -88,19 +88,19 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
                         <li
                             key={option.value}
                             onClick={() => !disabled && handleInputChange(option)}
-                            className='dropdown-component__option-item cursor-pointer text-ellipses'
+                            className='dropdown-component__option-item cursor-pointer text-truncate'
                         >
                             {option.label || option.value}
                         </li>
                     ))
                 }
                 {
-                    !options.length && <li className='dropdown-component__option-item cursor-pointer text-ellipses'>{'Nothing to show'}</li>
+                    !options.length && <li className='dropdown-component__option-item cursor-pointer text-truncate'>{'Nothing to show'}</li>
                 }
                 {customOption && (
                     <li
                         onClick={() => !disabled && handleCustomOptionClick()}
-                        className='dropdown-component__option-item cursor-pointer dropdown-component__custom-option text-ellipses'
+                        className='dropdown-component__option-item cursor-pointer dropdown-component__custom-option text-truncate'
                     >
                         {customOption.label || customOption.value}
                     </li>

@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Modal from 'components/modal';
 import Form from 'components/form';
+import ResultPanel from 'components/resultPanel';
 
 import plugin_constants from 'plugin_constants';
 
@@ -30,11 +31,19 @@ const LinkModal = () => {
 
     // State variables
     const {visibility, organization, project} = getLinkModalState(state);
+    const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Function to hide the modal and reset all the states.
     const resetModalState = (isActionDone?: boolean) => {
         dispatch(toggleShowLinkModal({isVisible: false, commandArgs: [], isActionDone}));
         resetFormFields();
+        setShowResultPanel(false);
+    };
+
+    // Opens link project modal
+    const handleOpenLinkProjectModal = () => {
+        resetModalState();
+        dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
     };
 
     // Handles on confirming link project
@@ -51,7 +60,10 @@ const LinkModal = () => {
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName,
         payload: formFields as LinkPayload,
-        handleSuccess: () => resetModalState(true),
+        handleSuccess: () => {
+            setShowResultPanel(true);
+            dispatch(toggleShowLinkModal({isVisible: true, commandArgs: [], isActionDone: true}));
+        },
     });
 
     // Set modal field values
@@ -74,19 +86,30 @@ const LinkModal = () => {
             cancelDisabled={isLoading}
             confirmDisabled={isLoading}
             loading={isLoading}
+            showFooter={!showResultPanel}
         >
             <>
                 {
-                    Object.keys(linkProjectModal).map((field) => (
-                        <Form
-                            key={linkProjectModal[field as LinkProjectModalFields].label}
-                            fieldConfig={linkProjectModal[field as LinkProjectModalFields]}
-                            value={formFields[field as LinkProjectModalFields] ?? null}
-                            onChange={(newValue) => onChangeFormField(field as LinkProjectModalFields, newValue)}
-                            error={errorState[field as LinkProjectModalFields]}
-                            isDisabled={isLoading}
+                    showResultPanel ? (
+                        <ResultPanel
+                            header='Project linked successfully.'
+                            primaryBtnText='Link new proejct'
+                            secondaryBtnText='Close'
+                            onPrimaryBtnClick={handleOpenLinkProjectModal}
+                            onSecondaryBtnClick={resetModalState}
                         />
-                    ))
+                    ) : (
+                        Object.keys(linkProjectModal).map((field) => (
+                            <Form
+                                key={linkProjectModal[field as LinkProjectModalFields].label}
+                                fieldConfig={linkProjectModal[field as LinkProjectModalFields]}
+                                value={formFields[field as LinkProjectModalFields] ?? null}
+                                onChange={(newValue) => onChangeFormField(field as LinkProjectModalFields, newValue)}
+                                error={errorState[field as LinkProjectModalFields]}
+                                isDisabled={isLoading}
+                            />
+                        ))
+                    )
                 }
             </>
         </Modal>

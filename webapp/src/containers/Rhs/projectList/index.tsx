@@ -86,10 +86,10 @@ const ProjectList = () => {
             {isLoading && <LinearLoader/>}
             {
                 isSuccess && (
-                    sortedProjectList && sortedProjectList.length > 0 ?
+                    sortedProjectList.length > 0 ?
                         <>
                             {
-                                sortedProjectList?.map((item: ProjectDetails) => (
+                                sortedProjectList.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}

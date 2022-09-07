@@ -123,6 +123,7 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", args[1])); err != nil {
 				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
+
 			if _, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
 				p.API.LogError("Error in deleting subscription", "Error", err.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)

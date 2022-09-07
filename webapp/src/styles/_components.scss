@@ -1,5 +1,5 @@
 .height-rhs {
-    height: calc(100% - 150px); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
+    height: calc(100% - $rhs-bottom-button-height); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
 }
 
 .project-details-unlink-button {

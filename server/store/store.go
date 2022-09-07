@@ -98,7 +98,7 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() error {
 		}
 
 		if !isUserDeleted {
-			page += 1
+			page++
 		}
 	}
 }

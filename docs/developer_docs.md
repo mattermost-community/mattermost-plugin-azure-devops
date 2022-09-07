@@ -6,6 +6,7 @@
 - [Installation](#installation)
 - [Setup](#setup)
 - [Connecting to Azure DevOps](#connecting-to-azure-devops)
+- [References](#references)
 - [Development](#development)
 
 ## License
@@ -14,7 +15,7 @@ See the [LICENSE](./LICENSE) file for license rights and limitations.
 
 ## Overview
 
-This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Release](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
+This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Releases](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
 
 ## Features
 
@@ -86,6 +87,13 @@ After connecting successfully, you will get a direct message from the Azure DevO
 
 **Note:** You will only get a direct message from the bot if your Mattermost server is configured to allow direct messages between any users on the server. If your server is configured to allow direct messages only between two users of the same team, then you will not get any direct messages.
 
+## References
+You can read below mentioned documents to get knowledge about the Azure DevOps Rest API services.
+
+- [OAuth](https://docs.microsoft.com/en-us/azure/devops/integrate/get-started/authentication/oauth)
+- [Work Items](https://docs.microsoft.com/en-us/rest/api/azure/devops/wit/work-items)
+- [Subscriptions](https://docs.microsoft.com/en-us/rest/api/azure/devops/hooks/subscriptions)
+
 ## Development
 
 ### Setup
@@ -117,11 +125,6 @@ If your Mattermost server is running locally, you can enable [local mode](https:
         "EnableLocalMode": true,
         "LocalModeSocketLocation": "/var/tmp/mattermost_local.socket"
     },
-    "ServiceSettings": {
-        ...
-        "EnableLocalMode": true,
-        "LocalModeSocketLocation": "/var/tmp/mattermost_local.socket"
-    }
 }
 ```
 

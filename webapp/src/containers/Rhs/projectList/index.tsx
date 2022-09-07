@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import ProjectCard from 'components/card/project';
@@ -65,8 +65,8 @@ const ProjectList = () => {
     });
 
     const {data, isSuccess, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
-    const projectsList = data as ProjectDetails[];
-    const sortedProjectList = [...projectsList].sort(sortProjectList);
+    const projectsList = data as ProjectDetails[] ?? [];
+    const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]);
 
     return (
         <>
@@ -108,7 +108,7 @@ const ProjectList = () => {
                             </div>
                         </> :
                         <EmptyState
-                            title='No project linked'
+                            title='No project linked' // TODO: create constants for these texts labels/messages
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
                             buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}

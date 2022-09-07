@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
@@ -24,7 +24,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
-const ProjectDetails = (projectDetails: ProjectDetails) => {
+const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     // Hooks
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
@@ -228,6 +228,6 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
             }
         </>
     );
-};
+});
 
 export default ProjectDetails;

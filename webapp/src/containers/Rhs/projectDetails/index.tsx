@@ -34,13 +34,12 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>();
-    const {entities} = useSelector((globalState: GlobalState) => globalState);
-    const {currentChannelId} = entities.channels;
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
+    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
 
     const project: FetchSubscriptionList = {project: projectDetails.projectName};
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionListReturnedByApi = data as SubscriptionDetails[];
+    const subscriptionData = data as SubscriptionDetails[];
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -102,16 +101,6 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         },
     });
 
-    // Handles switch toggle.
-    const handleToggle = () => {
-        if (showAllSubscriptions) {
-            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
-        } else {
-            setSubscriptionList(subscriptionListReturnedByApi);
-        }
-        setShowAllSubscriptions(!showAllSubscriptions);
-    };
-
     // Reset the state when the component is unmounted
     useEffect(() => {
         fetchSubscriptionList();
@@ -121,20 +110,21 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     }, []);
 
     useEffect(() => {
-        // Update subscription list only when it does not match with the current data
-        if (subscriptionListReturnedByApi !== subscriptionList) {
+        if (subscriptionData) {
             if (showAllSubscriptions) {
-                setSubscriptionList(subscriptionListReturnedByApi);
+                setSubscriptionList(subscriptionData);
             } else {
-                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
+                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
             }
         }
-    }, [subscriptionListReturnedByApi]);
+    }, [subscriptionData, showAllSubscriptions]);
 
     // Update subscription list on switching channels
     useEffect(() => {
-        setShowAllSubscriptions(false);
-        setSubscriptionList(getCurrentChannelSubscriptions(subscriptionListReturnedByApi, currentChannelId));
+        if (subscriptionData) {
+            setShowAllSubscriptions(false);
+            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+        }
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
@@ -179,7 +169,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             {isLoading && <LinearLoader extraClass='top-0'/>}
             <ToggleSwitch
                 active={showAllSubscriptions}
-                onChange={handleToggle}
+                onChange={setShowAllSubscriptions}
                 label={'Show All Subscriptions'}
                 labelPositioning='right'
             />

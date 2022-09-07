@@ -20,9 +20,4 @@ export const getProjectList = (data: ProjectDetails[]) => {
     return projectList;
 };
 
-export const getCurrentChannelSubscriptions = (data: SubscriptionDetails[], channelID: string) => (data || []).filter(((subscription) => subscription.channelID === channelID));
-
-export const getCurrentChannelName = (data: ChannelList[], channelID: string) => {
-    const currentChannel = (data || []).filter(((channel) => channel.id === channelID));
-    return currentChannel[0]?.display_name;
-};
+export const getCurrentChannelSubscriptions = (data: SubscriptionDetails[], channelID: string): SubscriptionDetails[] => data.filter(((subscription) => subscription.channelID === channelID));

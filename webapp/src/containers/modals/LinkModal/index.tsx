@@ -42,8 +42,8 @@ const LinkModal = () => {
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {
-        resetModalState();
         dispatch(toggleShowLinkModal({isVisible: true, commandArgs: []}));
+        resetModalState();
     };
 
     // Handles on confirming link project

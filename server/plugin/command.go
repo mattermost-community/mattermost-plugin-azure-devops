@@ -62,7 +62,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	create := model.NewAutocompleteData("boards create [title] [description]", "", "Create a new task")
 	azureDevops.AddCommand(create)
 
-	subscribe := model.NewAutocompleteData("boards subscribe", "", "Add a subscription")
+	subscribe := model.NewAutocompleteData("boards subscribe", "", "Add a boards subscription")
 	azureDevops.AddCommand(subscribe)
 
 	subscriptions := model.NewAutocompleteData("boards subscriptions", "", "View board's subscriptions in the current channel")

@@ -22,7 +22,7 @@ This plugin integrates the services of Azure DevOps in Mattermost. For a stable 
 This plugin contains the following features:
 - Right-hand sidebar (RHS) shows the list of linked projects and subscriptions created for each project with separate buttons to connect an account, link or unlink a project and add or delete a subscription.
 
-- Preview work item: A preview of the work item will be created when a work item URL is posted in a channel.
+- Preview work item: A preview of the work item will be created when a work item URL is posted in a channel and the user account is conected.
 
 - OAuth: A user can connect or disconnect to their Azure DevOps account using the slash command below or clicking on the "Connect Your Account" button in RHS.
 

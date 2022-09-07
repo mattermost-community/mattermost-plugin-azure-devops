@@ -47,16 +47,12 @@ const SubscribeModal = () => {
 
     // State variables
     const [channelOptions, setChannelOptions] = useState<LabelValuePair[]>([]);
-    const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
-    const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
     const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Function to hide the modal and reset all the states.
     const resetModalState = (isActionDone?: boolean) => {
         dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
         resetFormFields();
-        setOrganizationOptions([]);
-        setProjectOptions([]);
         setChannelOptions([]);
         setShowResultPanel(false);
     };
@@ -85,13 +81,23 @@ const SubscribeModal = () => {
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
 
+    const {
+        isSuccess: isOrganizationAndProjectListSuccess,
+        isError: isOrganizationAndProjectListError,
+        isLoading: isOrganizationAndProjectListLoading,
+        organizationList,
+        projectList,
+    } = getOrganizationAndProjectState();
+
+    const {data: channelList, isError: isChannelListError, isLoading: isChannelListLoading, isSuccess: isChannelListSuccess} = getChannelState();
+
     // Get option list for each types of dropdown fields
     const getDropDownOptions = (fieldName: SubscriptionModalFields) => {
         switch (fieldName) {
         case 'organization':
-            return organizationOptions;
+            return organizationList;
         case 'project':
-            return projectOptions;
+            return projectList.filter((project) => project.metaData === formFields.organization);
         case 'eventType':
             return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
@@ -115,10 +121,10 @@ const SubscribeModal = () => {
 
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
-        if (getChannelState().isError) {
+        if (isChannelListError) {
             return plugin_constants.messages.error.errorFetchingChannelsList;
         }
-        if (getOrganizationAndProjectState().isError) {
+        if (isOrganizationAndProjectListError) {
             return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
         }
         return Utils.getErrorMessage(isCreateSubscriptionError, 'SubscribeModal', error);
@@ -153,53 +159,48 @@ const SubscribeModal = () => {
         );
     }, [visibility]);
 
-    // Pre-select the dropdown value in case of single option
-    useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
-            organization: '',
-            project: '',
-            channelID: '',
-        };
-
-        if (organizationOptions.length === 1) {
-            autoSelectedValues.organization = organizationOptions[0].value;
-        }
-        if (projectOptions.length === 1) {
-            autoSelectedValues.project = projectOptions[0].value;
-        }
-        if (channelOptions.length === 1) {
-            autoSelectedValues.channelID = channelOptions[0].value;
-        }
-
-        if (autoSelectedValues.organization || autoSelectedValues.project || autoSelectedValues.channelID) {
-            setSpecificFieldValue({
-                ...formFields,
-                ...autoSelectedValues,
-            });
-        }
-    }, [projectOptions, organizationOptions, channelOptions]);
-
     // Set organization, project and channel list values
     useEffect(() => {
-        if (getChannelState().isSuccess) {
-            setChannelOptions(getChannelState().data?.map((channel) => ({
+        if (isChannelListSuccess && !showResultPanel) {
+            setChannelOptions(channelList?.map((channel) => ({
                 label: <span><i className={`icon ${channel.type === 'P' ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }
 
-        if (getOrganizationAndProjectState().isSuccess && !showResultPanel) {
-            setOrganizationOptions(getOrganizationAndProjectState().organizationList);
-            setProjectOptions(getOrganizationAndProjectState().projectList);
+        // Pre-select the dropdown value in case of single option
+        if (isOrganizationAndProjectListSuccess && !showResultPanel) {
+            const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
+                organization: '',
+                project: '',
+                channelID: '',
+            };
+
+            if (organizationList.length === 1) {
+                autoSelectedValues.organization = organizationList[0].value;
+            }
+            if (projectList.length === 1) {
+                autoSelectedValues.project = projectList[0].value;
+            }
+            if (channelOptions.length === 1) {
+                autoSelectedValues.channelID = channelOptions[0].value;
+            }
+
+            if (autoSelectedValues.organization || autoSelectedValues.project || autoSelectedValues.channelID) {
+                setSpecificFieldValue({
+                    ...formFields,
+                    ...autoSelectedValues,
+                });
+            }
         }
     }, [
-        getChannelState().isLoading,
-        getOrganizationAndProjectState().isLoading,
+        isChannelListLoading,
+        isOrganizationAndProjectListLoading,
         showResultPanel,
     ]);
 
     const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
-    const isAnyProjectLinked = Boolean(getOrganizationAndProjectState().organizationList.length && getOrganizationAndProjectState().projectList.length);
+    const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
 
     return (
         <Modal
@@ -216,7 +217,7 @@ const SubscribeModal = () => {
         >
             <>
                 {
-                    (getChannelState().isLoading || getOrganizationAndProjectState().isLoading) && <CircularLoader/>
+                    (isChannelListLoading || isOrganizationAndProjectListLoading) && <CircularLoader/>
                 }
                 {
                     !showResultPanel && (

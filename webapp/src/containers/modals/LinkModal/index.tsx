@@ -15,7 +15,7 @@ import useForm from 'hooks/useForm';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 const LinkModal = () => {
-    const {linkProjectModal} = plugin_constants.form;
+    const {linkProjectModal: linkProjectModalFields} = plugin_constants.form;
 
     // Hooks
     const {
@@ -25,7 +25,7 @@ const LinkModal = () => {
         onChangeFormField,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(linkProjectModal);
+    } = useForm(linkProjectModalFields);
     const {makeApiRequestWithCompletionStatus, state, getApiState} = usePluginApi();
     const dispatch = useDispatch();
 
@@ -99,10 +99,10 @@ const LinkModal = () => {
                             onSecondaryBtnClick={resetModalState}
                         />
                     ) : (
-                        Object.keys(linkProjectModal).map((field) => (
+                        Object.keys(linkProjectModalFields).map((field) => (
                             <Form
-                                key={linkProjectModal[field as LinkProjectModalFields].label}
-                                fieldConfig={linkProjectModal[field as LinkProjectModalFields]}
+                                key={linkProjectModalFields[field as LinkProjectModalFields].label}
+                                fieldConfig={linkProjectModalFields[field as LinkProjectModalFields]}
                                 value={formFields[field as LinkProjectModalFields] ?? null}
                                 onChange={(newValue) => onChangeFormField(field as LinkProjectModalFields, newValue)}
                                 error={errorState[field as LinkProjectModalFields]}

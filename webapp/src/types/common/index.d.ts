@@ -17,6 +17,7 @@ type TabsData = {
 type LabelValuePair = {
     label?: string | JSX.Element;
     value: string;
+    metaData?: string;
 }
 
 type CreateTaskFields = {

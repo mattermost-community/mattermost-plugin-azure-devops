@@ -1,30 +1,44 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
+import {GlobalState} from 'mattermost-redux/types/store';
+
+import EmptyState from 'components/emptyState';
 import SubscriptionCard from 'components/card/subscription';
 import IconButton from 'components/buttons/iconButton';
 import BackButton from 'components/buttons/backButton';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
+import ToggleSwitch from 'components/toggleSwitch';
+
+import plugin_constants from 'plugin_constants';
+
+import {resetProjectDetails} from 'reducers/projectDetails';
+import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
+import {getSubscribeModalState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
-import {resetProjectDetails} from 'reducers/projectDetails';
-import plugin_constants from 'plugin_constants';
-import EmptyState from 'components/emptyState';
-import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
-import {getSubscribeModalState} from 'selectors';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
-import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
+
+import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = (projectDetails: ProjectDetails) => {
+    // Hooks
+    const dispatch = useDispatch();
+    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
+
     // State variables
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
+    const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
+    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
 
-    // Hooks
-    const dispatch = useDispatch();
-    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
+    const project: FetchSubscriptionList = {project: projectDetails.projectName};
+    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
+    const subscriptionData = data as SubscriptionDetails[];
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -94,6 +108,24 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         };
     }, []);
 
+    useEffect(() => {
+        if (subscriptionData) {
+            if (showAllSubscriptions) {
+                setSubscriptionList(subscriptionData);
+            } else {
+                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+            }
+        }
+    }, [subscriptionData, showAllSubscriptions]);
+
+    // Update subscription list on switching channels
+    useEffect(() => {
+        if (subscriptionData) {
+            setShowAllSubscriptions(false);
+            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+        }
+    }, [currentChannelId]);
+
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
         if (getSubscribeModalState(state).isCreated) {
@@ -102,13 +134,14 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
         }
     }, [getSubscribeModalState(state).isCreated]);
 
-    const project: FetchSubscriptionList = {project: projectDetails.projectName};
-    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionList = data as SubscriptionDetails[];
-
     return (
         <>
             <BackButton onClick={handleResetProjectDetails}/>
+            <ToggleSwitch
+                active={showAllSubscriptions}
+                onChange={setShowAllSubscriptions}
+                label={plugin_constants.common.ToggleLabel}
+            />
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}

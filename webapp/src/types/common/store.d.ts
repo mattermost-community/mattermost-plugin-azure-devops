@@ -47,3 +47,10 @@ type ApiQueriesState = {
 type ApiRequestCompletionState = {
     requests: ApiServiceName[]
 }
+
+type ProjectDetails = {
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
+}

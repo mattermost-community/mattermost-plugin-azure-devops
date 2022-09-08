@@ -103,7 +103,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Reset the state when the component is unmounted
     useEffect(() => {
-        fetchSubscriptionList();
+        if(!getWebsocketEventState(state).isSubscriptionDeleted) {
+            fetchSubscriptionList();
+        }
+
         return () => {
             handleResetProjectDetails();
         };

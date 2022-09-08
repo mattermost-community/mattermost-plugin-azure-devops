@@ -15,9 +15,8 @@ export function handleDisconnect(store: Store<GlobalState, Action<Record<string,
     };
 }
 
-// TODO: types are already added in a PR so, update that here when synced with that
 export function handleSubscriptionDeleted(store: Store<GlobalState, Action<Record<string, unknown>>>) {
-    return (_: any) => {
+    return (_: WebsocketEventParams) => {
         store.dispatch(toggleIsSubscriptionDeleted(true) as Action);
     };
 }

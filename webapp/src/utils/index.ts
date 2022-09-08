@@ -59,7 +59,7 @@ export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCom
 };
 
 export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> | React.KeyboardEvent<SVGSVGElement>, func: () => void) => {
-    if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
+    if (event.key !== 'Enter' && event.key !== ' ') {
         return;
     }
 

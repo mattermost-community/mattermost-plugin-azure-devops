@@ -42,8 +42,8 @@ const SubscribeModal = () => {
         state,
     } = usePluginApi();
     const {visibility, project, organization} = getSubscribeModalState(state);
-    const {currentTeamId} = useSelector((pluginState: GlobalState) => pluginState.entities.teams);
-    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
+    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
+    const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
 
     // State variables

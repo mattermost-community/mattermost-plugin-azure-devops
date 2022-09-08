@@ -37,7 +37,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
-    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
+    const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
 
     const project: FetchSubscriptionList = {project: projectName};
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
@@ -105,7 +105,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Reset the state when the component is unmounted
     useEffect(() => {
-        if(!getWebsocketEventState(state).isSubscriptionDeleted) {
+        if (!getWebsocketEventState(state).isSubscriptionDeleted) {
             fetchSubscriptionList();
         }
 

@@ -13,5 +13,5 @@ export const boardsEventTypeMap: Record<EventType, string> = {
 };
 
 export const channelType = {
-    priivate: 'P',
+    private: 'P',
 };

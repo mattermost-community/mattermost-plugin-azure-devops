@@ -31,7 +31,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                     value={plugin_constants.common.boardsEventTypeMap[eventType as EventType]}
                 />
                 <LabelValuePair
-                    labelIconClassName={`icon ${channelType === plugin_constants.common.channelType.priivate ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
+                    labelIconClassName={`icon ${channelType === plugin_constants.common.channelType.private ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
                     value={channelName}
                 />
             </div>

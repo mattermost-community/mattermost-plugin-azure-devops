@@ -163,7 +163,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         if (isChannelListSuccess && !showResultPanel) {
             setChannelOptions(channelList?.map((channel) => ({
-                label: <span><i className={`icon ${channel.type === plugin_constants.common.channelType.priivate ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
+                label: <span><i className={`icon ${channel.type === plugin_constants.common.channelType.private ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }

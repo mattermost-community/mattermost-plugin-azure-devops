@@ -1,7 +1,7 @@
 /**
  * Keep all common types here which are to be used throughout the project
 */
-type eventType = 'create' | 'update' | 'delete'
+type EventType = 'create' | 'update' | 'delete'
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
 type TabData = {
@@ -15,14 +15,22 @@ type TabsData = {
 }
 
 type LabelValuePair = {
-    label: string | JSX.Element;
+    label?: string | JSX.Element;
     value: string;
+    metaData?: string;
 }
 
 type CreateTaskFields = {
     title: string,
     description: string,
     areaPath: string,
+}
+
+type ProjectDetails = {
+    mattermostUserID: string
+    projectID: string,
+    projectName: string,
+    organizationName: string
 }
 
 type UserDetails = {
@@ -54,6 +62,7 @@ type SubscriptionDetails = {
     eventType: string,
     channelID: string,
     channelName: string,
+    channelType: string,
 }
 
 type WebsocketEventParams = {

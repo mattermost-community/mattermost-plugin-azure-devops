@@ -2,8 +2,8 @@ import React from 'react';
 
 import './styles.scss';
 
-const LinearLoader = () : JSX.Element => (
-    <div className='linear-loader'>
+const LinearLoader = ({extraClass = ''}: {extraClass?: string}) : JSX.Element => (
+    <div className={`linear-loader ${extraClass}`}>
         <div className='linear-loader__bar'/>
     </div>
 );

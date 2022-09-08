@@ -39,8 +39,8 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
     }
 
     return {
-        organization: data[3] ?? '',
-        project: data[4] ?? '',
+        organization: decodeURI(data[3]) ?? '',
+        project: decodeURI(data[4]) ?? '',
     };
 };
 
@@ -58,13 +58,15 @@ export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCom
     };
 };
 
-export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement>, func: () => void) => {
+export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> | React.KeyboardEvent<SVGSVGElement>, func: () => void) => {
     if (event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
         return;
     }
 
     func();
 };
+
+export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => project1.projectName.toLocaleLowerCase().localeCompare(project2.projectName.toLocaleLowerCase());
 
 export default {
     getBaseUrls,

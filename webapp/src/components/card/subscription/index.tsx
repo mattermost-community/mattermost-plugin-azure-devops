@@ -1,8 +1,13 @@
 import React from 'react';
 
+import mm_constants from 'mattermost-redux/constants/general';
+
 import BaseCard from 'components/card/base';
 import IconButton from 'components/buttons/iconButton';
 import LabelValuePair from 'components/labelValuePair';
+import SVGWrapper from 'components/svgWrapper';
+
+import plugin_constants from 'plugin_constants';
 
 import './styles.scss';
 
@@ -11,21 +16,25 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {projectName, eventType, channelName}, subscriptionDetails}: SubscriptionCardProps) => (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, channelName}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <div className='d-flex'>
             <div className='project-details'>
-                {/* TODO: discuss if this is required and it should be the subscription's name not the project name */}
-                {/* <LabelValuePair
-                        label='Name'
-                        value={projectName}
-                    /> */}
                 <LabelValuePair
-                    label='Event'
-                    value={eventType}
+                    label={
+                        <SVGWrapper
+                            width={12}
+                            height={12}
+                            viewBox='0 0 10 10'
+                        >
+                            {plugin_constants.SVGIcons.workEvent}
+                        </SVGWrapper>
+                    }
+                    labelExtraClassName='margin-left-5'
+                    value={plugin_constants.common.boardsEventTypeMap[eventType as EventType]}
                 />
                 <LabelValuePair
-                    label='Channel'
+                    labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
                     value={channelName}
                 />
             </div>

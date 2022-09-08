@@ -27,11 +27,7 @@ function usePluginApi() {
         return {data, isError, isLoading, isSuccess, error, isUninitialized};
     };
 
-    const isUserAccountConnected = (): boolean => {
-        return state['plugins-mattermost-plugin-azure-devops'].userConnectedSlice.isConnected;
-    };
-
-    return {makeApiRequest, makeApiRequestWithCompletionStatus, getApiState, state, isUserAccountConnected};
+    return {makeApiRequest, makeApiRequestWithCompletionStatus, getApiState, state};
 }
 
 export default usePluginApi;

@@ -5,7 +5,7 @@ import './styles.scss';
 
 type ModalHeaderProps = {
     title?: string | JSX.Element;
-    onHide?: () => void;
+    onHide: () => void;
     showCloseIconInHeader?: boolean;
 }
 
@@ -18,7 +18,9 @@ const ModalHeader = ({title, showCloseIconInHeader, onHide}: ModalHeaderProps) :
                     <button
                         className='style--none'
                         onClick={onHide}
-                    ><i className='icon icon-close modal__close-icon'/></button>
+                    >
+                        <i className='icon icon-close modal__close-icon'/>
+                    </button>
                 )}
             </div>
         </RBModal.Header>

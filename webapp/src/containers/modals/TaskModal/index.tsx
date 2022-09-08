@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Modal from 'components/modal';
@@ -19,7 +19,7 @@ import {getCreateTaskModalState} from 'selectors';
 import Utils from 'utils';
 
 const TaskModal = () => {
-    const {createTaskModal} = plugin_constants.form;
+    const {createTaskModal: createTaskModalFields} = plugin_constants.form;
 
     // Hooks
     const {
@@ -29,13 +29,11 @@ const TaskModal = () => {
         setSpecificFieldValue,
         resetFormFields,
         isErrorInFormValidation,
-    } = useForm(createTaskModal);
+    } = useForm(createTaskModalFields);
     const {getApiState, makeApiRequestWithCompletionStatus, state} = usePluginApi();
     const dispatch = useDispatch();
 
     // State variables
-    const [organizationOptions, setOrganizationOptions] = useState<LabelValuePair[]>([]);
-    const [projectOptions, setProjectOptions] = useState<LabelValuePair[]>([]);
     const {visibility, commandArgs} = getCreateTaskModalState(state);
 
     // Function to hide the modal and reset all the states
@@ -50,15 +48,38 @@ const TaskModal = () => {
         resetModalState();
     };
 
+    // Get organization and project state
+    const getOrganizationAndProjectState = () => {
+        const {isLoading, isSuccess, isError, data} = getApiState(
+            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+        );
+
+        return {
+            isLoading,
+            isError,
+            isSuccess,
+            organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
+            projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
+        };
+    };
+
+    const {
+        isSuccess: isOrganizationAndProjectListSuccess,
+        isError: isOrganizationAndProjectListError,
+        isLoading: isOrganizationAndProjectListLoading,
+        organizationList,
+        projectList,
+    } = getOrganizationAndProjectState();
+
     // Get option list for each types of dropdown fields
     const getDropDownOptions = (fieldName: CreateTaskModalFields) => {
         switch (fieldName) {
         case 'organization':
-            return organizationOptions;
+            return organizationList;
         case 'project':
-            return projectOptions;
+            return projectList.filter((project) => project.metaData === formFields.organization);
         case 'type':
-            return createTaskModal.type.optionsList;
+            return createTaskModalFields.type.optionsList;
         default:
             return [];
         }
@@ -99,24 +120,9 @@ const TaskModal = () => {
         handleSuccess: () => resetModalState(),
     });
 
-    // Get organization and project state
-    const getOrganizationAndProjectState = () => {
-        const {isLoading, isSuccess, isError, data} = getApiState(
-            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
-        );
-
-        return {
-            isLoading,
-            isError,
-            isSuccess,
-            organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
-            projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
-        };
-    };
-
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
-        if (getOrganizationAndProjectState().isError) {
+        if (isOrganizationAndProjectListError) {
             return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
         }
         return Utils.getErrorMessage(isCreateSubscriptionError, 'CreateTaskModal', error);
@@ -124,35 +130,27 @@ const TaskModal = () => {
 
     // Pre-select the dropdown value in case of single option
     useEffect(() => {
-        const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project'> = {
-            organization: '',
-            project: '',
-        };
+        if (isOrganizationAndProjectListSuccess) {
+            const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project'> = {
+                organization: '',
+                project: '',
+            };
 
-        if (organizationOptions.length === 1) {
-            autoSelectedValues.organization = organizationOptions[0].value;
-        }
-        if (projectOptions.length === 1) {
-            autoSelectedValues.project = projectOptions[0].value;
-        }
+            if (organizationList.length === 1) {
+                autoSelectedValues.organization = organizationList[0].value;
+            }
+            if (projectList.length === 1) {
+                autoSelectedValues.project = projectList[0].value;
+            }
 
-        if (autoSelectedValues.organization || autoSelectedValues.project) {
-            setSpecificFieldValue({
-                ...formFields,
-                ...autoSelectedValues,
-            });
+            if (autoSelectedValues.organization || autoSelectedValues.project) {
+                setSpecificFieldValue({
+                    ...formFields,
+                    ...autoSelectedValues,
+                });
+            }
         }
-    }, [projectOptions, organizationOptions]);
-
-    // Set organization and project list values
-    useEffect(() => {
-        if (getOrganizationAndProjectState().isSuccess) {
-            setOrganizationOptions(getOrganizationAndProjectState().organizationList);
-            setProjectOptions(getOrganizationAndProjectState().projectList);
-        }
-    }, [
-        getOrganizationAndProjectState().isLoading,
-    ]);
+    }, [isOrganizationAndProjectListLoading]);
 
     // Set modal field values
     useEffect(() => {
@@ -166,7 +164,7 @@ const TaskModal = () => {
     }, [visibility]);
 
     const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
-    const isAnyProjectLinked = Boolean(getOrganizationAndProjectState().organizationList.length && getOrganizationAndProjectState().projectList.length);
+    const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
 
     return (
         <Modal
@@ -181,14 +179,14 @@ const TaskModal = () => {
         >
             <>
                 {
-                    getOrganizationAndProjectState().isLoading && <CircularLoader/>
+                    isOrganizationAndProjectListLoading && <CircularLoader/>
                 }
                 {
                     isAnyProjectLinked ? (
-                        Object.keys(createTaskModal).map((field) => (
+                        Object.keys(createTaskModalFields).map((field) => (
                             <Form
-                                key={createTaskModal[field as CreateTaskModalFields].label}
-                                fieldConfig={createTaskModal[field as CreateTaskModalFields]}
+                                key={createTaskModalFields[field as CreateTaskModalFields].label}
+                                fieldConfig={createTaskModalFields[field as CreateTaskModalFields]}
                                 value={formFields[field as CreateTaskModalFields] ?? ''}
                                 optionsList={getDropDownOptions(field as CreateTaskModalFields)}
                                 onChange={(newValue) => onChangeFormField(field as CreateTaskModalFields, newValue)}
@@ -200,7 +198,7 @@ const TaskModal = () => {
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}
-                            buttonText='Link new project'
+                            buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}
                         />
                     )

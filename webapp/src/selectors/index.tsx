@@ -1,3 +1,4 @@
+// TODO: create constants for string literals to prevent changing hard coded string values at multiple places in case of modifications
 export const getProjectDetailsState = (state: ReduxState): ProjectDetails => {
     return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
 };
@@ -28,4 +29,8 @@ export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompl
 
 export const getApiQueriesState = (state: ReduxState): ApiQueriesState => {
     return state['plugins-mattermost-plugin-azure-devops'].azureDevOpsPluginApi?.queries;
+};
+
+export const getWebsocketEventState = (state: ReduxState): WebsocketEventState => {
+    return state['plugins-mattermost-plugin-azure-devops'].websocketEventSlice;
 };

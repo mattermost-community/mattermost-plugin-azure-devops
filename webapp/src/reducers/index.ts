@@ -8,7 +8,7 @@ import linkProjectModalSlice from './linkModal';
 import subscriptionModalSlice from './subscribeModal';
 import createTaskModalSlice from './taskModal';
 import projectDetailsSlice from './projectDetails';
-import userConnectedSlice from './userConnected';
+import websocketEventSlice from './websocketEvent';
 
 const reducers = combineReducers({
     apiRequestCompletionSlice,
@@ -17,7 +17,7 @@ const reducers = combineReducers({
     createTaskModalSlice,
     subscriptionModalSlice,
     projectDetailsSlice,
-    userConnectedSlice,
+    websocketEventSlice,
     [services.reducerPath]: services.reducer,
 });
 

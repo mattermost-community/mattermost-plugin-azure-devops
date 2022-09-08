@@ -1,16 +1,16 @@
-.dropdown {
+.dropdown-component {
   position: relative;
   width: 100%;
 
   &__field {
     height: 50px;
-    border: 2px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.1);
     border-radius: 4px;
-    cursor: pointer;
     padding: 0 14px;
 
     &--open {
-      border-color: rgba(var(--center-channel-color-rgb), 0.4);
+      border-color: rgba(var(--center-channel-color-rgb), 0.2);
+
       & .dropdown__field-text--placeholder {
         color: rgba(var(--center-channel-color-rgb), 0.7);
       }
@@ -26,12 +26,6 @@
     }
   }
 
-  .text-ellipses {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
   &__field-input {
     opacity: 0;
     width: 100%;
@@ -41,7 +35,6 @@
     position: absolute;
     left: 0;
     top: 0;
-    cursor: pointer;
 
     &:disabled {
       cursor: not-allowed;
@@ -98,7 +91,7 @@
     left: 0;
     right: 0;
     top: 50px;
-    border: 2px solid rgba(var(--center-channel-color-rgb), 0.4);
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
     border-radius: 4px;
     max-height: 0;
     overflow: auto;
@@ -106,7 +99,8 @@
     transition: all 100ms ease-in-out;
     background: var(--center-channel-bg);
     padding: 0;
-    z-index: 2;
+    z-index: 2000;
+    box-shadow: 0px 8px 24px rgba(var(--center-channel-color-rgb), 0.2);
 
     &--open {
       opacity: 1;
@@ -116,13 +110,12 @@
 
   &__option-item {
     font-size: 14px;
-    padding: 8px 24px;
+    padding: 8px 14px;
     margin: 0;
-    cursor: pointer;
     max-width: 100%;
 
     &:hover {
-      background: rgba(var(--center-channel-text-rgb), 0.1);
+      background: rgba(var(--center-channel-text-rgb), 0.06);
     }
   }
 

@@ -7,7 +7,7 @@ import {resetGlobalModalState} from 'reducers/globalModal';
 import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
 import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleShowTaskModal} from 'reducers/taskModal';
-import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState} from 'selectors';
+import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 
@@ -18,12 +18,19 @@ import 'styles/main.scss';
  * This is a central component for adding account connection validation on all the modals registered in the root component
  */
 const App = (): JSX.Element => {
-    const usePlugin = usePluginApi();
+    const {state, makeApiRequest, makeApiRequestWithCompletionStatus} = usePluginApi();
     const dispatch = useDispatch();
+
+    const {isConnected} = getWebsocketEventState(state);
+    const {modalId, commandArgs} = getGlobalModalState(state);
+    const {isSidebarOpen} = getRhsState(state);
+    const {visibility: linkProjectModalVisibility, isLinked} = getLinkModalState(state);
+    const {visibility: createTaskModalVisibility} = getCreateTaskModalState(state);
+    const {visibility: subscribeModalVisibility} = getSubscribeModalState(state);
 
     // Check if user is connected on page reload
     useEffect(() => {
-        usePlugin.makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
     }, []);
 
     /**
@@ -33,9 +40,7 @@ const App = (): JSX.Element => {
      * otherwise we reset the action and don't open any modal
      */
     useEffect(() => {
-        const {modalId, commandArgs} = getGlobalModalState(usePlugin.state);
-
-        if (usePlugin.isUserAccountConnected() && modalId) {
+        if (isConnected && modalId) {
             switch (modalId) {
             case 'linkProject':
                 dispatch(toggleShowLinkModal({isVisible: true, commandArgs}));
@@ -49,33 +54,33 @@ const App = (): JSX.Element => {
         } else {
             dispatch(resetGlobalModalState());
         }
-    }, [getGlobalModalState(usePlugin.state).modalId]);
+    }, [modalId]);
 
     useEffect(() => {
         dispatch(resetGlobalModalState());
     }, [
-        getLinkModalState(usePlugin.state).visibility,
-        getCreateTaskModalState(usePlugin.state).visibility,
-        getSubscribeModalState(usePlugin.state).visibility,
+        linkProjectModalVisibility,
+        createTaskModalVisibility,
+        subscribeModalVisibility,
     ]);
 
     // Fetch the list of linked projects
     useEffect(() => {
-        if (usePlugin.isUserAccountConnected()) {
-            if (getLinkModalState(usePlugin.state).isLinked) {
+        if (isConnected) {
+            if (isLinked) {
                 dispatch(toggleIsLinkedProjectListChanged(false));
             }
 
-            usePlugin.makeApiRequestWithCompletionStatus(
+            makeApiRequestWithCompletionStatus(
                 plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
             );
         }
     }, [
-        usePlugin.isUserAccountConnected(),
-        getCreateTaskModalState(usePlugin.state).visibility,
-        getSubscribeModalState(usePlugin.state).visibility,
-        getRhsState(usePlugin.state).isSidebarOpen,
-        getLinkModalState(usePlugin.state).isLinked,
+        isLinked,
+        isSidebarOpen,
+        isConnected,
+        createTaskModalVisibility,
+        subscribeModalVisibility,
     ]);
 
     return <></>;

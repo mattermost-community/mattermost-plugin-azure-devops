@@ -1,29 +1,30 @@
-import React, {useEffect, useState} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
 
 import EmptyState from 'components/emptyState';
 import SubscriptionCard from 'components/card/subscription';
-import IconButton from 'components/buttons/iconButton';
 import BackButton from 'components/buttons/backButton';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 import ToggleSwitch from 'components/toggleSwitch';
+import PrimaryButton from 'components/buttons/primaryButton';
 
 import plugin_constants from 'plugin_constants';
 
 import {resetProjectDetails} from 'reducers/projectDetails';
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
-import {getSubscribeModalState} from 'selectors';
+import {toggleIsSubscriptionDeleted} from 'reducers/websocketEvent';
+import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
-const ProjectDetails = (projectDetails: ProjectDetails) => {
+const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     // Hooks
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
@@ -102,7 +103,10 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
 
     // Reset the state when the component is unmounted
     useEffect(() => {
-        fetchSubscriptionList();
+        if(!getWebsocketEventState(state).isSubscriptionDeleted) {
+            fetchSubscriptionList();
+        }
+
         return () => {
             handleResetProjectDetails();
         };
@@ -137,14 +141,16 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
     const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
     const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
+    // Update the subscription list on RHS when a subscription is deleted using the slash command
+    useEffect(() => {
+        if (getWebsocketEventState(state).isSubscriptionDeleted) {
+            fetchSubscriptionList();
+            dispatch(toggleIsSubscriptionDeleted(false));
+        }
+    }, [getWebsocketEventState(state).isSubscriptionDeleted]);
+
     return (
         <>
-            <BackButton onClick={handleResetProjectDetails}/>
-            <ToggleSwitch
-                active={showAllSubscriptions}
-                onChange={setShowAllSubscriptions}
-                label={plugin_constants.common.ToggleLabel}
-            />
             <ConfirmationModal
                 isOpen={showProjectConfirmationModal}
                 onHide={() => setShowProjectConfirmationModal(false)}
@@ -163,22 +169,26 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                 description='Are you sure you want to delete this subscription?'
                 title='Confirm Delete Subscription'
             />
-            {isLoading && <LinearLoader/>}
-            <div className='d-flex'>
+            {isLoading && <LinearLoader extraClass='top-0'/>}
+            <ToggleSwitch
+                active={showAllSubscriptions}
+                onChange={setShowAllSubscriptions}
+                label={'Show All Subscriptions'}
+                labelPositioning='right'
+            />
+            <div className='d-flex align-item-center margin-bottom-15'>
+                <BackButton onClick={handleResetProjectDetails}/>
                 <p className='rhs-title'>{projectDetails.projectName}</p>
-                <IconButton
-                    tooltipText='Unlink project'
-                    iconClassName='fa fa-chain-broken'
-                    extraClass='project-details-unlink-button unlink-button'
-                    onClick={() => handleUnlinkProject()}
+                <PrimaryButton
+                    text='Unlink'
+                    iconName='fa fa-chain-broken'
+                    extraClass='rhs-project-details-unlink-button'
+                    onClick={handleUnlinkProject}
                 />
             </div>
             {
                 subscriptionList?.length ? (
                     <>
-                        <div className='bottom-divider'>
-                            <p className='font-size-14 font-bold margin-0 show-selected'>{'Subscriptions'}</p>
-                        </div>
                         {
                             subscriptionList.map((item) => (
                                 <SubscriptionCard
@@ -194,7 +204,7 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
                                 onClick={handleSubscriptionModal}
                                 className='plugin-btn no-data__btn btn btn-primary project-list-btn'
                             >
-                                {'Add new subscription'}
+                                {'Add New Subscription'}
                             </button>
                         </div>
                     </>
@@ -211,6 +221,6 @@ const ProjectDetails = (projectDetails: ProjectDetails) => {
             }
         </>
     );
-};
+});
 
 export default ProjectDetails;

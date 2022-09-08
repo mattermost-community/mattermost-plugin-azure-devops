@@ -14,13 +14,17 @@
     border-radius: 4px;
     height: 50px;
     border-width: 2px;
+    position: relative;
+    background: transparent !important;
+    z-index: 1;
 
     &.a11y--focused {
       box-shadow: none;
       border-color: rgba(var(--center-channel-color-rgb), 0.4);
     }
 
-    &:focus, &:not(:placeholder-shown) {
+    &:focus,
+    &:not(:placeholder-shown) {
       padding-top: 16px;
       & + .form-group__placeholder {
         color: rgba(var(--center-channel-color-rgb), 0.6);
@@ -29,7 +33,7 @@
       }
     }
 
-    &:disabled{
+    &:disabled {
       cursor: not-allowed;
     }
   }

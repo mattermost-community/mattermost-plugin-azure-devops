@@ -4,7 +4,7 @@
 }
 
 .margin-bottom-15 {
-    margin-bottom: 15px;
+    margin-bottom: 15px !important;
 }
 
 .margin-bottom-25 {
@@ -15,13 +15,29 @@
     margin-top: 80px
 }
 
+.margin-top-1 {
+    margin-top: 1px
+}
+
 .margin-0 {
-    margin: 0;
+    margin: 0 !important;
+}
+
+.margin-right-8 {
+    margin-right: 8px;
+}
+
+.margin-left-5 {
+    margin-left: 5px;
+}
+
+.margin-right-5 {
+    margin-right: 5px;
 }
 
 // Paddings
-.padding-25 {
-    padding: 25px;
+.padding-16 {
+    padding: 16px;
 }
 
 // Dimensions
@@ -32,6 +48,19 @@
 // Layouts
 .d-flex {
     display: flex;
+}
+
+.align-item-center {
+    align-items: center;
+}
+
+// Positions
+.top-0 {
+    top: 0;
+}
+
+.position-relative {
+    position: relative;
 }
 
 .bottom-divider {
@@ -53,6 +82,10 @@
     }
 }
 
+.justify-content-end {
+    justify-content: flex-end;
+}
+
 // Fonts
 .font-size-14 {
     font-size: 14px;
@@ -66,7 +99,7 @@
 .rhs-title {
     font-weight: bold;
     font-size: 18px;
-    margin-bottom: 15px;
+    margin: 0;
 }
 
 .link-title {
@@ -74,14 +107,9 @@
     cursor: pointer;
 
     &:hover {
-        color: darken($link-color, 20);
+        color: darken($link-color, 25);
         text-decoration: underline;
     }
-}
-
-// BG
-.bg-sidebar {
-    background-color: rgba(var(--center-channel-color-rgb), 0.04);
 }
 
 // Cursors
@@ -92,4 +120,10 @@
 // Overflows
 .overflow-auto {
     overflow: auto;
+}
+
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

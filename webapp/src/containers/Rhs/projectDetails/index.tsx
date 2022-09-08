@@ -25,6 +25,8 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import {getCurrentChannelSubscriptions} from 'utils/filterData';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
+    const {projectName, organizationName} = projectDetails;
+
     // Hooks
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
@@ -37,7 +39,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
 
-    const project: FetchSubscriptionList = {project: projectDetails.projectName};
+    const project: FetchSubscriptionList = {project: projectName};
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
     const subscriptionData = data as SubscriptionDetails[];
 
@@ -47,7 +49,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: []}));
+        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName]}));
     };
 
     // Opens a confirmation modal to confirm unlinking a project
@@ -154,7 +156,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 onConfirm={handleConfirmUnlinkProject}
                 isLoading={isUnlinkProjectLoading}
                 confirmBtnText='Unlink'
-                description={`Are you sure you want to unlink ${projectDetails.projectName}?`}
+                description={`Are you sure you want to unlink ${projectName}?`}
                 title='Confirm Project Unlink'
             />
             <ConfirmationModal
@@ -175,7 +177,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             />
             <div className='d-flex align-item-center margin-bottom-15'>
                 <BackButton onClick={handleResetProjectDetails}/>
-                <p className='rhs-title'>{projectDetails.projectName}</p>
+                <p className='rhs-title'>{projectName}</p>
                 <PrimaryButton
                     text='Unlink'
                     iconName='fa fa-chain-broken'

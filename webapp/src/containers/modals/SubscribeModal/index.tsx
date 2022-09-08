@@ -4,7 +4,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 
 import Modal from 'components/modal';
-import CircularLoader from 'components/loader/circular';
 import Form from 'components/form';
 import EmptyState from 'components/emptyState';
 import ResultPanel from 'components/resultPanel';
@@ -41,8 +40,9 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility} = getSubscribeModalState(state);
-    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
+    const {visibility, project, organization} = getSubscribeModalState(state);
+    const {currentTeamId} = useSelector((pluginState: GlobalState) => pluginState.entities.teams);
+    const {currentChannelId} = useSelector((pluginState: GlobalState) => pluginState.entities.channels);
     const dispatch = useDispatch();
 
     // State variables
@@ -97,7 +97,7 @@ const SubscribeModal = () => {
         case 'organization':
             return organizationList;
         case 'project':
-            return projectList.filter((project) => project.metaData === formFields.organization);
+            return projectList.filter(({metaData}) => metaData === formFields.organization);
         case 'eventType':
             return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
@@ -163,7 +163,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         if (isChannelListSuccess && !showResultPanel) {
             setChannelOptions(channelList?.map((channel) => ({
-                label: <span><i className={`icon ${channel.type === 'P' ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
+                label: <span><i className={`icon ${channel.type === plugin_constants.common.channelType.priivate ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }
@@ -171,15 +171,15 @@ const SubscribeModal = () => {
         // Pre-select the dropdown value in case of single option
         if (isOrganizationAndProjectListSuccess && !showResultPanel) {
             const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
-                organization: '',
-                project: '',
-                channelID: '',
+                organization: organization ?? '',
+                project: project ?? '',
+                channelID: currentChannelId ?? '',
             };
 
-            if (organizationList.length === 1) {
+            if (!organization && organizationList.length === 1) {
                 autoSelectedValues.organization = organizationList[0].value;
             }
-            if (projectList.length === 1) {
+            if (!project && projectList.length === 1) {
                 autoSelectedValues.project = projectList[0].value;
             }
             if (channelOptions.length === 1) {
@@ -199,8 +199,9 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
-    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
+    const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
+    const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
 
     return (
         <Modal
@@ -216,9 +217,6 @@ const SubscribeModal = () => {
             error={showApiErrorMessages(isError, error as ApiErrorResponse)}
         >
             <>
-                {
-                    (isChannelListLoading || isOrganizationAndProjectListLoading) && <CircularLoader/>
-                }
                 {
                     !showResultPanel && (
                         isAnyProjectLinked ? (

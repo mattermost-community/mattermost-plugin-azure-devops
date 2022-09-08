@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Modal from 'components/modal';
-import CircularLoader from 'components/loader/circular';
 import EmptyState from 'components/emptyState';
 import Form from 'components/form';
 
@@ -163,8 +162,9 @@ const TaskModal = () => {
         }
     }, [visibility]);
 
-    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
+    const {isLoading: isCreateTaskLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
+    const isLoading = isOrganizationAndProjectListLoading || isCreateTaskLoading;
 
     return (
         <Modal
@@ -178,9 +178,6 @@ const TaskModal = () => {
             error={showApiErrorMessages(isError, error as ApiErrorResponse)}
         >
             <>
-                {
-                    isOrganizationAndProjectListLoading && <CircularLoader/>
-                }
                 {
                     isAnyProjectLinked ? (
                         Object.keys(createTaskModalFields).map((field) => (

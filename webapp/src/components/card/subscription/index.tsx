@@ -1,12 +1,15 @@
 import React from 'react';
 
+import mm_constants from 'mattermost-redux/constants/general';
+
 import BaseCard from 'components/card/base';
 import IconButton from 'components/buttons/iconButton';
 import LabelValuePair from 'components/labelValuePair';
+import SVGWrapper from 'components/svgWrapper';
+
+import plugin_constants from 'plugin_constants';
 
 import './styles.scss';
-import SVGWrapper from 'components/svgWrapper';
-import plugin_constants from 'plugin_constants';
 
 type SubscriptionCardProps = {
     handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
@@ -31,7 +34,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                     value={plugin_constants.common.boardsEventTypeMap[eventType as EventType]}
                 />
                 <LabelValuePair
-                    labelIconClassName={`icon ${channelType === plugin_constants.common.channelType.private ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
+                    labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
                     value={channelName}
                 />
             </div>

@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
+import mm_constants from 'mattermost-redux/constants/general';
 
 import Modal from 'components/modal';
 import Form from 'components/form';
@@ -163,7 +164,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         if (isChannelListSuccess && !showResultPanel) {
             setChannelOptions(channelList?.map((channel) => ({
-                label: <span><i className={`icon ${channel.type === plugin_constants.common.channelType.private ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
+                label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
                 value: channel.id,
             })));
         }

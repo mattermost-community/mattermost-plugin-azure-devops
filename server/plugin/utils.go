@@ -220,7 +220,6 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- |\n")
 
 	noSubscriptionFound := true
-
 	for _, subscription := range subscriptionsList {
 		if subscription.ChannelID == channelID {
 			noSubscriptionFound = false

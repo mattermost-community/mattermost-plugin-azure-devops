@@ -98,7 +98,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 	if len(args) > 0 {
 		switch {
 		case args[0] == "subscriptions":
-			return azureDevopsSubscribeCommand(p, c, commandArgs, args...)
+			return azureDevopsListSubscriptionsCommand(p, c, commandArgs, args...)
 		case args[0] == "unsubscribe":
 			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
 		}
@@ -147,7 +147,7 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", args[1]))
 }
 
-func azureDevopsSubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	subscriptionList, err := p.Store.GetAllSubscriptions(commandArgs.UserId)
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())

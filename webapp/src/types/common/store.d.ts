@@ -15,6 +15,7 @@ type GlobalModalState = {
 type GlobalModalActionPayload = {
     isVisible: boolean
     commandArgs: Array<string>
+    args?: Array<string>
     isActionDone?: boolean
 }
 
@@ -28,6 +29,8 @@ type LinkProjectModalState = {
 type SubscribeModalState = {
     visibility: boolean,
     isCreated: boolean,
+    organization?: string | null,
+    project?: string | null,
 }
 
 type CreateTaskCommandArgs = {

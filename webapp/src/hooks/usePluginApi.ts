@@ -5,7 +5,7 @@ import {setApiRequestCompletionState} from 'reducers/apiRequest';
 import services from 'services';
 
 function usePluginApi() {
-    const state = useSelector((pluginState: ReduxState) => pluginState);
+    const state = useSelector((reduxState: ReduxState) => reduxState);
     const dispatch = useDispatch();
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument

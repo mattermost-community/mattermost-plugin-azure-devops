@@ -66,7 +66,7 @@ const ProjectList = () => {
 
     const {data, isSuccess, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
     const projectsList = data as ProjectDetails[] ?? [];
-    const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]);
+    const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]); // TODO: Look for best optimisation method here
 
     return (
         <>

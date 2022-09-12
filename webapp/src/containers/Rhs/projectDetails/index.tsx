@@ -22,8 +22,6 @@ import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
-import {getCurrentChannelSubscriptions} from 'utils/filterData';
-
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
 
@@ -35,14 +33,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
-    const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
-
-    const project: FetchSubscriptionList = {project: projectName};
-    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, project);
-    const subscriptionData = data as SubscriptionDetails[];
-
+    const [subscriptionListApiParams, setSubscriptionListApiParams] = useState<FetchSubscriptionList>({
+        project: projectName, channel_id: currentChannelId,
+    });
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
     };
@@ -86,7 +80,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     // Fetch subscription list
     const fetchSubscriptionList = () => makeApiRequest(
         plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
-        project,
+        subscriptionListApiParams,
     );
 
     // Handles deletion of a subscription and fetching the modified subscription list
@@ -103,32 +97,37 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         },
     });
 
+    const handleToggleShowAllSubscriptions = (showAllSubscriptions: boolean) => {
+        if (showAllSubscriptions) {
+            setSubscriptionListApiParams({
+                ...subscriptionListApiParams,
+                channel_id: '',
+            });
+        } else {
+            setSubscriptionListApiParams({
+                ...subscriptionListApiParams,
+                channel_id: currentChannelId,
+            });
+        }
+    };
+
     // Reset the state when the component is unmounted
     useEffect(() => {
-        if (!getWebsocketEventState(state).isSubscriptionDeleted) {
-            fetchSubscriptionList();
-        }
-
         return () => {
             handleResetProjectDetails();
         };
     }, []);
 
     useEffect(() => {
-        if (subscriptionData) {
-            if (showAllSubscriptions) {
-                setSubscriptionList(subscriptionData);
-            } else {
-                setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
-            }
-        }
-    }, [subscriptionData, showAllSubscriptions]);
+        fetchSubscriptionList();
+    }, [subscriptionListApiParams]);
 
-    // Update subscription list on switching channels
     useEffect(() => {
-        if (subscriptionData) {
-            setShowAllSubscriptions(false);
-            setSubscriptionList(getCurrentChannelSubscriptions(subscriptionData, currentChannelId));
+        if (subscriptionListApiParams.channel_id !== currentChannelId) {
+            setSubscriptionListApiParams({
+                ...subscriptionListApiParams,
+                channel_id: currentChannelId,
+            });
         }
     }, [currentChannelId]);
 
@@ -139,6 +138,9 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             fetchSubscriptionList();
         }
     }, [getSubscribeModalState(state).isCreated]);
+
+    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
+    const subscriptionList = data as SubscriptionDetails[];
 
     const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
     const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
@@ -173,8 +175,8 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             />
             {isLoading && <LinearLoader extraClass='top-0'/>}
             <ToggleSwitch
-                active={showAllSubscriptions}
-                onChange={setShowAllSubscriptions}
+                active={!subscriptionListApiParams.channel_id}
+                onChange={handleToggleShowAllSubscriptions}
                 label={'Show All Subscriptions'}
                 labelPositioning='right'
             />

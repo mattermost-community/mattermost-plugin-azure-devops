@@ -52,6 +52,7 @@ type FetchChannelParams = {
 
 type FetchSubscriptionList = {
     project: string;
+    channel_id: string;
 }
 
 type SubscriptionDetails = {

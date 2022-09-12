@@ -281,7 +281,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	channelID := r.URL.Query().Get(constants.QueryParamChanneldId)
+	channelID := r.URL.Query().Get(constants.QueryParamChanneldID)
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}

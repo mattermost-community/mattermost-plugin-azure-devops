@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useState} from 'react';
+import React, {memo, useEffect, useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GlobalState} from 'mattermost-redux/types/store';
@@ -21,22 +21,27 @@ import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+import usePreviousState from 'hooks/usePreviousState';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
 
-    // Hooks
-    const dispatch = useDispatch();
-    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
-
     // State variables
+    const [showAllSubscription, setShowAllSubscriptions] = useState(false);
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
-    const [subscriptionListApiParams, setSubscriptionListApiParams] = useState<FetchSubscriptionList>({
-        project: projectName, channel_id: currentChannelId,
-    });
+    const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
+        project: projectName,
+        channel_id: showAllSubscription ? '' : currentChannelId,
+    }), [projectName, currentChannelId, showAllSubscription]);
+
+    // Hooks
+    const previousState = usePreviousState({currentChannelId});
+    const dispatch = useDispatch();
+    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
+
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
     };
@@ -97,20 +102,6 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         },
     });
 
-    const handleToggleShowAllSubscriptions = (showAllSubscriptions: boolean) => {
-        if (showAllSubscriptions) {
-            setSubscriptionListApiParams({
-                ...subscriptionListApiParams,
-                channel_id: '',
-            });
-        } else {
-            setSubscriptionListApiParams({
-                ...subscriptionListApiParams,
-                channel_id: currentChannelId,
-            });
-        }
-    };
-
     // Reset the state when the component is unmounted
     useEffect(() => {
         return () => {
@@ -119,16 +110,21 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     }, []);
 
     useEffect(() => {
+        /**
+         * Prevent calling API to fetch subscription list twice on switching channel
+         *
+         * If current channel is changed and "showAllSubscription" was true on the last channel then
+         * this useEffect runs twice because "subscriptionListApiParams" is modified twice
+         * once when "currentChannelId" is updated and other time when "showAllSubscription" is set to false
+         */
+        if (showAllSubscription && previousState?.currentChannelId !== currentChannelId) {
+            return;
+        }
         fetchSubscriptionList();
     }, [subscriptionListApiParams]);
 
     useEffect(() => {
-        if (subscriptionListApiParams.channel_id !== currentChannelId) {
-            setSubscriptionListApiParams({
-                ...subscriptionListApiParams,
-                channel_id: currentChannelId,
-            });
-        }
+        setShowAllSubscriptions(false);
     }, [currentChannelId]);
 
     // Fetch the subscription list when new subscription is created
@@ -175,8 +171,8 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             />
             {isLoading && <LinearLoader extraClass='top-0'/>}
             <ToggleSwitch
-                active={!subscriptionListApiParams.channel_id}
-                onChange={handleToggleShowAllSubscriptions}
+                active={showAllSubscription}
+                onChange={setShowAllSubscriptions}
                 label={'Show All Subscriptions'}
                 labelPositioning='right'
             />

@@ -27,15 +27,15 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
 
     // State variables
-    const [showAllSubscription, setShowAllSubscriptions] = useState(false);
+    const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
         project: projectName,
-        channel_id: showAllSubscription ? '' : currentChannelId,
-    }), [projectName, currentChannelId, showAllSubscription]);
+        channel_id: showAllSubscriptions ? '' : currentChannelId,
+    }), [projectName, currentChannelId, showAllSubscriptions]);
 
     // Hooks
     const previousState = usePreviousState({currentChannelId});
@@ -113,11 +113,11 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         /**
          * Prevent calling API to fetch subscription list twice on switching channel
          *
-         * If current channel is changed and "showAllSubscription" was true on the last channel then
+         * If the current channel is changed and "showAllSubscriptions" was true on the last channel then
          * this useEffect runs twice because "subscriptionListApiParams" is modified twice
-         * once when "currentChannelId" is updated and other time when "showAllSubscription" is set to false
+         * once when "currentChannelId" is updated and other time when "showAllSubscriptions" is set to false
          */
-        if (showAllSubscription && previousState?.currentChannelId !== currentChannelId) {
+        if (showAllSubscriptions && previousState?.currentChannelId !== currentChannelId) {
             return;
         }
         fetchSubscriptionList();
@@ -171,7 +171,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             />
             {isLoading && <LinearLoader extraClass='top-0'/>}
             <ToggleSwitch
-                active={showAllSubscription}
+                active={showAllSubscriptions}
                 onChange={setShowAllSubscriptions}
                 label={'Show All Subscriptions'}
                 labelPositioning='right'

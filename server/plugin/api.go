@@ -281,17 +281,13 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	channelID := r.URL.Query().Get(constants.QueryParamChanneldID)
+	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}
 		for _, subscription := range subscriptionList {
 			if subscription.ProjectName == project {
-				if channelID != "" {
-					if subscription.ChannelID == channelID {
-						subscriptionByProject = append(subscriptionByProject, subscription)
-					}
-				} else {
+				if channelID == "" || subscription.ChannelID == channelID {
 					subscriptionByProject = append(subscriptionByProject, subscription)
 				}
 			}

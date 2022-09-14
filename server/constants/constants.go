@@ -45,8 +45,8 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	QueryParamProject    = "project"
-	QueryParamChanneldID = "channel_id"
+	QueryParamProject   = "project"
+	QueryParamChannelID = "channel_id"
 
 	// Authorization constants
 	Bearer        = "Bearer"

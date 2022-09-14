@@ -67,8 +67,9 @@ const azureDevOpsPluginApi = createApi({
         [Constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName]: builder.query<SubscriptionDetails[], FetchSubscriptionList>({
             query: (params) => ({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
-                url: `${Constants.pluginApiServiceConfigs.getSubscriptionList.path}${params.project}`,
+                url: Constants.pluginApiServiceConfigs.getSubscriptionList.path,
                 method: Constants.pluginApiServiceConfigs.getSubscriptionList.method,
+                params: {...params},
             }),
         }),
         [Constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName]: builder.query<void, APIRequestPayload>({

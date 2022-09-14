@@ -19,5 +19,3 @@ export const getProjectList = (data: ProjectDetails[]) => {
     data.map((project) => projectList.push({value: project.projectName, label: project.projectName, metaData: project.organizationName}));
     return projectList;
 };
-
-export const getCurrentChannelSubscriptions = (data: SubscriptionDetails[], channelID: string): SubscriptionDetails[] => data.filter(((subscription) => subscription.channelID === channelID));

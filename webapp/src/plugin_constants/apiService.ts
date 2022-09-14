@@ -36,7 +36,7 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         apiServiceName: 'getChannels',
     },
     getSubscriptionList: {
-        path: '/subscriptions?project=',
+        path: '/subscriptions',
         method: 'GET',
         apiServiceName: 'getSubscriptionList',
     },

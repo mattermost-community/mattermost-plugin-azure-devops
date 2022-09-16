@@ -113,6 +113,7 @@ const ProjectList = () => {
                             buttonText='Link New Project'
                             buttonAction={handleOpenLinkProjectModal}
                             wrapperExtraClass='margin-top-80'
+                            isLoading={isLoading}
                         />)
             }
         </>

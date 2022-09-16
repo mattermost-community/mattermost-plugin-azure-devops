@@ -34,8 +34,8 @@ const LinkModal = () => {
     const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Function to hide the modal and reset all the states.
-    const resetModalState = (isActionDone?: boolean) => {
-        dispatch(toggleShowLinkModal({isVisible: false, commandArgs: [], isActionDone}));
+    const resetModalState = () => {
+        dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
         resetFormFields();
         setShowResultPanel(false);
     };

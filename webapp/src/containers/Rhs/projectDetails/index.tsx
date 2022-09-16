@@ -60,11 +60,14 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         subscriptionListReturnedByApi?.length !== 0 && subscriptionListReturnedByApi?.length === plugin_constants.common.defaultPageLimit
     ), [subscriptionListReturnedByApi]);
 
-    const handlePagination = (reset = false) => {
+    const handlePagination = (reset = false, fetchList = true) => {
         if (reset) {
             setSubscriptionList([]);
         }
-
+        if (reset && fetchList && paginationQueryParams.offset === 0) {
+            fetchSubscriptionList();
+            return;
+        }
         const {offset} = getIncrementedPaginationQueryParamOffset(paginationQueryParams.offset);
         setPaginationQueryParams({
             ...paginationQueryParams,
@@ -173,7 +176,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     useEffect(() => {
         if (!showAllSubscriptions && subscriptionList?.length) {
-            handlePagination(true);
+            handlePagination(true, false);
         }
     }, [currentChannelId]);
 
@@ -204,7 +207,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             <ToggleSwitch
                 active={showAllSubscriptions}
                 onChange={(active) => {
-                    handlePagination(true);
+                    handlePagination(true, false);
                     setShowAllSubscriptions(active);
                 }}
                 label={'Show All Subscriptions'}
@@ -263,6 +266,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                         buttonAction={handleSubscriptionModal}
                         icon='subscriptions'
                         wrapperExtraClass='margin-top-80'
+                        isLoading={isLoading}
                     />
                 )
             }

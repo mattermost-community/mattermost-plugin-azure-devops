@@ -13,7 +13,10 @@ const Rhs = (): JSX.Element => {
     const {isConnected} = getWebsocketEventState(state);
 
     return (
-        <div className='overflow-auto height-rhs position-relative padding-16'>
+        <div
+            id='scrollableArea'
+            className='overflow-auto height-rhs position-relative padding-16'
+        >
             {!isConnected && <AccountNotLinked/>}
             {
                 isConnected && (

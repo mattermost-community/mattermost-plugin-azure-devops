@@ -8,6 +8,8 @@ import {
     pluginId,
     RightSidebarHeader,
     boardsEventTypeMap,
+    defaultPageOffset,
+    defaultPageLimit,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
@@ -22,6 +24,8 @@ export default {
         AzureDevops,
         RightSidebarHeader,
         boardsEventTypeMap,
+        defaultPageOffset,
+        defaultPageLimit,
     },
     form: {
         linkProjectModal,

@@ -50,7 +50,7 @@ type FetchChannelParams = {
     teamId: string;
 }
 
-type FetchSubscriptionList = {
+interface FetchSubscriptionList extends PaginationQueryParams {
     project: string;
     channel_id: string;
 }

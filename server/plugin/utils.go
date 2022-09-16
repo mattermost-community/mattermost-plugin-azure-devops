@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -242,4 +243,23 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	}
 
 	return sb.String()
+}
+
+func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (int, int, error) {
+	queryParamOffset := r.URL.Query().Get(constants.QueryParamOffset)
+	queryParamLimit := r.URL.Query().Get(constants.QueryParamLimit)
+	offset := 0
+	limit := 10
+	if queryParamOffset != "" && queryParamLimit != "" {
+		var err error
+		if offset, err = strconv.Atoi(queryParamOffset); err != nil {
+			return offset, limit, err
+		}
+
+		if limit, err = strconv.Atoi(queryParamLimit); err != nil {
+			return offset, limit, err
+		}
+	}
+
+	return offset, limit, nil
 }

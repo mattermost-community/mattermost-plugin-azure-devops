@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"sort"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -274,25 +273,6 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	p.writeJSON(w, subscription)
 }
 
-func (p *Plugin) GetOffsetAndLimitFromQueryParams(w http.ResponseWriter, r *http.Request) (int, int, error) {
-	queryParamOffset := r.URL.Query().Get(constants.QueryParamOffset)
-	queryParamLimit := r.URL.Query().Get(constants.QueryParamLimit)
-	offset := 0
-	limit := 10
-	if queryParamOffset != "" && queryParamLimit != "" {
-		var err error
-		if offset, err = strconv.Atoi(queryParamOffset); err != nil {
-			return offset, limit, err
-		}
-
-		if limit, err = strconv.Atoi(queryParamLimit); err != nil {
-			return offset, limit, err
-		}
-	}
-
-	return offset, limit, nil
-}
-
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
@@ -303,7 +283,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	offset, limit, err := p.GetOffsetAndLimitFromQueryParams(w, r)
+	offset, limit, err := p.GetOffsetAndLimitFromQueryParams(r)
 	if err != nil {
 		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidPaginationQueryParam})
@@ -314,7 +294,6 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}
-		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
 		for _, subscription := range subscriptionList {
 			if subscription.ProjectName == project {
 				if channelID == "" || subscription.ChannelID == channelID {
@@ -327,6 +306,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
 		})
 
+		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
 		for index, subscription := range subscriptionByProject {
 			if len(paginatedSubscriptions) == limit {
 				break

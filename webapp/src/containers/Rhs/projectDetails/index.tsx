@@ -175,7 +175,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     }, [getWebsocketEventState(state).isSubscriptionDeleted]);
 
     useEffect(() => {
-        if (!showAllSubscriptions && subscriptionList?.length) {
+        if (!showAllSubscriptions && subscriptionList.length) {
             handlePagination(true, false);
         }
     }, [currentChannelId]);
@@ -224,7 +224,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 />
             </div>
             {
-                subscriptionList?.length ? (
+                subscriptionList.length ? (
                     <InfiniteScroll
                         dataLength={plugin_constants.common.defaultPageLimit}
                         next={handlePagination}

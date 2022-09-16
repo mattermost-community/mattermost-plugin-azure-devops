@@ -324,7 +324,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].ChannelName < subscriptionByProject[j].ChannelName
+			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
 		})
 
 		for index, subscription := range subscriptionByProject {

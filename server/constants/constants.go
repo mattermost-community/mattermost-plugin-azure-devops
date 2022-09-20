@@ -51,7 +51,7 @@ const (
 	QueryParamPerPage   = "per_page"
 
 	DefaultPage         = 0
-	DefaultPerPageLimit = 10
+	DefaultPerPageLimit = 50
 
 	// Authorization constants
 	Bearer        = "Bearer"

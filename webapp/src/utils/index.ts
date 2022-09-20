@@ -68,10 +68,6 @@ export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> |
 
 export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => project1.projectName.toLocaleLowerCase().localeCompare(project2.projectName.toLocaleLowerCase());
 
-export const getIncrementedPaginationQueryParamOffset = (offset: number) => {
-    return {offset: offset + Constants.common.defaultPageLimit};
-};
-
 export default {
     getBaseUrls,
     getErrorMessage,

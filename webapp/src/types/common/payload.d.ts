@@ -19,6 +19,6 @@ type SubscriptionPayload = {
 }
 
 interface PaginationQueryParams {
-    offset: number;
-    limit: number;
+    page: number;
+    per_page: number;
 }

@@ -24,16 +24,16 @@ import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
-import {getIncrementedPaginationQueryParamOffset} from 'utils';
 import usePreviousState from 'hooks/usePreviousState';
+import {defaultPage} from 'plugin_constants/common';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
-        offset: plugin_constants.common.defaultPageOffset,
-        limit: plugin_constants.common.defaultPageLimit,
+        page: plugin_constants.common.defaultPage,
+        per_page: plugin_constants.common.defaultPerPageLimit,
     });
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
@@ -50,28 +50,28 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
         project: projectName,
         channel_id: showAllSubscriptions ? '' : currentChannelId,
-        offset: paginationQueryParams.offset,
-        limit: paginationQueryParams.limit,
+        page: paginationQueryParams.page,
+        per_page: paginationQueryParams.per_page,
     }), [projectName, currentChannelId, showAllSubscriptions, paginationQueryParams]);
 
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
     const hasMoreSubscriptions = useMemo<boolean>(() => (
-        subscriptionListReturnedByApi?.length !== 0 && subscriptionListReturnedByApi?.length === plugin_constants.common.defaultPageLimit
+        subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === plugin_constants.common.defaultPerPageLimit
     ), [subscriptionListReturnedByApi]);
 
     const handlePagination = (reset = false, fetchList = true) => {
         if (reset) {
             setSubscriptionList([]);
         }
-        if (reset && fetchList && paginationQueryParams.offset === 0) {
+        if (reset && fetchList && paginationQueryParams.page === plugin_constants.common.defaultPage) {
             fetchSubscriptionList();
             return;
         }
-        const {offset} = getIncrementedPaginationQueryParamOffset(paginationQueryParams.offset);
+
         setPaginationQueryParams({
             ...paginationQueryParams,
-            offset: reset ? plugin_constants.common.defaultPageOffset : offset,
+            page: reset ? plugin_constants.common.defaultPage : paginationQueryParams.page + 1,
         });
     };
 
@@ -156,7 +156,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             return;
         }
         fetchSubscriptionList();
-    }, [subscriptionListApiParams.channel_id, subscriptionListApiParams.project, subscriptionListApiParams.offset]);
+    }, [subscriptionListApiParams.channel_id, subscriptionListApiParams.project, subscriptionListApiParams.page]);
 
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
@@ -226,13 +226,13 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             {
                 subscriptionList.length ? (
                     <InfiniteScroll
-                        dataLength={plugin_constants.common.defaultPageLimit}
+                        dataLength={plugin_constants.common.defaultPerPageLimit}
                         next={handlePagination}
                         hasMore={hasMoreSubscriptions}
                         loader={<Spinner/>}
                         endMessage={
                             <p style={{textAlign: 'center'}}>
-                                <b>{'You have seen it all'}</b>
+                                <b>{'No more subscriptions present.'}</b>
                             </p>
                         }
                         scrollableTarget='scrollableArea'

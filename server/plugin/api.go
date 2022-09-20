@@ -276,19 +276,13 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
-
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	offset, limit, err := p.GetOffsetAndLimitFromQueryParams(r)
-	if err != nil {
-		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidPaginationQueryParam})
-		return
-	}
+	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	project := r.URL.Query().Get(constants.QueryParamProject)

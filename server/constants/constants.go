@@ -47,8 +47,11 @@ const (
 	// URL query params constants
 	QueryParamProject   = "project"
 	QueryParamChannelID = "channel_id"
-	QueryParamOffset    = "offset"
-	QueryParamLimit     = "limit"
+	QueryParamPage      = "page"
+	QueryParamPerPage   = "per_page"
+
+	DefaultPage         = 0
+	DefaultPerPageLimit = 10
 
 	// Authorization constants
 	Bearer        = "Bearer"

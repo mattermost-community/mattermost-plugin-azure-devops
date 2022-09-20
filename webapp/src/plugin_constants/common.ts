@@ -12,5 +12,5 @@ export const boardsEventTypeMap: Record<EventType, string> = {
     delete: 'Work Item Deleted',
 };
 
-export const defaultPageOffset = 0;
-export const defaultPageLimit = 10;
+export const defaultPage = 0;
+export const defaultPerPageLimit = 10;

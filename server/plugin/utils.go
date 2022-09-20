@@ -245,21 +245,24 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	return sb.String()
 }
 
-func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (int, int, error) {
-	queryParamOffset := r.URL.Query().Get(constants.QueryParamOffset)
-	queryParamLimit := r.URL.Query().Get(constants.QueryParamLimit)
-	offset := 0
-	limit := 10
-	if queryParamOffset != "" && queryParamLimit != "" {
-		var err error
-		if offset, err = strconv.Atoi(queryParamOffset); err != nil {
-			return offset, limit, err
-		}
-
-		if limit, err = strconv.Atoi(queryParamLimit); err != nil {
-			return offset, limit, err
-		}
+func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limit int) {
+	query := r.URL.Query()
+	var page int
+	if val, err := strconv.Atoi(query.Get(constants.QueryParamPage)); err != nil || val < 0 {
+		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
+		page = constants.DefaultPage
+	} else {
+		page = val
 	}
 
-	return offset, limit, nil
+	val, err := strconv.Atoi(query.Get(constants.QueryParamPerPage))
+	switch {
+	case err != nil || val < 0 || val > constants.DefaultPerPageLimit: // We can keep max limit per page and default limit per page same
+		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
+		limit = constants.DefaultPerPageLimit
+	default:
+		limit = val
+	}
+
+	return page * limit, limit
 }

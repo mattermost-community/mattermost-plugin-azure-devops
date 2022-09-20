@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"runtime/debug"
+	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -281,6 +282,8 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
+
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
@@ -292,7 +295,22 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 				}
 			}
 		}
-		subscriptionList = subscriptionByProject
+
+		sort.Slice(subscriptionByProject, func(i, j int) bool {
+			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
+		})
+
+		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
+		for index, subscription := range subscriptionByProject {
+			if len(paginatedSubscriptions) == limit {
+				break
+			}
+			if index >= offset {
+				paginatedSubscriptions = append(paginatedSubscriptions, subscription)
+			}
+		}
+
+		subscriptionList = paginatedSubscriptions
 	}
 
 	p.writeJSON(w, subscriptionList)

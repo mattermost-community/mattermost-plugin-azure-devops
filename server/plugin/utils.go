@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
@@ -242,4 +243,26 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	}
 
 	return sb.String()
+}
+
+func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limit int) {
+	query := r.URL.Query()
+	var page int
+	if val, err := strconv.Atoi(query.Get(constants.QueryParamPage)); err != nil || val < 0 {
+		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
+		page = constants.DefaultPage
+	} else {
+		page = val
+	}
+
+	val, err := strconv.Atoi(query.Get(constants.QueryParamPerPage))
+	switch {
+	case err != nil || val < 0 || val > constants.DefaultPerPageLimit: // We can keep max limit per page and default limit per page same
+		p.API.LogError(constants.InvalidPaginationQueryParam, "Error", err.Error())
+		limit = constants.DefaultPerPageLimit
+	default:
+		limit = val
+	}
+
+	return page * limit, limit
 }

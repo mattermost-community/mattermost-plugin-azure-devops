@@ -51,8 +51,8 @@ const SubscribeModal = () => {
     const [showResultPanel, setShowResultPanel] = useState(false);
 
     // Function to hide the modal and reset all the states.
-    const resetModalState = (isActionDone?: boolean) => {
-        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: [], isActionDone}));
+    const resetModalState = () => {
+        dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs: []}));
         resetFormFields();
         setChannelOptions([]);
         setShowResultPanel(false);
@@ -249,7 +249,7 @@ const SubscribeModal = () => {
                             primaryBtnText='Add New Subscription'
                             secondaryBtnText='Close'
                             onPrimaryBtnClick={handleSubscriptionModal}
-                            onSecondaryBtnClick={() => resetModalState(true)}
+                            onSecondaryBtnClick={resetModalState}
                         />)
                 }
             </>

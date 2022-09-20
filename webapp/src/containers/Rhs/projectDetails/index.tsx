@@ -1,5 +1,6 @@
 import React, {memo, useEffect, useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import {GlobalState} from 'mattermost-redux/types/store';
 
@@ -10,6 +11,7 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 import ToggleSwitch from 'components/toggleSwitch';
 import PrimaryButton from 'components/buttons/primaryButton';
+import Spinner from 'components/loader/spinner';
 
 import plugin_constants from 'plugin_constants';
 
@@ -21,26 +23,57 @@ import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+
 import usePreviousState from 'hooks/usePreviousState';
+import {defaultPage} from 'plugin_constants/common';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
 
     // State variables
+    const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
+        page: plugin_constants.common.defaultPage,
+        per_page: plugin_constants.common.defaultPerPageLimit,
+    });
+    const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
+
+    // Hooks
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
+    const previousState = usePreviousState({currentChannelId});
+    const dispatch = useDispatch();
+    const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
+
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
         project: projectName,
         channel_id: showAllSubscriptions ? '' : currentChannelId,
-    }), [projectName, currentChannelId, showAllSubscriptions]);
+        page: paginationQueryParams.page,
+        per_page: paginationQueryParams.per_page,
+    }), [projectName, currentChannelId, showAllSubscriptions, paginationQueryParams]);
 
-    // Hooks
-    const previousState = usePreviousState({currentChannelId});
-    const dispatch = useDispatch();
-    const {makeApiRequestWithCompletionStatus, makeApiRequest, getApiState, state} = usePluginApi();
+    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
+    const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
+    const hasMoreSubscriptions = useMemo<boolean>(() => (
+        subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === plugin_constants.common.defaultPerPageLimit
+    ), [subscriptionListReturnedByApi]);
+
+    const handlePagination = (reset = false, fetchList = true) => {
+        if (reset) {
+            setSubscriptionList([]);
+        }
+        if (reset && fetchList && paginationQueryParams.page === plugin_constants.common.defaultPage) {
+            fetchSubscriptionList();
+            return;
+        }
+
+        setPaginationQueryParams({
+            ...paginationQueryParams,
+            page: reset ? plugin_constants.common.defaultPage : paginationQueryParams.page + 1,
+        });
+    };
 
     const handleResetProjectDetails = () => {
         dispatch(resetProjectDetails());
@@ -83,21 +116,27 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     });
 
     // Fetch subscription list
-    const fetchSubscriptionList = () => makeApiRequest(
+    const fetchSubscriptionList = () => makeApiRequestWithCompletionStatus(
         plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
         subscriptionListApiParams,
     );
 
+    useApiRequestCompletionState({
+        serviceName: plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+        payload: subscriptionListApiParams,
+        handleSuccess: () => {
+            setSubscriptionList([...subscriptionList, ...subscriptionListReturnedByApi]);
+        },
+    });
+
     // Handles deletion of a subscription and fetching the modified subscription list
-    const handleConfirmDeleteSubscription = () => {
-        makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
-    };
+    const handleConfirmDeleteSubscription = () => makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
     useApiRequestCompletionState({
         serviceName: plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName,
         payload: subscriptionToBeDeleted,
         handleSuccess: () => {
-            fetchSubscriptionList();
+            handlePagination(true);
             setShowSubscriptionConfirmationModal(false);
         },
     });
@@ -111,43 +150,38 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     useEffect(() => {
         /**
-         * Prevent calling API to fetch subscription list twice on switching channel
-         *
-         * If the current channel is changed and "showAllSubscriptions" was true on the last channel then
-         * this useEffect runs twice because "subscriptionListApiParams" is modified twice
-         * once when "currentChannelId" is updated and other time when "showAllSubscriptions" is set to false
+         * If all subscriptions for a project are already loaded then do not make API calls on switching channel
          */
-        if (showAllSubscriptions && previousState?.currentChannelId !== currentChannelId) {
+        if (previousState?.currentChannelId !== currentChannelId && showAllSubscriptions) {
             return;
         }
         fetchSubscriptionList();
-    }, [subscriptionListApiParams]);
-
-    useEffect(() => {
-        setShowAllSubscriptions(false);
-    }, [currentChannelId]);
+    }, [subscriptionListApiParams.channel_id, subscriptionListApiParams.project, subscriptionListApiParams.page]);
 
     // Fetch the subscription list when new subscription is created
     useEffect(() => {
         if (getSubscribeModalState(state).isCreated) {
             dispatch(toggleIsSubscribed(false));
-            fetchSubscriptionList();
+            handlePagination(true);
         }
     }, [getSubscribeModalState(state).isCreated]);
-
-    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
-    const subscriptionList = data as SubscriptionDetails[];
-
-    const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
-    const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
     // Update the subscription list on RHS when a subscription is deleted using the slash command
     useEffect(() => {
         if (getWebsocketEventState(state).isSubscriptionDeleted) {
-            fetchSubscriptionList();
+            handlePagination(true);
             dispatch(toggleIsSubscriptionDeleted(false));
         }
     }, [getWebsocketEventState(state).isSubscriptionDeleted]);
+
+    useEffect(() => {
+        if (!showAllSubscriptions && subscriptionList.length) {
+            handlePagination(true, false);
+        }
+    }, [currentChannelId]);
+
+    const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
     return (
         <>
@@ -172,7 +206,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             {isLoading && <LinearLoader extraClass='top-0'/>}
             <ToggleSwitch
                 active={showAllSubscriptions}
-                onChange={setShowAllSubscriptions}
+                onChange={(active) => {
+                    handlePagination(true, false);
+                    setShowAllSubscriptions(active);
+                }}
                 label={'Show All Subscriptions'}
                 labelPositioning='right'
             />
@@ -187,27 +224,40 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 />
             </div>
             {
-                subscriptionList?.length ? (
-                    <>
-                        {
-                            subscriptionList.map((item) => (
-                                <SubscriptionCard
-                                    subscriptionDetails={item}
-                                    key={item.mattermostUserID}
-                                    handleDeleteSubscrption={handleDeleteSubscription}
-                                />
-                            ),
-                            )
+                subscriptionList.length ? (
+                    <InfiniteScroll
+                        dataLength={plugin_constants.common.defaultPerPageLimit}
+                        next={handlePagination}
+                        hasMore={hasMoreSubscriptions}
+                        loader={<Spinner/>}
+                        endMessage={
+                            <p style={{textAlign: 'center'}}>
+                                <b>{'No more subscriptions present.'}</b>
+                            </p>
                         }
-                        <div className='rhs-project-list-wrapper'>
-                            <button
-                                onClick={handleSubscriptionModal}
-                                className='plugin-btn no-data__btn btn btn-primary project-list-btn'
-                            >
-                                {'Add New Subscription'}
-                            </button>
-                        </div>
-                    </>
+                        scrollableTarget='scrollableArea'
+                    >
+                        <>
+                            {
+                                subscriptionList.map((item) => (
+                                    <SubscriptionCard
+                                        subscriptionDetails={item}
+                                        key={item.mattermostUserID}
+                                        handleDeleteSubscrption={handleDeleteSubscription}
+                                    />
+                                ),
+                                )
+                            }
+                            <div className='rhs-project-list-wrapper'>
+                                <button
+                                    onClick={handleSubscriptionModal}
+                                    className='plugin-btn no-data__btn btn btn-primary project-list-btn'
+                                >
+                                    {'Add New Subscription'}
+                                </button>
+                            </div>
+                        </>
+                    </InfiniteScroll>
                 ) : (
                     <EmptyState
                         title='No subscriptions yet'
@@ -216,6 +266,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                         buttonAction={handleSubscriptionModal}
                         icon='subscriptions'
                         wrapperExtraClass='margin-top-80'
+                        isLoading={isLoading}
                     />
                 )
             }

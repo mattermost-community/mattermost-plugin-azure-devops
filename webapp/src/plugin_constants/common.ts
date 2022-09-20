@@ -11,3 +11,6 @@ export const boardsEventTypeMap: Record<EventType, string> = {
     update: 'Work Item Updated',
     delete: 'Work Item Deleted',
 };
+
+export const defaultPage = 0;
+export const defaultPerPageLimit = 10;

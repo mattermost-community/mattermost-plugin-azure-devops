@@ -16,6 +16,12 @@ const getErrorMessage = (
         }
         return plugin_constants.messages.error.generic;
 
+    case 'LinkProjectModal':
+        if (errorState.status === 404) {
+            return errorState.data.error;
+        }
+        return plugin_constants.messages.error.generic;
+
     default:
         return plugin_constants.messages.error.generic;
     }

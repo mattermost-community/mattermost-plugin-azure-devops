@@ -14,6 +14,8 @@ import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
+import Utils from 'utils';
+
 const LinkModal = () => {
     const {linkProjectModal: linkProjectModalFields} = plugin_constants.form;
 
@@ -74,7 +76,7 @@ const LinkModal = () => {
         });
     }, [visibility]);
 
-    const {isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
+    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
 
     return (
         <Modal
@@ -87,6 +89,7 @@ const LinkModal = () => {
             confirmDisabled={isLoading}
             loading={isLoading}
             showFooter={!showResultPanel}
+            error={Utils.getErrorMessage(isError, 'LinkProjectModal', error as ApiErrorResponse)}
         >
             <>
                 {

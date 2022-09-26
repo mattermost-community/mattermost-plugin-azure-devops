@@ -23,6 +23,7 @@ const (
 	TaskTitleRequired               = "task title is required"
 	EventTypeRequired               = "event type is required"
 	ChannelIDRequired               = "channel ID is required"
+	MMUserIDRequired                = "mattermsot user ID is required"
 	EmptyAzureDevopsAPIBaseURLError = "azure devops API base URL should not be empty"
 	EmptyAzureDevopsOAuthAppIDError = "azure devops OAuth app id should not be empty"
 	// #nosec G101 -- This is a false positive. The below line is not a hardcoded credential

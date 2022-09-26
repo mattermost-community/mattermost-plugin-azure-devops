@@ -138,5 +138,8 @@ func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	if t.ChannelID == "" {
 		return errors.New(constants.ChannelIDRequired)
 	}
+	if t.MMUserID == "" {
+		return errors.New(constants.MMUserIDRequired)
+	}
 	return nil
 }

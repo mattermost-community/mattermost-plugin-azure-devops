@@ -29,6 +29,9 @@ const getErrorMessage = (
         if (errorState.status === 403 && errorState.data.error.includes(plugin_constants.messages.error.accessDenied)) {
             return plugin_constants.messages.error.adminAccessError;
         }
+        if (errorState.status === 404 && errorState.data.error.includes(plugin_constants.messages.error.subscriptionNotFound)) {
+            return plugin_constants.messages.error.subscriptionNotFound;
+        }
         return plugin_constants.messages.error.generic;
 
     default:

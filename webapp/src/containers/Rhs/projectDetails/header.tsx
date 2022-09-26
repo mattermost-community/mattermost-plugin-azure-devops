@@ -7,8 +7,6 @@ import BackButton from 'components/buttons/backButton';
 import PrimaryButton from 'components/buttons/primaryButton';
 import ConfirmationModal from 'components/modal/confirmationModal';
 import ToggleSwitch from 'components/toggleSwitch';
-import SVGWrapper from 'components/svgWrapper';
-import IconButton from 'components/buttons/iconButton';
 import Dropdown from 'components/dropdown';
 
 import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
@@ -30,7 +28,8 @@ type HeaderProps = {
 const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShowAllSubscriptions, handleResetProjectDetails, filter, setFilter, setSubscriptionList}: HeaderProps) => {
     const {projectName} = projectDetails;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
-    const [showFilter, setShowFilter] = useState(false);
+
+    // const [showFilter, setShowFilter] = useState(false); // TODO: uncomment when need to toggle filter
 
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
@@ -89,7 +88,8 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                         label={'Show All Subscriptions'}
                         labelPositioning='right'
                     />
-                    <IconButton
+                    {/* TODO: uncomment when need to toggle filter */}
+                    {/* <IconButton
                         tooltipText='Filter'
                         extraClass='margin-left-auto flex-basis-initial'
                         onClick={() => setShowFilter(!showFilter)}
@@ -101,9 +101,9 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                         >
                             {plugin_constants.SVGIcons.filter}
                         </SVGWrapper>
-                    </IconButton>
+                    </IconButton> */}
                 </div>
-                <div className={`filter-dropdown-container ${showFilter && 'filter-dropdown-container__show'}`}>
+                <div className='filter-dropdown-container filter-dropdown-container__show'>
                     <Dropdown
                         placeholder='Created By'
                         value={filter}

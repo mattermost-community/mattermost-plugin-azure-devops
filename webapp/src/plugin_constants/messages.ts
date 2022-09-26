@@ -8,6 +8,7 @@ export const error = {
     // Subscription
     subscriptionAlreadyExists: 'Requested subscription already exists',
     accessDenied: 'Access Denied',
+    subscriptionNotFound: 'Requested subscription does not exists',
     adminAccessError: 'Looks like you do not have access to add/delete subscription for this project. Please make sure you are a project or team administrator for this project',
 
     // Link

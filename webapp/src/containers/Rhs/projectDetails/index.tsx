@@ -119,8 +119,14 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             setShowSubscriptionConfirmationModal(false);
         },
         handleError: (error) => {
+            const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', error);
+            if (errorMessage === plugin_constants.messages.error.subscriptionNotFound) {
+                handlePagination(true);
+                setShowSubscriptionConfirmationModal(false);
+                return;
+            }
             setDeleteConfirmationModalError({
-                title: utils.getErrorMessage(true, 'ConfirmationModal', error),
+                title: errorMessage,
                 onSecondaryBtnClick: () => setShowSubscriptionConfirmationModal(false),
             });
         },

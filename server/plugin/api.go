@@ -401,7 +401,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})
+		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.SubscriptionNotFound})
 		return
 	}
 

@@ -10,9 +10,10 @@ import {
     boardsEventTypeMap,
     defaultPage,
     defaultPerPageLimit,
+    SubscriptionFilterCreatedBy,
 } from './common';
 import {SVGIcons} from './icons';
-import {linkProjectModal, createTaskModal, subscriptionModal} from './form';
+import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterOptions} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
@@ -26,11 +27,13 @@ export default {
         boardsEventTypeMap,
         defaultPage,
         defaultPerPageLimit,
+        SubscriptionFilterCreatedBy,
     },
     form: {
         linkProjectModal,
         createTaskModal,
         subscriptionModal,
+        subscriptionFilterOptions,
     },
     messages: {
         error,

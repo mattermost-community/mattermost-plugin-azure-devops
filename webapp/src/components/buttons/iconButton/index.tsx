@@ -8,13 +8,14 @@ import {onPressingEnterKey} from 'utils';
 import './styles.scss';
 
 type IconButtonProps = {
-    iconClassName: string
+    iconClassName?: string
     tooltipText: string
+    children?: React.ReactNode
     extraClass?: string
     onClick?: () => void
 }
 
-const IconButton = ({tooltipText, iconClassName, extraClass = '', onClick}: IconButtonProps) => (
+const IconButton = ({tooltipText, iconClassName, children, extraClass = '', onClick}: IconButtonProps) => (
     <Tooltip tooltipContent={tooltipText}>
         <Button
             variant='outline-danger'
@@ -25,9 +26,8 @@ const IconButton = ({tooltipText, iconClassName, extraClass = '', onClick}: Icon
             tabIndex={0}
             onKeyDown={(event) => onPressingEnterKey(event, () => onClick?.())}
         >
-            <i
-                className={iconClassName}
-            />
+            {iconClassName && <i className={iconClassName}/>}
+            {children}
         </Button>
     </Tooltip>
 );

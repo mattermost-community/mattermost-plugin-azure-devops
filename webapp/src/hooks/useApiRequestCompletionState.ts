@@ -8,7 +8,7 @@ import usePluginApi from './usePluginApi';
 
 type Props = {
     handleSuccess?: () => void
-    handleError?: () => void
+    handleError?: (error: ApiErrorResponse) => void
     serviceName: ApiServiceName
     payload?: APIRequestPayload
 }
@@ -23,7 +23,7 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
             getApiRequestCompletionState(state).requests.includes(serviceName) &&
             getApiState(serviceName, payload)
         ) {
-            const {isError, isSuccess, isUninitialized} = getApiState(serviceName, payload);
+            const {isError, isSuccess, isUninitialized, error} = getApiState(serviceName, payload);
             if (isSuccess && !isError) {
                 // eslint-disable-next-line no-unused-expressions
                 handleSuccess?.();
@@ -31,7 +31,7 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
 
             if (!isSuccess && isError) {
                 // eslint-disable-next-line no-unused-expressions
-                handleError?.();
+                handleError?.(error as ApiErrorResponse);
             }
 
             if (!isUninitialized) {

@@ -14,3 +14,8 @@ export const boardsEventTypeMap: Record<EventType, string> = {
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;
+
+export const SubscriptionFilterCreatedBy = {
+    me: 'me',
+    anyone: 'anyone',
+};

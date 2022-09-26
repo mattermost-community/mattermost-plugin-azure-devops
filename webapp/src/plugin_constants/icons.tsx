@@ -1,6 +1,6 @@
 import React from 'react';
 
-type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions';
+type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions' | 'filter';
 
 export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
     check: (
@@ -89,5 +89,11 @@ export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
                 fill='#8E8E8E'
             />
         </>
+    ),
+    filter: (
+        <path
+            d='M3 7H15V5H3V7ZM0 0V2H18V0H0ZM7 12H11V10H7V12Z'
+            fill='#8A8C94'
+        />
     ),
 };

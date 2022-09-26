@@ -53,6 +53,7 @@ type FetchChannelParams = {
 interface FetchSubscriptionList extends PaginationQueryParams {
     project: string;
     channel_id: string;
+    created_by: string;
 }
 
 type SubscriptionDetails = {
@@ -64,9 +65,16 @@ type SubscriptionDetails = {
     channelID: string,
     channelName: string,
     channelType: string,
+    createdBy: string,
+    username: string,
 }
 
 type WebsocketEventParams = {
     event: string,
     data: Record<string, string>,
+}
+
+type ConfirmationModalErrorPanel = {
+    title: string,
+    onSecondaryBtnClick: () => void,
 }

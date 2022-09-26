@@ -1,6 +1,6 @@
 type FieldType = 'dropdown' | 'text' | 'timestamp'
 type ValidationTypes = 'isRequired' | 'maxCharLen' | 'minCharLen' | 'regex' | 'regexErrorMessage'
-type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal'
+type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal' | 'ConfirmationModal'
 
 type LinkProjectModalFields = 'organization' | 'project' | 'timestamp'
 type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp'

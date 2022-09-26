@@ -69,6 +69,8 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		SubscriptionID:   subscription.SubscriptionID,
 		ChannelName:      subscription.ChannelName,
 		ChannelType:      subscription.ChannelType,
+		CreatedBy:        subscription.CreatedBy,
+		Username:         subscription.Username,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }
@@ -95,9 +97,18 @@ func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionD
 	}
 
 	var subscriptionList []*serializers.SubscriptionDetails
-	for _, subscription := range subscriptions.ByMattermostUserID[userID] {
-		subscription := subscription // we need to do this to prevent implicit memory aliasing in for loop
-		subscriptionList = append(subscriptionList, &subscription)
+	if userID == "" {
+		for mmUserID, _ := range subscriptions.ByMattermostUserID {
+			for _, subscription := range subscriptions.ByMattermostUserID[mmUserID] {
+				subscription := subscription // we need to do this to prevent implicit memory aliasing in for loop
+				subscriptionList = append(subscriptionList, &subscription)
+			}
+		}
+	} else {
+		for _, subscription := range subscriptions.ByMattermostUserID[userID] {
+			subscription := subscription // we need to do this to prevent implicit memory aliasing in for loop
+			subscriptionList = append(subscriptionList, &subscription)
+		}
 	}
 
 	return subscriptionList, nil

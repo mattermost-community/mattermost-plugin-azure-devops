@@ -58,5 +58,6 @@ const (
 	InvalidChannelID                = "Invalid channel ID"
 	DeleteSubscriptionError         = "Error in deleting subscription"
 	GetChannelError                 = "Error in getting channels for team and user"
+	GetUserError                    = "Error in getting Mattermost user details"
 	InvalidPaginationQueryParam     = "Invalid value for query param(s) page or per_page"
 )

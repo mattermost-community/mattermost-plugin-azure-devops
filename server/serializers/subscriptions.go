@@ -65,6 +65,8 @@ type SubscriptionDetails struct {
 	ChannelName      string `json:"channelName"`
 	ChannelType      string `json:"channelType"`
 	SubscriptionID   string `json:"subscriptionID"`
+	CreatedBy        string `json:"createdBy"`
+	Username         string `json:"username"`
 }
 
 type DetailedMessage struct {
@@ -80,6 +82,7 @@ type DeleteSubscriptionRequestPayload struct {
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
 	ChannelID    string `json:"channelID"`
+	MMUserID     string `json:"mmUserID"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

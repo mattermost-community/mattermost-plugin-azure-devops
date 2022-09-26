@@ -255,6 +255,13 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	user, userErr := p.API.GetUser(mattermostUserID)
+	if userErr != nil {
+		p.API.LogError(constants.GetUserError, "Error", userErr.Error())
+		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetUserError, userErr.Error()), userErr.StatusCode)
+		return
+	}
+
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
@@ -265,6 +272,8 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
 		ChannelType:      channel.Type,
+		CreatedBy:        fmt.Sprintf("%s %s", user.FirstName, user.LastName),
+		Username:         user.Username,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -275,10 +284,19 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
-	if err != nil {
-		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+
+	var subscriptionList []*serializers.SubscriptionDetails
+	var subscriptionErr error
+	createdBy := r.URL.Query().Get(constants.QueryParamCreatedBy)
+	switch {
+	case createdBy == constants.FilterCreatedByMe || createdBy == "":
+		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions(mattermostUserID)
+	case createdBy == constants.FilterCreatedByAnyone:
+		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions("")
+	}
+	if subscriptionErr != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
 		return
 	}
 
@@ -368,7 +386,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	subscriptionList, err := p.Store.GetAllSubscriptions(body.MMUserID)
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -394,7 +412,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID: mattermostUserID,
+		MattermostUserID: body.MMUserID,
 		ProjectName:      body.Project,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,

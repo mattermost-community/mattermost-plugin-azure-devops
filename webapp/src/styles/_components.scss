@@ -19,7 +19,6 @@
     }
 }
 
-
 .rhs-project-list-wrapper {
     position: fixed;
     bottom: 0;
@@ -37,4 +36,26 @@
 
 .rhs-project-details-unlink-button {
     margin: 0 0 0 auto;
+}
+
+.rhs-header-divider {
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
+}
+
+.filter-dropdown-container {
+    display: none;
+
+    &__show {
+        display: block;
+        margin-top: 20px;
+    }
+}
+
+.result-panel-icon {
+    &--error {
+        font-size: 58px;
+        color: var(--error-text);
+    }
 }

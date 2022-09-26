@@ -98,7 +98,7 @@ func (s *Store) GetAllSubscriptions(userID string) ([]*serializers.SubscriptionD
 
 	var subscriptionList []*serializers.SubscriptionDetails
 	if userID == "" {
-		for mmUserID, _ := range subscriptions.ByMattermostUserID {
+		for mmUserID := range subscriptions.ByMattermostUserID {
 			for _, subscription := range subscriptions.ByMattermostUserID[mmUserID] {
 				subscription := subscription // we need to do this to prevent implicit memory aliasing in for loop
 				subscriptionList = append(subscriptionList, &subscription)

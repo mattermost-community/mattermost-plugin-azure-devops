@@ -806,7 +806,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				"project": "mockProject",
 				"eventType": "mockEventType",
 				"channelID": "mockChannelID",
-				"mmUserID":"mockMattermostUserID"
+				"mmUserID": "mockMattermostUserID"
 				}`,
 			statusCode:       http.StatusOK,
 			subscriptionList: []*serializers.SubscriptionDetails{},

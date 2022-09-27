@@ -557,6 +557,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
 				ChannelID:        "mockChannelID",
+				CreatedBy:        " ",
 			},
 		},
 		{
@@ -604,12 +605,14 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
 				ChannelID:        "mockChannelID",
+				CreatedBy:        " ",
 			},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("GetChannel", mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
+			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{}, nil)
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
@@ -802,7 +805,8 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject",
 				"eventType": "mockEventType",
-				"channelID": "mockChannelID"
+				"channelID": "mockChannelID",
+				"mmUserID":"mockMattermostUserID"
 				}`,
 			statusCode:       http.StatusOK,
 			subscriptionList: []*serializers.SubscriptionDetails{},

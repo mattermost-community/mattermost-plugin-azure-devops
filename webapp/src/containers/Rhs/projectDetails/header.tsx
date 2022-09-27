@@ -3,9 +3,9 @@ import {useDispatch} from 'react-redux';
 
 import plugin_constants from 'plugin_constants';
 
+import ConfirmationModal from 'components/modal/confirmationModal';
 import BackButton from 'components/buttons/backButton';
 import PrimaryButton from 'components/buttons/primaryButton';
-import ConfirmationModal from 'components/modal/confirmationModal';
 import ToggleSwitch from 'components/toggleSwitch';
 import Dropdown from 'components/dropdown';
 

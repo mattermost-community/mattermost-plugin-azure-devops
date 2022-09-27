@@ -251,14 +251,14 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	channel, channelErr := p.API.GetChannel(body.ChannelID)
 	if channelErr != nil {
 		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
-		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetChannelError, channelErr.Error()), channelErr.StatusCode)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GetChannelError})
 		return
 	}
 
 	user, userErr := p.API.GetUser(mattermostUserID)
 	if userErr != nil {
 		p.API.LogError(constants.GetUserError, "Error", userErr.Error())
-		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetUserError, userErr.Error()), userErr.StatusCode)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GetUserError})
 		return
 	}
 

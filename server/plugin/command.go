@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -65,7 +66,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscribe := model.NewAutocompleteData("boards subscribe", "", "Add a boards subscription")
 	azureDevops.AddCommand(subscribe)
 
-	subscriptions := model.NewAutocompleteData("boards subscriptions", "", "View board's subscriptions in the current channel")
+	subscriptions := model.NewAutocompleteData(fmt.Sprintf("boards subscriptions [%s or %s] [%s or %s]", constants.FilterCreatedByMe, constants.FilterCreatedByAnyone, constants.FilterCurrentChannel, constants.FilterAllChannel), "", "View board's subscriptions")
 	azureDevops.AddCommand(subscriptions)
 
 	unsubscribe := model.NewAutocompleteData("boards unsubscribe [subscription id]", "", "Unsubscribe a board subscription")
@@ -112,7 +113,7 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 		return p.sendEphemeralPostForCommand(commandArgs, "Subscription ID is not provided")
 	}
 
-	subscriptionList, err := p.Store.GetAllSubscriptions(commandArgs.UserId)
+	subscriptionList, err := p.Store.GetAllSubscriptions("")
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
@@ -124,7 +125,10 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
 
-			if _, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
+			if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
+				if statusCode == http.StatusForbidden {
+					return p.sendEphemeralPostForCommand(commandArgs, constants.ErrorAdminAccess)
+				}
 				p.API.LogError("Error in deleting subscription", "Error", err.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 			}
@@ -148,13 +152,22 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	subscriptionList, err := p.Store.GetAllSubscriptions(commandArgs.UserId)
+	if !(len(args) == 3 && (args[1] == constants.FilterCreatedByMe || args[1] == constants.FilterCreatedByAnyone || args[2] == constants.FilterAllChannel || args[2] == constants.FilterCurrentChannel)) {
+		executeDefault(p, c, commandArgs, args...)
+		return &model.CommandResponse{}, nil
+	}
+
+	subscriptionList, err := p.Store.GetAllSubscriptions("")
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, commandArgs.ChannelId))
+	showForChannelID := commandArgs.ChannelId
+	if args[2] == constants.FilterAllChannel {
+		showForChannelID = ""
+	}
+	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[1], commandArgs.UserId))
 }
 
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

@@ -18,7 +18,9 @@ const (
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
-		"* `/azuredevops subscribe` - Create subscriptions to track changes in tasks for your linked projects.\n"
+		"* `/azuredevops subscribe` - Create subscriptions to track changes in tasks for your linked projects.\n" +
+		"* `/azuredevops boards subscriptions [me or anyone] [current-channel or all-channel]` - View board's subscriptions. \n" +
+		"* `/azuredevops boards unsubscribe [subscription id]` - Unsubscribe a board subscription"
 	InvalidCommand = "Invalid command parameters. Please use `/azuredevops help` for more information."
 
 	// Get task link preview constants
@@ -54,6 +56,8 @@ const (
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
+	FilterAllChannel      = "all-channel"
+	FilterCurrentChannel  = "current-channel"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

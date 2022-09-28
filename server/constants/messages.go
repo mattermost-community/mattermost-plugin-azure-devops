@@ -61,4 +61,5 @@ const (
 	GetChannelError                 = "Error in getting channels for team and user"
 	GetUserError                    = "Error in getting Mattermost user details"
 	InvalidPaginationQueryParam     = "Invalid value for query param(s) page or per_page"
+	ErrorAdminAccess                = "Can not delete the subscription, looks like you do not have access to add/delete a subscription for this project. Please make sure you are a project or team administrator for this project"
 )

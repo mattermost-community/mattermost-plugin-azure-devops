@@ -208,7 +208,7 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }
 
-func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID string) string {
+func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID string) string {
 	var sb strings.Builder
 
 	if len(subscriptionsList) == 0 {
@@ -217,23 +217,36 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	}
 
 	sb.WriteString("###### Board subscription(s) for this channel\n")
-	sb.WriteString("| Subscription ID | Organization | Project | Event Type |\n")
-	sb.WriteString("| :-------------- | :----------- | :------ | :--------- |\n")
+	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
+	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
 	noSubscriptionFound := true
 	for _, subscription := range subscriptionsList {
-		if subscription.ChannelID == channelID {
-			noSubscriptionFound = false
-			displayEventType := ""
+		displayEventType := ""
+		switch {
+		case subscription.EventType == "create":
+			displayEventType = "Work Item Created"
+		case subscription.EventType == "update":
+			displayEventType = "Work Item Updated"
+		case subscription.EventType == "delete":
+			displayEventType = "Work Item Deleted"
+		}
+		displayCreatedBy := subscription.CreatedBy
+		// If user's name doesn't exist then show username as fallback
+		if len(strings.TrimSpace(subscription.CreatedBy)) == 0 {
+			displayCreatedBy = subscription.Username
+		}
+		if channelID == "" || subscription.ChannelID == channelID {
 			switch {
-			case subscription.EventType == "create":
-				displayEventType = "Work Item Created"
-			case subscription.EventType == "update":
-				displayEventType = "Work Item Updated"
-			case subscription.EventType == "delete":
-				displayEventType = "Work Item Deleted"
+			case createdBy == constants.FilterCreatedByMe:
+				if subscription.MattermostUserID == userID {
+					noSubscriptionFound = false
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, displayCreatedBy, subscription.ChannelName))
+				}
+			case createdBy == constants.FilterCreatedByAnyone:
+				noSubscriptionFound = false
+				sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, displayCreatedBy, subscription.ChannelName))
 			}
-			sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType))
 		}
 	}
 

@@ -268,6 +268,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
+		ServiceType:      body.ServiceType,
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
@@ -398,6 +399,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		ProjectName:      body.Project,
 		ChannelID:        body.ChannelID,
 		EventType:        body.EventType,
+		ServiceType:      body.ServiceType,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
@@ -417,6 +419,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
+		ServiceType:      body.ServiceType,
 	}); deleteErr != nil {
 		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})

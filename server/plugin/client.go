@@ -128,10 +128,23 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
 
-	statusData := map[string]string{
-		constants.Create: "workitem.created",
-		constants.Update: "workitem.updated",
-		constants.Delete: "workitem.deleted",
+	var statusData map[string]string
+	switch body.ServiceType {
+	case constants.Board:
+		statusData = map[string]string{
+			constants.Create:  "workitem.created",
+			constants.Update:  "workitem.updated",
+			constants.Delete:  "workitem.deleted",
+			constants.Comment: "workitem.commented",
+		}
+	case constants.PullRequest:
+		statusData = map[string]string{
+			constants.Create:       "git.pullrequest.created",
+			constants.Update:       "git.pullrequest.updated",
+			constants.Comment:      "ms.vss-code.git-pullrequest-comment-event",
+			constants.MergeAttempt: "git.pullrequest.merged",
+			constants.CodePush:     "git.push",
+		}
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{

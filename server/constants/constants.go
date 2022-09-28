@@ -40,6 +40,11 @@ const (
 	Create           = "create"
 	Update           = "update"
 	Delete           = "delete"
+	Comment          = "comment"
+	Board            = "board"
+	PullRequest      = "pull_request"
+	MergeAttempt     = "merge_attempt"
+	CodePush         = "code_push"
 
 	// Path params
 	PathParamTeamID = "team_id"

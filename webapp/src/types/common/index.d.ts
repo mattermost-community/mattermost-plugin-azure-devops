@@ -66,7 +66,6 @@ type SubscriptionDetails = {
     channelName: string,
     channelType: string,
     createdBy: string,
-    username: string,
 }
 
 type WebsocketEventParams = {
@@ -74,7 +73,7 @@ type WebsocketEventParams = {
     data: Record<string, string>,
 }
 
-type ConfirmationModalErrorPanel = {
+type ConfirmationModalErrorPanelProps = {
     title: string,
     onSecondaryBtnClick: () => void,
 }

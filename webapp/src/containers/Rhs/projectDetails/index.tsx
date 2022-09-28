@@ -28,18 +28,19 @@ import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
+    const {defaultPage, defaultPerPageLimit, SubscriptionFilterCreatedBy} = plugin_constants.common;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
-        page: plugin_constants.common.defaultPage,
-        per_page: plugin_constants.common.defaultPerPageLimit,
+        page: defaultPage,
+        per_page: defaultPerPageLimit,
     });
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [filter, setFilter] = useState(plugin_constants.common.SubscriptionFilterCreatedBy.me);
+    const [filter, setFilter] = useState(SubscriptionFilterCreatedBy.me);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
-    const [deleteConfirmationModalError, setDeleteConfirmationModalError] = useState<ConfirmationModalErrorPanel | null>(null);
+    const [deleteConfirmationModalError, setDeleteConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     // Hooks
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
@@ -58,22 +59,27 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
     const hasMoreSubscriptions = useMemo<boolean>(() => (
-        subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === plugin_constants.common.defaultPerPageLimit
+        subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === defaultPerPageLimit
     ), [subscriptionListReturnedByApi]);
 
     const handlePagination = (reset = false, fetchList = true) => {
         if (reset) {
             setSubscriptionList([]);
         }
-        if (reset && fetchList && paginationQueryParams.page === plugin_constants.common.defaultPage) {
+        if (reset && fetchList && paginationQueryParams.page === defaultPage) {
             fetchSubscriptionList();
             return;
         }
 
         setPaginationQueryParams({
             ...paginationQueryParams,
-            page: reset ? plugin_constants.common.defaultPage : paginationQueryParams.page + 1,
+            page: reset ? defaultPage : paginationQueryParams.page + 1,
         });
+    };
+
+    const handleSetFilter = (newFilter: string) => {
+        setFilter(newFilter);
+        handlePagination(true);
     };
 
     // Opens subscription modal
@@ -125,6 +131,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 setShowSubscriptionConfirmationModal(false);
                 return;
             }
+
             setDeleteConfirmationModalError({
                 title: errorMessage,
                 onSecondaryBtnClick: () => setShowSubscriptionConfirmationModal(false),
@@ -202,13 +209,13 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 setShowAllSubscriptions={setShowAllSubscriptions}
                 handlePagination={handlePagination}
                 filter={filter}
-                setFilter={setFilter}
+                setFilter={handleSetFilter}
                 setSubscriptionList={setSubscriptionList}
             />
             {
                 subscriptionList.length ? (
                     <InfiniteScroll
-                        dataLength={plugin_constants.common.defaultPerPageLimit}
+                        dataLength={defaultPerPageLimit}
                         next={handlePagination}
                         hasMore={hasMoreSubscriptions}
                         loader={<Spinner/>}

@@ -69,7 +69,6 @@ type SubscriptionDetails struct {
 	ChannelType      string `json:"channelType"`
 	SubscriptionID   string `json:"subscriptionID"`
 	CreatedBy        string `json:"createdBy"`
-	Username         string `json:"username"`
 }
 
 type DetailedMessage struct {

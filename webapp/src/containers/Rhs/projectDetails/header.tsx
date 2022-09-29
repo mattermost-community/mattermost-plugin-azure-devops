@@ -85,7 +85,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                             handlePagination(true, false);
                             setShowAllSubscriptions(active);
                         }}
-                        label={'Show All Subscriptions'}
+                        label={'Show For All Channels'}
                         labelPositioning='right'
                     />
                     {/* TODO: uncomment when need to toggle filter */}

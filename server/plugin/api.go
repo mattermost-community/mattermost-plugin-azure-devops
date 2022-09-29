@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"sort"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -262,6 +263,10 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	createdByDisplayName := fmt.Sprintf("%s %s", user.FirstName, user.LastName)
+	if len(strings.TrimSpace(createdByDisplayName)) == 0 {
+		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
+	}
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
@@ -273,8 +278,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
 		ChannelType:      channel.Type,
-		CreatedBy:        fmt.Sprintf("%s %s", user.FirstName, user.LastName),
-		Username:         user.Username,
+		CreatedBy:        createdByDisplayName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -289,10 +293,10 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	var subscriptionList []*serializers.SubscriptionDetails
 	var subscriptionErr error
 	createdBy := r.URL.Query().Get(constants.QueryParamCreatedBy)
-	switch {
-	case createdBy == constants.FilterCreatedByMe || createdBy == "":
+	switch createdBy {
+	case constants.FilterCreatedByMe, "":
 		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions(mattermostUserID)
-	case createdBy == constants.FilterCreatedByAnyone:
+	case constants.FilterCreatedByAnyone:
 		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions("")
 	}
 	if subscriptionErr != nil {

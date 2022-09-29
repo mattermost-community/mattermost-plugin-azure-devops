@@ -16,7 +16,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, username}, subscriptionDetails}: SubscriptionCardProps) => (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <div className='d-flex'>
             <div className='project-details'>
@@ -39,7 +39,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                 />
                 <LabelValuePair
                     labelIconClassName={'icon icon-account-outline icon-label'}
-                    value={`Subscription created by ${createdBy.trim().length ? createdBy : username}`}
+                    value={`Subscription created by ${createdBy}`}
                 />
             </div>
             <div className='button-wrapper'>

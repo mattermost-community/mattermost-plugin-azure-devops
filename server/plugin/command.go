@@ -150,10 +150,10 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 	}
 
-	subscriptionIdToBeDeleted := args[2]
+	subscriptionIDToBeDeleted := args[2]
 	for _, subscription := range subscriptionList {
-		if subscription.SubscriptionID == subscriptionIdToBeDeleted {
-			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", subscriptionIdToBeDeleted)); err != nil {
+		if subscription.SubscriptionID == subscriptionIDToBeDeleted {
+			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", subscriptionIDToBeDeleted)); err != nil {
 				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
 
@@ -176,18 +176,17 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				&model.WebsocketBroadcast{UserId: commandArgs.UserId},
 			)
 
-			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", subscriptionIdToBeDeleted))
+			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", subscriptionIDToBeDeleted))
 		}
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", subscriptionIdToBeDeleted))
+	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", subscriptionIDToBeDeleted))
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	// If 4th argument is present then it must be "all-channels"
 	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
-		executeDefault(p, c, commandArgs, args...)
-		return &model.CommandResponse{}, nil
+		return executeDefault(p, c, commandArgs, args...)
 	}
 
 	subscriptionList, err := p.Store.GetAllSubscriptions("")

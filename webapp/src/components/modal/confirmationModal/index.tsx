@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Modal from 'components/modal';
+import ResultPanel from 'components/resultPanel';
 
 type ConfirmationModalProps = {
     isOpen: boolean
@@ -10,9 +11,10 @@ type ConfirmationModalProps = {
     onHide: () => void
     onConfirm?: () => void
     isLoading?: boolean
+    showErrorPanel?: ConfirmationModalErrorPanelProps | null
 }
 
-const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm, isLoading}: ConfirmationModalProps) => (
+const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, onConfirm, isLoading, showErrorPanel}: ConfirmationModalProps) => (
     <Modal
         show={isOpen}
         title={title}
@@ -21,8 +23,18 @@ const ConfirmationModal = ({isOpen, title, confirmBtnText, description, onHide, 
         confirmAction={true}
         confirmBtnText={confirmBtnText}
         loading={isLoading}
+        showFooter={!showErrorPanel}
     >
-        <p>{description}</p>
+        {
+            showErrorPanel ? (
+                <ResultPanel
+                    iconClass={'fa-times-circle-o result-panel-icon--error'}
+                    header={showErrorPanel.title}
+                    secondaryBtnText='Close'
+                    onSecondaryBtnClick={showErrorPanel.onSecondaryBtnClick}
+                />
+            ) : <p>{description}</p>
+        }
     </Modal>
 );
 

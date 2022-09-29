@@ -1,3 +1,5 @@
+import {SubscriptionFilterCreatedBy} from './common';
+
 // Create subscription modal
 const eventTypeOptions: LabelValuePair[] = [
     {
@@ -152,3 +154,14 @@ export const linkProjectModal: Record<LinkProjectModalFields, ModalFormFieldConf
         value: '',
     },
 };
+
+export const subscriptionFilterOptions = [
+    {
+        value: SubscriptionFilterCreatedBy.me,
+        label: 'Me',
+    },
+    {
+        value: SubscriptionFilterCreatedBy.anyone,
+        label: 'Anyone',
+    },
+];

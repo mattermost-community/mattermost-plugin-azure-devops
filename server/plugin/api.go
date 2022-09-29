@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime/debug"
 	"sort"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -251,10 +252,21 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	channel, channelErr := p.API.GetChannel(body.ChannelID)
 	if channelErr != nil {
 		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
-		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetChannelError, channelErr.Error()), channelErr.StatusCode)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GetChannelError})
 		return
 	}
 
+	user, userErr := p.API.GetUser(mattermostUserID)
+	if userErr != nil {
+		p.API.LogError(constants.GetUserError, "Error", userErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GetUserError})
+		return
+	}
+
+	createdByDisplayName := fmt.Sprintf("%s %s", user.FirstName, user.LastName)
+	if len(strings.TrimSpace(createdByDisplayName)) == 0 {
+		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
+	}
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
@@ -265,6 +277,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
 		ChannelType:      channel.Type,
+		CreatedBy:        createdByDisplayName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -275,10 +288,19 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
-	if err != nil {
-		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+
+	var subscriptionList []*serializers.SubscriptionDetails
+	var subscriptionErr error
+	createdBy := r.URL.Query().Get(constants.QueryParamCreatedBy)
+	switch createdBy {
+	case constants.FilterCreatedByMe, "":
+		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions(mattermostUserID)
+	case constants.FilterCreatedByAnyone:
+		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions("")
+	}
+	if subscriptionErr != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
 		return
 	}
 
@@ -368,7 +390,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	subscriptionList, err := p.Store.GetAllSubscriptions(body.MMUserID)
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -383,7 +405,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionNotFound})
+		p.handleError(w, r, &serializers.Error{Code: http.StatusNotFound, Message: constants.SubscriptionNotFound})
 		return
 	}
 
@@ -394,7 +416,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID: mattermostUserID,
+		MattermostUserID: body.MMUserID,
 		ProjectName:      body.Project,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,

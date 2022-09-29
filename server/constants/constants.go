@@ -47,8 +47,13 @@ const (
 	// URL query params constants
 	QueryParamProject   = "project"
 	QueryParamChannelID = "channel_id"
+	QueryParamCreatedBy = "created_by"
 	QueryParamPage      = "page"
 	QueryParamPerPage   = "per_page"
+
+	// Filters
+	FilterCreatedByMe     = "me"
+	FilterCreatedByAnyone = "anyone"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

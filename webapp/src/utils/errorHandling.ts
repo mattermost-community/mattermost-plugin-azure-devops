@@ -14,11 +14,23 @@ const getErrorMessage = (
         if (errorState.status === 400 && errorState.data.error === plugin_constants.messages.error.subscriptionAlreadyExists) {
             return errorState.data.error;
         }
+        if (errorState.status === 403 && errorState.data.error.includes(plugin_constants.messages.error.accessDenied)) {
+            return plugin_constants.messages.error.adminAccessError;
+        }
         return plugin_constants.messages.error.generic;
 
     case 'LinkProjectModal':
-        if (errorState.status === 404) {
-            return errorState.data.error;
+        if (errorState.status === 404 || errorState.status === 401) {
+            return plugin_constants.messages.error.notAccessibleError;
+        }
+        return plugin_constants.messages.error.generic;
+
+    case 'ConfirmationModal':
+        if (errorState.status === 403 && errorState.data.error.includes(plugin_constants.messages.error.accessDenied)) {
+            return plugin_constants.messages.error.adminAccessError;
+        }
+        if (errorState.status === 404 && errorState.data.error.includes(plugin_constants.messages.error.subscriptionNotFound)) {
+            return plugin_constants.messages.error.subscriptionNotFound;
         }
         return plugin_constants.messages.error.generic;
 

@@ -16,6 +16,7 @@ type SubscriptionPayload = {
     project: string,
     eventType: string,
     channelID: string
+    mmUserID: string,
 }
 
 interface PaginationQueryParams {

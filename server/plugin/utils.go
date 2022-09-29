@@ -216,7 +216,7 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 		return sb.String()
 	}
 
-	sb.WriteString("###### Board subscription(s) for this channel\n")
+	sb.WriteString("###### Board's subscription(s)\n")
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
@@ -231,21 +231,17 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 		case subscription.EventType == "delete":
 			displayEventType = "Work Item Deleted"
 		}
-		displayCreatedBy := subscription.CreatedBy
-		// If user's name doesn't exist then show username as fallback
-		if len(strings.TrimSpace(subscription.CreatedBy)) == 0 {
-			displayCreatedBy = subscription.Username
-		}
+
 		if channelID == "" || subscription.ChannelID == channelID {
-			switch {
-			case createdBy == constants.FilterCreatedByMe:
+			switch createdBy {
+			case constants.FilterCreatedByMe:
 				if subscription.MattermostUserID == userID {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, displayCreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
 				}
-			case createdBy == constants.FilterCreatedByAnyone:
+			case constants.FilterCreatedByAnyone:
 				noSubscriptionFound = false
-				sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, displayCreatedBy, subscription.ChannelName))
+				sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
 			}
 		}
 	}

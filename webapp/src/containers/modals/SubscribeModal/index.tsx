@@ -22,10 +22,11 @@ import {getSubscribeModalState} from 'selectors';
 import Utils from 'utils';
 
 import './styles.scss';
+import { boardEventTypeOptions, repoEventTypeOptions } from 'plugin_constants/form';
 
 const SubscribeModal = () => {
-    const {subscriptionModal: subscriptionModalFields} = plugin_constants.form;
-
+    const {subscriptionModal} = plugin_constants.form;
+    const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
     // Hooks
     const {
         formFields,
@@ -99,6 +100,8 @@ const SubscribeModal = () => {
             return organizationList;
         case 'project':
             return projectList.filter(({metaData}) => metaData === formFields.organization);
+        case 'serviceType':
+            return subscriptionModalFields.serviceType.optionsList;
         case 'eventType':
             return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
@@ -107,6 +110,13 @@ const SubscribeModal = () => {
             return [];
         }
     };
+
+    useEffect(() => {
+      if(formFields.serviceType == "board"){
+          setSubscriptionModalFields({...subscriptionModalFields, eventType:{...subscriptionModalFields.eventType, optionsList:boardEventTypeOptions}})
+      }else if(formFields.serviceType == "repos"){
+        setSubscriptionModalFields({...subscriptionModalFields, eventType:{...subscriptionModalFields.eventType, optionsList:repoEventTypeOptions}})      }
+    }, [formFields.serviceType])
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {

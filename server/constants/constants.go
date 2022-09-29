@@ -42,7 +42,7 @@ const (
 	Delete           = "delete"
 	Comment          = "comment"
 	Board            = "board"
-	PullRequest      = "pull_request"
+	Repos            = "repos"
 	MergeAttempt     = "merge_attempt"
 	CodePush         = "code_push"
 

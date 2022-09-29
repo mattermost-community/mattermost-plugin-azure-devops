@@ -16,7 +16,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, channelName, createdBy, username}, subscriptionDetails}: SubscriptionCardProps) => (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, username}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <div className='d-flex'>
             <div className='project-details'>
@@ -31,7 +31,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         </SVGWrapper>
                     }
                     labelExtraClassName='margin-left-5'
-                    value={plugin_constants.common.boardsEventTypeMap[eventType as EventType]}
+                    value={plugin_constants.common.boardsEventTypeMap[serviceType as ServiceType][eventType as EventType]}
                 />
                 <LabelValuePair
                     labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}

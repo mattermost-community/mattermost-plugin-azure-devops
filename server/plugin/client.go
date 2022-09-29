@@ -137,7 +137,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			constants.Delete:  "workitem.deleted",
 			constants.Comment: "workitem.commented",
 		}
-	case constants.PullRequest:
+	case constants.Repos:
 		statusData = map[string]string{
 			constants.Create:       "git.pullrequest.created",
 			constants.Update:       "git.pullrequest.updated",

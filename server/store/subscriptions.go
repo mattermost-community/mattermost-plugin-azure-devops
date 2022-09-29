@@ -66,6 +66,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		OrganizationName: subscription.OrganizationName,
 		ChannelID:        subscription.ChannelID,
 		EventType:        subscription.EventType,
+		ServiceType:      subscription.ServiceType,
 		SubscriptionID:   subscription.SubscriptionID,
 		ChannelName:      subscription.ChannelName,
 		ChannelType:      subscription.ChannelType,

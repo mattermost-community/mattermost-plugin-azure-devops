@@ -1,7 +1,8 @@
 /**
  * Keep all common types here which are to be used throughout the project
 */
-type EventType = 'create' | 'update' | 'delete'
+type EventType = 'create' | 'update' | 'delete' | 'comment' | 'merge_attempt' | 'code_push'
+type ServiceType = 'board' | 'repos'
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
 type TabData = {
@@ -62,6 +63,7 @@ type SubscriptionDetails = {
     projectName: string,
     organizationName: string,
     eventType: string,
+    serviceType: string,
     channelID: string,
     channelName: string,
     channelType: string,

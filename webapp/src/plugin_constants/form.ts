@@ -1,7 +1,7 @@
 import {SubscriptionFilterCreatedBy} from './common';
 
 // Create subscription modal
-const eventTypeOptions: LabelValuePair[] = [
+export const boardEventTypeOptions: LabelValuePair[] = [
     {
         value: 'create',
         label: 'Create',
@@ -13,6 +13,44 @@ const eventTypeOptions: LabelValuePair[] = [
     {
         value: 'delete',
         label: 'Delete',
+    },
+    {
+        value: 'comment',
+        label: 'Comment',
+    },
+];
+
+export const repoEventTypeOptions: LabelValuePair[] = [
+    {
+        value: 'create',
+        label: 'Create',
+    },
+    {
+        value: 'update',
+        label: 'Update',
+    },
+    {
+        value: 'comment',
+        label: 'Comment',
+    },
+    {
+        value: 'code_push',
+        label: 'Code Push',
+    },
+    {
+        value: 'merge_attempt',
+        label: 'Merge Attempt',
+    },
+];
+
+const serviceTypeOptions: LabelValuePair[] = [
+    {
+        value: 'board',
+        label: 'Board',
+    },
+    {
+        value: 'repos',
+        label: 'Repos',
     },
 ];
 
@@ -33,11 +71,20 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
             isRequired: true,
         },
     },
+    serviceType: {
+        label: 'Service type',
+        value: 'board',
+        type: 'dropdown',
+        optionsList: serviceTypeOptions,
+        validations: {
+            isRequired: true,
+        },
+    },
     eventType: {
         label: 'Event type',
         value: '',
         type: 'dropdown',
-        optionsList: eventTypeOptions,
+        optionsList: boardEventTypeOptions,
         validations: {
             isRequired: true,
         },

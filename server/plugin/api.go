@@ -366,7 +366,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Text: body.DetailedMessage.Markdown,
 		}
 	case constants.PullRequestCreated, constants.PullRequestUpdated, constants.PullRequestMerged:
-		reviewers := "None" //When no reviewers are added to the pull request
+		reviewers := "None" // When no reviewers are added to the pull request
 		for i := 0; i < len(body.Resource.Reviewers); i++ {
 			if i == 0 {
 				reviewers = ""
@@ -440,7 +440,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Footer: body.Resource.PullRequest.Repository.Name,
 		}
 	case constants.CodePushed:
-		commits := "None" //When no commits are present
+		commits := "None" // When no commits are present
 		for i := 0; i < len(body.Resource.Commits); i++ {
 			if i == 0 {
 				commits = ""

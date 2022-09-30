@@ -557,7 +557,6 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
 				ChannelID:        "mockChannelID",
-				CreatedBy:        " ",
 			},
 		},
 		{
@@ -605,7 +604,6 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
 				ChannelID:        "mockChannelID",
-				CreatedBy:        " ",
 			},
 		},
 	} {

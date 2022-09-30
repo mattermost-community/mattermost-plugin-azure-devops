@@ -131,6 +131,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 setShowSubscriptionConfirmationModal(false);
                 return;
             }
+
             setDeleteConfirmationModalError({
                 title: errorMessage,
                 onSecondaryBtnClick: () => setShowSubscriptionConfirmationModal(false),

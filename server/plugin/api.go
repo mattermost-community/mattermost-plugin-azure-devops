@@ -360,9 +360,103 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		return
 	}
 
-	attachment := &model.SlackAttachment{
-		Text: body.DetailedMessage.Markdown,
+	var attachment *model.SlackAttachment
+	if strings.Contains(body.EventType, "workitem") {
+		attachment = &model.SlackAttachment{
+			Text: body.DetailedMessage.Markdown,
+		}
+	} else if strings.Contains(body.EventType, "pullrequest") {
+		if strings.Contains(body.EventType, "comment") {
+			reviewers := "None"
+			for i := 0; i < len(body.Resource.PullRequest.Reviewers); i++ {
+				if i == 0 {
+					reviewers = ""
+				}
+				if i != len(body.Resource.PullRequest.Reviewers)-1 {
+					reviewers += fmt.Sprintf("%s, ", body.Resource.PullRequest.Reviewers[i].DisplayName)
+				} else {
+					reviewers += body.Resource.PullRequest.Reviewers[i].DisplayName
+				}
+			}
+
+			attachment = &model.SlackAttachment{
+				Pretext: body.Message.Markdown,
+				Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestId, body.Resource.PullRequest.Title),
+				Fields: []*model.SlackAttachmentField{
+					{
+						Title: "Target Branch",
+						Value: strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2],
+						Short: true,
+					},
+					{
+						Title: "Source Branch",
+						Value: strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2],
+						Short: true,
+					},
+					{
+						Title: "Reviewers",
+						Value: reviewers,
+					},
+					{
+						Title: "Comment",
+						Value: body.Resource.Comment.Content,
+					},
+				},
+				Footer: body.Resource.PullRequest.Repository.Name,
+			}
+		} else if strings.Contains(body.EventType, "created") || strings.Contains(body.EventType, "updated") || strings.Contains(body.EventType, "merged") {
+			reviewers := "None"
+			for i := 0; i < len(body.Resource.Reviewers); i++ {
+				if i == 0 {
+					reviewers = ""
+				}
+				if i != len(body.Resource.Reviewers)-1 {
+					reviewers += fmt.Sprintf("%s, ", body.Resource.Reviewers[i].DisplayName)
+				} else {
+					reviewers += body.Resource.Reviewers[i].DisplayName
+				}
+			}
+
+			attachment = &model.SlackAttachment{
+				Pretext: body.Message.Markdown,
+				Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestId, body.Resource.Title),
+				Fields: []*model.SlackAttachmentField{
+					{
+						Title: "Target Branch",
+						Value: strings.Split(body.Resource.TargetRefName, "/")[2],
+						Short: true,
+					},
+					{
+						Title: "Source Branch",
+						Value: strings.Split(body.Resource.SourceRefName, "/")[2],
+						Short: true,
+					},
+					{
+						Title: "Reviewers",
+						Value: reviewers,
+					},
+				},
+				Footer: body.Resource.Repository.Name,
+			}
+		}
+	} else if strings.Contains(body.EventType, "git.push") {
+		commits := "None"
+		for i := 0; i < len(body.Resource.Commits); i++ {
+			if i == 0 {
+				commits = ""
+			}
+
+			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitId, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			Text:       commits,
+			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, "git-branch-outline.svg"),
+		}
 	}
+
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,

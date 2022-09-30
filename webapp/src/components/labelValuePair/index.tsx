@@ -1,3 +1,4 @@
+import Tooltip from 'components/tooltip';
 import React from 'react';
 
 import {onPressingEnterKey} from 'utils';
@@ -28,6 +29,7 @@ const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, 
                     <span className={`icon label-icon ${labelExtraClassName}`}>{label}</span>
             )
         }
+        <Tooltip tooltipContent={value}>
         {
             onClickValue ? (
                 <span
@@ -42,6 +44,7 @@ const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, 
                 </span>
             ) : <span className='value text-truncate'>{value}</span>
         }
+        </Tooltip>
     </p>
 );
 

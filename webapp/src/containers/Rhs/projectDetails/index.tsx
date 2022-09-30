@@ -93,7 +93,6 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             organization: subscriptionDetails.organizationName,
             project: subscriptionDetails.projectName,
             eventType: subscriptionDetails.eventType,
-            serviceType: subscriptionDetails.serviceType,
             channelID: subscriptionDetails.channelID,
             mmUserID: subscriptionDetails.mattermostUserID,
         });

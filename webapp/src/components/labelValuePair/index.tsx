@@ -1,5 +1,6 @@
-import Tooltip from 'components/tooltip';
 import React from 'react';
+
+import Tooltip from 'components/tooltip';
 
 import {onPressingEnterKey} from 'utils';
 
@@ -30,20 +31,20 @@ const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, 
             )
         }
         <Tooltip tooltipContent={value}>
-        {
-            onClickValue ? (
-                <span
-                    aria-label={value}
-                    role='button'
-                    tabIndex={0}
-                    className='value font-size-14 font-bold link-title margin-0 text-truncate'
-                    onKeyDown={(event) => onPressingEnterKey(event, onClickValue)}
-                    onClick={onClickValue}
-                >
-                    {value}
-                </span>
-            ) : <span className='value text-truncate'>{value}</span>
-        }
+            {
+                onClickValue ? (
+                    <span
+                        aria-label={value}
+                        role='button'
+                        tabIndex={0}
+                        className='value font-size-14 font-bold link-title margin-0 text-truncate'
+                        onKeyDown={(event) => onPressingEnterKey(event, onClickValue)}
+                        onClick={onClickValue}
+                    >
+                        {value}
+                    </span>
+                ) : <span className='value text-truncate'>{value}</span>
+            }
         </Tooltip>
     </p>
 );

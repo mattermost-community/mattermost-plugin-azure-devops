@@ -22,7 +22,6 @@ const (
 	TaskTypeRequired                = "task type is required"
 	TaskTitleRequired               = "task title is required"
 	EventTypeRequired               = "event type is required"
-	ServiceTypeRequired             = "service type is required"
 	ChannelIDRequired               = "channel ID is required"
 	MMUserIDRequired                = "mattermsot user ID is required"
 	EmptyAzureDevopsAPIBaseURLError = "azure devops API base URL should not be empty"

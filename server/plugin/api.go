@@ -236,7 +236,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType, ServiceType: body.ServiceType}); isSubscriptionPresent {
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
 		return
@@ -273,7 +273,6 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
-		ServiceType:      body.ServiceType,
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
@@ -361,96 +360,98 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	}
 
 	var attachment *model.SlackAttachment
-	if strings.Contains(body.EventType, "workitem") {
+	switch body.EventType {
+	case constants.WorkItemCreated, constants.WorkItemUpdated, constants.WorkItemDeleted, constants.WorkItemCommented:
 		attachment = &model.SlackAttachment{
 			Text: body.DetailedMessage.Markdown,
 		}
-	} else if strings.Contains(body.EventType, "pullrequest") {
-		if strings.Contains(body.EventType, "comment") {
-			reviewers := "None"
-			for i := 0; i < len(body.Resource.PullRequest.Reviewers); i++ {
-				if i == 0 {
-					reviewers = ""
-				}
-				if i != len(body.Resource.PullRequest.Reviewers)-1 {
-					reviewers += fmt.Sprintf("%s, ", body.Resource.PullRequest.Reviewers[i].DisplayName)
-				} else {
-					reviewers += body.Resource.PullRequest.Reviewers[i].DisplayName
-				}
+	case constants.PullRequestCreated, constants.PullRequestUpdated, constants.PullRequestMerged:
+		reviewers := "None" //When no reviewers are added to the pull request
+		for i := 0; i < len(body.Resource.Reviewers); i++ {
+			if i == 0 {
+				reviewers = ""
 			}
 
-			attachment = &model.SlackAttachment{
-				Pretext: body.Message.Markdown,
-				Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestId, body.Resource.PullRequest.Title),
-				Fields: []*model.SlackAttachmentField{
-					{
-						Title: "Target Branch",
-						Value: strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2],
-						Short: true,
-					},
-					{
-						Title: "Source Branch",
-						Value: strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2],
-						Short: true,
-					},
-					{
-						Title: "Reviewers",
-						Value: reviewers,
-					},
-					{
-						Title: "Comment",
-						Value: body.Resource.Comment.Content,
-					},
-				},
-				Footer: body.Resource.PullRequest.Repository.Name,
-			}
-		} else if strings.Contains(body.EventType, "created") || strings.Contains(body.EventType, "updated") || strings.Contains(body.EventType, "merged") {
-			reviewers := "None"
-			for i := 0; i < len(body.Resource.Reviewers); i++ {
-				if i == 0 {
-					reviewers = ""
-				}
-				if i != len(body.Resource.Reviewers)-1 {
-					reviewers += fmt.Sprintf("%s, ", body.Resource.Reviewers[i].DisplayName)
-				} else {
-					reviewers += body.Resource.Reviewers[i].DisplayName
-				}
-			}
-
-			attachment = &model.SlackAttachment{
-				Pretext: body.Message.Markdown,
-				Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestId, body.Resource.Title),
-				Fields: []*model.SlackAttachmentField{
-					{
-						Title: "Target Branch",
-						Value: strings.Split(body.Resource.TargetRefName, "/")[2],
-						Short: true,
-					},
-					{
-						Title: "Source Branch",
-						Value: strings.Split(body.Resource.SourceRefName, "/")[2],
-						Short: true,
-					},
-					{
-						Title: "Reviewers",
-						Value: reviewers,
-					},
-				},
-				Footer: body.Resource.Repository.Name,
+			if i != len(body.Resource.Reviewers)-1 {
+				reviewers += fmt.Sprintf("%s, ", body.Resource.Reviewers[i].DisplayName)
+			} else {
+				reviewers += body.Resource.Reviewers[i].DisplayName
 			}
 		}
-	} else if strings.Contains(body.EventType, "git.push") {
-		commits := "None"
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: strings.Split(body.Resource.TargetRefName, "/")[2],
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: strings.Split(body.Resource.SourceRefName, "/")[2],
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+			},
+			Footer: body.Resource.Repository.Name,
+		}
+	case constants.PullRequestCommented:
+		reviewers := "None"
+		for i := 0; i < len(body.Resource.PullRequest.Reviewers); i++ {
+			if i == 0 {
+				reviewers = ""
+			}
+
+			if i != len(body.Resource.PullRequest.Reviewers)-1 {
+				reviewers += fmt.Sprintf("%s, ", body.Resource.PullRequest.Reviewers[i].DisplayName)
+			} else {
+				reviewers += body.Resource.PullRequest.Reviewers[i].DisplayName
+			}
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2],
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2],
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+				{
+					Title: "Comment",
+					Value: body.Resource.Comment.Content,
+				},
+			},
+			Footer: body.Resource.PullRequest.Repository.Name,
+		}
+	case constants.CodePushed:
+		commits := "None" //When no commits are present
 		for i := 0; i < len(body.Resource.Commits); i++ {
 			if i == 0 {
 				commits = ""
 			}
 
-			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitId, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
 		}
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
+			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
 			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, "git-branch-outline.svg"),
@@ -497,7 +498,6 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		ProjectName:      body.Project,
 		ChannelID:        body.ChannelID,
 		EventType:        body.EventType,
-		ServiceType:      body.ServiceType,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
@@ -517,7 +517,6 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
-		ServiceType:      body.ServiceType,
 	}); deleteErr != nil {
 		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})

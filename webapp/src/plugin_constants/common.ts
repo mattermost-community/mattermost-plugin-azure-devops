@@ -6,20 +6,28 @@ export const RightSidebarHeader = 'Azure DevOps';
 export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
 
-export const boardsEventTypeMap: Record<ServiceType, Partial<Record<EventType, string>>> = {
-    board: {
-        create: 'Work Item Created',
-        update: 'Work Item Updated',
-        delete: 'Work Item Deleted',
-        comment: 'Work Item Commented On',
-    },
-    repos: {
-        create: 'Pull Request Created',
-        update: 'Pull Request Updated',
-        comment: 'Pull Request Commented On',
-        merge_attempt: 'Pull Request Merge Attempted',
-        code_push: 'Code Pushed',
-    }
+export const eventTypeMap: Record<EventType, string> = {
+    'workitem.created': 'Work Item Created',
+    'workitem.updated': 'Work Item Updated',
+    'workitem.deleted': 'Work Item Deleted',
+    'workitem.commented': 'Work Item Commented On',
+    'git.pullrequest.created': 'Pull Request Created',
+    'git.pullrequest.updated': 'Pull Request Updated',
+    'ms.vss-code.git-pullrequest-comment-event': 'Pull Request Commented On',
+    'git.pullrequest.merged': 'Pull Request Merge Attempted',
+    'git.push': 'Code Pushed',
+};
+
+export const serviceTypeMap: Record<EventType, string> = {
+    'workitem.created': 'Boards',
+    'workitem.updated': 'Boards',
+    'workitem.deleted': 'Boards',
+    'workitem.commented': 'Boards',
+    'git.pullrequest.created': 'Repos',
+    'git.pullrequest.updated': 'Repos',
+    'ms.vss-code.git-pullrequest-comment-event': 'Repos',
+    'git.pullrequest.merged': 'Repos',
+    'git.push': 'Repos',
 };
 
 export const defaultPage = 0;

@@ -14,7 +14,6 @@ type CreateTaskPayload = {
 type SubscriptionPayload = {
     organization: string,
     project: string,
-    serviceType: string,
     eventType: string,
     channelID: string
     mmUserID: string,

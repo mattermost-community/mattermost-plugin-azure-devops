@@ -3,42 +3,42 @@ import {SubscriptionFilterCreatedBy} from './common';
 // Create subscription modal
 export const boardEventTypeOptions: LabelValuePair[] = [
     {
-        value: 'create',
+        value: 'workitem.created',
         label: 'Create',
     },
     {
-        value: 'update',
+        value: 'workitem.updated',
         label: 'Update',
     },
     {
-        value: 'delete',
+        value: 'workitem.deleted',
         label: 'Delete',
     },
     {
-        value: 'comment',
+        value: 'workitem.commented',
         label: 'Comment',
     },
 ];
 
 export const repoEventTypeOptions: LabelValuePair[] = [
     {
-        value: 'create',
+        value: 'git.pullrequest.created',
         label: 'Create',
     },
     {
-        value: 'update',
+        value: 'git.pullrequest.updated',
         label: 'Update',
     },
     {
-        value: 'comment',
+        value: 'ms.vss-code.git-pullrequest-comment-event',
         label: 'Comment',
     },
     {
-        value: 'code_push',
+        value: 'git.push',
         label: 'Code Push',
     },
     {
-        value: 'merge_attempt',
+        value: 'git.pullrequest.merged',
         label: 'Merge Attempt',
     },
 ];

@@ -10,7 +10,6 @@ import SVGWrapper from 'components/svgWrapper';
 import plugin_constants from 'plugin_constants';
 
 import './styles.scss';
-import Tooltip from 'components/tooltip';
 
 type SubscriptionCardProps = {
     handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
@@ -32,7 +31,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         </SVGWrapper>
                     }
                     labelExtraClassName='margin-left-5'
-                    value={plugin_constants.common.boardsEventTypeMap[serviceType as ServiceType][eventType as EventType] ?? ''}
+                    value={plugin_constants.common.eventTypeMap[eventType as EventType] ?? ''}
                 />
                 <LabelValuePair
                     labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
@@ -44,7 +43,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                 />
                 {/* TODO: Modify UI to display service type according to the new designs */}
                 <LabelValuePair
-                    value={serviceType}
+                    value={plugin_constants.common.serviceTypeMap[eventType as EventType]}
                 />
             </div>
             <div className='button-wrapper'>

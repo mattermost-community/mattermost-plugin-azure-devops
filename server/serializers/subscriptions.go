@@ -26,7 +26,6 @@ type SubscriptionValue struct {
 	ID               string          `json:"id"`
 	URL              string          `json:"url"`
 	EventType        string          `json:"eventType"`
-	ServiceType      string          `json:"serviceType"`
 	ConsumerID       string          `json:"consumerId"`
 	ConsumerActionID string          `json:"consumerActionId"`
 	CreatedBy        UserID          `json:"createdBy"`
@@ -43,7 +42,6 @@ type SubscriptionList struct {
 type CreateSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
-	ServiceType  string `json:"serviceType"`
 	EventType    string `json:"eventType"`
 	ChannelID    string `json:"channelID"`
 }
@@ -63,7 +61,6 @@ type SubscriptionDetails struct {
 	ProjectID        string `json:"projectID"`
 	OrganizationName string `json:"organizationName"`
 	EventType        string `json:"eventType"`
-	ServiceType      string `json:"serviceType"`
 	ChannelID        string `json:"channelID"`
 	ChannelName      string `json:"channelName"`
 	ChannelType      string `json:"channelType"`
@@ -83,7 +80,7 @@ type SubscriptionNotification struct {
 }
 
 type Resource struct {
-	PullRequestId int          `json:"pullRequestId"`
+	PullRequestID int          `json:"pullRequestId"`
 	Reviewers     []Reviewers  `json:"reviewers"`
 	SourceRefName string       `json:"sourceRefName"`
 	TargetRefName string       `json:"targetRefName"`
@@ -102,7 +99,7 @@ type RefUpdates struct {
 }
 
 type Commit struct {
-	CommitId string `json:"commitId"`
+	CommitID string `json:"commitId"`
 	Comment  string `json:"comment"`
 	URL      string `json:"url"`
 }
@@ -112,7 +109,7 @@ type Repository struct {
 }
 
 type PullRequest struct {
-	PullRequestId int         `json:"pullRequestId"`
+	PullRequestID int         `json:"pullRequestId"`
 	Reviewers     []Reviewers `json:"reviewers"`
 	SourceRefName string      `json:"sourceRefName"`
 	TargetRefName string      `json:"targetRefName"`
@@ -134,7 +131,6 @@ type DeleteSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
-	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 	MMUserID     string `json:"mmUserID"`
 }
@@ -173,9 +169,6 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	if t.EventType == "" {
 		return errors.New(constants.EventTypeRequired)
 	}
-	if t.ServiceType == "" {
-		return errors.New(constants.ServiceTypeRequired)
-	}
 	if t.ChannelID == "" {
 		return errors.New(constants.ChannelIDRequired)
 	}
@@ -191,9 +184,6 @@ func (t *DeleteSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	}
 	if t.EventType == "" {
 		return errors.New(constants.EventTypeRequired)
-	}
-	if t.ServiceType == "" {
-		return errors.New(constants.ServiceTypeRequired)
 	}
 	if t.ChannelID == "" {
 		return errors.New(constants.ChannelIDRequired)

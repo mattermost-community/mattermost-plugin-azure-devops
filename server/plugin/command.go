@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -22,11 +23,11 @@ type Handler struct {
 
 var azureDevopsCommandHandler = Handler{
 	handlers: map[string]HandlerFunc{
-		"help":       azureDevopsHelpCommand,
-		"connect":    azureDevopsConnectCommand,
-		"disconnect": azureDevopsDisconnectCommand,
-		"link":       azureDevopsAccountConnectionCheck,
-		"boards":     azureDevopsAccountConnectionCheck,
+		constants.CommandHelp:       azureDevopsHelpCommand,
+		constants.CommandConnect:    azureDevopsConnectCommand,
+		constants.CommandDisconnect: azureDevopsDisconnectCommand,
+		constants.CommandLink:       azureDevopsAccountConnectionCheck,
+		constants.CommandBoards:     azureDevopsBoardsCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -45,31 +46,44 @@ func (ch *Handler) Handle(p *Plugin, c *plugin.Context, commandArgs *model.Comma
 }
 
 func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
-	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", "Available commands: help, connect, disconnect, create, link, subscribe, subscriptions, unsubscribe")
+	azureDevops := model.NewAutocompleteData(constants.CommandTriggerName, "[command]", fmt.Sprintf("Available commands: %s, %s, %s, %s, %s", constants.CommandHelp, constants.CommandConnect, constants.CommandDisconnect, constants.CommandLink, constants.CommandBoards))
 
-	help := model.NewAutocompleteData("help", "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
+	help := model.NewAutocompleteData(constants.CommandHelp, "", fmt.Sprintf("Show %s slash command help", constants.CommandTriggerName))
 	azureDevops.AddCommand(help)
 
-	connect := model.NewAutocompleteData("connect", "", "Connect to your Azure DevOps account")
+	connect := model.NewAutocompleteData(constants.CommandConnect, "", "Connect to your Azure DevOps account")
 	azureDevops.AddCommand(connect)
 
-	disconnect := model.NewAutocompleteData("disconnect", "", "Disconnect your Azure DevOps account")
+	disconnect := model.NewAutocompleteData(constants.CommandDisconnect, "", "Disconnect your Azure DevOps account")
 	azureDevops.AddCommand(disconnect)
 
-	link := model.NewAutocompleteData("link", "[projectURL]", "Link a project")
+	link := model.NewAutocompleteData(constants.CommandLink, "", "Link a project")
+	link.AddTextArgument("URL of the project to be linked", "[projectURL]", "")
 	azureDevops.AddCommand(link)
 
-	create := model.NewAutocompleteData("boards create [title] [description]", "", "Create a new task")
-	azureDevops.AddCommand(create)
+	subscription := model.NewAutocompleteData(constants.CommandSubscription, "", "Add/list/unsubscribe subscriptions")
+	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
+	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
+	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Unsubscribe a subscription")
+	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
+	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
+	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")
+	subscriptionCreatedByMe.AddCommand(subscriptionShowForAllChannels)
+	subscriptionView.AddCommand(subscriptionCreatedByMe)
+	subscriptionCreatedByAnyone := model.NewAutocompleteData(constants.FilterCreatedByAnyone, "", "Created By Anyone")
+	subscriptionCreatedByAnyone.AddCommand(subscriptionShowForAllChannels)
+	subscriptionView.AddCommand(subscriptionCreatedByAnyone)
+	subscription.AddCommand(subscriptionAdd)
+	subscription.AddCommand(subscriptionView)
+	subscription.AddCommand(subscriptionUnsubscribe)
 
-	subscribe := model.NewAutocompleteData("boards subscribe", "", "Add a boards subscription")
-	azureDevops.AddCommand(subscribe)
-
-	subscriptions := model.NewAutocompleteData("boards subscriptions", "", "View board's subscriptions in the current channel")
-	azureDevops.AddCommand(subscriptions)
-
-	unsubscribe := model.NewAutocompleteData("boards unsubscribe [subscription id]", "", "Unsubscribe a board subscription")
-	azureDevops.AddCommand(unsubscribe)
+	boards := model.NewAutocompleteData(constants.CommandBoards, "", "Create a new work-item or add/list/delete subscriptions")
+	create := model.NewAutocompleteData(constants.CommandCreate, "", "Create a new work-item")
+	create.AddTextArgument("Title", "[title]", "")
+	create.AddTextArgument("Description", "[description]", "")
+	boards.AddCommand(create)
+	boards.AddCommand(subscription)
+	azureDevops.AddCommand(boards)
 
 	return azureDevops
 }
@@ -83,7 +97,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	return &model.Command{
 		Trigger:              constants.CommandTriggerName,
 		AutoComplete:         true,
-		AutoCompleteDesc:     "Available commands: help",
+		AutoCompleteDesc:     fmt.Sprintf("Available commands: %s, %s, %s, %s, %s", constants.CommandHelp, constants.CommandConnect, constants.CommandDisconnect, constants.CommandLink, constants.CommandBoards),
 		AutoCompleteHint:     "[command]",
 		AutocompleteData:     p.getAutoCompleteData(),
 		AutocompleteIconData: iconData,
@@ -94,37 +108,59 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
-
-	if len(args) > 0 {
-		switch {
-		case args[0] == "subscriptions":
-			return azureDevopsListSubscriptionsCommand(p, c, commandArgs, args...)
-		case args[0] == "unsubscribe":
-			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
-		}
-	}
-
 	return &model.CommandResponse{}, nil
 }
 
+func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	// Check if user's Azure DevOps account is connected
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
+	}
+
+	// Validate commands and their arguments
+	switch {
+	case len(args) >= 1 && args[0] == constants.CommandCreate:
+		return &model.CommandResponse{}, nil
+		// For "subscription" command there must be at least 2 arguments
+	case len(args) >= 2 && args[0] == constants.CommandSubscription:
+		switch args[1] {
+		case constants.CommandList:
+			// For "list" command there must be at least 3 arguments
+			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
+				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, args...)
+			}
+		case constants.CommandDelete:
+			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
+		case constants.CommandAdd:
+			return &model.CommandResponse{}, nil
+		}
+	}
+
+	return executeDefault(p, c, commandArgs, args...)
+}
+
 func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	if len(args) < 2 {
+	if len(args) < 3 {
 		return p.sendEphemeralPostForCommand(commandArgs, "Subscription ID is not provided")
 	}
 
-	subscriptionList, err := p.Store.GetAllSubscriptions(commandArgs.UserId)
+	subscriptionList, err := p.Store.GetAllSubscriptions("")
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 	}
 
+	subscriptionIDToBeDeleted := args[2]
 	for _, subscription := range subscriptionList {
-		if subscription.SubscriptionID == args[1] {
-			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", args[1])); err != nil {
+		if subscription.SubscriptionID == subscriptionIDToBeDeleted {
+			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", subscriptionIDToBeDeleted)); err != nil {
 				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
 
-			if _, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
+			if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, commandArgs.UserId); err != nil {
+				if statusCode == http.StatusForbidden {
+					return p.sendEphemeralPostForCommand(commandArgs, constants.ErrorAdminAccess)
+				}
 				p.API.LogError("Error in deleting subscription", "Error", err.Error())
 				return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 			}
@@ -140,21 +176,30 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				&model.WebsocketBroadcast{UserId: commandArgs.UserId},
 			)
 
-			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", args[1]))
+			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", subscriptionIDToBeDeleted))
 		}
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", args[1]))
+	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", subscriptionIDToBeDeleted))
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	subscriptionList, err := p.Store.GetAllSubscriptions(commandArgs.UserId)
+	// If 4th argument is present then it must be "all_channels"
+	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
+		return executeDefault(p, c, commandArgs, args...)
+	}
+
+	subscriptionList, err := p.Store.GetAllSubscriptions("")
 	if err != nil {
 		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
 		return p.sendEphemeralPostForCommand(commandArgs, constants.GenericErrorMessage)
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, commandArgs.ChannelId))
+	showForChannelID := commandArgs.ChannelId
+	if len(args) >= 4 && args[3] == constants.FilterAllChannels {
+		showForChannelID = ""
+	}
+	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId))
 }
 
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

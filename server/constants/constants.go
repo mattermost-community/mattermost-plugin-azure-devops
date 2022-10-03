@@ -19,7 +19,7 @@ const (
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
 		"* `/azuredevops boards subscription add` - Add a new Boards subscription for your linked projects.\n" +
-		"* `/azuredevops boards subscription list [me or anyone] [all-channels]` - View Boards subscriptions.\n" +
+		"* `/azuredevops boards subscription list [me or anyone] [all_channels]` - View Boards subscriptions.\n" +
 		"* `/azuredevops boards subscription delete [subscription id]` - Unsubscribe a Boards subscription"
 	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
 	CommandHelp         = "help"
@@ -66,8 +66,7 @@ const (
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
-	FilterAllChannels     = "all-channels"
-	FilterCurrentChannel  = "current-channel"
+	FilterAllChannels     = "all_channels"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

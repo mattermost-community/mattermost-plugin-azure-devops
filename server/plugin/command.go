@@ -65,7 +65,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
 	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
 	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Unsubscribe a subscription")
-	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be Deleted", "[subscription id]", "")
+	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
 	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
 	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")
 	subscriptionCreatedByMe.AddCommand(subscriptionShowForAllChannels)
@@ -184,7 +184,7 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// If 4th argument is present then it must be "all-channels"
+	// If 4th argument is present then it must be "all_channels"
 	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
 		return executeDefault(p, c, commandArgs, args...)
 	}

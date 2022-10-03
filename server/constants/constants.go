@@ -18,9 +18,9 @@ const (
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
-		"* `/azuredevops boards subscription add` - Add a new Board's subscription for your linked projects.\n" +
-		"* `/azuredevops boards subscription list [me or anyone] [all-channels]` - View Board's subscriptions.\n" +
-		"* `/azuredevops boards subscription unsubscribe [subscription id]` - Unsubscribe a Board's subscription"
+		"* `/azuredevops boards subscription add` - Add a new Boards subscription for your linked projects.\n" +
+		"* `/azuredevops boards subscription list [me or anyone] [all-channels]` - View Boards subscriptions.\n" +
+		"* `/azuredevops boards subscription delete [subscription id]` - Unsubscribe a Boards subscription"
 	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
 	CommandHelp         = "help"
 	CommandConnect      = "connect"
@@ -31,7 +31,7 @@ const (
 	CommandSubscription = "subscription"
 	CommandAdd          = "add"
 	CommandList         = "list"
-	CommandUnsubscribe  = "unsubscribe"
+	CommandDelete       = "delete"
 
 	// Get task link preview constants
 	HTTPS              = "https:"

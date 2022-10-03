@@ -64,8 +64,8 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscription := model.NewAutocompleteData(constants.CommandSubscription, "", "Add/list/unsubscribe subscriptions")
 	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
 	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
-	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandUnsubscribe, "", "Unsubscribe a subscription")
-	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be delete", "[subscription id]", "")
+	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Unsubscribe a subscription")
+	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be Deleted", "[subscription id]", "")
 	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
 	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")
 	subscriptionCreatedByMe.AddCommand(subscriptionShowForAllChannels)
@@ -129,7 +129,7 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
 				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, args...)
 			}
-		case constants.CommandUnsubscribe:
+		case constants.CommandDelete:
 			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
 		case constants.CommandAdd:
 			return &model.CommandResponse{}, nil

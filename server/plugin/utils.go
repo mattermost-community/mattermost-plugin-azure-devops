@@ -216,19 +216,19 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 		return sb.String()
 	}
 
-	sb.WriteString("###### Board's subscription(s)\n")
+	sb.WriteString("###### Boards subscription(s)\n")
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
 	noSubscriptionFound := true
 	for _, subscription := range subscriptionsList {
 		displayEventType := ""
-		switch {
-		case subscription.EventType == "create":
+		switch subscription.EventType {
+		case "create":
 			displayEventType = "Work Item Created"
-		case subscription.EventType == "update":
+		case "update":
 			displayEventType = "Work Item Updated"
-		case subscription.EventType == "delete":
+		case "delete":
 			displayEventType = "Work Item Deleted"
 		}
 

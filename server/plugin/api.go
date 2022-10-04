@@ -403,7 +403,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: reviewers,
 				},
 			},
-			Footer: body.Resource.Repository.Name,
+			Footer:     body.Resource.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
 	case constants.PullRequestCommented:
 		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
@@ -431,7 +432,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: body.Resource.Comment.Content,
 				},
 			},
-			Footer: body.Resource.PullRequest.Repository.Name,
+			Footer:     body.Resource.PullRequest.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
 	case constants.CodePushed:
 		commits := ""

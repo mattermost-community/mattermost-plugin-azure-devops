@@ -81,4 +81,5 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	GitBranchIcon = "git-branch-outline.svg"
+	ProjectIcon   = "project-icon.svg"
 )

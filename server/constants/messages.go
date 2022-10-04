@@ -48,6 +48,7 @@ const (
 	ErrorLinkProject                = "Error in linking the project"
 	FetchSubscriptionListError      = "Error in fetching subscription list"
 	CreateSubscriptionError         = "Error in creating subscription"
+	ErrorCheckingProjectAdmin       = "Error in checking if user is an admin on the project %s"
 	ProjectNotLinked                = "Requested project is not linked"
 	GetSubscriptionListError        = "Error getting Subscription List"
 	SubscriptionAlreadyPresent      = "Requested subscription already exists"

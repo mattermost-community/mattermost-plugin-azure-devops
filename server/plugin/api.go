@@ -43,7 +43,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscription))).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
@@ -117,11 +117,24 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isAdmin := false
+	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdminByCreatingInvalidSubscription(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
+	if subscriptionErr != nil {
+		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), "There is no registered handler for the service hooks event type dummy") {
+			isAdmin = true
+		} else {
+			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+	}
+
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
 		ProjectName:      response.Name,
 		OrganizationName: body.Organization,
+		IsAdmin:          isAdmin,
 	}
 
 	if storeErr := p.Store.StoreProject(&project); storeErr != nil {
@@ -289,6 +302,14 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
+	pathParams := mux.Vars(r)
+	teamID := pathParams[constants.PathParamTeamID]
+	if !model.IsValidId(teamID) {
+		p.API.LogError("Invalid team id")
+		http.Error(w, "Invalid team id", http.StatusBadRequest)
+		return
+	}
+
 	var subscriptionList []*serializers.SubscriptionDetails
 	var subscriptionErr error
 	createdBy := r.URL.Query().Get(constants.QueryParamCreatedBy)
@@ -322,8 +343,15 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
 		})
 
+		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
+		if filteredSubscriptionErr != nil {
+			p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
+			return
+		}
+
 		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
-		for index, subscription := range subscriptionByProject {
+		for index, subscription := range filteredSubscriptionList {
 			if len(paginatedSubscriptions) == limit {
 				break
 			}

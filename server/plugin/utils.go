@@ -275,3 +275,35 @@ func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limi
 
 	return page * limit, limit
 }
+
+func (p *Plugin) GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID string) ([]*serializers.SubscriptionDetails, error) {
+	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
+	if channelErr != nil {
+		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
+		return nil, channelErr
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		return nil, err
+	}
+
+	var filteredSubscriptionList []*serializers.SubscriptionDetails
+	for _, subscription := range subscriptionList {
+		// For each subscripton on a project check if a user is an admin or member of the MM channel to return subscriptions
+		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {
+			if projectDetails.IsAdmin {
+				filteredSubscriptionList = append(filteredSubscriptionList, subscription)
+			} else {
+				for _, channel := range channels {
+					if subscription.ChannelID == channel.Id {
+						filteredSubscriptionList = append(filteredSubscriptionList, subscription)
+					}
+				}
+			}
+		}
+	}
+
+	return filteredSubscriptionList, nil
+}

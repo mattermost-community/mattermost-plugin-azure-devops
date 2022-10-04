@@ -68,7 +68,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
 	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
 	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Unsubscribe a subscription")
-	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be Deleted", "[subscription id]", "")
+	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
 	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
 	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")
 	subscriptionCreatedByMe.AddCommand(subscriptionShowForAllChannels)

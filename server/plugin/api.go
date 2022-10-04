@@ -446,7 +446,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				commits = ""
 			}
 
-			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID[0:8], body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
 		}
 
 		attachment = &model.SlackAttachment{

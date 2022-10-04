@@ -208,7 +208,7 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }
 
-func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID string) string {
+func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID string) string {
 	var sb strings.Builder
 
 	if len(subscriptionsList) == 0 {
@@ -216,24 +216,33 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 		return sb.String()
 	}
 
-	sb.WriteString("###### Board subscription(s) for this channel\n")
-	sb.WriteString("| Subscription ID | Organization | Project | Event Type |\n")
-	sb.WriteString("| :-------------- | :----------- | :------ | :--------- |\n")
+	sb.WriteString("###### Boards subscription(s)\n")
+	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
+	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
 	noSubscriptionFound := true
 	for _, subscription := range subscriptionsList {
-		if subscription.ChannelID == channelID {
-			noSubscriptionFound = false
-			displayEventType := ""
-			switch {
-			case subscription.EventType == "create":
-				displayEventType = "Work Item Created"
-			case subscription.EventType == "update":
-				displayEventType = "Work Item Updated"
-			case subscription.EventType == "delete":
-				displayEventType = "Work Item Deleted"
+		displayEventType := ""
+		switch subscription.EventType {
+		case "create":
+			displayEventType = "Work Item Created"
+		case "update":
+			displayEventType = "Work Item Updated"
+		case "delete":
+			displayEventType = "Work Item Deleted"
+		}
+
+		if channelID == "" || subscription.ChannelID == channelID {
+			switch createdBy {
+			case constants.FilterCreatedByMe:
+				if subscription.MattermostUserID == userID {
+					noSubscriptionFound = false
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+				}
+			case constants.FilterCreatedByAnyone:
+				noSubscriptionFound = false
+				sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
 			}
-			sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType))
 		}
 	}
 

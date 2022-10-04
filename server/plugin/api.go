@@ -339,6 +339,22 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	p.writeJSON(w, subscriptionList)
 }
 
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+	reviewers := ""
+	for i := 0; i < len(reviewersList); i++ {
+		if i != len(reviewersList)-1 {
+			reviewers += fmt.Sprintf("%s, ", reviewersList[i].DisplayName)
+		} else {
+			reviewers += reviewersList[i].DisplayName
+		}
+	}
+
+	if reviewers == "" {
+		return "None" // When no reviewers are added
+	}
+	return reviewers
+}
+
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
@@ -367,18 +383,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Text: body.DetailedMessage.Markdown,
 		}
 	case constants.PullRequestCreated, constants.PullRequestUpdated, constants.PullRequestMerged:
-		reviewers := "None" // When no reviewers are added to the pull request
-		for i := 0; i < len(body.Resource.Reviewers); i++ {
-			if i == 0 {
-				reviewers = ""
-			}
-
-			if i != len(body.Resource.Reviewers)-1 {
-				reviewers += fmt.Sprintf("%s, ", body.Resource.Reviewers[i].DisplayName)
-			} else {
-				reviewers += body.Resource.Reviewers[i].DisplayName
-			}
-		}
+		reviewers := p.getReviewersListString(body.Resource.Reviewers)
 
 		attachment = &model.SlackAttachment{
 			Pretext: body.Message.Markdown,
@@ -399,21 +404,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: reviewers,
 				},
 			},
-			Footer: body.Resource.Repository.Name,
+			Footer:     body.Resource.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
 	case constants.PullRequestCommented:
-		reviewers := "None"
-		for i := 0; i < len(body.Resource.PullRequest.Reviewers); i++ {
-			if i == 0 {
-				reviewers = ""
-			}
-
-			if i != len(body.Resource.PullRequest.Reviewers)-1 {
-				reviewers += fmt.Sprintf("%s, ", body.Resource.PullRequest.Reviewers[i].DisplayName)
-			} else {
-				reviewers += body.Resource.PullRequest.Reviewers[i].DisplayName
-			}
-		}
+		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
 
 		attachment = &model.SlackAttachment{
 			Pretext: body.Message.Markdown,
@@ -438,16 +433,17 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: body.Resource.Comment.Content,
 				},
 			},
-			Footer: body.Resource.PullRequest.Repository.Name,
+			Footer:     body.Resource.PullRequest.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
 	case constants.CodePushed:
-		commits := "None" // When no commits are present
+		commits := ""
 		for i := 0; i < len(body.Resource.Commits); i++ {
-			if i == 0 {
-				commits = ""
-			}
-
 			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+		}
+
+		if commits == "" {
+			commits = "None" // When no commits are present
 		}
 
 		attachment = &model.SlackAttachment{
@@ -455,7 +451,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
-			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, "git-branch-outline.svg"),
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.GitBranchIcon),
 		}
 	}
 

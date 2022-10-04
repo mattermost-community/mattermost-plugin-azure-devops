@@ -79,4 +79,6 @@ const (
 	WSEventConnect             = "connect"
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
+
+	GitBranchIcon = "git-branch-outline.svg"
 )

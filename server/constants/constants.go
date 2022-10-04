@@ -27,6 +27,7 @@ const (
 	CommandDisconnect   = "disconnect"
 	CommandLink         = "link"
 	CommandBoards       = "boards"
+	CommandRepos        = "repos"
 	CommandCreate       = "create"
 	CommandSubscription = "subscription"
 	CommandAdd          = "add"

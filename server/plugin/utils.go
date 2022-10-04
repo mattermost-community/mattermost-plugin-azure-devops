@@ -15,6 +15,8 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -208,15 +210,15 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }
 
-func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID string) string {
+func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID, command string) string {
 	var sb strings.Builder
 
 	if len(subscriptionsList) == 0 {
-		sb.WriteString(constants.NoSubscriptionFound)
+		sb.WriteString(fmt.Sprintf("No %s subscription exists for this channel", command))
 		return sb.String()
 	}
 
-	sb.WriteString("###### Boards subscription(s)\n")
+	sb.WriteString(fmt.Sprintf("###### %s subscription(s)\n", cases.Title(language.Und).String(command)))
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
@@ -224,31 +226,43 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	for _, subscription := range subscriptionsList {
 		displayEventType := ""
 		switch subscription.EventType {
-		case "create":
+		case constants.WorkItemCreated:
 			displayEventType = "Work Item Created"
-		case "update":
+		case constants.WorkItemUpdated:
 			displayEventType = "Work Item Updated"
-		case "delete":
+		case constants.WorkItemDeleted:
 			displayEventType = "Work Item Deleted"
+		case constants.PullRequestCreated:
+			displayEventType = "Pull Request Created"
+		case constants.PullRequestUpdated:
+			displayEventType = "Pull Request Deleted"
+		case constants.PullRequestMerged:
+			displayEventType = "Pull Request Merge Attempted"
+		case constants.PullRequestCommented:
+			displayEventType = "Pull Requested Commented"
+		case constants.CodePushed:
+			displayEventType = "Code Pushed"
 		}
 
 		if channelID == "" || subscription.ChannelID == channelID {
 			switch createdBy {
 			case constants.FilterCreatedByMe:
-				if subscription.MattermostUserID == userID {
+				if subscription.MattermostUserID == userID && subscription.ServiceType == command {
 					noSubscriptionFound = false
 					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
 				}
 			case constants.FilterCreatedByAnyone:
-				noSubscriptionFound = false
-				sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+				if subscription.ServiceType == command {
+					noSubscriptionFound = false
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+				}
 			}
 		}
 	}
 
 	if noSubscriptionFound {
 		sb.Reset()
-		sb.WriteString(constants.NoSubscriptionFound)
+		sb.WriteString(fmt.Sprintf("No %s subscription exists for this channel", command))
 	}
 
 	return sb.String()

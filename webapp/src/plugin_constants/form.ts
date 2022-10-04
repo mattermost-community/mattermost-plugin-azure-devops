@@ -45,7 +45,7 @@ export const repoEventTypeOptions: LabelValuePair[] = [
 
 const serviceTypeOptions: LabelValuePair[] = [
     {
-        value: 'board',
+        value: 'boards',
         label: 'Board',
     },
     {
@@ -73,7 +73,7 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
     },
     serviceType: {
         label: 'Service type',
-        value: 'board',
+        value: 'boards',
         type: 'dropdown',
         optionsList: serviceTypeOptions,
         validations: {

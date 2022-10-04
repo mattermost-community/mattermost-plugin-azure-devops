@@ -43,7 +43,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility, project, organization} = getSubscribeModalState(state);
+    const {visibility, project, organization, serviceType} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
@@ -113,7 +113,7 @@ const SubscribeModal = () => {
     };
 
     useEffect(() => {
-        if (formFields.serviceType === 'board') {
+        if (formFields.serviceType === 'boards') {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
         } else if (formFields.serviceType === 'repos') {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
@@ -171,6 +171,14 @@ const SubscribeModal = () => {
             {teamId: currentTeamId},
         );
     }, [visibility]);
+
+    // Autoselect serviceType based on slash command
+    useEffect(() => {
+        setSpecificFieldValue({
+            ...formFields,
+            ...{serviceType},
+        });
+    }, [serviceType]);
 
     // Set organization, project and channel list values
     useEffect(() => {

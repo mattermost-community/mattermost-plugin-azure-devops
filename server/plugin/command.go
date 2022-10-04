@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/mattermost/mattermost-plugin-api/experimental/command"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -28,6 +30,7 @@ var azureDevopsCommandHandler = Handler{
 		constants.CommandDisconnect: azureDevopsDisconnectCommand,
 		constants.CommandLink:       azureDevopsAccountConnectionCheck,
 		constants.CommandBoards:     azureDevopsBoardsCommand,
+		constants.CommandRepos:      azureDevopsReposCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -77,13 +80,17 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscription.AddCommand(subscriptionView)
 	subscription.AddCommand(subscriptionUnsubscribe)
 
-	boards := model.NewAutocompleteData(constants.CommandBoards, "", "Create a new work-item or add/list/delete subscriptions")
+	boards := model.NewAutocompleteData(constants.CommandBoards, "", "Create a new work-item or add/list/delete board subscriptions")
 	create := model.NewAutocompleteData(constants.CommandCreate, "", "Create a new work-item")
 	create.AddTextArgument("Title", "[title]", "")
 	create.AddTextArgument("Description", "[description]", "")
 	boards.AddCommand(create)
 	boards.AddCommand(subscription)
 	azureDevops.AddCommand(boards)
+
+	repos := model.NewAutocompleteData(constants.CommandRepos, "", "Add/list/delete repo subscriptions")
+	repos.AddCommand(subscription)
+	azureDevops.AddCommand(repos)
 
 	return azureDevops
 }
@@ -127,10 +134,10 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 		case constants.CommandList:
 			// For "list" command there must be at least 3 arguments
 			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
-				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, args...)
+				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandBoards, args...)
 			}
 		case constants.CommandDelete:
-			return azureDevopsUnsubscribeCommand(p, c, commandArgs, args...)
+			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandBoards, args...)
 		case constants.CommandAdd:
 			return &model.CommandResponse{}, nil
 		}
@@ -139,7 +146,32 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 	return executeDefault(p, c, commandArgs, args...)
 }
 
-func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	// Check if user's Azure DevOps account is connected
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
+	}
+
+	// Validate commands and their arguments
+	// For "subscription" command there must be at least 2 arguments
+	if len(args) >= 2 && args[0] == constants.CommandSubscription {
+		switch args[1] {
+		case constants.CommandList:
+			// For "list" command there must be at least 3 arguments
+			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
+				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandRepos, args...)
+			}
+		case constants.CommandDelete:
+			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandRepos, args...)
+		case constants.CommandAdd:
+			return &model.CommandResponse{}, nil
+		}
+	}
+
+	return executeDefault(p, c, commandArgs, args...)
+}
+
+func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
 	if len(args) < 3 {
 		return p.sendEphemeralPostForCommand(commandArgs, "Subscription ID is not provided")
 	}
@@ -152,8 +184,8 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 
 	subscriptionIDToBeDeleted := args[2]
 	for _, subscription := range subscriptionList {
-		if subscription.SubscriptionID == subscriptionIDToBeDeleted {
-			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is being deleted", subscriptionIDToBeDeleted)); err != nil {
+		if subscription.SubscriptionID == subscriptionIDToBeDeleted && subscription.ServiceType == command {
+			if _, err := p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("%s subscription with ID: %q is being deleted", cases.Title(language.Und).String(command), subscriptionIDToBeDeleted)); err != nil {
 				p.API.LogError("Error in sending ephemeral post", "Error", err.Error())
 			}
 
@@ -176,14 +208,14 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 				&model.WebsocketBroadcast{UserId: commandArgs.UserId},
 			)
 
-			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q is successfully deleted", subscriptionIDToBeDeleted))
+			return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("%s subscription with ID: %q is successfully deleted", cases.Title(language.Und).String(command), subscriptionIDToBeDeleted))
 		}
 	}
 
-	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("Boards subscription with ID: %q does not exist", subscriptionIDToBeDeleted))
+	return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("%s subscription with ID: %q does not exist", cases.Title(language.Und).String(command), subscriptionIDToBeDeleted))
 }
 
-func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
 	// If 4th argument is present then it must be "all-channels"
 	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
 		return executeDefault(p, c, commandArgs, args...)
@@ -199,7 +231,7 @@ func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandAr
 	if len(args) >= 4 && args[3] == constants.FilterAllChannels {
 		showForChannelID = ""
 	}
-	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId))
+	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId, command))
 }
 
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

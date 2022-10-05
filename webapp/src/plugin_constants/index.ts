@@ -12,6 +12,8 @@ import {
     defaultPage,
     defaultPerPageLimit,
     SubscriptionFilterCreatedBy,
+    boards,
+    repos
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterOptions} from './form';
@@ -30,6 +32,8 @@ export default {
         defaultPage,
         defaultPerPageLimit,
         SubscriptionFilterCreatedBy,
+        boards,
+        repos
     },
     form: {
         linkProjectModal,

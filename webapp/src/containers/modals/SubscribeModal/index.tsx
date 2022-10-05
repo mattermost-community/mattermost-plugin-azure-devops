@@ -113,9 +113,9 @@ const SubscribeModal = () => {
     };
 
     useEffect(() => {
-        if (formFields.serviceType === 'boards') {
+        if (formFields.serviceType === plugin_constants.common.boards) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
-        } else if (formFields.serviceType === 'repos') {
+        } else if (formFields.serviceType === plugin_constants.common.repos) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
         }
     }, [formFields.serviceType]);

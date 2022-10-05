@@ -123,8 +123,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)) {
 			isAdmin = true
 		} else {
-			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", err.Error())
-			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: constants.ErrorLinkProject})
 			return
 		}
 	}
@@ -345,8 +345,8 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
 		if filteredSubscriptionErr != nil {
-			p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
+			p.API.LogError(constants.FetchSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.ErrorFetchSubscriptionList})
 			return
 		}
 

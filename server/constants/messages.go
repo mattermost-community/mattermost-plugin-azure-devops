@@ -43,6 +43,7 @@ const (
 	InvalidAuthState                = "Invalid oauth state, please try again"
 	GetProjectListError             = "Error in getting project list"
 	ErrorFetchProjectList           = "Error in fetching project list"
+	ErrorFetchSubscriptionList      = "Error in fetching subscription list"
 	ErrorDecodingBody               = "Error in decoding body"
 	ErrorCreateTask                 = "Error in creating task"
 	ErrorLinkProject                = "Error in linking the project"

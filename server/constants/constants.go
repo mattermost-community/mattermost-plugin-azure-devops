@@ -47,18 +47,18 @@ const (
 	TasksAPIVersion      = "6.0"
 
 	// Subscription constants
-	PublisherID          = "tfs"
-	ConsumerID           = "webHooks"
-	ConsumerActionID     = "httpRequest"
-	PullRequestCreated   = "git.pullrequest.created"
-	PullRequestUpdated   = "git.pullrequest.updated"
-	PullRequestCommented = "ms.vss-code.git-pullrequest-comment-event"
-	PullRequestMerged    = "git.pullrequest.merged"
-	CodePushed           = "git.push"
-	WorkItemCreated      = "workitem.created"
-	WorkItemUpdated      = "workitem.updated"
-	WorkItemDeleted      = "workitem.deleted"
-	WorkItemCommented    = "workitem.commented"
+	PublisherID                           = "tfs"
+	ConsumerID                            = "webHooks"
+	ConsumerActionID                      = "httpRequest"
+	SubscriptionEventPullRequestCreated   = "git.pullrequest.created"
+	SubscriptionEventPullRequestUpdated   = "git.pullrequest.updated"
+	SubscriptionEventPullRequestCommented = "ms.vss-code.git-pullrequest-comment-event"
+	SubscriptionEventPullRequestMerged    = "git.pullrequest.merged"
+	SubscriptionEventCodePushed           = "git.push"
+	SubscriptionEventWorkItemCreated      = "workitem.created"
+	SubscriptionEventWorkItemUpdated      = "workitem.updated"
+	SubscriptionEventWorkItemDeleted      = "workitem.deleted"
+	SubscriptionEventWorkItemCommented    = "workitem.commented"
 
 	// Path params
 	PathParamTeamID = "team_id"
@@ -94,6 +94,6 @@ const (
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
-	GitBranchIcon = "git-branch-outline.svg"
+	GitBranchIcon = "git-branch-icon.svg"
 	ProjectIcon   = "project-icon.svg"
 )

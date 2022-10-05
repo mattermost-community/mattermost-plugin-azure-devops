@@ -378,12 +378,21 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 	var attachment *model.SlackAttachment
 	switch body.EventType {
-	case constants.WorkItemCreated, constants.WorkItemUpdated, constants.WorkItemDeleted, constants.WorkItemCommented:
+	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
 		attachment = &model.SlackAttachment{
 			Text: body.DetailedMessage.Markdown,
 		}
-	case constants.PullRequestCreated, constants.PullRequestUpdated, constants.PullRequestMerged:
+	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
 		reviewers := p.getReviewersListString(body.Resource.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.SourceRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.SourceRefName, "/")[2]
+		}
 
 		attachment = &model.SlackAttachment{
 			Pretext: body.Message.Markdown,
@@ -391,12 +400,12 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
-					Value: strings.Split(body.Resource.TargetRefName, "/")[2],
+					Value: targetBranchName,
 					Short: true,
 				},
 				{
 					Title: "Source Branch",
-					Value: strings.Split(body.Resource.SourceRefName, "/")[2],
+					Value: sourceBranchName,
 					Short: true,
 				},
 				{
@@ -407,8 +416,17 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Footer:     body.Resource.Repository.Name,
 			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
-	case constants.PullRequestCommented:
+	case constants.SubscriptionEventPullRequestCommented:
 		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.PullRequest.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.PullRequest.SourceRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
+		}
 
 		attachment = &model.SlackAttachment{
 			Pretext: body.Message.Markdown,
@@ -416,12 +434,12 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
-					Value: strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2],
+					Value: targetBranchName,
 					Short: true,
 				},
 				{
 					Title: "Source Branch",
-					Value: strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2],
+					Value: sourceBranchName,
 					Short: true,
 				},
 				{
@@ -436,7 +454,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Footer:     body.Resource.PullRequest.Repository.Name,
 			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 		}
-	case constants.CodePushed:
+	case constants.SubscriptionEventCodePushed:
 		commits := ""
 		for i := 0; i < len(body.Resource.Commits); i++ {
 			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)

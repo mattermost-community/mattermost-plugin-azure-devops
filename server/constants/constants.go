@@ -86,4 +86,6 @@ const (
 	WSEventConnect             = "connect"
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
+
+	SubscriptionEventTypeDummy = "dummy"
 )

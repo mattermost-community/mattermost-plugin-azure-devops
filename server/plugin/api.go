@@ -118,13 +118,13 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isAdmin := false
-	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdminByCreatingInvalidSubscription(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
+	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdmin(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
 	if subscriptionErr != nil {
-		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), "There is no registered handler for the service hooks event type dummy") {
+		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)) {
 			isAdmin = true
 		} else {
-			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", err.Error())
-			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: constants.ErrorLinkProject})
 			return
 		}
 	}
@@ -343,7 +343,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
 		})
 
-		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
+		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
 		if filteredSubscriptionErr != nil {
 			p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})

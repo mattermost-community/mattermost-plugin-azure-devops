@@ -456,7 +456,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	case constants.SubscriptionEventCodePushed:
 		commits := ""
 		for i := 0; i < len(body.Resource.Commits); i++ {
-			commits += fmt.Sprintf("\n[%s](%s) : **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
 		}
 
 		if commits == "" {

@@ -274,7 +274,7 @@ func TestHandleLink(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
-				mockedClient.EXPECT().CheckIfUserIsProjectAdminByCreatingInvalidSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(200, nil)
+				mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(200, nil)
 				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 					MattermostUserID: "mockMattermostUserID",
@@ -650,13 +650,13 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	p.API = mockAPI
 	p.Store = mockedStore
 	for _, testCase := range []struct {
-		description                                              string
-		subscriptionList                                         []*serializers.SubscriptionDetails
-		project                                                  string
-		err                                                      error
-		marshalError                                             error
-		GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError error
-		statusCode                                               int
+		description                                          string
+		subscriptionList                                     []*serializers.SubscriptionDetails
+		project                                              string
+		err                                                  error
+		marshalError                                         error
+		GetSubscriptionsForAccessibleChannelsOrProjectsError error
+		statusCode                                           int
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
@@ -685,7 +685,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForOnlyAccessibleChannelsOrProjects gives error",
 			project:     "mockProject",
-			GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError: errors.New("mockError"),
+			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode: http.StatusInternalServerError,
 		},
 	} {
@@ -702,8 +702,8 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return true
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForOnlyAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
-				return nil, testCase.GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
 			})
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))

@@ -34,19 +34,19 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// CheckIfUserIsProjectAdminByCreatingInvalidSubscription mocks base method
-func (m *MockClient) CheckIfUserIsProjectAdminByCreatingInvalidSubscription(arg0, arg1, arg2, arg3 string) (int, error) {
+// CheckIfUserIsProjectAdmin mocks base method
+func (m *MockClient) CheckIfUserIsProjectAdmin(arg0, arg1, arg2, arg3 string) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckIfUserIsProjectAdminByCreatingInvalidSubscription", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "CheckIfUserIsProjectAdmin", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CheckIfUserIsProjectAdminByCreatingInvalidSubscription indicates an expected call of CheckIfUserIsProjectAdminByCreatingInvalidSubscription
-func (mr *MockClientMockRecorder) CheckIfUserIsProjectAdminByCreatingInvalidSubscription(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+// CheckIfUserIsProjectAdmin indicates an expected call of CheckIfUserIsProjectAdmin
+func (mr *MockClientMockRecorder) CheckIfUserIsProjectAdmin(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckIfUserIsProjectAdminByCreatingInvalidSubscription", reflect.TypeOf((*MockClient)(nil).CheckIfUserIsProjectAdminByCreatingInvalidSubscription), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckIfUserIsProjectAdmin", reflect.TypeOf((*MockClient)(nil).CheckIfUserIsProjectAdmin), arg0, arg1, arg2, arg3)
 }
 
 // CreateSubscription mocks base method
@@ -59,16 +59,7 @@ func (m *MockClient) CreateSubscription(arg0 *serializers.CreateSubscriptionRequ
 	return ret0, ret1, ret2
 }
 
-// CheckIfUserIsProjectAdmin mocks base method.
-func (m *MockClient) CheckIfUserIsProjectAdmin(arg0, arg1, arg2, arg3 string) (int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckIfUserIsProjectAdmin", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[1].(int)
-	ret1, _ := ret[2].(error)
-	return ret0, ret1
-}
-
-// CreateSubscription indicates an expected call of CreateSubscription.
+// CreateSubscription indicates an expected call of CreateSubscription
 func (mr *MockClientMockRecorder) CreateSubscription(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockClient)(nil).CreateSubscription), arg0, arg1, arg2, arg3, arg4)

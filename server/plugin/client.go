@@ -22,7 +22,7 @@ type Client interface {
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
-	CheckIfUserIsProjectAdminByCreatingInvalidSubscription(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
+	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 }
 
 type client struct {
@@ -155,7 +155,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 // We are passing an invalid request payload for creating a subscription to check if the user who is linking this project is an admin here or not
 // If the user is an admin then we will get a response status code 400 with a message of invalid payload
 // and if the user is not an admin we will get status code 403 with a message saying "Access Denied"
-func (c *client) CheckIfUserIsProjectAdminByCreatingInvalidSubscription(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
+func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
 	publisherInputs := serializers.PublisherInputs{
@@ -163,12 +163,12 @@ func (c *client) CheckIfUserIsProjectAdminByCreatingInvalidSubscription(organiza
 	}
 
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, "dummy"),
+		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.SubscriptionEventTypeDummy),
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
 		PublisherID:      constants.PublisherID,
-		EventType:        "dummy",
+		EventType:        constants.SubscriptionEventTypeDummy,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
 		PublisherInputs:  publisherInputs,

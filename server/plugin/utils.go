@@ -276,7 +276,7 @@ func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limi
 	return page * limit, limit
 }
 
-func (p *Plugin) GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID string) ([]*serializers.SubscriptionDetails, error) {
+func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID string) ([]*serializers.SubscriptionDetails, error) {
 	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
 	if channelErr != nil {
 		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
@@ -291,7 +291,7 @@ func (p *Plugin) GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptio
 
 	var filteredSubscriptionList []*serializers.SubscriptionDetails
 	for _, subscription := range subscriptionList {
-		// For each subscripton on a project check if a user is an admin or member of the MM channel to return subscriptions
+		// For each subscription on a project check if a user is an admin or member of the MM channel to return subscriptions
 		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {
 			if projectDetails.IsAdmin {
 				filteredSubscriptionList = append(filteredSubscriptionList, subscription)

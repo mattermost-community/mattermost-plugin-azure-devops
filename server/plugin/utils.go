@@ -226,21 +226,23 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	for _, subscription := range subscriptionsList {
 		displayEventType := ""
 		switch subscription.EventType {
-		case constants.WorkItemCreated:
+		case constants.SubscriptionEventWorkItemCreated:
 			displayEventType = "Work Item Created"
-		case constants.WorkItemUpdated:
+		case constants.SubscriptionEventWorkItemUpdated:
 			displayEventType = "Work Item Updated"
-		case constants.WorkItemDeleted:
+		case constants.SubscriptionEventWorkItemDeleted:
 			displayEventType = "Work Item Deleted"
-		case constants.PullRequestCreated:
+		case constants.SubscriptionEventWorkItemCommented:
+			displayEventType = "Work Item Commented"
+		case constants.SubscriptionEventPullRequestCreated:
 			displayEventType = "Pull Request Created"
-		case constants.PullRequestUpdated:
+		case constants.SubscriptionEventPullRequestUpdated:
 			displayEventType = "Pull Request Deleted"
-		case constants.PullRequestMerged:
+		case constants.SubscriptionEventPullRequestMerged:
 			displayEventType = "Pull Request Merge Attempted"
-		case constants.PullRequestCommented:
+		case constants.SubscriptionEventPullRequestCommented:
 			displayEventType = "Pull Requested Commented"
-		case constants.CodePushed:
+		case constants.SubscriptionEventCodePushed:
 			displayEventType = "Code Pushed"
 		}
 

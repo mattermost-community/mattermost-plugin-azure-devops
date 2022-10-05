@@ -13,7 +13,7 @@ import {
     defaultPerPageLimit,
     SubscriptionFilterCreatedBy,
     boards,
-    repos
+    repos,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterOptions} from './form';
@@ -33,7 +33,7 @@ export default {
         defaultPerPageLimit,
         SubscriptionFilterCreatedBy,
         boards,
-        repos
+        repos,
     },
     form: {
         linkProjectModal,

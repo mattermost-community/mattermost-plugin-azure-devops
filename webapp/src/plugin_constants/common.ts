@@ -30,8 +30,8 @@ export const serviceTypeMap: Record<EventType, string> = {
     'git.push': 'Repos',
 };
 
-export const boards = 'boards'
-export const repos = 'repos'
+export const boards = 'boards';
+export const repos = 'repos';
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;

@@ -274,6 +274,7 @@ func TestHandleLink(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
+				mockedClient.EXPECT().CheckIfUserIsProjectAdminByCreatingInvalidSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(200, nil)
 				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 					MattermostUserID: "mockMattermostUserID",
@@ -649,12 +650,13 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	p.API = mockAPI
 	p.Store = mockedStore
 	for _, testCase := range []struct {
-		description      string
-		subscriptionList []*serializers.SubscriptionDetails
-		project          string
-		err              error
-		marshalError     error
-		statusCode       int
+		description                                              string
+		subscriptionList                                         []*serializers.SubscriptionDetails
+		project                                                  string
+		err                                                      error
+		marshalError                                             error
+		GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError error
+		statusCode                                               int
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
@@ -680,6 +682,12 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			marshalError: errors.New("mockError"),
 			statusCode:   http.StatusInternalServerError,
 		},
+		{
+			description: "HandleGetSubscriptions: GetSubscriptionsForOnlyAccessibleChannelsOrProjects gives error",
+			project:     "mockProject",
+			GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError: errors.New("mockError"),
+			statusCode: http.StatusInternalServerError,
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
@@ -688,6 +696,14 @@ func TestHandleGetSubscriptions(t *testing.T) {
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
+			})
+
+			monkey.Patch(model.IsValidId, func(_ string) bool {
+				return true
+			})
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForOnlyAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return nil, testCase.GetSubscriptionsForOnlyAccessibleChannelsOrProjectsError
 			})
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))

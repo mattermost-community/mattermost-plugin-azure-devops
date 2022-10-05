@@ -345,8 +345,8 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForOnlyAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
 		if filteredSubscriptionErr != nil {
-			p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
+			p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
 			return
 		}
 

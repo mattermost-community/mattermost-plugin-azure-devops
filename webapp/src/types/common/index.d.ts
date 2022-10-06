@@ -78,3 +78,8 @@ type ConfirmationModalErrorPanelProps = {
     title: string,
     onSecondaryBtnClick: () => void,
 }
+
+type SubscriptionFilters = {
+    createdBy: string,
+    serviceType: string
+}

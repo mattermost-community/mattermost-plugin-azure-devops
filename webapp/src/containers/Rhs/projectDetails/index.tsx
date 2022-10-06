@@ -28,7 +28,7 @@ import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
-    const {defaultPage, defaultPerPageLimit, SubscriptionFilterCreatedBy} = plugin_constants.common;
+    const {defaultPage, defaultPerPageLimit, subscriptionFilters} = plugin_constants.common;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
@@ -37,7 +37,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     });
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [filter, setFilter] = useState(SubscriptionFilterCreatedBy.me);
+    const [filter, setFilter] = useState<SubscriptionFilters>({
+        createdBy: subscriptionFilters.createdBy.me,
+        serviceType: subscriptionFilters.serviceType.boards,
+    });
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [deleteConfirmationModalError, setDeleteConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
@@ -54,7 +57,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         channel_id: showAllSubscriptions ? '' : currentChannelId,
         page: paginationQueryParams.page,
         per_page: paginationQueryParams.per_page,
-        created_by: filter,
+        created_by: filter.createdBy,
         team_id: currentTeamId,
     }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
@@ -75,7 +78,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         });
     };
 
-    const handleSetFilter = (newFilter: string) => {
+    const handleSetFilter = (newFilter: SubscriptionFilters) => {
         setFilter(newFilter);
         handlePagination(true);
     };

@@ -104,6 +104,11 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
+	
+	if pullRequestData, isValid := isValidPullRequestLink(post.Message); isValid {
+		newPost, msg := p.PostPullRequestPreview(pullRequestData, post.Message, post.UserId, post.ChannelId)
+		return newPost, msg
+	}
 	return nil, ""
 }
 
@@ -115,6 +120,19 @@ func isValidTaskLink(msg string) ([]string, bool) {
 		return nil, false
 	}
 	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Workitems || data[6] != constants.Edit {
+		return nil, false
+	}
+	return data, true
+}
+
+// Function to validate the pull request link.
+func isValidPullRequestLink(msg string) ([]string, bool) {
+	trimmedLink := strings.TrimRight(msg, "/")
+	data := strings.Split(trimmedLink, "/")
+	if len(data) != 9 {
+		return nil, false
+	}
+	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Git || data[7] != constants.PullRequest {
 		return nil, false
 	}
 	return data, true

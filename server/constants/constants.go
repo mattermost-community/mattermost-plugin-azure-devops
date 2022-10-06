@@ -40,6 +40,11 @@ const (
 	Workitems          = "_workitems"
 	Edit               = "edit"
 
+	// Get task link preview constants
+	PullRequest = "pullrequest"
+	Git         = "_git"
+	ProjectIcon = "project-icon.svg"
+
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"

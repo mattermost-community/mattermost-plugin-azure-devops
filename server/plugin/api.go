@@ -390,7 +390,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		if len(strings.Split(body.Resource.SourceRefName, "/")) == 3 {
-			targetBranchName = strings.Split(body.Resource.SourceRefName, "/")[2]
+			sourceBranchName = strings.Split(body.Resource.SourceRefName, "/")[2]
 		}
 
 		attachment = &model.SlackAttachment{
@@ -424,7 +424,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		if len(strings.Split(body.Resource.PullRequest.SourceRefName, "/")) == 3 {
-			targetBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
+			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
 		}
 
 		attachment = &model.SlackAttachment{

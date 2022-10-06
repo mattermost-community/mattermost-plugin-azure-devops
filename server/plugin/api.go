@@ -124,7 +124,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 			isAdmin = true
 		} else {
 			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: constants.ErrorLinkProject})
+			p.handleError(w, r, &serializers.Error{Code: subscriptionStatusCode, Message: constants.ErrorLinkProject})
 			return
 		}
 	}

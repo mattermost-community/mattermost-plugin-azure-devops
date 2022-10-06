@@ -683,7 +683,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			statusCode:   http.StatusInternalServerError,
 		},
 		{
-			description: "HandleGetSubscriptions: GetSubscriptionsForOnlyAccessibleChannelsOrProjects gives error",
+			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
 			project:     "mockProject",
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode: http.StatusInternalServerError,

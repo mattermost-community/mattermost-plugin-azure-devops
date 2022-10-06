@@ -51,7 +51,7 @@ const (
 	CreateSubscriptionError            = "Error in creating subscription"
 	ErrorCheckingProjectAdmin          = "Error in checking if user is an admin on the project %s"
 	ProjectNotLinked                   = "Requested project is not linked"
-	GetSubscriptionListError           = "Error getting Subscription List"
+	GetSubscriptionListError           = "Error getting subscription list"
 	SubscriptionAlreadyPresent         = "Requested subscription already exists"
 	SubscriptionNotFound               = "Requested subscription does not exists"
 	ErrorLoadingUserData               = "Error in loading user data"

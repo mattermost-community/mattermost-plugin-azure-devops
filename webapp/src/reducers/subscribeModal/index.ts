@@ -31,9 +31,12 @@ export const subscriptionModalSlice = createSlice({
         toggleIsSubscribed: (state: SubscribeModalState, action: PayloadAction<boolean>) => {
             state.isCreated = action.payload;
         },
+        setServiceType: (state: SubscribeModalState, action: PayloadAction<string>) => {
+            state.serviceType = action.payload;
+        },
     },
 });
 
-export const {toggleShowSubscribeModal, toggleIsSubscribed} = subscriptionModalSlice.actions;
+export const {toggleShowSubscribeModal, toggleIsSubscribed, setServiceType} = subscriptionModalSlice.actions;
 
 export default subscriptionModalSlice.reducer;

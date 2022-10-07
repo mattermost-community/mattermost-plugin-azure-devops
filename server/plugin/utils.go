@@ -214,7 +214,7 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	var sb strings.Builder
 
 	if len(subscriptionsList) == 0 {
-		sb.WriteString(fmt.Sprintf("No %s subscription exists for this channel", command))
+		sb.WriteString(fmt.Sprintf("No %s subscription exists", command))
 		return sb.String()
 	}
 

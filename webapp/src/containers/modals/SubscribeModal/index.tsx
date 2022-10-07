@@ -15,7 +15,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
 
-import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {setServiceType, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getSubscribeModalState} from 'selectors';
 
@@ -118,6 +118,8 @@ const SubscribeModal = () => {
         } else if (formFields.serviceType === plugin_constants.common.repos) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
         }
+
+        dispatch(setServiceType(formFields.serviceType ?? ''));
     }, [formFields.serviceType]);
 
     // Opens link project modal

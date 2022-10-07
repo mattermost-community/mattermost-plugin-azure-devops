@@ -216,7 +216,7 @@ func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *mo
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
-	// If 4th argument is present then it must be "all-channels"
+	// If 4th argument is present then it must be "all_channels"
 	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
 		return executeDefault(p, c, commandArgs, args...)
 	}

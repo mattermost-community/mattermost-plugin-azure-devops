@@ -299,6 +299,7 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 				for _, channel := range channels {
 					if subscription.ChannelID == channel.Id {
 						filteredSubscriptionList = append(filteredSubscriptionList, subscription)
+						break
 					}
 				}
 			}

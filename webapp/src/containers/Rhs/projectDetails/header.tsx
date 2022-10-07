@@ -18,7 +18,7 @@ type HeaderProps = {
     projectDetails: ProjectDetails
     showAllSubscriptions: boolean
     setShowAllSubscriptions: (active: boolean) => void
-    handlePagination: (reset: boolean, fetchList: boolean) => void
+    handlePagination: (reset: boolean) => void
     handleResetProjectDetails: () => void
     filter: string
     setFilter: (filter: string) => void
@@ -82,7 +82,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                     <ToggleSwitch
                         active={showAllSubscriptions}
                         onChange={(active) => {
-                            handlePagination(true, false);
+                            handlePagination(true);
                             setShowAllSubscriptions(active);
                         }}
                         label={'Show For All Channels'}

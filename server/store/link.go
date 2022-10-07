@@ -61,6 +61,7 @@ func (projectList *ProjectList) AddProject(userID string, project *serializers.P
 		ProjectID:        project.ProjectID,
 		ProjectName:      project.ProjectName,
 		OrganizationName: project.OrganizationName,
+		IsAdmin:          project.IsAdmin,
 	}
 	projectList.ByMattermostUserID[userID][projectKey] = projectListValue
 }

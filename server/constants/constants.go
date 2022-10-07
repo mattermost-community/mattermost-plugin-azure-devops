@@ -93,6 +93,7 @@ const (
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
-	GitBranchIcon = "git-branch-icon.svg"
-	ProjectIcon   = "project-icon.svg"
+	SubscriptionEventTypeDummy = "dummy"
+	GitBranchIcon              = "git-branch-icon.svg"
+	ProjectIcon                = "project-icon.svg"
 )

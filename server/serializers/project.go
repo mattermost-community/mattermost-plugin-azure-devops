@@ -13,6 +13,7 @@ type ProjectDetails struct {
 	ProjectID        string `json:"projectID"`
 	ProjectName      string `json:"projectName"`
 	OrganizationName string `json:"organizationName"`
+	IsAdmin          bool   `json:"isAdmin"`
 }
 
 func (t *ProjectDetails) IsValid() error {

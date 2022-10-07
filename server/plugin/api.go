@@ -338,6 +338,22 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	p.writeJSON(w, subscriptionList)
 }
 
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+	reviewers := ""
+	for i := 0; i < len(reviewersList); i++ {
+		if i != len(reviewersList)-1 {
+			reviewers += fmt.Sprintf("%s, ", reviewersList[i].DisplayName)
+		} else {
+			reviewers += reviewersList[i].DisplayName
+		}
+	}
+
+	if reviewers == "" {
+		return "None" // When no reviewers are added
+	}
+	return reviewers
+}
+
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
@@ -359,9 +375,103 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		return
 	}
 
-	attachment := &model.SlackAttachment{
-		Text: body.DetailedMessage.Markdown,
+	var attachment *model.SlackAttachment
+	switch body.EventType {
+	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
+		attachment = &model.SlackAttachment{
+			Text: body.DetailedMessage.Markdown,
+		}
+	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
+		reviewers := p.getReviewersListString(body.Resource.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.SourceRefName, "/")) == 3 {
+			sourceBranchName = strings.Split(body.Resource.SourceRefName, "/")[2]
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: targetBranchName,
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: sourceBranchName,
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+			},
+			Footer:     body.Resource.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		}
+	case constants.SubscriptionEventPullRequestCommented:
+		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.PullRequest.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.PullRequest.SourceRefName, "/")) == 3 {
+			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: targetBranchName,
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: sourceBranchName,
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+				{
+					Title: "Comment",
+					Value: body.Resource.Comment.Content,
+				},
+			},
+			Footer:     body.Resource.PullRequest.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		}
+	case constants.SubscriptionEventCodePushed:
+		commits := ""
+		for i := 0; i < len(body.Resource.Commits); i++ {
+			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+		}
+
+		if commits == "" {
+			commits = "None" // When no commits are present
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			Title:      "Commit(s)",
+			Text:       commits,
+			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.GitBranchIcon),
+		}
 	}
+
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,

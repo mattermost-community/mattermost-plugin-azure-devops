@@ -64,16 +64,21 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	QueryParamProject   = "project"
-	QueryParamChannelID = "channel_id"
-	QueryParamCreatedBy = "created_by"
-	QueryParamPage      = "page"
-	QueryParamPerPage   = "per_page"
+	QueryParamProject     = "project"
+	QueryParamChannelID   = "channel_id"
+	QueryParamCreatedBy   = "created_by"
+	QueryParamServiceType = "service_type"
+	QueryParamEventType   = "event_type"
+	QueryParamPage        = "page"
+	QueryParamPerPage     = "per_page"
 
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
 	FilterAllChannels     = "all_channels"
+	FilterAll             = "all"
+	FilterBoards          = "boards"
+	FilterRepos           = "repos"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

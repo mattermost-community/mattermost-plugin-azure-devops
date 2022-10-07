@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import plugin_constants from 'plugin_constants';
@@ -16,6 +16,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import IconButton from 'components/buttons/iconButton';
 import SVGWrapper from 'components/svgWrapper';
 import useOutsideClick from 'hooks/useClickOutside';
+import {subscriptionFilterEventTypeReposOptions} from 'plugin_constants/form';
 
 type HeaderProps = {
     projectDetails: ProjectDetails
@@ -30,13 +31,25 @@ type HeaderProps = {
 
 const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShowAllSubscriptions, handleResetProjectDetails, filter, setFilter, setSubscriptionList}: HeaderProps) => {
     const {projectName} = projectDetails;
-    const {subscriptionFilters} = plugin_constants.common;
+    const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = plugin_constants.common;
+    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = plugin_constants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
 
     const [showFilter, setShowFilter] = useState(false);
 
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
+
+    const getEventTypeOptions = useCallback((serviceType: string) => {
+        switch (serviceType) {
+        case subscriptionFilters.serviceType.boards:
+            return subscriptionFilterEventTypeBoardsOptions();
+        case subscriptionFilters.serviceType.repo:
+            return subscriptionFilterEventTypeReposOptions();
+        default:
+            return [filterLabelValuePairAll];
+        }
+    }, [filter.serviceType]);
 
     // Opens a confirmation modal to confirm unlinking a project
     const handleUnlinkProject = () => {
@@ -58,14 +71,22 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         },
     });
 
-    const isFilterApplied = () => showAllSubscriptions || filter.createdBy !== subscriptionFilters.createdBy.me || filter.serviceType !== subscriptionFilters.serviceType.boards;
+    const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
 
     const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
 
+    // Detects and close the filter popover whenever it is opened and user click outside of it
     const wrapperRef = useRef(null);
     useOutsideClick(wrapperRef, () => {
         setShowFilter(false);
     });
+
+    // Whenever "serviceType" changes make "all" option as default in "eventType"
+    useEffect(() => {
+        if (filter.eventType !== subscriptionFilters.eventType.all) {
+            setFilter({...filter, eventType: subscriptionFilters.eventType.all});
+        }
+    }, [filter.serviceType]);
 
     return (
         <>
@@ -128,21 +149,50 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                                     setFilter({...filter, createdBy: newValue});
                                     setSubscriptionList([]);
                                 }}
-                                options={plugin_constants.form.subscriptionFilterCreatedByOptions}
+                                options={subscriptionFilterCreatedByOptions}
                                 disabled={false}
                             />
                         </div>
-                        <Dropdown
-                            placeholder='Service Type'
-                            value={filter.serviceType}
-                            onChange={(newValue) => {
-                                setFilter({...filter, serviceType: newValue});
-
-                                // TODO: add logic of refreshing list while integration
-                            }}
-                            options={plugin_constants.form.subscriptionFilterServiceTypeOptions}
-                            disabled={false}
-                        />
+                        <div className='margin-bottom-15'>
+                            <Dropdown
+                                placeholder='Service Type'
+                                value={filter.serviceType}
+                                onChange={(newValue) => {
+                                    setFilter({...filter, serviceType: newValue});
+                                    setSubscriptionList([]);
+                                }}
+                                options={subscriptionFilterServiceTypeOptions}
+                                disabled={false}
+                            />
+                        </div>
+                        <div className='margin-bottom-15'>
+                            <Dropdown
+                                placeholder='Event Type'
+                                value={filter.eventType}
+                                onChange={(newValue) => {
+                                    setFilter({...filter, eventType: newValue});
+                                    setSubscriptionList([]);
+                                }}
+                                options={getEventTypeOptions(filter.serviceType)}
+                                disabled={filter.serviceType === subscriptionFilters.serviceType.all}
+                            />
+                        </div>
+                        <div className='text-align-right'>
+                            <PrimaryButton
+                                text='Reset'
+                                onClick={() => {
+                                    setFilter(defaultSubscriptionFilters);
+                                    setShowAllSubscriptions(false);
+                                }}
+                                extraClass='margin-right-8'
+                                isSecondaryButton={true}
+                                isDisabled={!isFilterApplied()}
+                            />
+                            <PrimaryButton
+                                text='Hide'
+                                onClick={() => setShowFilter(false)}
+                            />
+                        </div>
                     </div>
                 )
             }

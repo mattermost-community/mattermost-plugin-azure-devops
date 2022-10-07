@@ -1,4 +1,4 @@
-import {subscriptionFilters} from './common';
+import {subscriptionFilters, filterLabelValuePairAll} from './common';
 
 // Create subscription modal
 export const boardEventTypeOptions: LabelValuePair[] = [
@@ -222,4 +222,31 @@ export const subscriptionFilterServiceTypeOptions = [
         value: subscriptionFilters.serviceType.repo,
         label: 'Repos',
     },
+    {
+        ...filterLabelValuePairAll,
+    },
 ];
+
+export const subscriptionFilterEventTypeBoardsOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.boards).forEach((event) => options.push({
+        value: event,
+        label: subscriptionFilters.eventType.boards[event as EventTypeBoards],
+    }));
+
+    options.push(filterLabelValuePairAll);
+
+    return options;
+};
+
+export const subscriptionFilterEventTypeReposOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.repos).forEach((event) => options.push({
+        value: event,
+        label: subscriptionFilters.eventType.repos[event as EventTypeRepos],
+    }));
+
+    options.push(filterLabelValuePairAll);
+
+    return options;
+};

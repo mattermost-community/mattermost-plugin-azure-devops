@@ -14,9 +14,19 @@ import {
     subscriptionFilters,
     boards,
     repos,
+    defaultSubscriptionFilters,
+    filterLabelValuePairAll,
 } from './common';
 import {SVGIcons} from './icons';
-import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions} from './form';
+import {
+    linkProjectModal,
+    createTaskModal,
+    subscriptionModal,
+    subscriptionFilterCreatedByOptions,
+    subscriptionFilterServiceTypeOptions,
+    subscriptionFilterEventTypeBoardsOptions,
+    subscriptionFilterEventTypeReposOptions,
+} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
@@ -34,6 +44,8 @@ export default {
         subscriptionFilters,
         boards,
         repos,
+        defaultSubscriptionFilters,
+        filterLabelValuePairAll,
     },
     form: {
         linkProjectModal,
@@ -41,6 +53,8 @@ export default {
         subscriptionModal,
         subscriptionFilterCreatedByOptions,
         subscriptionFilterServiceTypeOptions,
+        subscriptionFilterEventTypeBoardsOptions,
+        subscriptionFilterEventTypeReposOptions,
     },
     messages: {
         error,

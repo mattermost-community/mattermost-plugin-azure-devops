@@ -28,7 +28,7 @@ import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
-    const {defaultPage, defaultPerPageLimit, subscriptionFilters} = plugin_constants.common;
+    const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = plugin_constants.common;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
@@ -37,10 +37,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     });
     const [subscriptionList, setSubscriptionList] = useState<SubscriptionDetails[]>([]);
     const [showAllSubscriptions, setShowAllSubscriptions] = useState(false);
-    const [filter, setFilter] = useState<SubscriptionFilters>({
-        createdBy: subscriptionFilters.createdBy.me,
-        serviceType: subscriptionFilters.serviceType.boards,
-    });
+    const [filter, setFilter] = useState<SubscriptionFilters>(defaultSubscriptionFilters);
     const [showSubscriptionConfirmationModal, setShowSubscriptionConfirmationModal] = useState(false);
     const [subscriptionToBeDeleted, setSubscriptionToBeDeleted] = useState<SubscriptionPayload>();
     const [deleteConfirmationModalError, setDeleteConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
@@ -58,6 +55,8 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         page: paginationQueryParams.page,
         per_page: paginationQueryParams.per_page,
         created_by: filter.createdBy,
+        service_type: filter.serviceType,
+        event_type: filter.eventType,
         team_id: currentTeamId,
     }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 

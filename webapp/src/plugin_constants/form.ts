@@ -1,18 +1,56 @@
 import {SubscriptionFilterCreatedBy} from './common';
 
 // Create subscription modal
-const eventTypeOptions: LabelValuePair[] = [
+export const boardEventTypeOptions: LabelValuePair[] = [
     {
-        value: 'create',
+        value: 'workitem.created',
         label: 'Create',
     },
     {
-        value: 'update',
+        value: 'workitem.updated',
         label: 'Update',
     },
     {
-        value: 'delete',
+        value: 'workitem.deleted',
         label: 'Delete',
+    },
+    {
+        value: 'workitem.commented',
+        label: 'Comment',
+    },
+];
+
+export const repoEventTypeOptions: LabelValuePair[] = [
+    {
+        value: 'git.pullrequest.created',
+        label: 'Create',
+    },
+    {
+        value: 'git.pullrequest.updated',
+        label: 'Update',
+    },
+    {
+        value: 'ms.vss-code.git-pullrequest-comment-event',
+        label: 'Comment',
+    },
+    {
+        value: 'git.push',
+        label: 'Code Push',
+    },
+    {
+        value: 'git.pullrequest.merged',
+        label: 'Merge Attempt',
+    },
+];
+
+const serviceTypeOptions: LabelValuePair[] = [
+    {
+        value: 'board',
+        label: 'Board',
+    },
+    {
+        value: 'repos',
+        label: 'Repos',
     },
 ];
 
@@ -33,11 +71,20 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
             isRequired: true,
         },
     },
+    serviceType: {
+        label: 'Service type',
+        value: 'board',
+        type: 'dropdown',
+        optionsList: serviceTypeOptions,
+        validations: {
+            isRequired: true,
+        },
+    },
     eventType: {
         label: 'Event type',
         value: '',
         type: 'dropdown',
-        optionsList: eventTypeOptions,
+        optionsList: boardEventTypeOptions,
         validations: {
             isRequired: true,
         },

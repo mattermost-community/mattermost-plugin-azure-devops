@@ -129,15 +129,9 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
 
-	statusData := map[string]string{
-		constants.Create: "workitem.created",
-		constants.Update: "workitem.updated",
-		constants.Delete: "workitem.deleted",
-	}
-
 	payload := serializers.CreateSubscriptionBodyPayload{
 		PublisherID:      constants.PublisherID,
-		EventType:        statusData[body.EventType],
+		EventType:        body.EventType,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
 		PublisherInputs:  publisherInputs,

@@ -7,10 +7,13 @@ import {
     MMCSRF,
     pluginId,
     RightSidebarHeader,
-    boardsEventTypeMap,
+    eventTypeMap,
+    serviceTypeMap,
     defaultPage,
     defaultPerPageLimit,
     subscriptionFilters,
+    boards,
+    repos,
 } from './common';
 import {SVGIcons} from './icons';
 import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions} from './form';
@@ -24,10 +27,13 @@ export default {
         HeaderCSRFToken,
         AzureDevops,
         RightSidebarHeader,
-        boardsEventTypeMap,
+        eventTypeMap,
+        serviceTypeMap,
         defaultPage,
         defaultPerPageLimit,
         subscriptionFilters,
+        boards,
+        repos,
     },
     form: {
         linkProjectModal,

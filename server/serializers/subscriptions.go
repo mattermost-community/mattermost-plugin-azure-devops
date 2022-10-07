@@ -26,6 +26,7 @@ type SubscriptionValue struct {
 	ID               string          `json:"id"`
 	URL              string          `json:"url"`
 	EventType        string          `json:"eventType"`
+	ServiceType      string          `json:"serviceType"`
 	ConsumerID       string          `json:"consumerId"`
 	ConsumerActionID string          `json:"consumerActionId"`
 	CreatedBy        UserID          `json:"createdBy"`
@@ -43,6 +44,7 @@ type CreateSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
+	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 }
 
@@ -61,6 +63,7 @@ type SubscriptionDetails struct {
 	ProjectID        string `json:"projectID"`
 	OrganizationName string `json:"organizationName"`
 	EventType        string `json:"eventType"`
+	ServiceType      string `json:"serviceType"`
 	ChannelID        string `json:"channelID"`
 	ChannelName      string `json:"channelName"`
 	ChannelType      string `json:"channelType"`
@@ -74,12 +77,64 @@ type DetailedMessage struct {
 
 type SubscriptionNotification struct {
 	DetailedMessage DetailedMessage `json:"detailedMessage"`
+	Message         DetailedMessage `json:"Message"`
+	EventType       string          `json:"eventType"`
+	Resource        Resource        `json:"resource"`
+}
+
+type Resource struct {
+	PullRequestID int          `json:"pullRequestId"`
+	Reviewers     []Reviewers  `json:"reviewers"`
+	SourceRefName string       `json:"sourceRefName"`
+	TargetRefName string       `json:"targetRefName"`
+	MergeStatus   string       `json:"mergeStatus"`
+	Title         string       `json:"title"`
+	Description   string       `json:"description"`
+	Repository    Repository   `json:"repository"`
+	Comment       Comment      `json:"comment"`
+	PullRequest   PullRequest  `json:"pullRequest"`
+	Commits       []Commit     `json:"commits"`
+	RefUpdates    []RefUpdates `json:"refUpdates"`
+}
+
+type RefUpdates struct {
+	Name string `json:"name"`
+}
+
+type Commit struct {
+	CommitID string `json:"commitId"`
+	Comment  string `json:"comment"`
+	URL      string `json:"url"`
+}
+
+type Repository struct {
+	Name string `json:"name"`
+}
+
+type PullRequest struct {
+	PullRequestID int         `json:"pullRequestId"`
+	Reviewers     []Reviewers `json:"reviewers"`
+	SourceRefName string      `json:"sourceRefName"`
+	TargetRefName string      `json:"targetRefName"`
+	MergeStatus   string      `json:"mergeStatus"`
+	Title         string      `json:"title"`
+	Description   string      `json:"description"`
+	Repository    Repository  `json:"repository"`
+}
+
+type Comment struct {
+	Content string `json:"content"`
+}
+
+type Reviewers struct {
+	DisplayName string `json:"displayName"`
 }
 
 type DeleteSubscriptionRequestPayload struct {
 	Organization string `json:"organization"`
 	Project      string `json:"project"`
 	EventType    string `json:"eventType"`
+	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 	MMUserID     string `json:"mmUserID"`
 }
@@ -117,6 +172,9 @@ func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() e
 	}
 	if t.EventType == "" {
 		return errors.New(constants.EventTypeRequired)
+	}
+	if t.ServiceType == "" {
+		return errors.New(constants.ServiceTypeRequired)
 	}
 	if t.ChannelID == "" {
 		return errors.New(constants.ChannelIDRequired)

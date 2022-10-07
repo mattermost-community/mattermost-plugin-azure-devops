@@ -15,16 +15,18 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
 
-import {toggleShowSubscribeModal} from 'reducers/subscribeModal';
+import {setServiceType, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getSubscribeModalState} from 'selectors';
 
 import Utils from 'utils';
 
 import './styles.scss';
+import {boardEventTypeOptions, repoEventTypeOptions} from 'plugin_constants/form';
 
 const SubscribeModal = () => {
-    const {subscriptionModal: subscriptionModalFields} = plugin_constants.form;
+    const {subscriptionModal} = plugin_constants.form;
+    const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
 
     // Hooks
     const {
@@ -41,7 +43,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility, project, organization} = getSubscribeModalState(state);
+    const {visibility, project, organization, serviceType} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
@@ -99,6 +101,8 @@ const SubscribeModal = () => {
             return organizationList;
         case 'project':
             return projectList.filter(({metaData}) => metaData === formFields.organization);
+        case 'serviceType':
+            return subscriptionModalFields.serviceType.optionsList;
         case 'eventType':
             return subscriptionModalFields.eventType.optionsList;
         case 'channelID':
@@ -107,6 +111,16 @@ const SubscribeModal = () => {
             return [];
         }
     };
+
+    useEffect(() => {
+        if (formFields.serviceType === plugin_constants.common.boards) {
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
+        } else if (formFields.serviceType === plugin_constants.common.repos) {
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
+        }
+
+        dispatch(setServiceType(formFields.serviceType ?? ''));
+    }, [formFields.serviceType]);
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {
@@ -159,6 +173,14 @@ const SubscribeModal = () => {
             {teamId: currentTeamId},
         );
     }, [visibility]);
+
+    // Autoselect serviceType based on slash command
+    useEffect(() => {
+        setSpecificFieldValue({
+            ...formFields,
+            ...{serviceType},
+        });
+    }, [serviceType]);
 
     // Set organization, project and channel list values
     useEffect(() => {

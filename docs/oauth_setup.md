@@ -11,7 +11,7 @@
 
   - Under "Authorized scopes" check "Work items(full)" and "Code(full)".
 
-    ![Screenshot from 2022-07-29 13-26-00](https://user-images.githubusercontent.com/100013900/181712419-3251837c-ea66-47b9-8b5b-7ae950816f2d.png)
+    ![Screenshot from 2022-10-07 12-54-13](https://user-images.githubusercontent.com/55234496/194496403-dfd54566-ae6b-4daa-96c9-6a6c7e24c296.png)
 
   - Click on "Create application".
   - On successful creation, you will be navigated to a page having App ID, App Secret, and Client Secret

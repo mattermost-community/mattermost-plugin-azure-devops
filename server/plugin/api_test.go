@@ -545,6 +545,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject",
 				"eventType": "mockEventType",
+				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
 				}`,
 			statusCode:         http.StatusOK,
@@ -557,6 +558,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				ProjectName:      "mockProject",
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
+				ServiceType:      "mockServiceType",
 				ChannelID:        "mockChannelID",
 			},
 		},
@@ -591,6 +593,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject",
 				"eventType": "mockEventType",
+				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
 				}`,
 			statusCode:         http.StatusOK,
@@ -604,6 +607,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				ProjectName:      "mockProject",
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
+				ServiceType:      "mockServiceType",
 				ChannelID:        "mockChannelID",
 			},
 		},

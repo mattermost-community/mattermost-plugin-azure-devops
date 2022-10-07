@@ -1,3 +1,4 @@
+import {boards, repos} from 'plugin_constants/common';
 import {setGlobalModalState} from 'reducers/globalModal';
 import {getCommandArgs} from 'utils';
 
@@ -32,7 +33,16 @@ export default class Hooks {
 
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards subscription add')) {
             const commandArgs = getCommandArgs(commandTrimmed);
-            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs}));
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs: [...commandArgs, boards]}));
+            return {
+                message,
+                args: contextArgs,
+            };
+        }
+
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops repos subscription add')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs: [...commandArgs, repos]}));
             return {
                 message,
                 args: contextArgs,

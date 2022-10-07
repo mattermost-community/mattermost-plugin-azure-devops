@@ -29,6 +29,7 @@ type LinkProjectModalState = {
 type SubscribeModalState = {
     visibility: boolean,
     isCreated: boolean,
+    serviceType: string,
     organization?: string | null,
     project?: string | null,
 }

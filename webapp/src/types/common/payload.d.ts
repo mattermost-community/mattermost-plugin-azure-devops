@@ -15,7 +15,8 @@ type SubscriptionPayload = {
     organization: string,
     project: string,
     eventType: string,
-    channelID: string
+    serviceType: string,
+    channelID: string,
     mmUserID: string,
 }
 

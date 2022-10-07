@@ -286,6 +286,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
+		ServiceType:      body.ServiceType,
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,

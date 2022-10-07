@@ -12,7 +12,6 @@ const (
 	CreatedTask          = "[%s #%d](%s) (%s) was successfully created by %s."
 	TaskTitle            = "[%s #%d: %s](%s)"
 	PullRequestTitle     = "[#%d: %s](%s)"
-	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
 	AlreadyLinkedProject = "This project is already linked."
 	NoProjectLinked      = "No project is linked, please link a project."
 	NoSubscriptionFound  = "No boards subscription exists for this channel"

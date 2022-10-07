@@ -128,7 +128,48 @@ func TestGetTask(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetTask("mockOrganization", "mockTaskID", "mockMattermostUSerID")
+			_, statusCode, err := p.Client.GetTask("mockOrganization", "mockTaskID", "mockProjectName", "mockMattermostUSerID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetPullRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	p.API = mockAPI
+	c := InitClient(&p)
+	p.Client = c
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetPullRequest: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetPullRequest: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetPullRequest("mockOrganization", "mockPullRequestID", "mockProjectName", "mockMattermostUSerID")
 
 			if testCase.err != nil {
 				assert.Error(t, err)

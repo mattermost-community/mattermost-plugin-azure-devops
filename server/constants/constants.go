@@ -91,4 +91,8 @@ const (
 	WSEventConnect             = "connect"
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
+
+	// Colors
+	ReposIconColor  = "#d74f27"
+	BoardsIconColor = "#53bba1"
 )

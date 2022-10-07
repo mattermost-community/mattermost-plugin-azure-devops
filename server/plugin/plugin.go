@@ -104,7 +104,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
-	
+
+	// Check if message is a pull request link.
 	if pullRequestData, isValid := isValidPullRequestLink(post.Message); isValid {
 		newPost, msg := p.PostPullRequestPreview(pullRequestData, post.Message, post.UserId, post.ChannelId)
 		return newPost, msg
@@ -114,7 +115,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 
 // Function to validate the work item link.
 func isValidTaskLink(msg string) ([]string, bool) {
-	trimmedLink := strings.TrimRight(msg, "/")
+	trimmedLink := strings.Trim(msg, " /")
+	trimmedLink = trimEmptyNewLines(trimmedLink)
 	data := strings.Split(trimmedLink, "/")
 	if len(data) != 8 {
 		return nil, false
@@ -127,7 +129,8 @@ func isValidTaskLink(msg string) ([]string, bool) {
 
 // Function to validate the pull request link.
 func isValidPullRequestLink(msg string) ([]string, bool) {
-	trimmedLink := strings.TrimRight(msg, "/")
+	trimmedLink := strings.Trim(msg, " /")
+	trimmedLink = trimEmptyNewLines(trimmedLink)
 	data := strings.Split(trimmedLink, "/")
 	if len(data) != 9 {
 		return nil, false
@@ -136,4 +139,18 @@ func isValidPullRequestLink(msg string) ([]string, bool) {
 		return nil, false
 	}
 	return data, true
+}
+
+func trimEmptyNewLines(str string) string {
+	strs := strings.Split(str, "\n")
+	str = ""
+	for _, s := range strs {
+		if len(strings.TrimSpace(s)) == 0 {
+			continue
+		}
+		str += s + "\n"
+	}
+	str = strings.TrimSuffix(str, "\n")
+
+	return str
 }

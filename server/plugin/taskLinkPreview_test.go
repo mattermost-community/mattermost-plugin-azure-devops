@@ -20,13 +20,36 @@ func TestPostTaskPreview(t *testing.T) {
 		linkData    []string
 	}{
 		{
-			description: "CreateTask: valid",
+			description: "PostTaskPreview: valid",
 			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.TaskValue{}, http.StatusOK, nil)
+			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.TaskValue{}, http.StatusOK, nil)
 			resp, err := p.PostTaskPreview(testCase.linkData, "mockUserID", "mockChannelID")
+			assert.Equal(t, "", err)
+			assert.NotNil(t, resp)
+		})
+	}
+}
+
+func TestPostPullRequestPreview(t *testing.T) {
+	p := Plugin{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description string
+		linkData    []string
+	}{
+		{
+			description: "PostPullRequestPreview: valid",
+			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.PullRequestValue{}, http.StatusOK, nil)
+			resp, err := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
 			assert.Equal(t, "", err)
 			assert.NotNil(t, resp)
 		})

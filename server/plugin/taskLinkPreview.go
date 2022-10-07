@@ -27,14 +27,31 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 		description = "No description"
 	}
 
-	taskTitle := fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href)
-	TaskPreviewMessage := fmt.Sprintf(constants.TaskPreviewMessage, task.Fields.State, assignedTo, description)
 	post := &model.Post{
 		UserId:    userID,
 		ChannelId: channelID,
 	}
 	attachment := &model.SlackAttachment{
-		Text: fmt.Sprintf("%s\n%s\n", taskTitle, TaskPreviewMessage),
+		Title: fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href),
+		Color: constants.BoardsIconColor,
+		Fields: []*model.SlackAttachmentField{
+			{
+				Title: "State",
+				Value: task.Fields.State,
+				Short: true,
+			},
+			{
+				Title: "Assigned To",
+				Value: assignedTo,
+				Short: true,
+			},
+			{
+				Title: "Description",
+				Value: description,
+			},
+		},
+		Footer:     linkData[4],
+		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 
@@ -79,6 +96,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 	reviewers := p.getReviewersListString(pullRequest.Reviewers)
 	attachment := &model.SlackAttachment{
 		Title: fmt.Sprintf(constants.PullRequestTitle, pullRequest.PullRequestID, pullRequest.Title, link),
+		Color: constants.ReposIconColor,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Target Branch",

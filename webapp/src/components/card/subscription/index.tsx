@@ -8,9 +8,7 @@ import LabelValuePair from 'components/labelValuePair';
 import SVGWrapper from 'components/svgWrapper';
 
 import plugin_constants from 'plugin_constants';
-// const boards_icon = require('../../../../../assets/boards_icon.svg')
 import './styles.scss';
-import { boards } from 'plugin_constants/common';
 
 type SubscriptionCardProps = {
     handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
@@ -21,14 +19,14 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
     <BaseCard>
         <div>
             <div className='d-flex justify-content-between align-items-center mb-1'>
-                <div className="d-flex">
+                <div className='d-flex'>
                     <span>
                         <SVGWrapper
                             width={20}
                             height={20}
                             viewBox=' 0 0 20 20'
                         >
-                            {serviceType==boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
+                            {serviceType === plugin_constants.common.boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
                         </SVGWrapper>
                     </span>
                     <p className={`ml-1 color-${serviceType}`}>{serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}</p>

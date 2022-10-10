@@ -59,3 +59,10 @@
         color: var(--error-text);
     }
 }
+
+// Do not modify this class, this is a direct class from mattermost-webapp
+// This class is used for the dimensions of author_icon in Mattermost slack attachment
+.post .attachment .attachment__author-icon {
+    width: 20px;
+    height: 20px;
+}

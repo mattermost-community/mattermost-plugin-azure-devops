@@ -408,7 +408,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	switch body.EventType {
 	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
 		attachment = &model.SlackAttachment{
-			Text: body.DetailedMessage.Markdown,
+			AuthorName: "Azure Boards",
+			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.BoardsIcon),
+			Text:       body.DetailedMessage.Markdown,
 		}
 	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
 		reviewers := p.getReviewersListString(body.Resource.Reviewers)
@@ -423,8 +425,10 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		attachment = &model.SlackAttachment{
-			Pretext: body.Message.Markdown,
-			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
+			Pretext:    body.Message.Markdown,
+			AuthorName: "Azure Repos",
+			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
@@ -457,8 +461,10 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		attachment = &model.SlackAttachment{
-			Pretext: body.Message.Markdown,
-			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
+			Pretext:    body.Message.Markdown,
+			AuthorName: "Azure Repos",
+			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
@@ -494,6 +500,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
+			AuthorName: "Azure Repos",
+			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
 			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),

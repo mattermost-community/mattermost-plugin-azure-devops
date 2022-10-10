@@ -97,4 +97,6 @@ const (
 	SubscriptionEventTypeDummy = "dummy"
 	GitBranchIcon              = "git-branch-icon.svg"
 	ProjectIcon                = "project-icon.svg"
+	ReposIcon                  = "repos-icon.svg"
+	BoardsIcon                 = "boards-icon.svg"
 )

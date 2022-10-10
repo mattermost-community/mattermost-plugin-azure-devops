@@ -44,6 +44,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Hooks
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
+    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const previousState = usePreviousState({currentChannelId});
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
@@ -54,7 +55,8 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         page: paginationQueryParams.page,
         per_page: paginationQueryParams.per_page,
         created_by: filter,
-    }), [projectName, currentChannelId, showAllSubscriptions, paginationQueryParams, filter]);
+        team_id: currentTeamId,
+    }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
     const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
@@ -62,13 +64,9 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === defaultPerPageLimit
     ), [subscriptionListReturnedByApi]);
 
-    const handlePagination = (reset = false, fetchList = true) => {
+    const handlePagination = (reset = false) => {
         if (reset) {
             setSubscriptionList([]);
-        }
-        if (reset && fetchList && paginationQueryParams.page === defaultPage) {
-            fetchSubscriptionList();
-            return;
         }
 
         setPaginationQueryParams({
@@ -93,6 +91,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             organization: subscriptionDetails.organizationName,
             project: subscriptionDetails.projectName,
             eventType: subscriptionDetails.eventType,
+            serviceType: subscriptionDetails.serviceType,
             channelID: subscriptionDetails.channelID,
             mmUserID: subscriptionDetails.mattermostUserID,
         });
@@ -154,15 +153,18 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         /**
          * If all subscriptions for a project are already loaded then do not make API calls on switching channel
          */
-        if (previousState?.currentChannelId !== currentChannelId && showAllSubscriptions) {
-            return;
+        if (previousState?.currentChannelId !== currentChannelId) {
+            if (showAllSubscriptions) {
+                return;
+            }
+            setSubscriptionList([]);
         }
+
         fetchSubscriptionList();
     }, [
-        subscriptionListApiParams.channel_id,
-        subscriptionListApiParams.project,
-        subscriptionListApiParams.page,
-        subscriptionListApiParams.created_by,
+        currentChannelId,
+        currentTeamId,
+        paginationQueryParams,
     ]);
 
     // Fetch the subscription list when new subscription is created
@@ -180,12 +182,6 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             dispatch(toggleIsSubscriptionDeleted(false));
         }
     }, [getWebsocketEventState(state).isSubscriptionDeleted]);
-
-    useEffect(() => {
-        if (!showAllSubscriptions && subscriptionList.length) {
-            handlePagination(true, false);
-        }
-    }, [currentChannelId]);
 
     const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 

@@ -274,6 +274,7 @@ func TestHandleLink(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
+				mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
 				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 					MattermostUserID: "mockMattermostUserID",
@@ -544,6 +545,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject",
 				"eventType": "mockEventType",
+				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
 				}`,
 			statusCode:         http.StatusOK,
@@ -556,6 +558,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				ProjectName:      "mockProject",
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
+				ServiceType:      "mockServiceType",
 				ChannelID:        "mockChannelID",
 			},
 		},
@@ -590,6 +593,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject",
 				"eventType": "mockEventType",
+				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
 				}`,
 			statusCode:         http.StatusOK,
@@ -603,6 +607,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				ProjectName:      "mockProject",
 				OrganizationName: "mockOrganization",
 				EventType:        "mockEventType",
+				ServiceType:      "mockServiceType",
 				ChannelID:        "mockChannelID",
 			},
 		},
@@ -649,45 +654,74 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	p.API = mockAPI
 	p.Store = mockedStore
 	for _, testCase := range []struct {
-		description      string
-		subscriptionList []*serializers.SubscriptionDetails
-		project          string
-		err              error
-		marshalError     error
-		statusCode       int
+		description                                          string
+		subscriptionList                                     []*serializers.SubscriptionDetails
+		project                                              string
+		err                                                  error
+		marshalError                                         error
+		GetSubscriptionsForAccessibleChannelsOrProjectsError error
+		statusCode                                           int
+		isTeamIDValid                                        bool
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
 			subscriptionList: []*serializers.SubscriptionDetails{},
 			statusCode:       http.StatusOK,
+			isTeamIDValid:    true,
 		},
 		{
-			description: "HandleGetSubscriptions: project as a query param",
+			description:   "HandleGetSubscriptions: project as a query param",
+			project:       "mockProject",
+			statusCode:    http.StatusOK,
+			isTeamIDValid: true,
+		},
+		{
+			description:   "HandleGetSubscriptions: error while fetching subscription list",
+			err:           errors.New("mockError"),
+			statusCode:    http.StatusInternalServerError,
+			isTeamIDValid: true,
+		},
+		{
+			description:   "HandleGetSubscriptions: empty subscription list",
+			statusCode:    http.StatusOK,
+			isTeamIDValid: true,
+		},
+		{
+			description:   "HandleGetSubscriptions: marshaling gives error",
+			marshalError:  errors.New("mockError"),
+			statusCode:    http.StatusInternalServerError,
+			isTeamIDValid: true,
+		},
+		{
+			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
 			project:     "mockProject",
-			statusCode:  http.StatusOK,
+			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
+			statusCode:    http.StatusInternalServerError,
+			isTeamIDValid: true,
 		},
 		{
-			description: "HandleGetSubscriptions: error while fetching subscription list",
-			err:         errors.New("mockError"),
-			statusCode:  http.StatusInternalServerError,
-		},
-		{
-			description: "HandleGetSubscriptions: empty subscription list",
-			statusCode:  http.StatusOK,
-		},
-		{
-			description:  "HandleGetSubscriptions: marshaling gives error",
-			marshalError: errors.New("mockError"),
-			statusCode:   http.StatusInternalServerError,
+			description:   "HandleGetSubscriptions: Team ID is invalid",
+			statusCode:    http.StatusBadRequest,
+			isTeamIDValid: false,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
-			mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, testCase.err)
+			if testCase.isTeamIDValid {
+				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, testCase.err)
+			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
+			})
+
+			monkey.Patch(model.IsValidId, func(_ string) bool {
+				return testCase.isTeamIDValid
+			})
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
 			})
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))

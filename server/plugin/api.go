@@ -43,7 +43,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathUnlinkProject, p.handleAuthRequired(p.checkOAuth(p.handleUnlinkProject))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathUser, p.handleAuthRequired(p.checkOAuth(p.handleGetUserAccountDetails))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleCreateSubscription))).Methods(http.MethodPost)
-	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
@@ -117,11 +117,24 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isAdmin := false
+	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdmin(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
+	if subscriptionErr != nil {
+		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)) {
+			isAdmin = true
+		} else {
+			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: subscriptionStatusCode, Message: constants.ErrorLinkProject})
+			return
+		}
+	}
+
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
 		ProjectName:      response.Name,
 		OrganizationName: body.Organization,
+		IsAdmin:          isAdmin,
 	}
 
 	if storeErr := p.Store.StoreProject(&project); storeErr != nil {
@@ -273,6 +286,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ProjectID:        subscription.PublisherInputs.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
+		ServiceType:      body.ServiceType,
 		ChannelID:        body.ChannelID,
 		SubscriptionID:   subscription.ID,
 		ChannelName:      channel.DisplayName,
@@ -288,6 +302,14 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 
 func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	teamID := pathParams[constants.PathParamTeamID]
+	if !model.IsValidId(teamID) {
+		p.API.LogError("Invalid team id")
+		http.Error(w, "Invalid team id", http.StatusBadRequest)
+		return
+	}
 
 	var subscriptionList []*serializers.SubscriptionDetails
 	var subscriptionErr error
@@ -322,8 +344,15 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
 		})
 
+		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
+		if filteredSubscriptionErr != nil {
+			p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
+			return
+		}
+
 		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
-		for index, subscription := range subscriptionByProject {
+		for index, subscription := range filteredSubscriptionList {
 			if len(paginatedSubscriptions) == limit {
 				break
 			}
@@ -336,6 +365,22 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	}
 
 	p.writeJSON(w, subscriptionList)
+}
+
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+	reviewers := ""
+	for i := 0; i < len(reviewersList); i++ {
+		if i != len(reviewersList)-1 {
+			reviewers += fmt.Sprintf("%s, ", reviewersList[i].DisplayName)
+		} else {
+			reviewers += reviewersList[i].DisplayName
+		}
+	}
+
+	if reviewers == "" {
+		return "None" // When no reviewers are added
+	}
+	return reviewers
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
@@ -359,9 +404,103 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		return
 	}
 
-	attachment := &model.SlackAttachment{
-		Text: body.DetailedMessage.Markdown,
+	var attachment *model.SlackAttachment
+	switch body.EventType {
+	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
+		attachment = &model.SlackAttachment{
+			Text: body.DetailedMessage.Markdown,
+		}
+	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
+		reviewers := p.getReviewersListString(body.Resource.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.SourceRefName, "/")) == 3 {
+			sourceBranchName = strings.Split(body.Resource.SourceRefName, "/")[2]
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: targetBranchName,
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: sourceBranchName,
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+			},
+			Footer:     body.Resource.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		}
+	case constants.SubscriptionEventPullRequestCommented:
+		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
+
+		var targetBranchName, sourceBranchName string
+		if len(strings.Split(body.Resource.PullRequest.TargetRefName, "/")) == 3 {
+			targetBranchName = strings.Split(body.Resource.PullRequest.TargetRefName, "/")[2]
+		}
+
+		if len(strings.Split(body.Resource.PullRequest.SourceRefName, "/")) == 3 {
+			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext: body.Message.Markdown,
+			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Target Branch",
+					Value: targetBranchName,
+					Short: true,
+				},
+				{
+					Title: "Source Branch",
+					Value: sourceBranchName,
+					Short: true,
+				},
+				{
+					Title: "Reviewer(s)",
+					Value: reviewers,
+				},
+				{
+					Title: "Comment",
+					Value: body.Resource.Comment.Content,
+				},
+			},
+			Footer:     body.Resource.PullRequest.Repository.Name,
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		}
+	case constants.SubscriptionEventCodePushed:
+		commits := ""
+		for i := 0; i < len(body.Resource.Commits); i++ {
+			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+		}
+
+		if commits == "" {
+			commits = "None" // When no commits are present
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			Title:      "Commit(s)",
+			Text:       commits,
+			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
+			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.GitBranchIcon),
+		}
 	}
+
 	post := &model.Post{
 		UserId:    p.botUserID,
 		ChannelId: channelID,

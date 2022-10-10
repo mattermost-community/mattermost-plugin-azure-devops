@@ -13,6 +13,7 @@ const (
 	PathCreateTasks               = "/tasks"
 	PathLinkProject               = "/link"
 	PathSubscriptions             = "/subscriptions"
+	PathGetSubscriptions          = "/subscriptions/{team_id:[A-Za-z0-9]+}"
 	PathSubscriptionNotifications = "/notification"
 	PathGetUserChannelsForTeam    = "/channels/{team_id:[A-Za-z0-9]+}"
 

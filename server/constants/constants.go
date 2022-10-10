@@ -27,6 +27,7 @@ const (
 	CommandDisconnect   = "disconnect"
 	CommandLink         = "link"
 	CommandBoards       = "boards"
+	CommandRepos        = "repos"
 	CommandCreate       = "create"
 	CommandSubscription = "subscription"
 	CommandAdd          = "add"
@@ -43,7 +44,6 @@ const (
 	// Get task link preview constants
 	PullRequest = "pullrequest"
 	Git         = "_git"
-	ProjectIcon = "project-icon.svg"
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
@@ -51,12 +51,18 @@ const (
 	TasksAPIVersion      = "6.0"
 
 	// Subscription constants
-	PublisherID      = "tfs"
-	ConsumerID       = "webHooks"
-	ConsumerActionID = "httpRequest"
-	Create           = "create"
-	Update           = "update"
-	Delete           = "delete"
+	PublisherID                           = "tfs"
+	ConsumerID                            = "webHooks"
+	ConsumerActionID                      = "httpRequest"
+	SubscriptionEventPullRequestCreated   = "git.pullrequest.created"
+	SubscriptionEventPullRequestUpdated   = "git.pullrequest.updated"
+	SubscriptionEventPullRequestCommented = "ms.vss-code.git-pullrequest-comment-event"
+	SubscriptionEventPullRequestMerged    = "git.pullrequest.merged"
+	SubscriptionEventCodePushed           = "git.push"
+	SubscriptionEventWorkItemCreated      = "workitem.created"
+	SubscriptionEventWorkItemUpdated      = "workitem.updated"
+	SubscriptionEventWorkItemDeleted      = "workitem.deleted"
+	SubscriptionEventWorkItemCommented    = "workitem.commented"
 
 	// Path params
 	PathParamTeamID = "team_id"
@@ -93,6 +99,9 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	ReposIconColor  = "#d74f27"
-	BoardsIconColor = "#53bba1"
+	ReposIconColor             = "#d74f27"
+	BoardsIconColor            = "#53bba1"
+	SubscriptionEventTypeDummy = "dummy"
+	GitBranchIcon              = "git-branch-icon.svg"
+	ProjectIcon                = "project-icon.svg"
 )

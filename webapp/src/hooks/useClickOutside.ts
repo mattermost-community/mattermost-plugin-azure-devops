@@ -1,13 +1,9 @@
 import {useEffect} from 'react';
 
-/**
- * Hook that detects clicks outside of the passed ref
- */
+// Hook that detects clicks outside of the passed ref
 function useOutsideClick(ref: React.RefObject<HTMLInputElement>, handleOnClickOutside: () => void) {
     useEffect(() => {
-        /**
-         * Check if clicked on outside of element
-         */
+        // Check if clicked on outside of element
         function handleClickOutside(event: MouseEvent) {
             if (ref.current && !ref.current.contains(event.target as unknown as Node)) {
                 handleOnClickOutside();

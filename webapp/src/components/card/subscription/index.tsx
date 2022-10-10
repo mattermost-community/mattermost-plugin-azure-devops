@@ -18,18 +18,16 @@ type SubscriptionCardProps = {
 const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <div>
-            <div className='d-flex justify-content-between align-items-center mb-1'>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
                 <div className='d-flex'>
-                    <span>
-                        <SVGWrapper
-                            width={20}
-                            height={20}
-                            viewBox=' 0 0 20 20'
-                        >
-                            {serviceType === plugin_constants.common.boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
-                        </SVGWrapper>
-                    </span>
-                    <p className={`ml-1 color-${serviceType}`}>{serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}</p>
+                    <SVGWrapper
+                        width={20}
+                        height={20}
+                        viewBox=' 0 0 20 20'
+                    >
+                        {serviceType === plugin_constants.common.boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
+                    </SVGWrapper>
+                    <p className={`ml-1 mb-0 font-bold color-${serviceType}`}>{serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}</p>
                 </div>
                 <div className='button-wrapper'>
                     <IconButton

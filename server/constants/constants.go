@@ -99,4 +99,9 @@ const (
 	ProjectIcon                = "project-icon.svg"
 	ReposIcon                  = "repos-icon.svg"
 	BoardsIcon                 = "boards-icon.svg"
+	BoardsIconColor            = "#53bba1"
+	ReposIconColor             = "#d74f27"
+
+	ReposAuthorName  = "Azure Repos"
+	BoardsAuthorName = "Azure Boards"
 )

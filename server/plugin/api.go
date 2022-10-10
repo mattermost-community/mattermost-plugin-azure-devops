@@ -408,8 +408,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	switch body.EventType {
 	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
 		attachment = &model.SlackAttachment{
-			AuthorName: "Azure Boards",
+			AuthorName: constants.BoardsAuthorName,
 			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.BoardsIcon),
+			Color:      constants.BoardsIconColor,
 			Text:       body.DetailedMessage.Markdown,
 		}
 	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
@@ -426,8 +427,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
-			AuthorName: "Azure Repos",
+			AuthorName: constants.ReposAuthorName,
 			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+			Color:      constants.ReposIconColor,
 			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
@@ -462,8 +464,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
-			AuthorName: "Azure Repos",
+			AuthorName: constants.ReposAuthorName,
 			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+			Color:      constants.ReposIconColor,
 			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
@@ -500,8 +503,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
-			AuthorName: "Azure Repos",
+			AuthorName: constants.ReposAuthorName,
 			AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+			Color:      constants.ReposIconColor,
 			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),

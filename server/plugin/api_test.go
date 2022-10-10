@@ -708,7 +708,8 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
 			project:     "mockProject",
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
-			statusCode: http.StatusInternalServerError,
+			statusCode:    http.StatusInternalServerError,
+			isTeamIDValid: true,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

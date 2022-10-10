@@ -367,7 +367,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	p.writeJSON(w, subscriptionList)
 }
 
-func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {
 	reviewers := ""
 	for i := 0; i < len(reviewersList); i++ {
 		if i != len(reviewersList)-1 {

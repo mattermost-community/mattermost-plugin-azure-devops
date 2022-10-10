@@ -48,7 +48,7 @@ func TestPostPullRequestPreview(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.PullRequestValue{}, http.StatusOK, nil)
+			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.PullRequest{}, http.StatusOK, nil)
 			resp, err := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
 			assert.Equal(t, "", err)
 			assert.NotNil(t, resp)

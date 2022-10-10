@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 )
 
@@ -56,22 +55,6 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 
 	return post, ""
-}
-
-func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {
-	reviewers := ""
-	for i := 0; i < len(reviewersList); i++ {
-		if i != len(reviewersList)-1 {
-			reviewers += fmt.Sprintf("%s, ", reviewersList[i].DisplayName)
-		} else {
-			reviewers += reviewersList[i].DisplayName
-		}
-	}
-
-	if reviewers == "" {
-		return "None" // When no reviewers are added
-	}
-	return reviewers
 }
 
 func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {

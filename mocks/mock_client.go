@@ -113,10 +113,10 @@ func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.C
 }
 
 // GetPullRequest mocks base method
-func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequestValue, int, error) {
+func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPullRequest", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*serializers.PullRequestValue)
+	ret0, _ := ret[0].(*serializers.PullRequest)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

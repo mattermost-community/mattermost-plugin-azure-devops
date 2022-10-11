@@ -42,6 +42,7 @@ func TestMessageWillBePosted(t *testing.T) {
 		pullRequestData        []string
 		isValidTaskLink        bool
 		isValidPullRequestLink bool
+		pullRequestLink        string
 	}{
 		{
 			description:     "test change post for valid link",
@@ -54,6 +55,7 @@ func TestMessageWillBePosted(t *testing.T) {
 			pullRequestData:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			message:                "mockMessage",
 			isValidPullRequestLink: true,
+			pullRequestLink:        "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 		},
 		{
 			description: "MessageWillBePosted: invalid link",
@@ -66,8 +68,8 @@ func TestMessageWillBePosted(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "PostTaskPreview", func(_ *Plugin, _ []string, _, _ string) (*model.Post, string) {
 				return &model.Post{}, testCase.message
 			})
-			monkey.Patch(isValidPullRequestLink, func(_ string) ([]string, bool) {
-				return testCase.pullRequestData, testCase.isValidPullRequestLink
+			monkey.Patch(isValidPullRequestLink, func(_ string) ([]string, string, bool) {
+				return testCase.pullRequestData, testCase.pullRequestLink, testCase.isValidPullRequestLink
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "PostPullRequestPreview", func(_ *Plugin, _ []string, _, _, _ string) (*model.Post, string) {
 				return &model.Post{}, testCase.message
@@ -96,6 +98,7 @@ func TestIsValidTaskLink(t *testing.T) {
 		msg          string
 		expectedData []string
 		isValid      bool
+		expectedLink string
 	}{
 		{
 			description:  "IsValidTaskLink: valid link 1",
@@ -112,6 +115,12 @@ func TestIsValidTaskLink(t *testing.T) {
 		{
 			description:  "IsValidTaskLink: valid link 3",
 			msg:          "http://dev.azure.com/abc/xyz/_workitems/edit/1",
+			expectedData: []string{"http:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
+			isValid:      true,
+		},
+		{
+			description:  "IsValidTaskLink: valid link 4",
+			msg:          "\n\nhttp://dev.azure.com/abc/xyz/_workitems/edit/1   mock-text",
 			expectedData: []string{"http:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 			isValid:      true,
 		},
@@ -146,24 +155,35 @@ func TestIsValidPullRequestLink(t *testing.T) {
 		msg          string
 		expectedData []string
 		isValid      bool
+		expectedLink string
 	}{
 		{
 			description:  "IsValidPullRequestLink: valid link 1",
 			msg:          "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1/",
 			expectedData: []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			isValid:      true,
+			expectedLink: "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 		},
 		{
 			description:  "IsValidPullRequestLink: valid link 2",
 			msg:          "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 			expectedData: []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			isValid:      true,
+			expectedLink: "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 		},
 		{
 			description:  "IsValidPullRequestLink: valid link 3",
 			msg:          "http://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 			expectedData: []string{"http:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			isValid:      true,
+			expectedLink: "http://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
+		},
+		{
+			description:  "IsValidPullRequestLink: valid link 4",
+			msg:          "\n\nhttp://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1   mock-text",
+			expectedData: []string{"http:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			isValid:      true,
+			expectedLink: "http://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
 		},
 		{
 			description: "IsValidPullRequestLink: invalid link 1",
@@ -183,9 +203,10 @@ func TestIsValidPullRequestLink(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			data, isValid := isValidPullRequestLink(testCase.msg)
+			data, link, isValid := isValidPullRequestLink(testCase.msg)
 			assert.Equal(t, testCase.expectedData, data)
 			assert.Equal(t, testCase.isValid, isValid)
+			assert.Equal(t, link, testCase.expectedLink)
 		})
 	}
 }

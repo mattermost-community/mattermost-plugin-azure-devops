@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -106,8 +107,8 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	// Check if message is a pull request link.
-	if pullRequestData, isValid := isValidPullRequestLink(post.Message); isValid {
-		newPost, msg := p.PostPullRequestPreview(pullRequestData, post.Message, post.UserId, post.ChannelId)
+	if pullRequestData, link, isValid := isValidPullRequestLink(post.Message); isValid {
+		newPost, msg := p.PostPullRequestPreview(pullRequestData, link, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
 	return nil, ""
@@ -115,9 +116,9 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 
 // Function to validate the work item link.
 func isValidTaskLink(msg string) ([]string, bool) {
-	trimmedLink := strings.Trim(msg, " /")
-	trimmedLink = trimEmptyNewLines(trimmedLink)
-	data := strings.Split(trimmedLink, "/")
+	taskRegex := regexp.MustCompile(constants.TaskRegex)
+	link := taskRegex.FindString(msg)
+	data := strings.Split(link, "/")
 	if len(data) != 8 {
 		return nil, false
 	}
@@ -128,29 +129,15 @@ func isValidTaskLink(msg string) ([]string, bool) {
 }
 
 // Function to validate the pull request link.
-func isValidPullRequestLink(msg string) ([]string, bool) {
-	trimmedLink := strings.Trim(msg, " /")
-	trimmedLink = trimEmptyNewLines(trimmedLink)
-	data := strings.Split(trimmedLink, "/")
+func isValidPullRequestLink(msg string) ([]string, string, bool) {
+	pullRequestRegex := regexp.MustCompile(constants.PullRequestRegex)
+	link := pullRequestRegex.FindString(msg)
+	data := strings.Split(link, "/")
 	if len(data) != 9 {
-		return nil, false
+		return nil, "", false
 	}
 	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Git || data[7] != constants.PullRequest {
-		return nil, false
+		return nil, "", false
 	}
-	return data, true
-}
-
-func trimEmptyNewLines(str string) string {
-	strs := strings.Split(str, "\n")
-	str = ""
-	for _, s := range strs {
-		if len(strings.TrimSpace(s)) == 0 {
-			continue
-		}
-		str += s + "\n"
-	}
-	str = strings.TrimSuffix(str, "\n")
-
-	return str
+	return data, link, true
 }

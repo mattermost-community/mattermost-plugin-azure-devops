@@ -40,10 +40,12 @@ const (
 	AzureDevopsBaseURL = "dev.azure.com"
 	Workitems          = "_workitems"
 	Edit               = "edit"
-
-	// Get task link preview constants
-	PullRequest = "pullrequest"
-	Git         = "_git"
+	TaskRegex          = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_workitems\/edit\/[0-9]*`
+	
+	// Get pull request link preview constants
+	PullRequest      = "pullrequest"
+	Git              = "_git"
+	PullRequestRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_git\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/pullrequest\/[0-9]*`
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
@@ -99,8 +101,9 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	ReposIconColor             = "#d74f27"
-	BoardsIconColor            = "#53bba1"
+	ReposIconColor  = "#d74f27"
+	BoardsIconColor = "#53bba1"
+
 	SubscriptionEventTypeDummy = "dummy"
 	GitBranchIcon              = "git-branch-icon.svg"
 	ProjectIcon                = "project-icon.svg"

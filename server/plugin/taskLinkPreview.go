@@ -53,7 +53,6 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-
 	return post, ""
 }
 

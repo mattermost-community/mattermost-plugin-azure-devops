@@ -90,7 +90,7 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 
 // Function to get the task.
 func (c *client) GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error) {
-	taskURL := fmt.Sprintf(constants.GetTask, organization, taskID)
+	taskURL := fmt.Sprintf(constants.GetTask, organization, projectName, taskID)
 
 	var task *serializers.TaskValue
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil)
@@ -103,7 +103,7 @@ func (c *client) GetTask(organization, taskID, projectName, mattermostUserID str
 
 // Function to get the pull request.
 func (c *client) GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error) {
-	pullRequestURL := fmt.Sprintf(constants.GetPullRequest, organization, pullRequestID)
+	pullRequestURL := fmt.Sprintf(constants.GetPullRequest, organization, projectName, pullRequestID)
 
 	var pullRequest *serializers.PullRequest
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pullRequestURL, http.MethodGet, mattermostUserID, nil, &pullRequest, nil)

@@ -101,43 +101,28 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	// Check if message contains a work item link.
-	if taskData, isValid := isValidTaskLink(post.Message); isValid {
+	if taskData, _, isValid := IsLinkPresent(post.Message, constants.TaskLinkRegex); isValid {
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
 
 	// Check if message contains a pull request link.
-	if pullRequestData, link, isValid := isValidPullRequestLink(post.Message); isValid {
+	if pullRequestData, link, isValid := IsLinkPresent(post.Message, constants.PullRequestLinkRegex); isValid {
 		newPost, msg := p.PostPullRequestPreview(pullRequestData, link, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
+
 	return nil, ""
 }
 
-// Function to validate the work item link.
-func isValidTaskLink(msg string) ([]string, bool) {
-	taskRegex := regexp.MustCompile(constants.TaskRegex)
-	link := taskRegex.FindString(msg)
-	data := strings.Split(link, "/")
-	if len(data) != 8 {
-		return nil, false
+// Function to check if link is present in the message and return link data
+func IsLinkPresent(msg string, regex string) ([]string, string, bool) {
+	linkRegex := regexp.MustCompile(regex)
+	link := linkRegex.FindString(msg)
+	if link == "" {
+		return nil, "", false
 	}
-	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Workitems || data[6] != constants.Edit {
-		return nil, false
-	}
-	return data, true
-}
 
-// Function to validate the pull request link.
-func isValidPullRequestLink(msg string) ([]string, string, bool) {
-	pullRequestRegex := regexp.MustCompile(constants.PullRequestRegex)
-	link := pullRequestRegex.FindString(msg)
 	data := strings.Split(link, "/")
-	if len(data) != 9 {
-		return nil, "", false
-	}
-	if (data[0] != constants.HTTPS && data[0] != constants.HTTP) || data[2] != constants.AzureDevopsBaseURL || data[5] != constants.Git || data[7] != constants.PullRequest {
-		return nil, "", false
-	}
 	return data, link, true
 }

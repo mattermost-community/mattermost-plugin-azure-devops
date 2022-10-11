@@ -122,6 +122,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	if subscriptionErr != nil {
 		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)) {
 			isAdmin = true
+		} else if subscriptionStatusCode == http.StatusForbidden && strings.Contains(subscriptionErr.Error(), constants.AccessDenied) {
+			isAdmin = false
 		} else {
 			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
 			p.handleError(w, r, &serializers.Error{Code: subscriptionStatusCode, Message: constants.ErrorLinkProject})

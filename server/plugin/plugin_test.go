@@ -44,13 +44,13 @@ func TestMessageWillBePosted(t *testing.T) {
 		link        string
 	}{
 		{
-			description: "test change post for valid link",
+			description: "MessageWillBePosted: test change post for valid link",
 			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
 			message:     "mockMessage",
 			isValidLink: true,
 		},
 		{
-			description: "test change post for valid link",
+			description: "MessageWillBePosted: test change post for valid link",
 			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			message:     "mockMessage",
 			isValidLink: true,

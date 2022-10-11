@@ -99,6 +99,18 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 	p.router.ServeHTTP(w, r)
 }
 
+// Function to check if link is present in the message and return link data
+func IsLinkPresent(msg string, regex string) ([]string, string, bool) {
+	linkRegex := regexp.MustCompile(regex)
+	link := linkRegex.FindString(msg)
+	if link == "" {
+		return nil, "", false
+	}
+
+	data := strings.Split(link, "/")
+	return data, link, true
+}
+
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
 	// Check if message contains a work item link.
 	if taskData, _, isValid := IsLinkPresent(post.Message, constants.TaskLinkRegex); isValid {
@@ -113,16 +125,4 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	}
 
 	return nil, ""
-}
-
-// Function to check if link is present in the message and return link data
-func IsLinkPresent(msg string, regex string) ([]string, string, bool) {
-	linkRegex := regexp.MustCompile(regex)
-	link := linkRegex.FindString(msg)
-	if link == "" {
-		return nil, "", false
-	}
-
-	data := strings.Split(link, "/")
-	return data, link, true
 }

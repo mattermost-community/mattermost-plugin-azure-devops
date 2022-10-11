@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +15,7 @@ import (
 	"bou.ke/monkey"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/golang/mock/gomock"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -612,6 +614,104 @@ func TestGetConnectAccountFirstMessage(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			resp := p.getConnectAccountFirstMessage()
 			assert.NotNil(t, resp)
+		})
+	}
+}
+
+func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	p.API = mockAPI
+	for _, testCase := range []struct {
+		description       string
+		project           string
+		queryParamPage    string
+		queryParamPerPage string
+		expectedOffset    int
+		expectedLimit     int
+	}{
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: valid page and per_page query params",
+			project:           "mockProject",
+			queryParamPage:    "1",
+			queryParamPerPage: "10",
+			expectedOffset:    10,
+			expectedLimit:     10,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: empty page and per_page query params",
+			project:           "mockProject",
+			queryParamPage:    "",
+			queryParamPerPage: "",
+			expectedOffset:    0,
+			expectedLimit:     constants.DefaultPerPageLimit,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: invalid page query param",
+			project:           "mockProject",
+			queryParamPage:    "invalidNonIntegerString",
+			queryParamPerPage: "10",
+			expectedOffset:    0,
+			expectedLimit:     10,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: invalid per_page query param",
+			project:           "mockProject",
+			queryParamPage:    "1",
+			queryParamPerPage: "invalidNonIntegerString",
+			expectedOffset:    constants.DefaultPerPageLimit,
+			expectedLimit:     constants.DefaultPerPageLimit,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, testCase.project, testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+
+			offset, limit := p.GetOffsetAndLimitFromQueryParams(req)
+
+			assert.Equal(t, testCase.expectedOffset, offset)
+			assert.Equal(t, testCase.expectedLimit, limit)
+		})
+	}
+}
+
+func TestParseSubscriptionsToCommandResponse(t *testing.T) {
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	p.API = mockAPI
+	for _, testCase := range []struct {
+		description       string
+		subscriptionsList []*serializers.SubscriptionDetails
+		channelID         string
+		createdBy         string
+		userID            string
+		command           string
+		message           string
+	}{
+		{
+			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
+			channelID:         "mockChannelID",
+			createdBy:         "mockUser",
+			userID:            "mockUserID",
+			command:           constants.CommandRepos,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			message:           fmt.Sprintf("No %s subscription exists", constants.CommandRepos),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: empty boards subscription list",
+			channelID:         "mockChannelID",
+			createdBy:         "mockUser",
+			userID:            "mockUserID",
+			command:           constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			message:           fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, testCase.channelID, testCase.createdBy, testCase.userID, testCase.command)
+			assert.Equal(t, testCase.message, message)
 		})
 	}
 }

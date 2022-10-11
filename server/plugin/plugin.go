@@ -100,13 +100,13 @@ func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Req
 }
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	// Check if message is a work item link.
+	// Check if message contains a work item link.
 	if taskData, isValid := isValidTaskLink(post.Message); isValid {
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
 
-	// Check if message is a pull request link.
+	// Check if message contains a pull request link.
 	if pullRequestData, link, isValid := isValidPullRequestLink(post.Message); isValid {
 		newPost, msg := p.PostPullRequestPreview(pullRequestData, link, post.UserId, post.ChannelId)
 		return newPost, msg

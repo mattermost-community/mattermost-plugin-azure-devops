@@ -41,7 +41,7 @@ const (
 	Workitems          = "_workitems"
 	Edit               = "edit"
 	TaskRegex          = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_workitems\/edit\/[0-9]*`
-	
+
 	// Get pull request link preview constants
 	PullRequest      = "pullrequest"
 	Git              = "_git"

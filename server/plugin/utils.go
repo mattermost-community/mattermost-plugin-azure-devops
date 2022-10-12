@@ -216,6 +216,8 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID)
 	if filteredSubscriptionErr != nil {
 		p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+		sb.WriteString(constants.GenericErrorMessage)
+		return sb.String()
 	}
 
 	if len(filteredSubscriptionList) == 0 {

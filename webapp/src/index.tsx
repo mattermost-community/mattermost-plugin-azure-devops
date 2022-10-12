@@ -7,7 +7,7 @@ import reducer from 'reducers';
 
 import {handleConnect, handleDisconnect, handleSubscriptionDeleted} from 'websocket';
 
-import {ChannelHeaderBtn} from 'components/buttons/action_buttons';
+import {ChannelHeaderButton} from 'components/buttons/channelHeaderButton';
 
 import Constants from 'plugin_constants';
 
@@ -37,7 +37,7 @@ export default class Plugin {
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
-        registry.registerChannelHeaderButtonAction(<ChannelHeaderBtn/>, () => store.dispatch(showRHSPlugin), null, Constants.common.AzureDevops);
+        registry.registerChannelHeaderButtonAction(<ChannelHeaderButton/>, () => store.dispatch(showRHSPlugin), null, Constants.common.AzureDevops);
     }
 }
 

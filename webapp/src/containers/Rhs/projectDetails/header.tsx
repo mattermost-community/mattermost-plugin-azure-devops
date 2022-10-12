@@ -5,7 +5,7 @@ import plugin_constants from 'plugin_constants';
 
 import ConfirmationModal from 'components/modal/confirmationModal';
 import BackButton from 'components/buttons/backButton';
-import PrimaryButton from 'components/buttons/primaryButton';
+import Button from 'components/buttons/button';
 import ToggleSwitch from 'components/toggleSwitch';
 import Dropdown from 'components/dropdown';
 
@@ -44,7 +44,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         switch (serviceType) {
         case subscriptionFilters.serviceType.boards:
             return subscriptionFilterEventTypeBoardsOptions();
-        case subscriptionFilters.serviceType.repo:
+        case subscriptionFilters.serviceType.repos:
             return subscriptionFilterEventTypeReposOptions();
         default:
             return [filterLabelValuePairAll];
@@ -75,7 +75,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
 
-    // Detects and close the filter popover whenever it is opened and user click outside of it
+    // Detects and closes the filter popover whenever it is opened and user click outside of it
     const wrapperRef = useRef(null);
     useOutsideClick(wrapperRef, () => {
         setShowFilter(false);
@@ -116,7 +116,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                             {plugin_constants.SVGIcons.filter}
                         </SVGWrapper>
                     </IconButton>
-                    <PrimaryButton
+                    <Button
                         text='Unlink'
                         iconName='fa fa-chain-broken'
                         extraClass='margin-left-5'
@@ -178,7 +178,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                             />
                         </div>
                         <div className='text-align-right'>
-                            <PrimaryButton
+                            <Button
                                 text='Reset'
                                 onClick={() => {
                                     setFilter(defaultSubscriptionFilters);
@@ -188,7 +188,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                                 isSecondaryButton={true}
                                 isDisabled={!isFilterApplied()}
                             />
-                            <PrimaryButton
+                            <Button
                                 text='Hide'
                                 onClick={() => setShowFilter(false)}
                             />

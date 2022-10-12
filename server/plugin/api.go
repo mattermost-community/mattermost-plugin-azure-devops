@@ -328,6 +328,21 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 
 	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
 
+	var ValidSubscriptionEventsForBoards = map[string]bool{
+		constants.SubscriptionEventWorkItemCreated:   true,
+		constants.SubscriptionEventWorkItemUpdated:   true,
+		constants.SubscriptionEventWorkItemDeleted:   true,
+		constants.SubscriptionEventWorkItemCommented: true,
+	}
+
+	var ValidSubscriptionEventsForRepos = map[string]bool{
+		constants.SubscriptionEventPullRequestCreated:   true,
+		constants.SubscriptionEventPullRequestMerged:    true,
+		constants.SubscriptionEventPullRequestUpdated:   true,
+		constants.SubscriptionEventPullRequestCommented: true,
+		constants.SubscriptionEventCodePushed:           true,
+	}
+
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
 	eventType := r.URL.Query().Get(constants.QueryParamEventType)
@@ -343,10 +358,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					case constants.FilterBoards:
 						switch eventType {
 						case "", constants.FilterAll:
-							if subscription.EventType == constants.SubscriptionEventWorkItemCreated ||
-								subscription.EventType == constants.SubscriptionEventWorkItemUpdated ||
-								subscription.EventType == constants.SubscriptionEventWorkItemDeleted ||
-								subscription.EventType == constants.SubscriptionEventWorkItemCommented {
+							if validEventType := ValidSubscriptionEventsForBoards[subscription.EventType]; validEventType {
 								subscriptionByProject = append(subscriptionByProject, subscription)
 							}
 						default:
@@ -357,11 +369,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					case constants.FilterRepos:
 						switch eventType {
 						case "", constants.FilterAll:
-							if subscription.EventType == constants.SubscriptionEventPullRequestCreated ||
-								subscription.EventType == constants.SubscriptionEventPullRequestMerged ||
-								subscription.EventType == constants.SubscriptionEventPullRequestUpdated ||
-								subscription.EventType == constants.SubscriptionEventPullRequestCommented ||
-								subscription.EventType == constants.SubscriptionEventCodePushed {
+							if validEventType := ValidSubscriptionEventsForRepos[subscription.EventType]; validEventType {
 								subscriptionByProject = append(subscriptionByProject, subscription)
 							}
 						default:

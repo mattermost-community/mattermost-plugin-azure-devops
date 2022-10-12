@@ -51,7 +51,7 @@ export const subscriptionFilters = {
     },
     serviceType: {
         boards: 'boards',
-        repo: 'repos',
+        repos: 'repos',
         all: 'all',
     },
     eventType: {

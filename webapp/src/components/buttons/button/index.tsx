@@ -9,7 +9,7 @@ type PrimaryButtonProps = {
     isDisabled?: boolean
 }
 
-const PrimaryButton = ({text, iconName, extraClass = '', onClick, isSecondaryButton, isDisabled = false}: PrimaryButtonProps) => (
+const Button = ({text, iconName, extraClass = '', onClick, isSecondaryButton, isDisabled = false}: PrimaryButtonProps) => (
     <button
         disabled={isDisabled}
         onClick={onClick}
@@ -27,4 +27,4 @@ const PrimaryButton = ({text, iconName, extraClass = '', onClick, isSecondaryBut
     </button>
 );
 
-export default PrimaryButton;
+export default Button;

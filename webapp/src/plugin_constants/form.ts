@@ -219,7 +219,7 @@ export const subscriptionFilterServiceTypeOptions = [
         label: 'Boards',
     },
     {
-        value: subscriptionFilters.serviceType.repo,
+        value: subscriptionFilters.serviceType.repos,
         label: 'Repos',
     },
     {
@@ -229,13 +229,12 @@ export const subscriptionFilterServiceTypeOptions = [
 
 export const subscriptionFilterEventTypeBoardsOptions = () => {
     const options: LabelValuePair[] = [];
-    Object.keys(subscriptionFilters.eventType.boards).forEach((event) => options.push({
-        value: event,
-        label: subscriptionFilters.eventType.boards[event as EventTypeBoards],
+    Object.keys(subscriptionFilters.eventType.boards).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.boards[eventType as EventTypeBoards],
     }));
 
     options.push(filterLabelValuePairAll);
-
     return options;
 };
 
@@ -247,6 +246,5 @@ export const subscriptionFilterEventTypeReposOptions = () => {
     }));
 
     options.push(filterLabelValuePairAll);
-
     return options;
 };

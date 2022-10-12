@@ -1,6 +1,7 @@
 /**
  * Keep all common types here which are to be used throughout the project
 */
+// TODO: create enums for these types
 type EventTypeBoards = 'workitem.created' | 'workitem.updated' | 'workitem.deleted' | 'workitem.commented'
 type EventTypeRepos = 'git.pullrequest.created'| 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
 type EventType = EventTypeBoards | EventTypeRepos

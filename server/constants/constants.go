@@ -35,16 +35,9 @@ const (
 	CommandDelete       = "delete"
 
 	// Get task link preview constants
-	HTTPS              = "https:"
-	HTTP               = "http:"
-	AzureDevopsBaseURL = "dev.azure.com"
-	Workitems          = "_workitems"
-	Edit               = "edit"
-	TaskLinkRegex      = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_workitems\/edit\/[0-9]*`
+	TaskLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_workitems\/edit\/[0-9]*`
 
 	// Get pull request link preview constants
-	PullRequest          = "pullrequest"
-	Git                  = "_git"
 	PullRequestLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_git\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/pullrequest\/[0-9]*`
 
 	// Azure API Versions

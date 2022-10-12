@@ -624,7 +624,6 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 	p.API = mockAPI
 	for _, testCase := range []struct {
 		description       string
-		project           string
 		queryParamPage    string
 		queryParamPerPage string
 		expectedOffset    int
@@ -632,7 +631,6 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 	}{
 		{
 			description:       "GetOffsetAndLimitFromQueryParams: valid page and per_page query params",
-			project:           "mockProject",
 			queryParamPage:    "1",
 			queryParamPerPage: "10",
 			expectedOffset:    10,
@@ -640,7 +638,6 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 		},
 		{
 			description:       "GetOffsetAndLimitFromQueryParams: empty page and per_page query params",
-			project:           "mockProject",
 			queryParamPage:    "",
 			queryParamPerPage: "",
 			expectedOffset:    0,
@@ -648,7 +645,6 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 		},
 		{
 			description:       "GetOffsetAndLimitFromQueryParams: invalid page query param",
-			project:           "mockProject",
 			queryParamPage:    "invalidNonIntegerString",
 			queryParamPerPage: "10",
 			expectedOffset:    0,
@@ -656,7 +652,6 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 		},
 		{
 			description:       "GetOffsetAndLimitFromQueryParams: invalid per_page query param",
-			project:           "mockProject",
 			queryParamPage:    "1",
 			queryParamPerPage: "invalidNonIntegerString",
 			expectedOffset:    constants.DefaultPerPageLimit,
@@ -666,7 +661,7 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, testCase.project, testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, "mockProject", testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
 
 			offset, limit := p.GetOffsetAndLimitFromQueryParams(req)
@@ -684,34 +679,25 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 	for _, testCase := range []struct {
 		description       string
 		subscriptionsList []*serializers.SubscriptionDetails
-		channelID         string
-		createdBy         string
-		userID            string
 		command           string
-		message           string
+		expectedMessage   string
 	}{
 		{
 			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
-			channelID:         "mockChannelID",
-			createdBy:         "mockUser",
-			userID:            "mockUserID",
 			command:           constants.CommandRepos,
 			subscriptionsList: []*serializers.SubscriptionDetails{},
-			message:           fmt.Sprintf("No %s subscription exists", constants.CommandRepos),
+			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandRepos),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: empty boards subscription list",
-			channelID:         "mockChannelID",
-			createdBy:         "mockUser",
-			userID:            "mockUserID",
 			command:           constants.CommandBoards,
 			subscriptionsList: []*serializers.SubscriptionDetails{},
-			message:           fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
+			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, testCase.channelID, testCase.createdBy, testCase.userID, testCase.command)
-			assert.Equal(t, testCase.message, message)
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", "mockUser", "mockUserID", testCase.command)
+			assert.Equal(t, testCase.expectedMessage, message)
 		})
 	}
 }

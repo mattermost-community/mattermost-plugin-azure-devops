@@ -87,8 +87,9 @@ const (
 	Bearer        = "Bearer"
 	Authorization = "Authorization"
 
-	GetTasksID = "/%s/_apis/wit/wiql"
-	GetTasks   = "/%s/_apis/wit/workitems"
+	GetTasksID  = "/%s/_apis/wit/wiql"
+	GetTasks    = "/%s/_apis/wit/workitems"
+	StaticFiles = "%s/plugins/%s/static/%s"
 
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
@@ -103,6 +104,15 @@ const (
 
 	GitBranchIcon = "git-branch-icon.svg"
 	ProjectIcon   = "project-icon.svg"
+
+	FileNameProjectIcon = "project-icon.svg"
+	FileNameReposIcon   = "repos-icon.svg"
+	FileNameBoardsIcon  = "boards-icon.svg"
+	IconColorBoards     = "#53bba1"
+	IconColorRepos      = "#d74f27"
+
+	SlackAttachmentAuthorNameRepos  = "Azure Repos"
+	SlackAttachmentAuthorNameBoards = "Azure Boards"
 )
 
 var (

@@ -66,4 +66,5 @@ const (
 	ErrorAdminAccess                   = "Can not delete the subscription, looks like you do not have access to add/delete a subscription for this project. Please make sure you are a project or team administrator for this project"
 	ErrorFetchSubscriptionList         = "Error in fetching subscription list"
 	ErrorMessageForAdmin               = "There is no registered handler for the service hooks event type %s"
+	AccessDenied                       = "Access Denied"
 )

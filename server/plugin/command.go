@@ -231,7 +231,7 @@ func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandAr
 	if len(args) >= 4 && args[3] == constants.FilterAllChannels {
 		showForChannelID = ""
 	}
-	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId, command))
+	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId, command, commandArgs.TeamId))
 }
 
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

@@ -32,7 +32,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 	}
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Boards",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.BoardsIcon),
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 		Title:      fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href),
 		Color:      constants.BoardsIconColor,
 		Fields: []*model.SlackAttachmentField{
@@ -52,7 +52,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 			},
 		},
 		Footer:     linkData[4],
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post, ""
@@ -80,7 +80,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 	reviewers := p.getReviewersListString(pullRequest.Reviewers)
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Repos",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ReposIcon),
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
 		Title:      fmt.Sprintf(constants.PullRequestTitle, pullRequest.PullRequestID, pullRequest.Title, link),
 		Color:      constants.ReposIconColor,
 		Fields: []*model.SlackAttachmentField{
@@ -100,7 +100,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 			},
 		},
 		Footer:     linkData[6],
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ChannelHeaderBtn = () => (<div>
+export const ChannelHeaderButton = () => (<div>
     <svg
         width='16px'
         height='16px'

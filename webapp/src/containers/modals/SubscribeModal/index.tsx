@@ -9,7 +9,7 @@ import Form from 'components/form';
 import EmptyState from 'components/emptyState';
 import ResultPanel from 'components/resultPanel';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
@@ -22,10 +22,10 @@ import {getSubscribeModalState} from 'selectors';
 import Utils from 'utils';
 
 import './styles.scss';
-import {boardEventTypeOptions, repoEventTypeOptions} from 'plugin_constants/form';
+import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 
 const SubscribeModal = () => {
-    const {subscriptionModal} = plugin_constants.form;
+    const {subscriptionModal} = pluginConstants.form;
     const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
 
     // Hooks
@@ -63,7 +63,7 @@ const SubscribeModal = () => {
     // Get organization and project state
     const getOrganizationAndProjectState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
-            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+            pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
         );
 
         return {
@@ -78,7 +78,7 @@ const SubscribeModal = () => {
     // Get channel state
     const getChannelState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
-            plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
+            pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
             {teamId: currentTeamId},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
@@ -113,9 +113,9 @@ const SubscribeModal = () => {
     };
 
     useEffect(() => {
-        if (formFields.serviceType === plugin_constants.common.boards) {
+        if (formFields.serviceType === pluginConstants.common.boards) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
-        } else if (formFields.serviceType === plugin_constants.common.repos) {
+        } else if (formFields.serviceType === pluginConstants.common.repos) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
         }
 
@@ -137,10 +137,10 @@ const SubscribeModal = () => {
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
         if (isChannelListError) {
-            return plugin_constants.messages.error.errorFetchingChannelsList;
+            return pluginConstants.messages.error.errorFetchingChannelsList;
         }
         if (isOrganizationAndProjectListError) {
-            return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
+            return pluginConstants.messages.error.errorFetchingOrganizationAndProjectsList;
         }
         return Utils.getErrorMessage(isCreateSubscriptionError, 'SubscribeModal', error);
     };
@@ -150,7 +150,7 @@ const SubscribeModal = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request to create subscription
             makeApiRequestWithCompletionStatus(
-                plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
+                pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName,
                 formFields as APIRequestPayload,
             );
         }
@@ -158,7 +158,7 @@ const SubscribeModal = () => {
 
     // Observe for the change in redux state after the API call to create a subscription and do the required actions
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName,
         handleSuccess: () => {
             setShowResultPanel(true);
             dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], isActionDone: true}));
@@ -169,7 +169,7 @@ const SubscribeModal = () => {
     // Make API request to fetch channel list
     useEffect(() => {
         makeApiRequest(
-            plugin_constants.pluginApiServiceConfigs.getChannels.apiServiceName,
+            pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
             {teamId: currentTeamId},
         );
     }, [visibility]);
@@ -222,7 +222,7 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
-    const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
+    const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
 

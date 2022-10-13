@@ -7,7 +7,8 @@ import IconButton from 'components/buttons/iconButton';
 import LabelValuePair from 'components/labelValuePair';
 import SVGWrapper from 'components/svgWrapper';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
+
 import './styles.scss';
 
 type SubscriptionCardProps = {
@@ -25,7 +26,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         height={20}
                         viewBox=' 0 0 20 20'
                     >
-                        {serviceType === plugin_constants.common.boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
+                        {serviceType === pluginConstants.common.boards ? pluginConstants.SVGIcons.boards : pluginConstants.SVGIcons.repos}
                     </SVGWrapper>
                     <p className={`ml-1 mb-0 font-bold color-${serviceType} text-capitalize`}>{serviceType}</p>
                 </div>
@@ -46,11 +47,11 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                             height={12}
                             viewBox='0 0 10 10'
                         >
-                            {plugin_constants.SVGIcons.workEvent}
+                            {pluginConstants.SVGIcons.workEvent}
                         </SVGWrapper>
                     }
                     labelExtraClassName='margin-left-5'
-                    value={plugin_constants.common.eventTypeMap[eventType as EventType] ?? ''}
+                    value={pluginConstants.common.eventTypeMap[eventType as EventType] ?? ''}
                 />
                 <LabelValuePair
                     labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}

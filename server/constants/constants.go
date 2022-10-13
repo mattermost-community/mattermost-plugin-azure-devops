@@ -63,16 +63,21 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	QueryParamProject   = "project"
-	QueryParamChannelID = "channel_id"
-	QueryParamCreatedBy = "created_by"
-	QueryParamPage      = "page"
-	QueryParamPerPage   = "per_page"
+	QueryParamProject     = "project"
+	QueryParamChannelID   = "channel_id"
+	QueryParamCreatedBy   = "created_by"
+	QueryParamServiceType = "service_type"
+	QueryParamEventType   = "event_type"
+	QueryParamPage        = "page"
+	QueryParamPerPage     = "per_page"
 
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
 	FilterAllChannels     = "all_channels"
+	FilterAll             = "all"
+	FilterBoards          = "boards"
+	FilterRepos           = "repos"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50
@@ -108,4 +113,21 @@ const (
 
 	SlackAttachmentAuthorNameRepos  = "Azure Repos"
 	SlackAttachmentAuthorNameBoards = "Azure Boards"
+)
+
+var (
+	ValidSubscriptionEventsForBoards = map[string]bool{
+		SubscriptionEventWorkItemCreated:   true,
+		SubscriptionEventWorkItemUpdated:   true,
+		SubscriptionEventWorkItemDeleted:   true,
+		SubscriptionEventWorkItemCommented: true,
+	}
+
+	ValidSubscriptionEventsForRepos = map[string]bool{
+		SubscriptionEventPullRequestCreated:   true,
+		SubscriptionEventPullRequestMerged:    true,
+		SubscriptionEventPullRequestUpdated:   true,
+		SubscriptionEventPullRequestCommented: true,
+		SubscriptionEventCodePushed:           true,
+	}
 )

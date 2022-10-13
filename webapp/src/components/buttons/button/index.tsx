@@ -5,12 +5,15 @@ type PrimaryButtonProps = {
     iconName?: string
     extraClass?: string
     onClick?: () => void
+    isSecondaryButton?: boolean
+    isDisabled?: boolean
 }
 
-const PrimaryButton = ({text, iconName, extraClass = '', onClick}: PrimaryButtonProps) => (
+const Button = ({text, iconName, extraClass = '', onClick, isSecondaryButton, isDisabled = false}: PrimaryButtonProps) => (
     <button
+        disabled={isDisabled}
         onClick={onClick}
-        className={`plugin-btn btn btn-primary ${extraClass}`}
+        className={`plugin-btn btn ${isSecondaryButton ? 'btn-link' : 'btn-primary'} ${extraClass}`}
     >
         {
             iconName && (
@@ -24,4 +27,4 @@ const PrimaryButton = ({text, iconName, extraClass = '', onClick}: PrimaryButton
     </button>
 );
 
-export default PrimaryButton;
+export default Button;

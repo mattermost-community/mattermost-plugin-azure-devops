@@ -397,7 +397,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	p.writeJSON(w, subscriptionList)
 }
 
-func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {
 	reviewers := ""
 	for i := 0; i < len(reviewersList); i++ {
 		if i != len(reviewersList)-1 {
@@ -539,7 +539,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
-			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.GitBranchIcon),
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameGitBranchIcon),
 		}
 	}
 

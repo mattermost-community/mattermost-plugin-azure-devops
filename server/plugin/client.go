@@ -18,7 +18,8 @@ import (
 type Client interface {
 	GenerateOAuthToken(encodedFormValues url.Values) (*serializers.OAuthSuccessResponse, int, error)
 	CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error)
-	GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error)
+	GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error)
+	GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
@@ -88,8 +89,8 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 }
 
 // Function to get the task.
-func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serializers.TaskValue, int, error) {
-	taskURL := fmt.Sprintf(constants.GetTask, organization, taskID)
+func (c *client) GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error) {
+	taskURL := fmt.Sprintf(constants.GetTask, organization, projectName, taskID)
 
 	var task *serializers.TaskValue
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, taskURL, http.MethodGet, mattermostUserID, nil, &task, nil)
@@ -98,6 +99,19 @@ func (c *client) GetTask(organization, taskID, mattermostUserID string) (*serial
 	}
 
 	return task, statusCode, nil
+}
+
+// Function to get the pull request.
+func (c *client) GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error) {
+	pullRequestURL := fmt.Sprintf(constants.GetPullRequest, organization, projectName, pullRequestID)
+
+	var pullRequest *serializers.PullRequest
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pullRequestURL, http.MethodGet, mattermostUserID, nil, &pullRequest, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pull request")
+	}
+
+	return pullRequest, statusCode, nil
 }
 
 // Function to link a project and an organization.

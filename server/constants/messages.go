@@ -11,7 +11,7 @@ const (
 	UserDisconnected     = "Your Azure DevOps account is now disconnected"
 	CreatedTask          = "[%s #%d](%s) (%s) was successfully created by %s."
 	TaskTitle            = "[%s #%d: %s](%s)"
-	TaskPreviewMessage   = "State: %s\nAssigned To: %s\nDescription: %s"
+	PullRequestTitle     = "[#%d: %s](%s)"
 	AlreadyLinkedProject = "This project is already linked."
 	NoProjectLinked      = "No project is linked, please link a project."
 

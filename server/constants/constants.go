@@ -82,8 +82,9 @@ const (
 	Bearer        = "Bearer"
 	Authorization = "Authorization"
 
-	GetTasksID = "/%s/_apis/wit/wiql"
-	GetTasks   = "/%s/_apis/wit/workitems"
+	GetTasksID  = "/%s/_apis/wit/wiql"
+	GetTasks    = "/%s/_apis/wit/workitems"
+	StaticFiles = "%s/plugins/%s/static/%s"
 
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
@@ -96,12 +97,12 @@ const (
 
 	SubscriptionEventTypeDummy = "dummy"
 	GitBranchIcon              = "git-branch-icon.svg"
-	ProjectIcon                = "project-icon.svg"
-	ReposIcon                  = "repos-icon.svg"
-	BoardsIcon                 = "boards-icon.svg"
-	BoardsIconColor            = "#53bba1"
-	ReposIconColor             = "#d74f27"
+	FileNameProjectIcon        = "project-icon.svg"
+	FileNameReposIcon          = "repos-icon.svg"
+	FileNameBoardsIcon         = "boards-icon.svg"
+	IconColorBoards            = "#53bba1"
+	IconColorRepos             = "#d74f27"
 
-	ReposAuthorName  = "Azure Repos"
-	BoardsAuthorName = "Azure Boards"
+	SlackAttachmentAuthorNameRepos  = "Azure Repos"
+	SlackAttachmentAuthorNameBoards = "Azure Boards"
 )

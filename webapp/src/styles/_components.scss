@@ -63,7 +63,7 @@
 // Do not modify this class, this is a direct class from mattermost-webapp
 // This class is used for the dimensions of author_icon in Mattermost slack attachment
 .post .attachment {
-    // To make sure that this CSS does not conflict with the CSS of other plugins
+    // Uniquely targetting a common img tag on this plugin to ensure these CSS properties do not conflict with the global or another CSS styling
     img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"] {
         width: 20px;
         height: 20px;

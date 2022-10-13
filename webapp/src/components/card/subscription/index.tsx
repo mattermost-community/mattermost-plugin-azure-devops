@@ -8,7 +8,6 @@ import LabelValuePair from 'components/labelValuePair';
 import SVGWrapper from 'components/svgWrapper';
 
 import plugin_constants from 'plugin_constants';
-
 import './styles.scss';
 
 type SubscriptionCardProps = {
@@ -18,7 +17,27 @@ type SubscriptionCardProps = {
 
 const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
-        <div className='d-flex'>
+        <>
+            <div className='d-flex justify-content-between align-items-center mb-2'>
+                <div className='d-flex'>
+                    <SVGWrapper
+                        width={20}
+                        height={20}
+                        viewBox=' 0 0 20 20'
+                    >
+                        {serviceType === plugin_constants.common.boards ? plugin_constants.SVGIcons.boards : plugin_constants.SVGIcons.repos}
+                    </SVGWrapper>
+                    <p className={`ml-1 mb-0 font-bold color-${serviceType} text-capitalize`}>{serviceType}</p>
+                </div>
+                <div className='button-wrapper'>
+                    <IconButton
+                        tooltipText='Delete subscription'
+                        iconClassName='fa fa-trash-o'
+                        extraClass='delete-button'
+                        onClick={() => handleDeleteSubscrption(subscriptionDetails)}
+                    />
+                </div>
+            </div>
             <div className='project-details'>
                 <LabelValuePair
                     label={
@@ -41,20 +60,8 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                     labelIconClassName={'icon icon-account-outline icon-label'}
                     value={`Subscription created by ${createdBy}`}
                 />
-                {/* TODO: Modify UI to display service type according to the new designs */}
-                <LabelValuePair
-                    value={plugin_constants.common.serviceTypeMap[eventType as EventType]}
-                />
             </div>
-            <div className='button-wrapper'>
-                <IconButton
-                    tooltipText='Delete subscription'
-                    iconClassName='fa fa-trash-o'
-                    extraClass='delete-button'
-                    onClick={() => handleDeleteSubscrption(subscriptionDetails)}
-                />
-            </div>
-        </div>
+        </>
     </BaseCard>
 );
 

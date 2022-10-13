@@ -22,7 +22,7 @@ This plugin integrates the services of Azure DevOps in Mattermost. For a stable 
 This plugin contains the following features:
 - Right-hand sidebar (RHS) shows the list of linked projects and subscriptions created for each project with separate buttons to connect an account, link or unlink a project and add or delete a subscription.
 
-- Preview of Work item or Pull request URL: A preview of the work item or pull request for a linked project will be created when their respective URL is posted in a channel and the user is connected to his Azure DevOps account.
+- Preview of the Work item or Pull request URL: A preview of the work item or pull request for a linked project will be created when their respective URLs are posted in a channel and the user is connected to his/her Azure DevOps account.
 
 - OAuth: A user can connect or disconnect to their Azure DevOps account using the slash command below or clicking on the "Connect Your Account" button in RHS.
 
@@ -46,7 +46,7 @@ This plugin contains the following features:
     ```
     On successful creation of a work item, you will get a message from the bot with the details of the newly created work item.
 
-- Add subscriptions: A user can create subscriptions for a linked project to get messages in a selected channel for selected events on work items and pull requests.
+- Add subscriptions: A user can create subscriptions for a linked project to get notifications in a selected channel for selected events on work items and pull requests.
 To add a new subscription for a linked project click on the project title under "Linked Projects" in RHS then click on the "Add new subscription" button in the subscription view. Users can also create subscriptions using the slash command below.
     - For creating Boards subscriptions
 

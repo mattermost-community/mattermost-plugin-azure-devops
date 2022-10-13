@@ -9,7 +9,7 @@ import {handleConnect, handleDisconnect, handleSubscriptionDeleted} from 'websoc
 
 import {ChannelHeaderButton} from 'components/buttons/channelHeaderButton';
 
-import Constants from 'plugin_constants';
+import Constants from 'pluginConstants';
 
 import Hooks from 'hooks';
 
@@ -21,7 +21,7 @@ import SubscribeModal from 'containers/modals/SubscribeModal';
 import App from './app';
 
 // eslint-disable-next-line import/no-unresolved
-import {PluginRegistry} from './types/mattermost-webapp';
+import {PluginRegistry} from './types/mattermostWebapp';
 import manifest from './manifest';
 
 export default class Plugin {

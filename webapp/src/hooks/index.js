@@ -1,4 +1,4 @@
-import {boards, repos} from 'plugin_constants/common';
+import {boards, repos} from 'pluginConstants/common';
 import {setGlobalModalState} from 'reducers/globalModal';
 import {getCommandArgs} from 'utils';
 

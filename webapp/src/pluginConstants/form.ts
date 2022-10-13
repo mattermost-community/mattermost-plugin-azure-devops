@@ -240,9 +240,9 @@ export const subscriptionFilterEventTypeBoardsOptions = () => {
 
 export const subscriptionFilterEventTypeReposOptions = () => {
     const options: LabelValuePair[] = [];
-    Object.keys(subscriptionFilters.eventType.repos).forEach((event) => options.push({
-        value: event,
-        label: subscriptionFilters.eventType.repos[event as EventTypeRepos],
+    Object.keys(subscriptionFilters.eventType.repos).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.repos[eventType as EventTypeRepos],
     }));
 
     options.push(filterLabelValuePairAll);

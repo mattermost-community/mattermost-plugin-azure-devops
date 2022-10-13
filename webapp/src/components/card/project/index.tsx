@@ -5,7 +5,7 @@ import IconButton from 'components/buttons/iconButton';
 
 import {onPressingEnterKey} from 'utils';
 import SVGWrapper from 'components/svgWrapper';
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 import LabelValuePair from 'components/labelValuePair';
 
 type ProjectCardProps = {
@@ -25,7 +25,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                             height={16}
                             viewBox='0 0 14 12'
                         >
-                            {plugin_constants.SVGIcons.project}
+                            {pluginConstants.SVGIcons.project}
                         </SVGWrapper>
                     }
                     onClickValue={() => onProjectTitleClick(projectDetails)}
@@ -39,7 +39,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                             height={13}
                             viewBox='0 0 10 10'
                         >
-                            {plugin_constants.SVGIcons.organization}
+                            {pluginConstants.SVGIcons.organization}
                         </SVGWrapper>
                     }
                     value={organizationName}

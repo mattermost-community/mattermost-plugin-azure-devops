@@ -10,7 +10,7 @@ import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 import Spinner from 'components/loader/spinner';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
 import {toggleIsSubscriptionDeleted} from 'reducers/websocketEvent';
@@ -28,7 +28,7 @@ import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {projectName, organizationName} = projectDetails;
-    const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = plugin_constants.common;
+    const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = pluginConstants.common;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
@@ -60,7 +60,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         team_id: currentTeamId,
     }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
-    const {data, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
+    const {data, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
     const hasMoreSubscriptions = useMemo<boolean>(() => (
         subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === defaultPerPageLimit
@@ -103,12 +103,12 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Fetch subscription list
     const fetchSubscriptionList = () => makeApiRequestWithCompletionStatus(
-        plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+        pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
         subscriptionListApiParams,
     );
 
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
         payload: subscriptionListApiParams,
         handleSuccess: () => {
             setSubscriptionList([...subscriptionList, ...subscriptionListReturnedByApi]);
@@ -116,10 +116,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     });
 
     // Handles deletion of a subscription and fetching the modified subscription list
-    const handleConfirmDeleteSubscription = () => makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+    const handleConfirmDeleteSubscription = () => makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName,
         payload: subscriptionToBeDeleted,
         handleSuccess: () => {
             handlePagination(true);
@@ -127,7 +127,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         },
         handleError: (error) => {
             const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', error);
-            if (errorMessage === plugin_constants.messages.error.subscriptionNotFound) {
+            if (errorMessage === pluginConstants.messages.error.subscriptionNotFound) {
                 handlePagination(true);
                 setShowSubscriptionConfirmationModal(false);
                 return;
@@ -185,7 +185,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         }
     }, [getWebsocketEventState(state).isSubscriptionDeleted]);
 
-    const {isLoading: isDeleteSubscriptionLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+    const {isLoading: isDeleteSubscriptionLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
 
     return (
         <>

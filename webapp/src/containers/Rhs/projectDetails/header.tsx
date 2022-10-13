@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import ConfirmationModal from 'components/modal/confirmationModal';
 import BackButton from 'components/buttons/backButton';
@@ -16,7 +16,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import IconButton from 'components/buttons/iconButton';
 import SVGWrapper from 'components/svgWrapper';
 import useOutsideClick from 'hooks/useClickOutside';
-import {subscriptionFilterEventTypeReposOptions} from 'plugin_constants/form';
+import {subscriptionFilterEventTypeReposOptions} from 'pluginConstants/form';
 
 type HeaderProps = {
     projectDetails: ProjectDetails
@@ -31,8 +31,8 @@ type HeaderProps = {
 
 const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShowAllSubscriptions, handleResetProjectDetails, filter, setFilter, setSubscriptionList}: HeaderProps) => {
     const {projectName} = projectDetails;
-    const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = plugin_constants.common;
-    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = plugin_constants.form;
+    const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = pluginConstants.common;
+    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = pluginConstants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
 
     const [showFilter, setShowFilter] = useState(false);
@@ -58,11 +58,11 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
-        makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
     };
 
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
         payload: projectDetails,
         handleSuccess: () => {
             dispatch(toggleIsLinkedProjectListChanged(true));
@@ -73,9 +73,9 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
 
-    const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
 
-    // Detects and closes the filter popover whenever it is opened and user click outside of it
+    // Detects and closes the filter popover whenever it is opened and the user clicks outside of it
     const wrapperRef = useRef(null);
     useOutsideClick(wrapperRef, () => {
         setShowFilter(false);
@@ -113,7 +113,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                             height={12}
                             viewBox='0 0 18 12'
                         >
-                            {plugin_constants.SVGIcons.filter}
+                            {pluginConstants.SVGIcons.filter}
                         </SVGWrapper>
                     </IconButton>
                     <Button

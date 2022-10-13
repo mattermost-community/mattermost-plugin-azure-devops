@@ -7,7 +7,7 @@ import IconButton from 'components/buttons/iconButton';
 import LabelValuePair from 'components/labelValuePair';
 import SVGWrapper from 'components/svgWrapper';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import './styles.scss';
 
@@ -27,11 +27,11 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                             height={12}
                             viewBox='0 0 10 10'
                         >
-                            {plugin_constants.SVGIcons.workEvent}
+                            {pluginConstants.SVGIcons.workEvent}
                         </SVGWrapper>
                     }
                     labelExtraClassName='margin-left-5'
-                    value={plugin_constants.common.eventTypeMap[eventType as EventType] ?? ''}
+                    value={pluginConstants.common.eventTypeMap[eventType as EventType] ?? ''}
                 />
                 <LabelValuePair
                     labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
@@ -43,7 +43,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                 />
                 {/* TODO: Modify UI to display service type according to the new designs */}
                 <LabelValuePair
-                    value={plugin_constants.common.serviceTypeMap[eventType as EventType]}
+                    value={pluginConstants.common.serviceTypeMap[eventType as EventType]}
                 />
             </div>
             <div className='button-wrapper'>

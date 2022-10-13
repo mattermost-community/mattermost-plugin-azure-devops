@@ -104,3 +104,18 @@ const (
 	GitBranchIcon = "git-branch-icon.svg"
 	ProjectIcon   = "project-icon.svg"
 )
+
+var ValidSubscriptionEventsForBoards = map[string]bool{
+	SubscriptionEventWorkItemCreated:   true,
+	SubscriptionEventWorkItemUpdated:   true,
+	SubscriptionEventWorkItemDeleted:   true,
+	SubscriptionEventWorkItemCommented: true,
+}
+
+var ValidSubscriptionEventsForRepos = map[string]bool{
+	SubscriptionEventPullRequestCreated:   true,
+	SubscriptionEventPullRequestMerged:    true,
+	SubscriptionEventPullRequestUpdated:   true,
+	SubscriptionEventPullRequestCommented: true,
+	SubscriptionEventCodePushed:           true,
+}

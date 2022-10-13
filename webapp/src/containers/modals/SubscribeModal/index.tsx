@@ -79,7 +79,7 @@ const SubscribeModal = () => {
     const getChannelState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
             pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: currentTeamId},
+            {url: {pathParams: {teamId: currentTeamId}}},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
     };
@@ -151,7 +151,7 @@ const SubscribeModal = () => {
             // Make POST api request to create subscription
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName,
-                formFields as APIRequestPayload,
+                {payload: formFields as APIRequestPayload},
             );
         }
     };
@@ -170,7 +170,7 @@ const SubscribeModal = () => {
     useEffect(() => {
         makeApiRequest(
             pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
-            {teamId: currentTeamId},
+            {url: {pathParams: {teamId: currentTeamId}}},
         );
     }, [visibility]);
 
@@ -222,7 +222,7 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
-    const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
+    const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, {payload: formFields as APIRequestPayload});
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
 

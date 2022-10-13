@@ -9,12 +9,12 @@ function usePluginApi() {
     const dispatch = useDispatch();
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
-    const makeApiRequest = async (serviceName: ApiServiceName, payload: APIRequestPayload): Promise<any> => {
-        return dispatch(services.endpoints[serviceName].initiate(payload)); //TODO: add proper type here
+    const makeApiRequest = async (serviceName: ApiServiceName, requestData: APIRequestData): Promise<any> => {
+        return dispatch(services.endpoints[serviceName].initiate(requestData)); //TODO: add proper type here
     };
 
-    const makeApiRequestWithCompletionStatus = async (serviceName: ApiServiceName, payload: APIRequestPayload) => {
-        const apiRequest = await makeApiRequest(serviceName, payload);
+    const makeApiRequestWithCompletionStatus = async (serviceName: ApiServiceName, requestData: APIRequestData) => {
+        const apiRequest = await makeApiRequest(serviceName, requestData);
 
         if (apiRequest) {
             dispatch(setApiRequestCompletionState(serviceName));
@@ -22,8 +22,8 @@ function usePluginApi() {
     };
 
     // Pass payload only in POST rquests for GET requests there is no need to pass payload argument
-    const getApiState = (serviceName: ApiServiceName, payload: APIRequestPayload) => {
-        const {data, isError, isLoading, isSuccess, error, isUninitialized} = services.endpoints[serviceName].select(payload)(state['plugins-mattermost-plugin-azure-devops']);
+    const getApiState = (serviceName: ApiServiceName, requestData: APIRequestData | void) => {
+        const {data, isError, isLoading, isSuccess, error, isUninitialized} = services.endpoints[serviceName].select(requestData)(state['plugins-mattermost-plugin-azure-devops']);
         return {data, isError, isLoading, isSuccess, error, isUninitialized};
     };
 

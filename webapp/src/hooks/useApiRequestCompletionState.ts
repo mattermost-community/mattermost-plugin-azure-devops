@@ -21,9 +21,9 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
     useEffect(() => {
         if (
             getApiRequestCompletionState(state).requests.includes(serviceName) &&
-            getApiState(serviceName, payload)
+            getApiState(serviceName, {payload: payload})
         ) {
-            const {isError, isSuccess, isUninitialized, error} = getApiState(serviceName, payload);
+            const {isError, isSuccess, isUninitialized, error} = getApiState(serviceName, {payload: payload});
             if (isSuccess && !isError) {
                 // eslint-disable-next-line no-unused-expressions
                 handleSuccess?.();
@@ -40,7 +40,7 @@ function useApiRequestCompletionState({handleSuccess, handleError, serviceName, 
         }
     }, [
         getApiRequestCompletionState(state).requests.includes(serviceName),
-        getApiState(serviceName, payload),
+        getApiState(serviceName, {payload: payload}),
     ]);
 }
 

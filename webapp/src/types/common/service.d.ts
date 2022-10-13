@@ -33,3 +33,11 @@ type APIRequestPayload =
     FetchChannelParams |
     FetchSubscriptionList |
     void;
+
+type APIRequestData = {
+    payload?: APIRequestPayload
+    url?: {
+        pathParams?: Record<string, string>
+        queryParams?: Record<string, string | number>
+    }
+}

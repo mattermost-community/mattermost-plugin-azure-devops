@@ -54,7 +54,7 @@ const LinkModal = () => {
             // Make POST api request
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName,
-                formFields as LinkPayload,
+                {payload: formFields as LinkPayload},
             );
         }
     };
@@ -76,7 +76,7 @@ const LinkModal = () => {
         });
     }, [visibility]);
 
-    const {isLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
+    const {isLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName, {payload: formFields as LinkPayload});
 
     return (
         <Modal

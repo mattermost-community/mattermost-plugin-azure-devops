@@ -58,7 +58,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
-        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {payload: projectDetails});
     };
 
     useApiRequestCompletionState({
@@ -73,7 +73,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
 
-    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {payload: projectDetails});
 
     // Detects and closes the filter popover whenever it is opened and the user clicks outside of it
     const wrapperRef = useRef(null);

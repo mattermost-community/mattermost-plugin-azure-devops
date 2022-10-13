@@ -57,7 +57,7 @@ interface FetchSubscriptionList extends PaginationQueryParams {
     project: string;
     channel_id: string;
     created_by: string;
-    team_id: string;
+    teamId: string;
     service_type: string;
     event_type: string;
 }

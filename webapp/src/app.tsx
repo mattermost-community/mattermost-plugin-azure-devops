@@ -30,7 +30,7 @@ const App = (): JSX.Element => {
 
     // Check if user is connected on page reload
     useEffect(() => {
-        makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName, {});
     }, []);
 
     /**
@@ -73,6 +73,7 @@ const App = (): JSX.Element => {
 
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+                {}
             );
         }
     }, [

@@ -47,7 +47,7 @@ const ProjectList = () => {
     const handleConfirmUnlinkProject = () => {
         makeApiRequestWithCompletionStatus(
             pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
-            projectToBeUnlinked,
+            {payload: projectToBeUnlinked},
         );
     };
 
@@ -76,7 +76,7 @@ const ProjectList = () => {
                     isOpen={showConfirmationModal}
                     onHide={() => setShowConfirmationModal(false)}
                     onConfirm={handleConfirmUnlinkProject}
-                    isLoading={getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
+                    isLoading={getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {payload: projectToBeUnlinked}).isLoading}
                     confirmBtnText='Unlink'
                     description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
                     title='Confirm Project Unlink'

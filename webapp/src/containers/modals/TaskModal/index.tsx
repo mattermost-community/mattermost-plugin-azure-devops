@@ -107,7 +107,7 @@ const TaskModal = () => {
             // Make POST api request
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName,
-                getApiPayload(),
+                {payload: getApiPayload()},
             );
         }
     };
@@ -162,7 +162,7 @@ const TaskModal = () => {
         }
     }, [visibility]);
 
-    const {isLoading: isCreateTaskLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
+    const {isLoading: isCreateTaskLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName, {payload: getApiPayload()});
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isOrganizationAndProjectListLoading || isCreateTaskLoading;
 

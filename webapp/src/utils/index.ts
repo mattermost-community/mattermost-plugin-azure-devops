@@ -59,9 +59,19 @@ export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> |
 
 export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => project1.projectName.toLocaleLowerCase().localeCompare(project2.projectName.toLocaleLowerCase());
 
+export const addPathParamsToApiUrl = (url: string, pathParams?: Record<string, string>) => {
+    if (!pathParams) {
+        return url
+    }
+
+    Object.keys(pathParams).forEach(param => url = url.replace(`:${param}`, pathParams[param]))
+    return url
+}
+
 export default {
     getBaseUrls,
     getErrorMessage,
     getOrganizationList,
     getProjectList,
+    addPathParamsToApiUrl,
 };

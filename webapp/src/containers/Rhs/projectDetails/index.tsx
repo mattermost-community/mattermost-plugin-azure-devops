@@ -1,8 +1,8 @@
-import React, {memo, useEffect, useMemo, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import {GlobalState} from 'mattermost-redux/types/store';
+import { GlobalState } from 'mattermost-redux/types/store';
 
 import EmptyState from 'components/emptyState';
 import SubscriptionCard from 'components/card/subscription';
@@ -12,10 +12,10 @@ import Spinner from 'components/loader/spinner';
 
 import pluginConstants from 'pluginConstants';
 
-import {toggleIsSubscribed, toggleShowSubscribeModal} from 'reducers/subscribeModal';
-import {toggleIsSubscriptionDeleted} from 'reducers/websocketEvent';
-import {resetProjectDetails} from 'reducers/projectDetails';
-import {getSubscribeModalState, getWebsocketEventState} from 'selectors';
+import { toggleIsSubscribed, toggleShowSubscribeModal } from 'reducers/subscribeModal';
+import { toggleIsSubscriptionDeleted } from 'reducers/websocketEvent';
+import { resetProjectDetails } from 'reducers/projectDetails';
+import { getSubscribeModalState, getWebsocketEventState } from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
@@ -27,8 +27,8 @@ import utils from 'utils';
 import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
-    const {projectName, organizationName} = projectDetails;
-    const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = pluginConstants.common;
+    const { projectName, organizationName } = projectDetails;
+    const { defaultPage, defaultPerPageLimit, defaultSubscriptionFilters } = pluginConstants.common;
 
     // State variables
     const [paginationQueryParams, setPaginationQueryParams] = useState<PaginationQueryParams>({
@@ -43,11 +43,11 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const [deleteConfirmationModalError, setDeleteConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     // Hooks
-    const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
-    const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
-    const previousState = usePreviousState({currentChannelId});
+    const { currentChannelId } = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
+    const { currentTeamId } = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
+    const previousState = usePreviousState({ currentChannelId });
     const dispatch = useDispatch();
-    const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
+    const { makeApiRequestWithCompletionStatus, getApiState, state } = usePluginApi();
 
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
         project: projectName,
@@ -57,10 +57,18 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         created_by: filter.createdBy,
         service_type: filter.serviceType,
         event_type: filter.eventType,
-        team_id: currentTeamId,
+        teamId: currentTeamId,
     }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
-    const {data, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
+    const { data, isLoading } = getApiState(
+        pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
+        {
+            url: {
+                queryParams: { ...subscriptionListApiParams },
+                pathParams: { teamId: subscriptionListApiParams.teamId }
+            }
+        }
+    );
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
     const hasMoreSubscriptions = useMemo<boolean>(() => (
         subscriptionListReturnedByApi.length !== 0 && subscriptionListReturnedByApi.length === defaultPerPageLimit
@@ -84,7 +92,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName]}));
+        dispatch(toggleShowSubscribeModal({ isVisible: true, commandArgs: [], args: [organizationName, projectName] }));
     };
 
     // Opens a confirmation modal to confirm deletion of a subscription
@@ -104,7 +112,12 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     // Fetch subscription list
     const fetchSubscriptionList = () => makeApiRequestWithCompletionStatus(
         pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName,
-        subscriptionListApiParams,
+        {
+            url: {
+                queryParams: { ...subscriptionListApiParams },
+                pathParams: { teamId: subscriptionListApiParams.teamId }
+            }
+        },
     );
 
     useApiRequestCompletionState({
@@ -116,7 +129,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     });
 
     // Handles deletion of a subscription and fetching the modified subscription list
-    const handleConfirmDeleteSubscription = () => makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+    const handleConfirmDeleteSubscription = () => makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, {payload: subscriptionToBeDeleted});
 
     useApiRequestCompletionState({
         serviceName: pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName,
@@ -185,7 +198,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         }
     }, [getWebsocketEventState(state).isSubscriptionDeleted]);
 
-    const {isLoading: isDeleteSubscriptionLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, subscriptionToBeDeleted);
+    const { isLoading: isDeleteSubscriptionLoading } = getApiState(pluginConstants.pluginApiServiceConfigs.deleteSubscription.apiServiceName, {payload: subscriptionToBeDeleted});
 
     return (
         <>
@@ -199,7 +212,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 title='Confirm Delete Subscription'
                 showErrorPanel={deleteConfirmationModalError}
             />
-            {isLoading && <LinearLoader extraClass='top-0'/>}
+            {isLoading && <LinearLoader extraClass='top-0' />}
             <Header
                 projectDetails={projectDetails}
                 handleResetProjectDetails={handleResetProjectDetails}
@@ -216,9 +229,9 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                         dataLength={defaultPerPageLimit}
                         next={handlePagination}
                         hasMore={hasMoreSubscriptions}
-                        loader={<Spinner/>}
+                        loader={<Spinner />}
                         endMessage={
-                            <p style={{textAlign: 'center'}}>
+                            <p style={{ textAlign: 'center' }}>
                                 <b>{'No more subscriptions present.'}</b>
                             </p>
                         }
@@ -248,7 +261,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 ) : (
                     <EmptyState
                         title='No subscriptions yet'
-                        subTitle={{text: 'You can add a subscription by clicking the below button.'}}
+                        subTitle={{ text: 'You can add a subscription by clicking the below button.' }}
                         buttonText='Add new subscription'
                         buttonAction={handleSubscriptionModal}
                         icon='subscriptions'

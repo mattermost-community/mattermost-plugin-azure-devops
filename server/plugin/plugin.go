@@ -112,13 +112,13 @@ func IsLinkPresent(msg string, regex string) ([]string, string, bool) {
 }
 
 func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
-	// Check if message contains a work item link.
+	// Check if a message contains a work item link.
 	if taskData, _, isValid := IsLinkPresent(post.Message, constants.TaskLinkRegex); isValid {
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
 
-	// Check if message contains a pull request link.
+	// Check if a message contains a pull request link.
 	if pullRequestData, link, isValid := IsLinkPresent(post.Message, constants.PullRequestLinkRegex); isValid {
 		newPost, msg := p.PostPullRequestPreview(pullRequestData, link, post.UserId, post.ChannelId)
 		return newPost, msg

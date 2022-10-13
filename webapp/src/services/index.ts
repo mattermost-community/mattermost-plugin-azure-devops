@@ -2,7 +2,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 
 import Cookies from 'js-cookie';
 
-import Constants from 'plugin_constants';
+import Constants from 'pluginConstants';
 import Utils from 'utils';
 
 // Service to make plugin API requests

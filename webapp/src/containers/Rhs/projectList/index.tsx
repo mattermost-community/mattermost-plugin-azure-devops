@@ -6,7 +6,7 @@ import EmptyState from 'components/emptyState';
 import LinearLoader from 'components/loader/linear';
 import ConfirmationModal from 'components/modal/confirmationModal';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import {setProjectDetails} from 'reducers/projectDetails';
 import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
@@ -46,7 +46,7 @@ const ProjectList = () => {
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
         makeApiRequestWithCompletionStatus(
-            plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+            pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
             projectToBeUnlinked,
         );
     };
@@ -59,12 +59,12 @@ const ProjectList = () => {
 
     // Handle sucess/error response of API call made to unlink project
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
         payload: projectToBeUnlinked,
         handleSuccess: handleActionsAfterUnlinkingProject,
     });
 
-    const {data, isSuccess, isLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
+    const {data, isSuccess, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
     const projectsList = data as ProjectDetails[] ?? [];
     const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]); // TODO: Look for best optimisation method here
 
@@ -76,7 +76,7 @@ const ProjectList = () => {
                     isOpen={showConfirmationModal}
                     onHide={() => setShowConfirmationModal(false)}
                     onConfirm={handleConfirmUnlinkProject}
-                    isLoading={getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
+                    isLoading={getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
                     confirmBtnText='Unlink'
                     description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
                     title='Confirm Project Unlink'

@@ -1,7 +1,7 @@
 /**
  * Utils
 */
-import Constants from 'plugin_constants';
+import Constants from 'pluginConstants';
 
 import {getOrganizationList, getProjectList} from './filterData';
 import getErrorMessage from './errorHandling';

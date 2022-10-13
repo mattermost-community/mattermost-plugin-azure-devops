@@ -5,7 +5,7 @@ import Modal from 'components/modal';
 import Form from 'components/form';
 import ResultPanel from 'components/resultPanel';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getLinkModalState} from 'selectors';
@@ -17,7 +17,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import Utils from 'utils';
 
 const LinkModal = () => {
-    const {linkProjectModal: linkProjectModalFields} = plugin_constants.form;
+    const {linkProjectModal: linkProjectModalFields} = pluginConstants.form;
 
     // Hooks
     const {
@@ -53,14 +53,14 @@ const LinkModal = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request
             makeApiRequestWithCompletionStatus(
-                plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName,
+                pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName,
                 formFields as LinkPayload,
             );
         }
     };
 
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName,
         payload: formFields as LinkPayload,
         handleSuccess: () => {
             setShowResultPanel(true);
@@ -76,7 +76,7 @@ const LinkModal = () => {
         });
     }, [visibility]);
 
-    const {isLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
+    const {isLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
 
     return (
         <Modal

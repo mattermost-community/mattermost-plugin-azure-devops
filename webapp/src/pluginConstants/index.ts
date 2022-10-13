@@ -11,12 +11,22 @@ import {
     serviceTypeMap,
     defaultPage,
     defaultPerPageLimit,
-    SubscriptionFilterCreatedBy,
+    subscriptionFilters,
     boards,
     repos,
+    defaultSubscriptionFilters,
+    filterLabelValuePairAll,
 } from './common';
 import {SVGIcons} from './icons';
-import {linkProjectModal, createTaskModal, subscriptionModal, subscriptionFilterOptions} from './form';
+import {
+    linkProjectModal,
+    createTaskModal,
+    subscriptionModal,
+    subscriptionFilterCreatedByOptions,
+    subscriptionFilterServiceTypeOptions,
+    subscriptionFilterEventTypeBoardsOptions,
+    subscriptionFilterEventTypeReposOptions,
+} from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
@@ -31,15 +41,20 @@ export default {
         serviceTypeMap,
         defaultPage,
         defaultPerPageLimit,
-        SubscriptionFilterCreatedBy,
+        subscriptionFilters,
         boards,
         repos,
+        defaultSubscriptionFilters,
+        filterLabelValuePairAll,
     },
     form: {
         linkProjectModal,
         createTaskModal,
         subscriptionModal,
-        subscriptionFilterOptions,
+        subscriptionFilterCreatedByOptions,
+        subscriptionFilterServiceTypeOptions,
+        subscriptionFilterEventTypeBoardsOptions,
+        subscriptionFilterEventTypeReposOptions,
     },
     messages: {
         error,

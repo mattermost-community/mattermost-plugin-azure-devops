@@ -332,13 +332,40 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
+	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
+	eventType := r.URL.Query().Get(constants.QueryParamEventType)
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}
 		for _, subscription := range subscriptionList {
 			if subscription.ProjectName == project {
 				if channelID == "" || subscription.ChannelID == channelID {
-					subscriptionByProject = append(subscriptionByProject, subscription)
+					switch serviceType {
+					case "", constants.FilterAll:
+						subscriptionByProject = append(subscriptionByProject, subscription)
+					case constants.FilterBoards:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
+					case constants.FilterRepos:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
+					}
 				}
 			}
 		}

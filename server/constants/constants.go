@@ -64,16 +64,21 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	QueryParamProject   = "project"
-	QueryParamChannelID = "channel_id"
-	QueryParamCreatedBy = "created_by"
-	QueryParamPage      = "page"
-	QueryParamPerPage   = "per_page"
+	QueryParamProject     = "project"
+	QueryParamChannelID   = "channel_id"
+	QueryParamCreatedBy   = "created_by"
+	QueryParamServiceType = "service_type"
+	QueryParamEventType   = "event_type"
+	QueryParamPage        = "page"
+	QueryParamPerPage     = "per_page"
 
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
 	FilterAllChannels     = "all_channels"
+	FilterAll             = "all"
+	FilterBoards          = "boards"
+	FilterRepos           = "repos"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50
@@ -96,13 +101,33 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	SubscriptionEventTypeDummy = "dummy"
-	GitBranchIcon              = "git-branch-icon.svg"
-	FileNameProjectIcon        = "project-icon.svg"
-	FileNameReposIcon          = "repos-icon.svg"
-	FileNameBoardsIcon         = "boards-icon.svg"
-	IconColorBoards            = "#53bba1"
-	IconColorRepos             = "#d74f27"
+
+	GitBranchIcon = "git-branch-icon.svg"
+	ProjectIcon   = "project-icon.svg"
+
+	FileNameProjectIcon = "project-icon.svg"
+	FileNameReposIcon   = "repos-icon.svg"
+	FileNameBoardsIcon  = "boards-icon.svg"
+	IconColorBoards     = "#53bba1"
+	IconColorRepos      = "#d74f27"
 
 	SlackAttachmentAuthorNameRepos  = "Azure Repos"
 	SlackAttachmentAuthorNameBoards = "Azure Boards"
+)
+
+var (
+	ValidSubscriptionEventsForBoards = map[string]bool{
+		SubscriptionEventWorkItemCreated:   true,
+		SubscriptionEventWorkItemUpdated:   true,
+		SubscriptionEventWorkItemDeleted:   true,
+		SubscriptionEventWorkItemCommented: true,
+	}
+
+	ValidSubscriptionEventsForRepos = map[string]bool{
+		SubscriptionEventPullRequestCreated:   true,
+		SubscriptionEventPullRequestMerged:    true,
+		SubscriptionEventPullRequestUpdated:   true,
+		SubscriptionEventPullRequestCommented: true,
+		SubscriptionEventCodePushed:           true,
+	}
 )

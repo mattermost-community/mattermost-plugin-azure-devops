@@ -244,7 +244,7 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 		case constants.SubscriptionEventPullRequestCreated:
 			displayEventType = "Pull Request Created"
 		case constants.SubscriptionEventPullRequestUpdated:
-			displayEventType = "Pull Request Deleted"
+			displayEventType = "Pull Request Updated"
 		case constants.SubscriptionEventPullRequestMerged:
 			displayEventType = "Pull Request Merge Attempted"
 		case constants.SubscriptionEventPullRequestCommented:

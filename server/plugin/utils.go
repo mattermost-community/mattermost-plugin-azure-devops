@@ -210,10 +210,17 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 	return fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect))
 }
 
-func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID, command string) string {
+func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID, command, teamID string) string {
 	var sb strings.Builder
 
-	if len(subscriptionsList) == 0 {
+	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID)
+	if filteredSubscriptionErr != nil {
+		p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+		sb.WriteString(constants.GenericErrorMessage)
+		return sb.String()
+	}
+
+	if len(filteredSubscriptionList) == 0 {
 		sb.WriteString(fmt.Sprintf("No %s subscription exists", command))
 		return sb.String()
 	}
@@ -223,7 +230,7 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
 	noSubscriptionFound := true
-	for _, subscription := range subscriptionsList {
+	for _, subscription := range filteredSubscriptionList {
 		displayEventType := ""
 		switch subscription.EventType {
 		case constants.SubscriptionEventWorkItemCreated:
@@ -264,7 +271,7 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 
 	if noSubscriptionFound {
 		sb.Reset()
-		sb.WriteString(fmt.Sprintf("No %s subscription exists for this channel", command))
+		sb.WriteString(fmt.Sprintf("No %s subscription exists", command))
 	}
 
 	return sb.String()

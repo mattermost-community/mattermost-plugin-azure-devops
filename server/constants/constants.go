@@ -105,17 +105,19 @@ const (
 	ProjectIcon   = "project-icon.svg"
 )
 
-var ValidSubscriptionEventsForBoards = map[string]bool{
-	SubscriptionEventWorkItemCreated:   true,
-	SubscriptionEventWorkItemUpdated:   true,
-	SubscriptionEventWorkItemDeleted:   true,
-	SubscriptionEventWorkItemCommented: true,
-}
+var (
+	ValidSubscriptionEventsForBoards = map[string]bool{
+		SubscriptionEventWorkItemCreated:   true,
+		SubscriptionEventWorkItemUpdated:   true,
+		SubscriptionEventWorkItemDeleted:   true,
+		SubscriptionEventWorkItemCommented: true,
+	}
 
-var ValidSubscriptionEventsForRepos = map[string]bool{
-	SubscriptionEventPullRequestCreated:   true,
-	SubscriptionEventPullRequestMerged:    true,
-	SubscriptionEventPullRequestUpdated:   true,
-	SubscriptionEventPullRequestCommented: true,
-	SubscriptionEventCodePushed:           true,
-}
+	ValidSubscriptionEventsForRepos = map[string]bool{
+		SubscriptionEventPullRequestCreated:   true,
+		SubscriptionEventPullRequestMerged:    true,
+		SubscriptionEventPullRequestUpdated:   true,
+		SubscriptionEventPullRequestCommented: true,
+		SubscriptionEventCodePushed:           true,
+	}
+)

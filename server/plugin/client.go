@@ -24,6 +24,7 @@ type Client interface {
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
+	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 }
 
 type client struct {
@@ -199,6 +200,18 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 	}
 
 	return statusCode, nil
+}
+
+func (c *client) GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error) {
+	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositories, organization, projectName)
+
+	var gitRepositories *serializers.GitRepositoriesResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitRepositories, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the git repositories for a project")
+	}
+
+	return gitRepositories, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

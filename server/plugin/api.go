@@ -47,6 +47,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.handleGetGitRepositories)).Methods(http.MethodGet)
 }
 
 // API to create task of a project in an organization.
@@ -723,6 +724,28 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 	)
 
 	p.writeJSON(w, &userDetails)
+}
+
+func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
+
+	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
+		p.API.LogError(constants.ErrorOrganizationOrProjectQueryParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorOrganizationOrProjectQueryParam})
+		return
+	}
+
+	response, statusCode, err := p.Client.GetGitRepositories(organization, project, mattermostUserID)
+	if err != nil {
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	p.writeJSON(w, response.Value)
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, v interface{}) {

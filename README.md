@@ -21,19 +21,19 @@ This plugin integrates the services of Azure DevOps in Mattermost. For a stable 
 This plugin contains the following features:
 - Right-hand sidebar (RHS) shows the list of linked projects and subscriptions created for each project with separate buttons to connect an account, link or unlink a project and add or delete a subscription.
 
-- Preview of the Work item or Pull request URL: A preview of the work item or pull request for a linked project will be created when their respective URLs are posted in a channel and the user is connected to his/her Azure DevOps account.
+- Preview of the work item or pull request URL: A preview of the work item or pull request for a linked project will be created when their respective URLs are posted in a channel and the user is connected to his/her Azure DevOps account.
 
 - OAuth: A user can connect or disconnect to their Azure DevOps account using the slash command below or clicking on the "Connect Your Account" button in RHS.
 
     ```
-    - /azuredevops connect
-    - /azuredevops disconnect
+    /azuredevops connect
+    /azuredevops disconnect
     ```
 
 - Link projects: A user can link a project existing on Azure DevOps using the slash command below or clicking on the "Link new project" button in RHS.
 
     ```
-    - /azuredevops link [project link]
+    /azuredevops link [project link]
     ```
 
 - Unlink projects: A user can unlink a project appearing in the RHS under "Linked Projects" by clicking on the unlink-icon button.
@@ -41,7 +41,7 @@ This plugin contains the following features:
 - Create work items: A work item can be created using the slash command below.
 
     ```
-    - /azuredevops boards create [title] [description]
+    /azuredevops boards create [title] [description]
     ```
     On successful creation of a work item, you will get a message from the bot with the details of the newly created work item.
 
@@ -50,52 +50,52 @@ To add a new subscription for a linked project click on the project title under 
     - For creating Boards subscriptions
 
     ```
-    - /azuredevops boards subscription add
+    /azuredevops boards subscription add
     ```
 
     - For creating Repos subscriptions
 
     ```
-    - /azuredevops repos subscription add
+    /azuredevops repos subscription add
     ```
 
-    **Note:** Mattermost users who are project admins or team admins on the linked Azure DevOps project can only create/delete a subscription.
+    **Note:** Only Mattermost users who are project admins or team admins on the linked Azure DevOps project can create/delete a subscription.
 
-- View/List subscriptions: A user can view the list of subscriptions for a project by going to the subscriptions list page after clicking on the project title under "Linked Projects". Users can also view the list of all subscriptions for a channel by using the below slash command in the channel.
+- View/List subscriptions: A user can view the list of subscriptions for a project by going to the subscriptions list page after clicking on the project title under "Linked Projects" in the right-hand sidebar. Users can also view the list of all subscriptions for a channel by using the below slash command in the channel.
 
     - For listing Boards subscriptions
 
     ```
-    - /azuredevops boards subscription list anyone all_channels
+    /azuredevops boards subscription list anyone all_channels
     ```
 
     - For listing Repos subscriptions
 
     ```
-    - /azuredevops repos subscription list anyone all_channels 
+    /azuredevops repos subscription list anyone all_channels 
     ```
 
     Supported filters on the above slash command:
     - CreatedBy: `me`(show all subscriptions created by the current Mattermost user), `anyone`(show all subscriptions created by any Mattermost user)
-    - Show for all channels: when the filter `all_channels` is passed in the slash command then subscriptions for all channels are listed, you can leave this to list the subscriptions of the current channel only.
+    - Show for all channels: When the filter `all_channels` is passed in the slash command then subscriptions for all channels are listed. You can skit this filter param to list the subscriptions of the current channel only.
 
-    **Note:** Mattermost users who are project admins or team admins on the linked Azure DevOps project can only view/list subscriptions that exist in a channel where he/she is not a member.
+    **Note:** Only Mattermost users who are project admins or team admins on the linked Azure DevOps project can view/list subscriptions that exist in a channel where they are not a member.
 
 - Delete subscriptions: A user can delete subscriptions for a project from RHS by going to the subscriptions list page after clicking on the project title under "Linked Projects". Users can also delete a subscription for a project by using the slash command below.
 
     - For deleting Boards subscriptions
 
     ```
-    - /azuredevops boards subscription delete [subscription id]
+    /azuredevops boards subscription delete [subscription id]
     ```
 
     - For deleting Repos subscriptions
 
     ```
-    - /azuredevops repos subscription delete [subscription id]
+    /azuredevops repos subscription delete [subscription id]
     ```
 
-    **Note:** Mattermost users who are project admins or team admins on the linked Azure DevOps project can only create/delete a subscription.
+    **Note:** Only Mattermost users who are project admins or team admins on the linked Azure DevOps project can create/delete a subscription.
 
 ## Installation
 

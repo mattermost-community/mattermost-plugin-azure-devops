@@ -3,7 +3,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import Cookies from 'js-cookie';
 
 import Constants from 'pluginConstants';
-import Utils from 'utils';
+import Utils, {addPathParamsToApiUrl} from 'utils';
 
 // Service to make plugin API requests
 const azureDevOpsPluginApi = createApi({
@@ -70,6 +70,13 @@ const azureDevOpsPluginApi = createApi({
                 url: `${Constants.pluginApiServiceConfigs.getSubscriptionList.path}/${params.team_id}`,
                 method: Constants.pluginApiServiceConfigs.getSubscriptionList.method,
                 params: {...params},
+            }),
+        }),
+        [Constants.pluginApiServiceConfigs.getRepositories.apiServiceName]: builder.query<ReposSubscriptionFiltersResponse[], ReposSubscriptionFiltersRequest>({
+            query: (pathParams) => ({
+                headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
+                url: addPathParamsToApiUrl(Constants.pluginApiServiceConfigs.getRepositories.path, pathParams),
+                method: Constants.pluginApiServiceConfigs.getRepositories.method,
             }),
         }),
         [Constants.pluginApiServiceConfigs.deleteSubscription.apiServiceName]: builder.query<void, APIRequestPayload>({

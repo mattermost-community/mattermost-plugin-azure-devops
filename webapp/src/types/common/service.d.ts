@@ -9,7 +9,8 @@ type ApiServiceName =
     'createSubscription' |
     'getChannels' |
     'getSubscriptionList' |
-    'deleteSubscription'
+    'deleteSubscription' |
+    'getRepositories'
 
 type PluginApiService = {
     path: string,
@@ -32,4 +33,6 @@ type APIRequestPayload =
     SubscriptionPayload |
     FetchChannelParams |
     FetchSubscriptionList |
+    ReposSubscriptionFiltersRequest |
+    ReposSubscriptionFiltersResponse |
     void;

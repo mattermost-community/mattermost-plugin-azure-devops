@@ -59,9 +59,40 @@ export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> |
 
 export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => project1.projectName.toLocaleLowerCase().localeCompare(project2.projectName.toLocaleLowerCase());
 
+export const addPathParamsToApiUrl = (url: string, pathParams?: Record<string, string>) => {
+    if (!pathParams) {
+        return url;
+    }
+
+    let newUrl = url;
+    Object.keys(pathParams).forEach((param) => {
+        newUrl = url.replace(`:${param}`, pathParams[param]);
+    });
+    return newUrl;
+};
+
+export const formLabelValuePair = (labelKey: string, valueKey: string, data: Record<string, string>) => {
+    const labelValuePair: LabelValuePair = {
+        label: data[labelKey] ?? '',
+        value: data[valueKey] ?? '',
+    };
+
+    return labelValuePair;
+};
+
+export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Record<string, string>[]) => {
+    const labelValuePairs: LabelValuePair[] = [];
+    data.forEach((item) => labelValuePairs.push(formLabelValuePair(labelKey, valueKey, item)));
+
+    return labelValuePairs;
+};
+
 export default {
     getBaseUrls,
     getErrorMessage,
     getOrganizationList,
     getProjectList,
+    addPathParamsToApiUrl,
+    formLabelValuePair,
+    formLabelValuePairs,
 };

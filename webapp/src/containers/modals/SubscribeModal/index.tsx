@@ -24,6 +24,8 @@ import Utils from 'utils';
 import './styles.scss';
 import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 
+import ReposFilter from './filters/repos';
+
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
     const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
@@ -243,17 +245,38 @@ const SubscribeModal = () => {
                 {
                     !showResultPanel && (
                         isAnyProjectLinked ? (
-                            Object.keys(subscriptionModalFields).map((field) => (
-                                <Form
-                                    key={subscriptionModalFields[field as SubscriptionModalFields].label}
-                                    fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
-                                    value={formFields[field as SubscriptionModalFields] ?? ''}
-                                    optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                                    onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
-                                    error={errorState[field as SubscriptionModalFields]}
-                                    isDisabled={isLoading}
-                                />
-                            ))
+                            <>
+                                {
+                                    Object.keys(subscriptionModalFields).map((field) => (
+                                        <Form
+                                            key={subscriptionModalFields[field as SubscriptionModalFields].label}
+                                            fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
+                                            value={formFields[field as SubscriptionModalFields] ?? ''}
+                                            optionsList={getDropDownOptions(field as SubscriptionModalFields)}
+                                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                            error={errorState[field as SubscriptionModalFields]}
+                                            isDisabled={isLoading}
+                                        />
+                                    ))
+                                }
+                                {
+                                    formFields.serviceType === pluginConstants.common.repos && (
+                                        <>
+                                            <ReposFilter
+                                                organization={organization as string}
+                                                project={project as string}
+                                                selectedRepo={formFields.repository ?? ''}
+                                                handleSelectRepo={(newValue) => {
+                                                    setSpecificFieldValue({
+                                                        ...formFields,
+                                                        repository: newValue,
+                                                    });
+                                                }}
+                                            />
+                                        </>
+                                    )
+                                }
+                            </>
                         ) : (
                             <EmptyState
                                 title='No Project Linked'

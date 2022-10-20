@@ -66,7 +66,7 @@ export const addPathParamsToApiUrl = (url: string, pathParams?: Record<string, s
 
     let newUrl = url;
     Object.keys(pathParams).forEach((param) => {
-        newUrl = url.replace(`:${param}`, pathParams[param]);
+        newUrl = newUrl.replace(`:${param}`, pathParams[param]);
     });
     return newUrl;
 };

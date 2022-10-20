@@ -25,6 +25,7 @@ type Client interface {
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
+	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 }
 
 type client struct {
@@ -213,6 +214,18 @@ func (c *client) GetGitRepositories(organization, projectName, mattermostUserID 
 	}
 
 	return gitRepositories, statusCode, nil
+}
+
+func (c *client) GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error) {
+	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositoryBranches, organization, projectName, repository)
+
+	var gitBranchesResponse *serializers.GitBranchesResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitBranchesResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the git repository branches for a project")
+	}
+
+	return gitBranchesResponse, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

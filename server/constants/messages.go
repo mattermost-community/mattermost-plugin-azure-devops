@@ -68,4 +68,5 @@ const (
 	ErrorMessageForAdmin                 = "There is no registered handler for the service hooks event type %s"
 	AccessDenied                         = "Access Denied"
 	ErrorOrganizationOrProjectQueryParam = "Invalid organization or project name"
+	ErrorRepositoryPathParam             = "Invalid organization, project or repository params"
 )

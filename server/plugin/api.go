@@ -48,6 +48,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.handleGetGitRepositories)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 }
 
 // API to create task of a project in an organization.
@@ -743,6 +744,35 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
+	}
+
+	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
+	repository := pathParams[constants.PathParamRepository]
+
+	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 || len(strings.TrimSpace(repository)) == 0 {
+		p.API.LogError(constants.ErrorRepositoryPathParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorRepositoryPathParam})
+		return
+	}
+
+	response, statusCode, err := p.Client.GetGitRepositoryBranches(organization, project, repository, mattermostUserID)
+	if err != nil {
+		p.API.LogError("Error in fetching git repository branches", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	// Azure DevOps return branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
+	for index, value := range response.Value {
+		response.Value[index].Name = value.Name[11:]
 	}
 
 	p.writeJSON(w, response.Value)

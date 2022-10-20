@@ -63,6 +63,7 @@ const (
 	PathParamTeamID       = "team_id"
 	PathParamOrganization = "organization"
 	PathParamProject      = "project"
+	PathParamRepository   = "repository"
 
 	// URL query params constants
 	QueryParamProject     = "project"

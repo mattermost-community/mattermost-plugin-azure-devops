@@ -1,11 +1,11 @@
 import React, {useEffect, useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
+import {filterLabelValuePairAll} from 'pluginConstants/common';
 
 import Dropdown from 'components/dropdown';
 
 import usePluginApi from 'hooks/usePluginApi';
-import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 import {formLabelValuePairs} from 'utils';
 
@@ -43,7 +43,7 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo}: Re
             placeholder='Repository'
             value={selectedRepo}
             onChange={handleSelectRepo}
-            options={formLabelValuePairs('name', 'id', repositoriesData)}
+            options={[filterLabelValuePairAll, ...formLabelValuePairs('name', 'id', repositoriesData)]}
             error={isGetRepositoriesError}
             loadingOptions={isGetRepositoriesLoading}
         />

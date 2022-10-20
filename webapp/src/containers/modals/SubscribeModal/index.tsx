@@ -24,6 +24,8 @@ import Utils from 'utils';
 import './styles.scss';
 import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 
+import {filterLabelValuePairAll} from 'pluginConstants/common';
+
 import ReposFilter from './filters/repos';
 
 const SubscribeModal = () => {
@@ -224,6 +226,12 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
+    const handleSetRepoFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -265,13 +273,8 @@ const SubscribeModal = () => {
                                             <ReposFilter
                                                 organization={organization as string}
                                                 project={project as string}
-                                                selectedRepo={formFields.repository ?? ''}
-                                                handleSelectRepo={(newValue) => {
-                                                    setSpecificFieldValue({
-                                                        ...formFields,
-                                                        repository: newValue,
-                                                    });
-                                                }}
+                                                selectedRepo={formFields.repository || filterLabelValuePairAll.value}
+                                                handleSelectRepo={handleSetRepoFilter}
                                             />
                                         </>
                                     )

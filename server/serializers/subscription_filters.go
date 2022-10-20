@@ -1,19 +1,19 @@
 package serializers
 
 type GitRepositoriesResponse struct {
-	Value []GitRepositories `json:"value"`
+	Value []*GitRepository `json:"value"`
 }
 
-type GitRepositories struct {
+type GitRepository struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 type GitBranchesResponse struct {
-	Value []GitBranches `json:"value"`
+	Value []*GitBranch `json:"value"`
 }
 
-type GitBranches struct {
+type GitBranch struct {
 	ID   string `json:"objectId"`
 	Name string `json:"name"`
 }

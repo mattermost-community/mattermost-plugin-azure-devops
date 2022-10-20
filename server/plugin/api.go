@@ -47,7 +47,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.handleGetGitRepositories)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 }
 
@@ -742,6 +742,7 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 
 	response, statusCode, err := p.Client.GetGitRepositories(organization, project, mattermostUserID)
 	if err != nil {
+		p.API.LogError("Error in fetching git repositories", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}

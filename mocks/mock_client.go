@@ -75,6 +75,16 @@ func (m *MockClient) CreateTask(arg0 *serializers.CreateTaskRequestPayload, arg1
 	return ret0, ret1, ret2
 }
 
+// GetGitRepositories mocks base method
+func (m *MockClient) GetGitRepositories(arg0, arg1, arg2 string) (*serializers.GitRepositoriesResponse, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGitRepositories", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*serializers.GitRepositoriesResponse)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
 // CreateTask indicates an expected call of CreateTask
 func (mr *MockClientMockRecorder) CreateTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()

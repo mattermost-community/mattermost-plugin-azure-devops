@@ -772,8 +772,10 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 	}
 
 	// Azure DevOps return branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
-	for index, value := range response.Value {
-		response.Value[index].Name = value.Name[11:]
+	for _, value := range response.Value {
+		if strings.Contains(value.Name, "refs/heads/") && len(value.Name) > 11 {
+			value.Name = value.Name[11:]
+		}
 	}
 
 	p.writeJSON(w, response.Value)

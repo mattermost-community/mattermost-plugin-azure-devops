@@ -75,14 +75,14 @@ const azureDevOpsPluginApi = createApi({
         [Constants.pluginApiServiceConfigs.getRepositories.apiServiceName]: builder.query<ReposSubscriptionFiltersResponse[], ReposSubscriptionFiltersRequest>({
             query: (pathParams) => ({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
-                url: addPathParamsToApiUrl(Constants.pluginApiServiceConfigs.getRepositories.path, pathParams),
+                url: addPathParamsToApiUrl(Constants.pluginApiServiceConfigs.getRepositories.path, pathParams as unknown as Record<string, string>),
                 method: Constants.pluginApiServiceConfigs.getRepositories.method,
             }),
         }),
         [Constants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName]: builder.query<ReposSubscriptionTargetBranchFilterResponse[], ReposSubscriptionFiltersRequest>({
             query: (pathParams) => ({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
-                url: addPathParamsToApiUrl(Constants.pluginApiServiceConfigs.getRepositoryBranches.path, pathParams),
+                url: addPathParamsToApiUrl(Constants.pluginApiServiceConfigs.getRepositoryBranches.path, pathParams as unknown as Record<string, string>),
                 method: Constants.pluginApiServiceConfigs.getRepositoryBranches.method,
             }),
         }),

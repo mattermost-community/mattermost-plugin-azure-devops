@@ -140,6 +140,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	publisherInputs := serializers.PublisherInputs{
 		ProjectID:  project.ProjectID,
 		Repository: body.Repository,
+		Branch:     body.TargetBranch,
 	}
 
 	consumerInputs := serializers.ConsumerInputs{

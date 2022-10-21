@@ -21,7 +21,7 @@ type PluginApiService = {
 
 type ApiErrorResponse = {
     data: {
-        error: string
+        Error: string
     },
     status: number
 }

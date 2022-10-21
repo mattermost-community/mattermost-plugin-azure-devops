@@ -232,6 +232,12 @@ const SubscribeModal = () => {
             repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
         });
 
+    const handleSetTargetBranchFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            targetBranch: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -275,6 +281,8 @@ const SubscribeModal = () => {
                                                 project={project as string}
                                                 selectedRepo={formFields.repository || filterLabelValuePairAll.value}
                                                 handleSelectRepo={handleSetRepoFilter}
+                                                selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
+                                                handleSelectTargetBranch={handleSetTargetBranchFilter}
                                             />
                                         </>
                                     )

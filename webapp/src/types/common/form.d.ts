@@ -4,7 +4,7 @@ type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal'
 
 type LinkProjectModalFields = 'organization' | 'project' | 'timestamp'
 type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp'
-type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp' | 'serviceType' | 'repository'
+type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp' | 'serviceType' | 'repository' | 'targetBranch'
 
 type ModalFormFieldConfig = {
     label: string

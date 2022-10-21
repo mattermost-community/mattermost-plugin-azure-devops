@@ -16,7 +16,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy}, subscriptionDetails}: SubscriptionCardProps) => (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, repository, targetBranch}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <>
             <div className='d-flex justify-content-between align-items-center mb-2'>
@@ -60,6 +60,10 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                 <LabelValuePair
                     labelIconClassName={'icon icon-account-outline icon-label'}
                     value={`Subscription created by ${createdBy}`}
+                />
+                {/* TODO: Below UI will change once Figma is ready*/}
+                <LabelValuePair
+                    value={`Filter(s): Repository - ${repository.slice(0, 3)}, Target Branch - ${targetBranch}`}
                 />
             </div>
         </>

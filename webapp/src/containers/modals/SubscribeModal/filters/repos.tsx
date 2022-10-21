@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
 import {filterLabelValuePairAll} from 'pluginConstants/common';
@@ -12,15 +12,15 @@ import {formLabelValuePairs} from 'utils';
 type ReposFilterProps = {
     handleSelectRepo: (repo: string) => void
     selectedRepo: string
+    selectedTargetBranch: string
+    handleSelectTargetBranch: (branch: string) => void
 } & ReposSubscriptionFiltersRequest
 
-const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo}: ReposFilterProps) => {
+const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, selectedTargetBranch, handleSelectTargetBranch}: ReposFilterProps) => {
     const {
         getApiState,
         makeApiRequestWithCompletionStatus,
     } = usePluginApi();
-
-    const [targetBranch, setTargetBranch] = useState<string>(filterLabelValuePairAll.value);
 
     const reposSubscriptionFiltersRequest = useMemo<ReposSubscriptionFiltersRequest>(() => ({
         organization,
@@ -41,11 +41,13 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo}: Re
     }, [reposSubscriptionFiltersRequest]);
 
     useEffect(() => {
-        makeApiRequestWithCompletionStatus(
-            pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,
-            reposSubscriptionTargetBranchFiltersRequest,
-        );
-    }, [reposSubscriptionTargetBranchFiltersRequest]);
+        if (selectedTargetBranch !== filterLabelValuePairAll.value) {
+            makeApiRequestWithCompletionStatus(
+                pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,
+                reposSubscriptionTargetBranchFiltersRequest,
+            );
+        }
+    }, [reposSubscriptionTargetBranchFiltersRequest.repository]);
 
     const {data: repositoriesDateFromApi, isLoading: isGetRepositoriesLoading, isError: isGetRepositoriesError} = getApiState(
         pluginConstants.pluginApiServiceConfigs.getRepositories.apiServiceName,
@@ -59,7 +61,7 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo}: Re
     );
     const repositoryBranchesData = repositoryBranchesDataFromApi as ReposSubscriptionTargetBranchFilterResponse[] || [];
 
-    const getTargetBranchOptions = useCallback(() => ([{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'objectId', repositoryBranchesData)]), [selectedRepo]);
+    const getTargetBranchOptions = useCallback(() => ([{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'name', repositoryBranchesData)]), [selectedRepo]);
 
     return (
         <>
@@ -76,8 +78,8 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo}: Re
             </div>
             <Dropdown
                 placeholder='Target Branch'
-                value={targetBranch}
-                onChange={(newValue) => setTargetBranch(newValue)}
+                value={selectedTargetBranch}
+                onChange={handleSelectTargetBranch}
                 options={getTargetBranchOptions()}
                 error={isGetRepositoryBranchesError}
                 loadingOptions={isGetRepositoryBranchesLoading}

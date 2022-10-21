@@ -17,6 +17,7 @@ type UserID struct {
 type PublisherInputs struct {
 	ProjectID  string `json:"projectId"`
 	Repository string `json:"repository"`
+	Branch     string `json:"branch"`
 }
 
 type ConsumerInputs struct {
@@ -48,6 +49,7 @@ type CreateSubscriptionRequestPayload struct {
 	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 	Repository   string `json:"repository"`
+	TargetBranch string `json:"targetBranch"`
 }
 
 type CreateSubscriptionBodyPayload struct {
@@ -71,6 +73,8 @@ type SubscriptionDetails struct {
 	ChannelType      string `json:"channelType"`
 	SubscriptionID   string `json:"subscriptionID"`
 	CreatedBy        string `json:"createdBy"`
+	TargetBranch     string `json:"targetBranch"`
+	Repository       string `json:"repository"`
 }
 
 type DetailedMessage struct {
@@ -139,6 +143,8 @@ type DeleteSubscriptionRequestPayload struct {
 	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 	MMUserID     string `json:"mmUserID"`
+	TargetBranch string `json:"targetBranch"`
+	Repository   string `json:"repository"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

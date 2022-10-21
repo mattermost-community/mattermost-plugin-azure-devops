@@ -50,4 +50,9 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         method: 'GET',
         apiServiceName: 'getRepositories',
     },
+    getRepositoryBranches: {
+        path: '/:organization/:project/repositories/:repository/branches',
+        method: 'GET',
+        apiServiceName: 'getRepositoryBranches',
+    },
 };

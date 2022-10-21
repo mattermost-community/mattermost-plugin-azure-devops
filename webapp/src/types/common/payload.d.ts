@@ -28,4 +28,5 @@ interface PaginationQueryParams {
 type ReposSubscriptionFiltersRequest = {
     organization: string
     project: string
+    repository?: string
 }

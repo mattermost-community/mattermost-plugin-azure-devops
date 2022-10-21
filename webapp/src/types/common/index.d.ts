@@ -95,3 +95,8 @@ type ReposSubscriptionFiltersResponse = {
     id: string,
     name: string
 }
+
+type ReposSubscriptionTargetBranchFilterResponse = {
+    objectId: string,
+    name: string
+}

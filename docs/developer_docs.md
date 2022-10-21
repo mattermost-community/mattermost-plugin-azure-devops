@@ -78,7 +78,7 @@ To add a new subscription for a linked project click on the project title under 
 
     Supported filters on the above slash command:
     - CreatedBy: `me`(show all subscriptions created by the current Mattermost user), `anyone`(show all subscriptions created by any Mattermost user)
-    - Show for all channels: When the filter `all_channels` is passed in the slash command then subscriptions for all channels are listed. You can skit this filter param to list the subscriptions of the current channel only.
+    - Show for all channels: When the filter `all_channels` is passed in the slash command then subscriptions for all channels are listed. You can skip this filter param to list the subscriptions of the current channel only.
 
     **Note:** Only Mattermost users who are project admins or team admins on the linked Azure DevOps project can view/list subscriptions that exist in a channel where they are not a member.
 

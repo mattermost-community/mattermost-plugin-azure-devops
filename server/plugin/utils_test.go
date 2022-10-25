@@ -693,14 +693,14 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
 			command:           constants.CommandRepos,
 			subscriptionsList: []*serializers.SubscriptionDetails{},
-			createdBy:       constants.FilterCreatedByMe,
+			createdBy:         constants.FilterCreatedByMe,
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandRepos),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: empty boards subscription list",
 			command:           constants.CommandBoards,
 			subscriptionsList: []*serializers.SubscriptionDetails{},
-			createdBy:       constants.FilterCreatedByMe,
+			createdBy:         constants.FilterCreatedByMe,
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},
 		{

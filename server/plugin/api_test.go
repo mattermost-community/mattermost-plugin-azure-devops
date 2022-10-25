@@ -975,3 +975,62 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleGetGitRepositories(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.API = mockAPI
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description           string
+		Organization          string
+		Project               string
+		GetGitRepositoriesErr error
+		statusCode            int
+	}{
+		{
+			description:  "HandleGetGitRepositories: valid",
+			Organization: "mockOrganization",
+			Project:      "mockProject",
+			statusCode:   http.StatusOK,
+		},
+		{
+			description:  "HandleGetGitRepositories: Invalid organization or project name",
+			Organization: "mockOrganization",
+			statusCode:   http.StatusBadRequest,
+		},
+		{
+			description:           "HandleGetGitRepositories: GetGitRepositories returns error",
+			Organization:          "mockOrganization",
+			Project:               "mockProject",
+			GetGitRepositoriesErr: errors.New("failed to get git repository branches"),
+			statusCode:            http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+
+			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
+				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.GetGitRepositoriesErr)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/branches", bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			pathParams := map[string]string{
+				"organization": testCase.Organization,
+				"project":      testCase.Project,
+			}
+
+			req = mux.SetURLVars(req, pathParams)
+
+			w := httptest.NewRecorder()
+			p.handleGetGitRepositories(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}

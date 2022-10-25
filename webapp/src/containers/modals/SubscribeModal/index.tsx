@@ -226,10 +226,11 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
-    const handleSetRepoFilter = (newValue: string) =>
+    const handleSetRepoFilter = (newValue: string, repoName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            repositoryName: repoName === filterLabelValuePairAll.label ? '' : repoName,
         });
 
     const handleSetTargetBranchFilter = (newValue: string) =>

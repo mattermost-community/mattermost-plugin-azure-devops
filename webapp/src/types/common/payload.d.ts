@@ -19,7 +19,8 @@ type SubscriptionPayload = {
     channelID: string,
     mmUserID: string,
     repository: string,
-    targetBranch: string
+    targetBranch: string,
+    repositoryName: string
 }
 
 interface PaginationQueryParams {

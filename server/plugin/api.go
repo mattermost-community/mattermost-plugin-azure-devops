@@ -299,6 +299,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		CreatedBy:        createdByDisplayName,
 		Repository:       body.Repository,
 		TargetBranch:     body.TargetBranch,
+		RepositoryName:   body.RepositoryName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})

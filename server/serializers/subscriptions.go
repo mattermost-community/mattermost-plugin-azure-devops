@@ -14,7 +14,11 @@ type UserID struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
-type PublisherInputs struct {
+type PublisherInputsBoards struct {
+	ProjectID string `json:"projectId"`
+}
+
+type PublisherInputsRepos struct {
 	ProjectID  string `json:"projectId"`
 	Repository string `json:"repository"`
 	Branch     string `json:"branch"`
@@ -43,22 +47,23 @@ type SubscriptionList struct {
 }
 
 type CreateSubscriptionRequestPayload struct {
-	Organization string `json:"organization"`
-	Project      string `json:"project"`
-	EventType    string `json:"eventType"`
-	ServiceType  string `json:"serviceType"`
-	ChannelID    string `json:"channelID"`
-	Repository   string `json:"repository"`
-	TargetBranch string `json:"targetBranch"`
+	Organization   string `json:"organization"`
+	Project        string `json:"project"`
+	EventType      string `json:"eventType"`
+	ServiceType    string `json:"serviceType"`
+	ChannelID      string `json:"channelID"`
+	Repository     string `json:"repository"`
+	RepositoryName string `json:"repositoryName"`
+	TargetBranch   string `json:"targetBranch"`
 }
 
 type CreateSubscriptionBodyPayload struct {
-	PublisherID      string          `json:"publisherId"`
-	EventType        string          `json:"eventType"`
-	ConsumerID       string          `json:"consumerId"`
-	ConsumerActionID string          `json:"consumerActionId"`
-	PublisherInputs  PublisherInputs `json:"publisherInputs"`
-	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
+	PublisherID      string         `json:"publisherId"`
+	EventType        string         `json:"eventType"`
+	ConsumerID       string         `json:"consumerId"`
+	ConsumerActionID string         `json:"consumerActionId"`
+	PublisherInputs  interface{}    `json:"publisherInputs"`
+	ConsumerInputs   ConsumerInputs `json:"consumerInputs"`
 }
 
 type SubscriptionDetails struct {
@@ -75,6 +80,7 @@ type SubscriptionDetails struct {
 	CreatedBy        string `json:"createdBy"`
 	TargetBranch     string `json:"targetBranch"`
 	Repository       string `json:"repository"`
+	RepositoryName   string `json:"repositoryName"`
 }
 
 type DetailedMessage struct {

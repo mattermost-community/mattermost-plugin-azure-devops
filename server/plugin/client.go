@@ -137,12 +137,6 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	publisherInputs := serializers.PublisherInputs{
-		ProjectID:  project.ProjectID,
-		Repository: body.Repository,
-		Branch:     body.TargetBranch,
-	}
-
 	consumerInputs := serializers.ConsumerInputs{
 		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
@@ -152,9 +146,22 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		EventType:        body.EventType,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
-		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}
+
+	switch body.ServiceType {
+	case constants.ServiceTypeBoards:
+		payload.PublisherInputs = serializers.PublisherInputsBoards{
+			ProjectID: project.ProjectID,
+		}
+	case constants.ServiceTypeRepos:
+		payload.PublisherInputs = serializers.PublisherInputsRepos{
+			ProjectID:  project.ProjectID,
+			Repository: body.Repository,
+			Branch:     body.TargetBranch,
+		}
+	}
+
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
@@ -170,7 +177,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
-	publisherInputs := serializers.PublisherInputs{
+	publisherInputs := serializers.PublisherInputsBoards{
 		ProjectID: projectID,
 	}
 

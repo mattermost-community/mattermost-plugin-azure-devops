@@ -73,6 +73,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		CreatedBy:        subscription.CreatedBy,
 		Repository:       subscription.Repository,
 		TargetBranch:     subscription.TargetBranch,
+		RepositoryName:   subscription.RepositoryName,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }

@@ -10,21 +10,22 @@ import SVGWrapper from 'components/svgWrapper';
 import pluginConstants from 'pluginConstants';
 
 import './styles.scss';
+import Chip from 'components/chip';
 
 type SubscriptionCardProps = {
     handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, repository, targetBranch}, subscriptionDetails}: SubscriptionCardProps) => (
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, repository, targetBranch, repositoryName}, subscriptionDetails}: SubscriptionCardProps) => (
     <BaseCard>
         <>
             <div className='d-flex justify-content-between align-items-center mb-2'>
-                <div className='d-flex'>
+                <div className='d-flex align-item-center'>
                     <SVGWrapper
                         width={20}
                         height={20}
-                        viewBox=' 0 0 20 20'
+                        viewBox=' 0 0 16 16'
                     >
                         {serviceType === pluginConstants.common.boards ? pluginConstants.SVGIcons.boards : pluginConstants.SVGIcons.repos}
                     </SVGWrapper>
@@ -61,10 +62,29 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                     labelIconClassName={'icon icon-account-outline icon-label'}
                     value={`Subscription created by ${createdBy}`}
                 />
-                {/* TODO: Below UI will change once Figma is ready*/}
-                <LabelValuePair
-                    value={`Filter(s): Repository - ${repository.slice(0, 3)}, Target Branch - ${targetBranch}`}
-                />
+                {
+                    (repositoryName || targetBranch) && (
+                        <div className='d-flex align-item-center margin-left-5'>
+                            <div className='card-filter'>
+                                <SVGWrapper
+                                    width={14}
+                                    height={14}
+                                    viewBox='0 0 12 12'
+                                >
+                                    {pluginConstants.SVGIcons.cardFilter}
+                                </SVGWrapper>
+                            </div>
+                            <div className='card-chip-wrapper'>
+                                {
+                                    repositoryName && <Chip text={`Repository is ${repositoryName}`}/>
+                                }
+                                {
+                                    targetBranch && <Chip text={`Target Branch is ${targetBranch}`}/>
+                                }
+                            </div>
+                        </div>
+                    )
+                }
             </div>
         </>
     </BaseCard>

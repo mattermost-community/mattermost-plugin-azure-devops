@@ -16,6 +16,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/testutils"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -986,43 +987,43 @@ func TestHandleGetGitRepositories(t *testing.T) {
 	p.Client = mockedClient
 	for _, testCase := range []struct {
 		description           string
-		Organization          string
-		Project               string
-		GetGitRepositoriesErr error
+		organization          string
+		project               string
+		getGitRepositoriesErr error
 		statusCode            int
 	}{
 		{
 			description:  "HandleGetGitRepositories: valid",
-			Organization: "mockOrganization",
-			Project:      "mockProject",
+			organization: "mockOrganization",
+			project:      "mockProject",
 			statusCode:   http.StatusOK,
 		},
 		{
 			description:  "HandleGetGitRepositories: Invalid organization or project name",
-			Organization: "mockOrganization",
+			organization: "mockOrganization",
 			statusCode:   http.StatusBadRequest,
 		},
 		{
 			description:           "HandleGetGitRepositories: GetGitRepositories returns error",
-			Organization:          "mockOrganization",
-			Project:               "mockProject",
-			GetGitRepositoriesErr: errors.New("failed to get git repository branches"),
+			organization:          "mockOrganization",
+			project:               "mockProject",
+			getGitRepositoriesErr: errors.New("failed to get git repository branches"),
 			statusCode:            http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
 			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.GetGitRepositoriesErr)
+				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.getGitRepositoriesErr)
 			}
 
-			req := httptest.NewRequest(http.MethodGet, "/repositories", bytes.NewBufferString(`{}`))
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
 
 			pathParams := map[string]string{
-				"organization": testCase.Organization,
-				"project":      testCase.Project,
+				"organization": testCase.organization,
+				"project":      testCase.project,
 			}
 
 			req = mux.SetURLVars(req, pathParams)

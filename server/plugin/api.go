@@ -733,7 +733,7 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
 	project := strings.TrimSpace(pathParams[constants.PathParamProject])
 
-	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
+	if len(organization) == 0 || len(project) == 0 {
 		p.API.LogError(constants.ErrorInvalidOrganizationOrProject)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorInvalidOrganizationOrProject})
 		return

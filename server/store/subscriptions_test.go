@@ -248,7 +248,7 @@ func TestDeleteSubscriptionAtomicModify(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.Patch(GetSubscriptionKey, func(string, string, string, string) string {
+			monkey.Patch(GetSubscriptionKey, func(string, string, string, string, string, string) string {
 				return "mockSubscriptionKey"
 			})
 			monkey.Patch(SubscriptionListFromJSON, func([]byte) (*SubscriptionList, error) {

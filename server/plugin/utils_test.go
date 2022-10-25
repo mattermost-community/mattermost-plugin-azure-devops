@@ -513,6 +513,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 					OrganizationName: "mockOrganizationName",
 					ChannelID:        "mockChannelID",
 					EventType:        "mockEventType",
+					Repository:       "mockRepository",
+					TargetBranch:     "mockTargetBranch",
 				},
 			},
 			subscription: &serializers.SubscriptionDetails{
@@ -520,6 +522,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 				OrganizationName: "mockOrganizationName",
 				ChannelID:        "mockChannelID",
 				EventType:        "mockEventType",
+				Repository:       "mockRepository",
+				TargetBranch:     "mockTargetBranch",
 			},
 		},
 		{
@@ -530,6 +534,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 					OrganizationName: "mockOrganizationName",
 					ChannelID:        "mockChannelID",
 					EventType:        "mockEventType",
+					Repository:       "mockRepository",
+					TargetBranch:     "mockTargetBranch",
 				},
 			},
 			subscription: &serializers.SubscriptionDetails{},

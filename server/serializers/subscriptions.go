@@ -29,16 +29,16 @@ type ConsumerInputs struct {
 }
 
 type SubscriptionValue struct {
-	ID               string          `json:"id"`
-	URL              string          `json:"url"`
-	EventType        string          `json:"eventType"`
-	ServiceType      string          `json:"serviceType"`
-	ConsumerID       string          `json:"consumerId"`
-	ConsumerActionID string          `json:"consumerActionId"`
-	CreatedBy        UserID          `json:"createdBy"`
-	ModifiedBy       UserID          `json:"modifiedBy"`
-	PublisherInputs  PublisherInputs `json:"publisherInputs"`
-	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
+	ID               string         `json:"id"`
+	URL              string         `json:"url"`
+	EventType        string         `json:"eventType"`
+	ServiceType      string         `json:"serviceType"`
+	ConsumerID       string         `json:"consumerId"`
+	ConsumerActionID string         `json:"consumerActionId"`
+	CreatedBy        UserID         `json:"createdBy"`
+	ModifiedBy       UserID         `json:"modifiedBy"`
+	PublisherInputs  interface{}    `json:"publisherInputs"`
+	ConsumerInputs   ConsumerInputs `json:"consumerInputs"`
 }
 
 type SubscriptionList struct {

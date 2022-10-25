@@ -12,7 +12,7 @@ type IconButtonProps = {
     tooltipText: string
     children?: React.ReactNode
     extraClass?: string
-    onClick?: () => void
+    onClick?: (event?: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 const IconButton = ({tooltipText, iconClassName, children, extraClass = '', onClick}: IconButtonProps) => (

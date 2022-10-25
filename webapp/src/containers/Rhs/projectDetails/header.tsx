@@ -1,11 +1,11 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import ConfirmationModal from 'components/modal/confirmationModal';
 import BackButton from 'components/buttons/backButton';
-import PrimaryButton from 'components/buttons/primaryButton';
+import Button from 'components/buttons/button';
 import ToggleSwitch from 'components/toggleSwitch';
 import Dropdown from 'components/dropdown';
 
@@ -13,6 +13,10 @@ import {toggleIsLinkedProjectListChanged} from 'reducers/linkModal';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
+import IconButton from 'components/buttons/iconButton';
+import SVGWrapper from 'components/svgWrapper';
+import useOutsideClick from 'hooks/useClickOutside';
+import {subscriptionFilterEventTypeReposOptions} from 'pluginConstants/form';
 
 type HeaderProps = {
     projectDetails: ProjectDetails
@@ -20,19 +24,32 @@ type HeaderProps = {
     setShowAllSubscriptions: (active: boolean) => void
     handlePagination: (reset: boolean) => void
     handleResetProjectDetails: () => void
-    filter: string
-    setFilter: (filter: string) => void
+    filter: SubscriptionFilters
+    setFilter: (filter: SubscriptionFilters) => void
     setSubscriptionList: (subscriptionDetails: SubscriptionDetails[]) => void
 }
 
 const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShowAllSubscriptions, handleResetProjectDetails, filter, setFilter, setSubscriptionList}: HeaderProps) => {
     const {projectName} = projectDetails;
+    const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = pluginConstants.common;
+    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = pluginConstants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
 
-    // const [showFilter, setShowFilter] = useState(false); // TODO: uncomment when need to toggle filter
+    const [showFilter, setShowFilter] = useState(false);
 
     const dispatch = useDispatch();
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
+
+    const getEventTypeOptions = useCallback((serviceType: string) => {
+        switch (serviceType) {
+        case subscriptionFilters.serviceType.boards:
+            return subscriptionFilterEventTypeBoardsOptions();
+        case subscriptionFilters.serviceType.repos:
+            return subscriptionFilterEventTypeReposOptions();
+        default:
+            return [filterLabelValuePairAll];
+        }
+    }, [filter.serviceType]);
 
     // Opens a confirmation modal to confirm unlinking a project
     const handleUnlinkProject = () => {
@@ -41,11 +58,11 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
-        makeApiRequestWithCompletionStatus(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
     };
 
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
         payload: projectDetails,
         handleSuccess: () => {
             dispatch(toggleIsLinkedProjectListChanged(true));
@@ -54,7 +71,22 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         },
     });
 
-    const {isLoading: isUnlinkProjectLoading} = getApiState(plugin_constants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
+
+    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+
+    // Detects and closes the filter popover whenever it is opened and the user clicks outside of it
+    const wrapperRef = useRef(null);
+    useOutsideClick(wrapperRef, () => {
+        setShowFilter(false);
+    });
+
+    // Whenever "serviceType" changes make "all" option as default in "eventType"
+    useEffect(() => {
+        if (filter.eventType !== subscriptionFilters.eventType.all) {
+            setFilter({...filter, eventType: subscriptionFilters.eventType.all});
+        }
+    }, [filter.serviceType]);
 
     return (
         <>
@@ -67,31 +99,13 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                 description={`Are you sure you want to unlink ${projectName}?`}
                 title='Confirm Project Unlink'
             />
-            <div className='rhs-header-divider'>
-                <div className='d-flex align-item-center margin-bottom-15'>
+            <div className='position-relative rhs-header-divider'>
+                <div className='d-flex align-item-center'>
                     <BackButton onClick={handleResetProjectDetails}/>
                     <p className='rhs-title'>{projectName}</p>
-                    <PrimaryButton
-                        text='Unlink'
-                        iconName='fa fa-chain-broken'
-                        extraClass='rhs-project-details-unlink-button'
-                        onClick={handleUnlinkProject}
-                    />
-                </div>
-                <div className='d-flex align-item-center'>
-                    <ToggleSwitch
-                        active={showAllSubscriptions}
-                        onChange={(active) => {
-                            handlePagination(true);
-                            setShowAllSubscriptions(active);
-                        }}
-                        label={'Show For All Channels'}
-                        labelPositioning='right'
-                    />
-                    {/* TODO: uncomment when need to toggle filter */}
-                    {/* <IconButton
+                    <IconButton
                         tooltipText='Filter'
-                        extraClass='margin-left-auto flex-basis-initial'
+                        extraClass={`margin-left-auto flex-basis-initial ${isFilterApplied() && 'filter-button'}`}
                         onClick={() => setShowFilter(!showFilter)}
                     >
                         <SVGWrapper
@@ -99,23 +113,89 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                             height={12}
                             viewBox='0 0 18 12'
                         >
-                            {plugin_constants.SVGIcons.filter}
+                            {pluginConstants.SVGIcons.filter}
                         </SVGWrapper>
-                    </IconButton> */}
-                </div>
-                <div className='filter-dropdown-container filter-dropdown-container__show'>
-                    <Dropdown
-                        placeholder='Created By'
-                        value={filter}
-                        onChange={(newValue) => {
-                            setFilter(newValue);
-                            setSubscriptionList([]);
-                        }}
-                        options={plugin_constants.form.subscriptionFilterOptions}
-                        disabled={false}
+                    </IconButton>
+                    <Button
+                        text='Unlink'
+                        iconName='fa fa-chain-broken'
+                        extraClass='margin-left-5'
+                        onClick={handleUnlinkProject}
                     />
                 </div>
             </div>
+            {
+                showFilter && (
+                    <div
+                        ref={wrapperRef}
+                        className='rhs-filter-popover'
+                    >
+                        <div className='d-flex align-item-center margin-bottom-15'>
+                            <ToggleSwitch
+                                active={showAllSubscriptions}
+                                onChange={(active) => {
+                                    handlePagination(true);
+                                    setShowAllSubscriptions(active);
+                                }}
+                                label={'Show For All Channels'}
+                                labelPositioning='right'
+                            />
+                        </div>
+                        <div className='margin-bottom-15'>
+                            <Dropdown
+                                placeholder='Created By'
+                                value={filter.createdBy}
+                                onChange={(newValue) => {
+                                    setFilter({...filter, createdBy: newValue});
+                                    setSubscriptionList([]);
+                                }}
+                                options={subscriptionFilterCreatedByOptions}
+                                disabled={false}
+                            />
+                        </div>
+                        <div className='margin-bottom-15'>
+                            <Dropdown
+                                placeholder='Service Type'
+                                value={filter.serviceType}
+                                onChange={(newValue) => {
+                                    setFilter({...filter, serviceType: newValue});
+                                    setSubscriptionList([]);
+                                }}
+                                options={subscriptionFilterServiceTypeOptions}
+                                disabled={false}
+                            />
+                        </div>
+                        <div className='margin-bottom-15'>
+                            <Dropdown
+                                placeholder='Event Type'
+                                value={filter.eventType}
+                                onChange={(newValue) => {
+                                    setFilter({...filter, eventType: newValue});
+                                    setSubscriptionList([]);
+                                }}
+                                options={getEventTypeOptions(filter.serviceType)}
+                                disabled={filter.serviceType === subscriptionFilters.serviceType.all}
+                            />
+                        </div>
+                        <div className='text-align-right'>
+                            <Button
+                                text='Reset'
+                                onClick={() => {
+                                    setFilter(defaultSubscriptionFilters);
+                                    setShowAllSubscriptions(false);
+                                }}
+                                extraClass='margin-right-8'
+                                isSecondaryButton={true}
+                                isDisabled={!isFilterApplied()}
+                            />
+                            <Button
+                                text='Hide'
+                                onClick={() => setShowFilter(false)}
+                            />
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 };

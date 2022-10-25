@@ -1,4 +1,4 @@
-import {SubscriptionFilterCreatedBy} from './common';
+import {subscriptionFilters, filterLabelValuePairAll} from './common';
 
 // Create subscription modal
 export const boardEventTypeOptions: LabelValuePair[] = [
@@ -202,13 +202,49 @@ export const linkProjectModal: Record<LinkProjectModalFields, ModalFormFieldConf
     },
 };
 
-export const subscriptionFilterOptions = [
+export const subscriptionFilterCreatedByOptions = [
     {
-        value: SubscriptionFilterCreatedBy.me,
+        value: subscriptionFilters.createdBy.me,
         label: 'Me',
     },
     {
-        value: SubscriptionFilterCreatedBy.anyone,
+        value: subscriptionFilters.createdBy.anyone,
         label: 'Anyone',
     },
 ];
+
+export const subscriptionFilterServiceTypeOptions = [
+    {
+        value: subscriptionFilters.serviceType.boards,
+        label: 'Boards',
+    },
+    {
+        value: subscriptionFilters.serviceType.repos,
+        label: 'Repos',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const subscriptionFilterEventTypeBoardsOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.boards).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.boards[eventType as EventTypeBoards],
+    }));
+
+    options.push(filterLabelValuePairAll);
+    return options;
+};
+
+export const subscriptionFilterEventTypeReposOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.repos).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.repos[eventType as EventTypeRepos],
+    }));
+
+    options.push(filterLabelValuePairAll);
+    return options;
+};

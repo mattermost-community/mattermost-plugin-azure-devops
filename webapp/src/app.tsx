@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import {resetGlobalModalState} from 'reducers/globalModal';
 import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/linkModal';
@@ -30,7 +30,7 @@ const App = (): JSX.Element => {
 
     // Check if user is connected on page reload
     useEffect(() => {
-        makeApiRequest(plugin_constants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
     }, []);
 
     /**
@@ -72,7 +72,7 @@ const App = (): JSX.Element => {
             }
 
             makeApiRequestWithCompletionStatus(
-                plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+                pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
             );
         }
     }, [

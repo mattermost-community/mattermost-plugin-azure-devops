@@ -84,7 +84,7 @@ type SubscriptionNotification struct {
 
 type Resource struct {
 	PullRequestID int          `json:"pullRequestId"`
-	Reviewers     []Reviewers  `json:"reviewers"`
+	Reviewers     []Reviewer   `json:"reviewers"`
 	SourceRefName string       `json:"sourceRefName"`
 	TargetRefName string       `json:"targetRefName"`
 	MergeStatus   string       `json:"mergeStatus"`
@@ -112,21 +112,21 @@ type Repository struct {
 }
 
 type PullRequest struct {
-	PullRequestID int         `json:"pullRequestId"`
-	Reviewers     []Reviewers `json:"reviewers"`
-	SourceRefName string      `json:"sourceRefName"`
-	TargetRefName string      `json:"targetRefName"`
-	MergeStatus   string      `json:"mergeStatus"`
-	Title         string      `json:"title"`
-	Description   string      `json:"description"`
-	Repository    Repository  `json:"repository"`
+	PullRequestID int        `json:"pullRequestId"`
+	Reviewers     []Reviewer `json:"reviewers"`
+	SourceRefName string     `json:"sourceRefName"`
+	TargetRefName string     `json:"targetRefName"`
+	MergeStatus   string     `json:"mergeStatus"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Repository    Repository `json:"repository"`
 }
 
 type Comment struct {
 	Content string `json:"content"`
 }
 
-type Reviewers struct {
+type Reviewer struct {
 	DisplayName string `json:"displayName"`
 }
 

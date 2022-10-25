@@ -5,7 +5,7 @@ import Modal from 'components/modal';
 import EmptyState from 'components/emptyState';
 import Form from 'components/form';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
@@ -18,7 +18,7 @@ import {getCreateTaskModalState} from 'selectors';
 import Utils from 'utils';
 
 const TaskModal = () => {
-    const {createTaskModal: createTaskModalFields} = plugin_constants.form;
+    const {createTaskModal: createTaskModalFields} = pluginConstants.form;
 
     // Hooks
     const {
@@ -50,7 +50,7 @@ const TaskModal = () => {
     // Get organization and project state
     const getOrganizationAndProjectState = () => {
         const {isLoading, isSuccess, isError, data} = getApiState(
-            plugin_constants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
+            pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName,
         );
 
         return {
@@ -106,7 +106,7 @@ const TaskModal = () => {
         if (!isErrorInFormValidation()) {
             // Make POST api request
             makeApiRequestWithCompletionStatus(
-                plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
+                pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName,
                 getApiPayload(),
             );
         }
@@ -114,7 +114,7 @@ const TaskModal = () => {
 
     // Observe the change in redux state after the API call to create task and do the required actions
     useApiRequestCompletionState({
-        serviceName: plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName,
+        serviceName: pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName,
         payload: getApiPayload(),
         handleSuccess: () => resetModalState(),
     });
@@ -122,7 +122,7 @@ const TaskModal = () => {
     // Return different types of error messages occurred on API call
     const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
         if (isOrganizationAndProjectListError) {
-            return plugin_constants.messages.error.errorFetchingOrganizationAndProjectsList;
+            return pluginConstants.messages.error.errorFetchingOrganizationAndProjectsList;
         }
         return Utils.getErrorMessage(isCreateSubscriptionError, 'CreateTaskModal', error);
     };
@@ -162,7 +162,7 @@ const TaskModal = () => {
         }
     }, [visibility]);
 
-    const {isLoading: isCreateTaskLoading, isError, error} = getApiState(plugin_constants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
+    const {isLoading: isCreateTaskLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isOrganizationAndProjectListLoading || isCreateTaskLoading;
 

@@ -120,9 +120,12 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	isAdmin := false
 	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdmin(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
 	if subscriptionErr != nil {
-		if subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)) {
+		switch {
+		case subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)):
 			isAdmin = true
-		} else {
+		case subscriptionStatusCode == http.StatusForbidden && strings.Contains(subscriptionErr.Error(), constants.AccessDenied):
+			isAdmin = false
+		default:
 			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
 			p.handleError(w, r, &serializers.Error{Code: subscriptionStatusCode, Message: constants.ErrorLinkProject})
 			return
@@ -329,13 +332,40 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
+	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
+	eventType := r.URL.Query().Get(constants.QueryParamEventType)
 	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}
 		for _, subscription := range subscriptionList {
 			if subscription.ProjectName == project {
 				if channelID == "" || subscription.ChannelID == channelID {
-					subscriptionByProject = append(subscriptionByProject, subscription)
+					switch serviceType {
+					case "", constants.FilterAll:
+						subscriptionByProject = append(subscriptionByProject, subscription)
+					case constants.FilterBoards:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
+					case constants.FilterRepos:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
+					}
 				}
 			}
 		}
@@ -367,7 +397,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	p.writeJSON(w, subscriptionList)
 }
 
-func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewers) string {
+func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {
 	reviewers := ""
 	for i := 0; i < len(reviewersList); i++ {
 		if i != len(reviewersList)-1 {
@@ -408,7 +438,10 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	switch body.EventType {
 	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
 		attachment = &model.SlackAttachment{
-			Text: body.DetailedMessage.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNameBoards,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
+			Color:      constants.IconColorBoards,
+			Text:       body.DetailedMessage.Markdown,
 		}
 	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
 		reviewers := p.getReviewersListString(body.Resource.Reviewers)
@@ -423,8 +456,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		attachment = &model.SlackAttachment{
-			Pretext: body.Message.Markdown,
-			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNameRepos,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
+			Color:      constants.IconColorRepos,
+			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequestID, body.Resource.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
@@ -442,7 +478,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 			},
 			Footer:     body.Resource.Repository.Name,
-			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventPullRequestCommented:
 		reviewers := p.getReviewersListString(body.Resource.PullRequest.Reviewers)
@@ -457,8 +493,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		attachment = &model.SlackAttachment{
-			Pretext: body.Message.Markdown,
-			Title:   fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNameRepos,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
+			Color:      constants.IconColorRepos,
+			Title:      fmt.Sprintf("%d: %s", body.Resource.PullRequest.PullRequestID, body.Resource.PullRequest.Title),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Target Branch",
@@ -480,7 +519,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 			},
 			Footer:     body.Resource.PullRequest.Repository.Name,
-			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.ProjectIcon),
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventCodePushed:
 		commits := ""
@@ -494,10 +533,13 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNameRepos,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
+			Color:      constants.IconColorRepos,
 			Title:      "Commit(s)",
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
-			FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.GitBranchIcon),
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameGitBranchIcon),
 		}
 	}
 

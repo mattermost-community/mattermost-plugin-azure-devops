@@ -2,7 +2,7 @@ import React from 'react';
 
 import SVGWrapper from 'components/svgWrapper';
 
-import plugin_constants from 'plugin_constants';
+import pluginConstants from 'pluginConstants';
 
 import './styles.scss';
 
@@ -38,7 +38,7 @@ const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder',
                                 height={36}
                                 viewBox=' 0 0 36 36'
                             >
-                                {plugin_constants.SVGIcons.azure}
+                                {pluginConstants.SVGIcons.azure}
                             </SVGWrapper>
                         )
                     }
@@ -49,7 +49,7 @@ const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder',
                                 height={40}
                                 viewBox=' 0 0 48 40'
                             >
-                                {plugin_constants.SVGIcons.folder}
+                                {pluginConstants.SVGIcons.folder}
                             </SVGWrapper>
                         )
                     }
@@ -59,7 +59,7 @@ const EmptyState = ({title, subTitle, buttonText, buttonAction, icon = 'folder',
                             height={120}
                             viewBox=' 0 0 120 120'
                         >
-                            {plugin_constants.SVGIcons.subscriptions}
+                            {pluginConstants.SVGIcons.subscriptions}
                         </SVGWrapper>
                     )
                     }

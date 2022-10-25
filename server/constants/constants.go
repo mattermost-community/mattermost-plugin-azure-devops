@@ -34,12 +34,11 @@ const (
 	CommandList         = "list"
 	CommandDelete       = "delete"
 
-	// Get task link preview constants
-	HTTPS              = "https:"
-	HTTP               = "http:"
-	AzureDevopsBaseURL = "dev.azure.com"
-	Workitems          = "_workitems"
-	Edit               = "edit"
+	// Regex to verify task link
+	TaskLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_workitems\/edit\/[1-9]+`
+
+	// Regex to verify pull request link
+	PullRequestLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_git\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/pullrequest\/[1-9]+`
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
@@ -64,16 +63,21 @@ const (
 	PathParamTeamID = "team_id"
 
 	// URL query params constants
-	QueryParamProject   = "project"
-	QueryParamChannelID = "channel_id"
-	QueryParamCreatedBy = "created_by"
-	QueryParamPage      = "page"
-	QueryParamPerPage   = "per_page"
+	QueryParamProject     = "project"
+	QueryParamChannelID   = "channel_id"
+	QueryParamCreatedBy   = "created_by"
+	QueryParamServiceType = "service_type"
+	QueryParamEventType   = "event_type"
+	QueryParamPage        = "page"
+	QueryParamPerPage     = "per_page"
 
 	// Filters
 	FilterCreatedByMe     = "me"
 	FilterCreatedByAnyone = "anyone"
 	FilterAllChannels     = "all_channels"
+	FilterAll             = "all"
+	FilterBoards          = "boards"
+	FilterRepos           = "repos"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50
@@ -82,8 +86,9 @@ const (
 	Bearer        = "Bearer"
 	Authorization = "Authorization"
 
-	GetTasksID = "/%s/_apis/wit/wiql"
-	GetTasks   = "/%s/_apis/wit/workitems"
+	GetTasksID  = "/%s/_apis/wit/wiql"
+	GetTasks    = "/%s/_apis/wit/workitems"
+	StaticFiles = "%s/plugins/%s/static/%s"
 
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
@@ -94,7 +99,35 @@ const (
 	WSEventDisconnect          = "disconnect"
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
+	// Colors
+	ReposIconColor  = "#d74f27"
+	BoardsIconColor = "#53bba1"
+
 	SubscriptionEventTypeDummy = "dummy"
-	GitBranchIcon              = "git-branch-icon.svg"
-	ProjectIcon                = "project-icon.svg"
+	FileNameGitBranchIcon      = "git-branch-icon.svg"
+	FileNameProjectIcon        = "project-icon.svg"
+	FileNameReposIcon          = "repos-icon.svg"
+	FileNameBoardsIcon         = "boards-icon.svg"
+	IconColorBoards            = "#53bba1"
+	IconColorRepos             = "#d74f27"
+
+	SlackAttachmentAuthorNameRepos  = "Azure Repos"
+	SlackAttachmentAuthorNameBoards = "Azure Boards"
+)
+
+var (
+	ValidSubscriptionEventsForBoards = map[string]bool{
+		SubscriptionEventWorkItemCreated:   true,
+		SubscriptionEventWorkItemUpdated:   true,
+		SubscriptionEventWorkItemDeleted:   true,
+		SubscriptionEventWorkItemCommented: true,
+	}
+
+	ValidSubscriptionEventsForRepos = map[string]bool{
+		SubscriptionEventPullRequestCreated:   true,
+		SubscriptionEventPullRequestMerged:    true,
+		SubscriptionEventPullRequestUpdated:   true,
+		SubscriptionEventPullRequestCommented: true,
+		SubscriptionEventCodePushed:           true,
+	}
 )

@@ -112,10 +112,26 @@ func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOAuthToken", reflect.TypeOf((*MockClient)(nil).GenerateOAuthToken), arg0)
 }
 
-// GetTask mocks base method
-func (m *MockClient) GetTask(arg0, arg1, arg2 string) (*serializers.TaskValue, int, error) {
+// GetPullRequest mocks base method
+func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTask", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetPullRequest", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.PullRequest)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetPullRequest indicates an expected call of GetPullRequest
+func (mr *MockClientMockRecorder) GetPullRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPullRequest", reflect.TypeOf((*MockClient)(nil).GetPullRequest), arg0, arg1, arg2, arg3)
+}
+
+// GetTask mocks base method
+func (m *MockClient) GetTask(arg0, arg1, arg2, arg3 string) (*serializers.TaskValue, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTask", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*serializers.TaskValue)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
@@ -123,9 +139,9 @@ func (m *MockClient) GetTask(arg0, arg1, arg2 string) (*serializers.TaskValue, i
 }
 
 // GetTask indicates an expected call of GetTask
-func (mr *MockClientMockRecorder) GetTask(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) GetTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockClient)(nil).GetTask), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockClient)(nil).GetTask), arg0, arg1, arg2, arg3)
 }
 
 // Link mocks base method

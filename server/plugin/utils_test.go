@@ -17,11 +17,14 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/testutils"
 	"github.com/golang/mock/gomock"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type mockBLock struct{}
@@ -659,7 +662,10 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			if testCase.queryParamPage != "1" && testCase.queryParamPerPage != "10" && testCase.expectedLimit != 10 && testCase.expectedOffset != 10 {
+				mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+				defer mockAPI.AssertExpectations(t)
+			}
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, "mockProject", testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
@@ -681,6 +687,7 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 		subscriptionsList []*serializers.SubscriptionDetails
 		command           string
 		expectedMessage   string
+		createdBy         string
 	}{
 		{
 			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
@@ -694,9 +701,66 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 			subscriptionsList: []*serializers.SubscriptionDetails{},
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},
+		{
+			description: "ParseSubscriptionsToCommandResponse: subscriptions created by the user",
+			command:     constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{
+				{
+					ChannelID:        "mockChannelID",
+					MattermostUserID: "mockUserID",
+					ServiceType:      constants.CommandBoards,
+					SubscriptionID:   "mockSubscriptionID",
+					OrganizationName: "mockOrganizationName",
+					ProjectName:      "mockProjectName",
+					EventType:        constants.SubscriptionEventWorkItemCreated,
+					CreatedBy:        "mockCreatedBy",
+					ChannelName:      "mockChannelName",
+				},
+			},
+			createdBy:       constants.FilterCreatedByMe,
+			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+		},
+		{
+			description: "ParseSubscriptionsToCommandResponse: subscriptions created by anyone",
+			command:     constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{
+				{
+					ChannelID:        "mockChannelID",
+					MattermostUserID: "mockUserID-2",
+					ServiceType:      constants.CommandBoards,
+					SubscriptionID:   "mockSubscriptionID",
+					OrganizationName: "mockOrganizationName",
+					ProjectName:      "mockProjectName",
+					EventType:        constants.SubscriptionEventWorkItemCreated,
+					CreatedBy:        "mockCreatedBy",
+					ChannelName:      "mockChannelName",
+				},
+			},
+			createdBy:       constants.FilterCreatedByAnyone,
+			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+		},
+		{
+			description: "ParseSubscriptionsToCommandResponse: no subscriptions created by the user is present",
+			command:     constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{
+				{
+					ChannelID:        "mockChannelID",
+					MattermostUserID: "mockUserID-2",
+					ServiceType:      constants.CommandBoards,
+					SubscriptionID:   "mockSubscriptionID",
+					OrganizationName: "mockOrganizationName",
+					ProjectName:      "mockProjectName",
+					EventType:        constants.SubscriptionEventWorkItemCreated,
+					CreatedBy:        "mockCreatedBy",
+					ChannelName:      "mockChannelName",
+				},
+			},
+			createdBy:       constants.FilterCreatedByMe,
+			expectedMessage: fmt.Sprintf("No %s subscription exists for this channel", constants.CommandBoards),
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", "mockUser", "mockUserID", testCase.command)
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", testCase.createdBy, "mockUserID", testCase.command)
 			assert.Equal(t, testCase.expectedMessage, message)
 		})
 	}

@@ -288,7 +288,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
-		ProjectID:        subscription.PublisherInputs.ProjectID,
+		ProjectID:        project.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ServiceType:      body.ServiceType,

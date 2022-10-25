@@ -975,3 +975,67 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 		})
 	}
 }
+
+func TestHandleGetGitRepositoryBranches(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.API = mockAPI
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description                 string
+		Organization                string
+		Repository                  string
+		Project                     string
+		GetGitRepositoryBranchesErr error
+		statusCode                  int
+	}{
+		{
+			description:  "HandleGetGitRepositoryBranches: valid",
+			Organization: "mockOrganization",
+			Project:      "mockProject",
+			Repository:   "mockRepository",
+			statusCode:   http.StatusOK,
+		},
+		{
+			description:  "HandleGetGitRepositoryBranches: Invalid organization, project or repository params",
+			Organization: "mockOrganization",
+			Project:      "mockProject",
+			statusCode:   http.StatusBadRequest,
+		},
+		{
+			description:                 "HandleGetGitRepositoryBranches: GetGitRepositoryBranches returns error",
+			Organization:                "mockOrganization",
+			Project:                     "mockProject",
+			Repository:                  "mockRepository",
+			GetGitRepositoryBranchesErr: errors.New("failed to get git repository branches"),
+			statusCode:                  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+
+			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
+				mockedClient.EXPECT().GetGitRepositoryBranches(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitBranchesResponse{}, testCase.statusCode, testCase.GetGitRepositoryBranchesErr)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/branches", bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			pathParams := map[string]string{
+				"organization": testCase.Organization,
+				"project":      testCase.Project,
+				"repository":   testCase.Repository,
+			}
+
+			req = mux.SetURLVars(req, pathParams)
+
+			w := httptest.NewRecorder()
+			p.handleGetGitRepositoryBranches(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}

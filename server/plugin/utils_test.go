@@ -679,6 +679,7 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 }
 
 func TestParseSubscriptionsToCommandResponse(t *testing.T) {
+	defer monkey.UnpatchAll()
 	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	p.API = mockAPI
@@ -688,6 +689,7 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 		command           string
 		expectedMessage   string
 		createdBy         string
+		err               error
 	}{
 		{
 			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
@@ -700,6 +702,13 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 			command:           constants.CommandBoards,
 			subscriptionsList: []*serializers.SubscriptionDetails{},
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: error in fetching filtered subscription list",
+			command:           constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			expectedMessage:   "Something went wrong, please try again later",
+			err:               errors.New("error in fetching filtered subscription list"),
 		},
 		{
 			description: "ParseSubscriptionsToCommandResponse: subscriptions created by the user",
@@ -756,11 +765,17 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 				},
 			},
 			createdBy:       constants.FilterCreatedByMe,
-			expectedMessage: fmt.Sprintf("No %s subscription exists for this channel", constants.CommandBoards),
+			expectedMessage: fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", testCase.createdBy, "mockUserID", testCase.command)
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return testCase.subscriptionsList, testCase.err
+			})
+
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", testCase.createdBy, "mockUserID", testCase.command, "mockTeamID")
 			assert.Equal(t, testCase.expectedMessage, message)
 		})
 	}

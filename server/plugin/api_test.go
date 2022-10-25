@@ -1017,7 +1017,7 @@ func TestHandleGetGitRepositories(t *testing.T) {
 				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.GetGitRepositoriesErr)
 			}
 
-			req := httptest.NewRequest(http.MethodGet, "/branches", bytes.NewBufferString(`{}`))
+			req := httptest.NewRequest(http.MethodGet, "/repositories", bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
 
 			pathParams := map[string]string{

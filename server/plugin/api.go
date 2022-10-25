@@ -730,12 +730,12 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
 	pathParams := mux.Vars(r)
-	organization := pathParams[constants.PathParamOrganization]
-	project := pathParams[constants.PathParamProject]
+	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
+	project := strings.TrimSpace(pathParams[constants.PathParamProject])
 
 	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
-		p.API.LogError(constants.ErrorOrganizationOrProjectQueryParam)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorOrganizationOrProjectQueryParam})
+		p.API.LogError(constants.ErrorInvalidOrganizationOrProject)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorInvalidOrganizationOrProject})
 		return
 	}
 

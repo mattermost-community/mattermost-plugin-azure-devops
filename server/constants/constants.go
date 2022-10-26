@@ -60,7 +60,9 @@ const (
 	SubscriptionEventWorkItemCommented    = "workitem.commented"
 
 	// Path params
-	PathParamTeamID = "team_id"
+	PathParamTeamID       = "team_id"
+	PathParamOrganization = "organization"
+	PathParamProject      = "project"
 
 	// URL query params constants
 	QueryParamProject     = "project"

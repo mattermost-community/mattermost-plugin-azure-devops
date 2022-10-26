@@ -112,6 +112,22 @@ func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOAuthToken", reflect.TypeOf((*MockClient)(nil).GenerateOAuthToken), arg0)
 }
 
+// GetGitRepositories mocks base method
+func (m *MockClient) GetGitRepositories(arg0, arg1, arg2 string) (*serializers.GitRepositoriesResponse, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGitRepositories", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*serializers.GitRepositoriesResponse)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetGitRepositories indicates an expected call of GetGitRepositories
+func (mr *MockClientMockRecorder) GetGitRepositories(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositories", reflect.TypeOf((*MockClient)(nil).GetGitRepositories), arg0, arg1, arg2)
+}
+
 // GetPullRequest mocks base method
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()

@@ -6,7 +6,7 @@ import Constants from 'pluginConstants';
 import {getOrganizationList, getProjectList} from './filterData';
 import getErrorMessage from './errorHandling';
 
-const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string} => {
+const getBaseUrls = (): { pluginApiBaseUrl: string; mattermostApiBaseUrl: string } => {
     const url = new URL(window.location.href);
     const baseUrl = `${url.protocol}//${url.host}`;
     const pluginUrl = `${baseUrl}/plugins/${Constants.common.pluginId}`;
@@ -59,9 +59,36 @@ export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> |
 
 export const sortProjectList = (project1: ProjectDetails, project2: ProjectDetails) => project1.projectName.toLocaleLowerCase().localeCompare(project2.projectName.toLocaleLowerCase());
 
+export const addPathParamsToApiUrl = (url: string, pathParams?: Record<string, string>) => {
+    if (!pathParams) {
+        return url;
+    }
+
+    let newUrl = url;
+    Object.keys(pathParams).forEach((param) => {
+        newUrl = newUrl.replace(`:${param}`, pathParams[param]);
+    });
+    return newUrl;
+};
+
+export const formLabelValuePair = (labelKey: string, valueKey: string, data: Record<string, string>): LabelValuePair => ({
+    label: data[labelKey] ?? '',
+    value: data[valueKey] ?? '',
+});
+
+export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Record<string, string>[]) => {
+    const labelValuePairs: LabelValuePair[] = [];
+    data.forEach((item) => labelValuePairs.push(formLabelValuePair(labelKey, valueKey, item)));
+
+    return labelValuePairs;
+};
+
 export default {
     getBaseUrls,
     getErrorMessage,
     getOrganizationList,
     getProjectList,
+    addPathParamsToApiUrl,
+    formLabelValuePair,
+    formLabelValuePairs,
 };

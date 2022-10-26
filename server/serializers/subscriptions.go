@@ -15,7 +15,8 @@ type UserID struct {
 }
 
 type PublisherInputs struct {
-	ProjectID string `json:"projectId"`
+	ProjectID  string `json:"projectId"`
+	Repository string `json:"repository"`
 }
 
 type ConsumerInputs struct {
@@ -46,6 +47,7 @@ type CreateSubscriptionRequestPayload struct {
 	EventType    string `json:"eventType"`
 	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
+	Repository   string `json:"repository"`
 }
 
 type CreateSubscriptionBodyPayload struct {

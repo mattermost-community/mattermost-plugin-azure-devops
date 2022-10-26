@@ -49,11 +49,11 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, sel
         }
     }, [reposSubscriptionTargetBranchFiltersRequest.repository]);
 
-    const {data: repositoriesDateFromApi, isLoading: isGetRepositoriesLoading, isError: isGetRepositoriesError} = getApiState(
+    const {data: repositoriesDataFromApi, isLoading: isGetRepositoriesLoading, isError: isGetRepositoriesError} = getApiState(
         pluginConstants.pluginApiServiceConfigs.getRepositories.apiServiceName,
         reposSubscriptionFiltersRequest as APIRequestPayload,
     );
-    const repositoriesData = repositoriesDateFromApi as ReposSubscriptionFiltersResponse[] || [];
+    const repositoriesData = repositoriesDataFromApi as ReposSubscriptionFiltersResponse[] || [];
 
     const {data: repositoryBranchesDataFromApi, isLoading: isGetRepositoryBranchesLoading, isError: isGetRepositoryBranchesError} = getApiState(
         pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,

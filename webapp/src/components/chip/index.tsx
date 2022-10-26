@@ -1,3 +1,4 @@
+import Tooltip from 'components/tooltip';
 import React from 'react';
 
 import './styles.scss';
@@ -7,6 +8,10 @@ type ChipProps = {
     extraClass?: string
 }
 
-const Chip = ({text, extraClass = ''}: ChipProps) => <div className={`chip Badge__box text-truncate ${extraClass}`}>{text}</div>;
+const Chip = ({text, extraClass = ''}: ChipProps) => (
+    <Tooltip tooltipContent={text}>
+        <div className={`chip Badge__box text-truncate ${extraClass}`}>{text}</div>
+    </Tooltip>
+);
 
 export default Chip;

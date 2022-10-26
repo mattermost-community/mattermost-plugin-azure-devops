@@ -1,5 +1,6 @@
-import Tooltip from 'components/tooltip';
 import React from 'react';
+
+import Tooltip from 'components/tooltip';
 
 import './styles.scss';
 

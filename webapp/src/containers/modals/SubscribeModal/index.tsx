@@ -24,6 +24,10 @@ import Utils from 'utils';
 import './styles.scss';
 import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 
+import {filterLabelValuePairAll} from 'pluginConstants/common';
+
+import ReposFilter from './filters/repos';
+
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
     const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
@@ -222,6 +226,12 @@ const SubscribeModal = () => {
         showResultPanel,
     ]);
 
+    const handleSetRepoFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -243,17 +253,33 @@ const SubscribeModal = () => {
                 {
                     !showResultPanel && (
                         isAnyProjectLinked ? (
-                            Object.keys(subscriptionModalFields).map((field) => (
-                                <Form
-                                    key={subscriptionModalFields[field as SubscriptionModalFields].label}
-                                    fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
-                                    value={formFields[field as SubscriptionModalFields] ?? ''}
-                                    optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                                    onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
-                                    error={errorState[field as SubscriptionModalFields]}
-                                    isDisabled={isLoading}
-                                />
-                            ))
+                            <>
+                                {
+                                    Object.keys(subscriptionModalFields).map((field) => (
+                                        <Form
+                                            key={subscriptionModalFields[field as SubscriptionModalFields].label}
+                                            fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
+                                            value={formFields[field as SubscriptionModalFields] ?? ''}
+                                            optionsList={getDropDownOptions(field as SubscriptionModalFields)}
+                                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                            error={errorState[field as SubscriptionModalFields]}
+                                            isDisabled={isLoading}
+                                        />
+                                    ))
+                                }
+                                {
+                                    formFields.serviceType === pluginConstants.common.repos && (
+                                        <>
+                                            <ReposFilter
+                                                organization={organization as string}
+                                                project={project as string}
+                                                selectedRepo={formFields.repository || filterLabelValuePairAll.value}
+                                                handleSelectRepo={handleSetRepoFilter}
+                                            />
+                                        </>
+                                    )
+                                }
+                            </>
                         ) : (
                             <EmptyState
                                 title='No Project Linked'

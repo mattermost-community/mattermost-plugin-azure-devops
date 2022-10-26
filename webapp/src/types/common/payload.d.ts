@@ -24,3 +24,8 @@ interface PaginationQueryParams {
     page: number;
     per_page: number;
 }
+
+type ReposSubscriptionFiltersRequest = {
+    organization: string
+    project: string
+}

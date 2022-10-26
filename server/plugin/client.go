@@ -137,7 +137,8 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
 	publisherInputs := serializers.PublisherInputs{
-		ProjectID: project.ProjectID,
+		ProjectID:  project.ProjectID,
+		Repository: body.Repository,
 	}
 
 	consumerInputs := serializers.ConsumerInputs{

@@ -49,6 +49,8 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -783,6 +785,36 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 	}
 
 	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	body, err := serializers.GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for fetching subscription filter possible values", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
+		return
+	}
+
+	subscriptionFilterValues, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(body, mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchSubscriptionFilterPossibleValues, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	filterwiseResponse := make(map[string][]serializers.PossibleValues)
+	for _, filter := range subscriptionFilterValues.InputValues {
+		filterwiseResponse[filter.InputId] = filter.PossibleValues
+	}
+
+	p.writeJSON(w, filterwiseResponse)
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, v interface{}) {

@@ -26,6 +26,7 @@ type Client interface {
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
+	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
 type client struct {
@@ -234,6 +235,37 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 	}
 
 	return gitBranchesResponse, statusCode, nil
+}
+
+func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
+
+	var subscriptionFilters []serializers.SubscriptionFilter
+	for _, filter := range request.Filters {
+		subscriptionFilters = append(subscriptionFilters, serializers.SubscriptionFilter{InputId: filter})
+	}
+
+	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
+		Subscription: &serializers.CreateSubscriptionBodyPayload{
+			PublisherID:      "tfs",
+			ConsumerID:       "webHooks",
+			ConsumerActionID: "httpRequest",
+			EventType:        request.EventType,
+			PublisherInputs: serializers.PublisherInputsGeneric{
+				ProjectID: request.ProjectID,
+			},
+		},
+		InputValues: subscriptionFilters,
+		Scope:       10,
+	}
+
+	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
+	}
+
+	return subscriptionFiltersResponse, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

@@ -14,6 +14,10 @@ type UserID struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
+type PublisherInputsGeneric struct {
+	ProjectID string `json:"projectId"`
+}
+
 type PublisherInputsBoards struct {
 	ProjectID string `json:"projectId"`
 }
@@ -45,7 +49,6 @@ type SubscriptionList struct {
 	Count             int                 `json:"count"`
 	SubscriptionValue []SubscriptionValue `json:"value"`
 }
-
 type CreateSubscriptionRequestPayload struct {
 	Organization   string `json:"organization"`
 	Project        string `json:"project"`
@@ -55,6 +58,37 @@ type CreateSubscriptionRequestPayload struct {
 	Repository     string `json:"repository"`
 	RepositoryName string `json:"repositoryName"`
 	TargetBranch   string `json:"targetBranch"`
+}
+
+type GetSubscriptionFilterPossibleValuesRequestPayload struct {
+	Organization string   `json:"organization"`
+	ProjectID    string   `json:"projectId"`
+	EventType    string   `json:"eventType"`
+	Filters      []string `json:"filters"`
+}
+
+type SubscriptionFilter struct {
+	InputId string `json:"inputId"`
+}
+
+type GetSubscriptionFilterValuesRequestPayloadFromClient struct {
+	Subscription *CreateSubscriptionBodyPayload `json:"subscription"`
+	InputValues  []SubscriptionFilter           `json:"inputValues"`
+	Scope        int                            `json:"scope"`
+}
+
+type PossibleValues struct {
+	DisplayValue string `json:"displayValue"`
+	Value        string `json:"value"`
+}
+
+type InputValues struct {
+	SubscriptionFilter
+	PossibleValues []PossibleValues `json:"possibleValues"`
+}
+
+type SubscriptionFilterPossibleValuesResponseFromClient struct {
+	InputValues []InputValues `json:"inputValues"`
 }
 
 type CreateSubscriptionBodyPayload struct {
@@ -153,6 +187,14 @@ type DeleteSubscriptionRequestPayload struct {
 	Repository   string `json:"repository"`
 }
 
+func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {
+	var body *GetSubscriptionFilterPossibleValuesRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
@@ -175,6 +217,22 @@ func DeleteSubscriptionRequestPayloadFromJSON(data io.Reader) (*DeleteSubscripti
 		return nil, err
 	}
 	return body, nil
+}
+
+func (t *GetSubscriptionFilterPossibleValuesRequestPayload) IsSubscriptionRequestPayloadValid() error {
+	if t.Organization == "" {
+		return errors.New(constants.OrganizationRequired)
+	}
+	if t.ProjectID == "" {
+		return errors.New(constants.ProjectIDRequired)
+	}
+	if t.EventType == "" {
+		return errors.New(constants.EventTypeRequired)
+	}
+	if t.Filters == nil {
+		return errors.New(constants.FiltersRequired)
+	}
+	return nil
 }
 
 func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {

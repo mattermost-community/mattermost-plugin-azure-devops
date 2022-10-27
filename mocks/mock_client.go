@@ -95,6 +95,16 @@ func (m *MockClient) GetGitRepositoryBranches(arg0, arg1, arg2, arg3 string) (*s
 	return ret0, ret1, ret2
 }
 
+// GetSubscriptionFilterPossibleValues mocks base method
+func (m *MockClient) GetSubscriptionFilterPossibleValues(arg0 *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, arg1 string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionFilterPossibleValues", arg0, arg1)
+	ret0, _ := ret[0].(*serializers.SubscriptionFilterPossibleValuesResponseFromClient)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
 // CreateTask indicates an expected call of CreateTask
 func (mr *MockClientMockRecorder) CreateTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()

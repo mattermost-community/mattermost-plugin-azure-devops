@@ -16,11 +16,9 @@ import (
 
 func TestClientGenerateOAuthToken(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
+
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -38,7 +36,7 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -57,11 +55,8 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 
 func TestCreateTask(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -79,7 +74,7 @@ func TestCreateTask(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -102,11 +97,8 @@ func TestCreateTask(t *testing.T) {
 
 func TestGetTask(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -124,7 +116,7 @@ func TestGetTask(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -143,11 +135,8 @@ func TestGetTask(t *testing.T) {
 
 func TestGetPullRequest(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -165,7 +154,7 @@ func TestGetPullRequest(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -184,11 +173,8 @@ func TestGetPullRequest(t *testing.T) {
 
 func TestLink(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -206,7 +192,7 @@ func TestLink(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -225,11 +211,8 @@ func TestLink(t *testing.T) {
 
 func TestCreateSubscription(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -247,7 +230,7 @@ func TestCreateSubscription(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -266,11 +249,8 @@ func TestCreateSubscription(t *testing.T) {
 
 func TestDeleteSubscription(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -288,7 +268,7 @@ func TestDeleteSubscription(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
@@ -306,9 +286,8 @@ func TestDeleteSubscription(t *testing.T) {
 }
 
 func TestCall(t *testing.T) {
-	p := Plugin{}
-	c := InitClient(&p)
-	p.Client = c
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
 		description string
 	}{
@@ -317,22 +296,60 @@ func TestCall(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "AddAuthorization", func(_ *Plugin, _ *http.Request, _ string) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "AddAuthorization", func(_ *Plugin, _ *http.Request, _ string) error {
 				return nil
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsAccessTokenExpired", func(_ *Plugin, _ string) (bool, string) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsAccessTokenExpired", func(_ *Plugin, _ string) (bool, string) {
 				return false, ""
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "RefreshOAuthToken", func(_ *Plugin, _ string, _ string) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "RefreshOAuthToken", func(_ *Plugin, _ string, _ string) error {
 				return nil
 			})
 			client := &client{
-				plugin:     &p,
+				plugin:     p,
 				httpClient: &http.Client{},
 			}
 
 			_, _, err := client.Call("mockBasePath", "mockMethod", "mockPath", "mockContentType", "mockMattermostUserID", nil, nil, url.Values{})
 			assert.Error(t, err)
+		})
+	}
+}
+
+func TestGetGitRepositories(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetGitRepositories: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetGitRepositories: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetGitRepositories("mockOrganization", "mockProjectName", "mockMattermostUSerID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
 		})
 	}
 }
@@ -376,4 +393,12 @@ func TestGetGitRepositoryBranches(t *testing.T) {
 			assert.Equal(t, testCase.statusCode, statusCode)
 		})
 	}
+}
+
+func setupTestPlugin(api *plugintest.API) *Plugin {
+	p := Plugin{}
+	p.API = api
+	c := InitClient(&p)
+	p.Client = c
+	return &p
 }

@@ -69,4 +69,5 @@ const (
 	AccessDenied                         = "Access Denied"
 	ErrorOrganizationOrProjectQueryParam = "Invalid organization or project name"
 	ErrorRepositoryPathParam             = "Invalid organization, project or repository params"
+	ErrorInvalidOrganizationOrProject    = "Invalid organization or project name"
 )

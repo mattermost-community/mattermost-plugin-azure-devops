@@ -16,6 +16,7 @@ import (
 	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/testutils"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -970,6 +971,65 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			p.getUserChannelsForTeam(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandleGetGitRepositories(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.API = mockAPI
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description           string
+		organization          string
+		project               string
+		getGitRepositoriesErr error
+		statusCode            int
+	}{
+		{
+			description:  "HandleGetGitRepositories: valid",
+			organization: "mockOrganization",
+			project:      "mockProject",
+			statusCode:   http.StatusOK,
+		},
+		{
+			description:  "HandleGetGitRepositories: Invalid organization or project name",
+			organization: "mockOrganization",
+			statusCode:   http.StatusBadRequest,
+		},
+		{
+			description:           "HandleGetGitRepositories: GetGitRepositories returns error",
+			organization:          "mockOrganization",
+			project:               "mockProject",
+			getGitRepositoriesErr: errors.New("failed to get git repository branches"),
+			statusCode:            http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
+				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.getGitRepositoriesErr)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			pathParams := map[string]string{
+				"organization": testCase.organization,
+				"project":      testCase.project,
+			}
+
+			req = mux.SetURLVars(req, pathParams)
+
+			w := httptest.NewRecorder()
+			p.handleGetGitRepositories(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})

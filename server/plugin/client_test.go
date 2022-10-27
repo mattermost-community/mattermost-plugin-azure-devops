@@ -356,11 +356,7 @@ func TestGetGitRepositories(t *testing.T) {
 
 func TestGetGitRepositoryBranches(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
-	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-	c := InitClient(&p)
-	p.Client = c
+	p := setupTestPlugin(&plugintest.API{})
 	for _, testCase := range []struct {
 		description string
 		err         error
@@ -378,7 +374,7 @@ func TestGetGitRepositoryBranches(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(c), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 				return nil, testCase.statusCode, testCase.err
 			})
 

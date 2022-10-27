@@ -242,7 +242,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		subscriptionFilters = append(subscriptionFilters, serializers.SubscriptionFilter{InputId: filter})
+		subscriptionFilters = append(subscriptionFilters, serializers.SubscriptionFilter{InputID: filter})
 	}
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{

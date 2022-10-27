@@ -811,7 +811,7 @@ func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter
 
 	filterwiseResponse := make(map[string][]serializers.PossibleValues)
 	for _, filter := range subscriptionFilterValues.InputValues {
-		filterwiseResponse[filter.InputId] = filter.PossibleValues
+		filterwiseResponse[filter.InputID] = filter.PossibleValues
 	}
 
 	p.writeJSON(w, filterwiseResponse)

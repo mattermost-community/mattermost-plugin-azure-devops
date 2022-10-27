@@ -68,7 +68,7 @@ type GetSubscriptionFilterPossibleValuesRequestPayload struct {
 }
 
 type SubscriptionFilter struct {
-	InputId string `json:"inputId"`
+	InputID string `json:"inputId"`
 }
 
 type GetSubscriptionFilterValuesRequestPayloadFromClient struct {

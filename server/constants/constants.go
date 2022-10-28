@@ -116,6 +116,9 @@ const (
 
 	SlackAttachmentAuthorNameRepos  = "Azure Repos"
 	SlackAttachmentAuthorNameBoards = "Azure Boards"
+
+	ServiceTypeBoards = "boards"
+	ServiceTypeRepos  = "repos"
 )
 
 var (

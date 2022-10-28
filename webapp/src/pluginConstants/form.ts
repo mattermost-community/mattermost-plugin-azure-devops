@@ -102,6 +102,11 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    repositoryName: {
+        label: 'Repository Name',
+        type: 'hidden',
+        value: '',
+    },
     targetBranch: {
         label: 'Target branch',
         type: 'hidden',

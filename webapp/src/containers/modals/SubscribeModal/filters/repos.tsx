@@ -10,7 +10,7 @@ import usePluginApi from 'hooks/usePluginApi';
 import {formLabelValuePairs} from 'utils';
 
 type ReposFilterProps = {
-    handleSelectRepo: (repo: string) => void
+    handleSelectRepo: (repo: string, repoName?: string) => void
     selectedRepo: string
     selectedTargetBranch: string
     handleSelectTargetBranch: (branch: string) => void
@@ -41,7 +41,7 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, sel
     }, [reposSubscriptionFiltersRequest]);
 
     useEffect(() => {
-        if (selectedTargetBranch !== filterLabelValuePairAll.value) {
+        if (selectedRepo !== filterLabelValuePairAll.value) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,
                 reposSubscriptionTargetBranchFiltersRequest,
@@ -61,7 +61,7 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, sel
     );
     const repositoryBranchesData = repositoryBranchesDataFromApi as ReposSubscriptionTargetBranchFilterResponse[] || [];
 
-    const getTargetBranchOptions = useCallback(() => ([{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'name', repositoryBranchesData)]), [selectedRepo]);
+    const getTargetBranchOptions = () => ([{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'name', repositoryBranchesData)]);
 
     return (
         <>

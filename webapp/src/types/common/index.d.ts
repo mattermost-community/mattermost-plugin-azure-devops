@@ -74,7 +74,8 @@ type SubscriptionDetails = {
     channelType: string,
     createdBy: string,
     repository: string,
-    targetBranch: string
+    targetBranch: string,
+    repositoryName: string
 }
 
 type WebsocketEventParams = {

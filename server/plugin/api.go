@@ -288,7 +288,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
-		ProjectID:        subscription.PublisherInputs.ProjectID,
+		ProjectID:        project.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ServiceType:      body.ServiceType,
@@ -299,6 +299,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		CreatedBy:        createdByDisplayName,
 		Repository:       body.Repository,
 		TargetBranch:     body.TargetBranch,
+		RepositoryName:   body.RepositoryName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})

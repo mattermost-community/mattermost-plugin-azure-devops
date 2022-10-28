@@ -48,8 +48,7 @@ func setupMockPlugin(api *plugintest.API, store *mocks.MockKVStore, client *mock
 }
 
 func TestInitRoutes(t *testing.T) {
-	mockAPI := &plugintest.API{}
-	p := setupMockPlugin(mockAPI, nil, nil)
+	p := setupMockPlugin(&plugintest.API{}, nil, nil)
 	p.InitRoutes()
 }
 
@@ -87,8 +86,7 @@ func TestWithRecovery(t *testing.T) {
 }
 
 func TestHandleAuthRequired(t *testing.T) {
-	mockAPI := &plugintest.API{}
-	p := setupMockPlugin(mockAPI, nil, nil)
+	p := setupMockPlugin(&plugintest.API{}, nil, nil)
 	for _, testCase := range []struct {
 		description string
 	}{
@@ -1044,16 +1042,7 @@ func TestHandleGetGitRepositoryBranches(t *testing.T) {
 			repository:   "mockRepository",
 			statusCode:   http.StatusOK,
 			getGitRepositoryBranchesResponse: &serializers.GitBranchesResponse{
-				Value: []*serializers.GitBranch{
-					{
-						ID:   "mockID-1",
-						Name: "refs/heads/mockName-1",
-					},
-					{
-						ID:   "mockID-2",
-						Name: "refs/heads/mockName-2",
-					},
-				},
+				Value: testutils.GetGitBranchesPayload(),
 			},
 			expectedResponse: []*serializers.GitBranch{
 				{
@@ -1071,16 +1060,16 @@ func TestHandleGetGitRepositoryBranches(t *testing.T) {
 			organization:          "mockOrganization",
 			project:               "mockProject",
 			statusCode:            http.StatusBadRequest,
-			expectedErrorResponse: map[string]interface{}{"Error": "Invalid organization, project or repository params"},
+			expectedErrorResponse: map[string]interface{}{"Error": constants.ErrorRepositoryPathParam},
 		},
 		{
 			description:                 "HandleGetGitRepositoryBranches: GetGitRepositoryBranches returns error",
 			organization:                "mockOrganization",
 			project:                     "mockProject",
 			repository:                  "mockRepository",
-			getGitRepositoryBranchesErr: errors.New("failed to get git repository branches"),
+			getGitRepositoryBranchesErr: errors.New("failed to get the git repository branches for a project"),
 			statusCode:                  http.StatusInternalServerError,
-			expectedErrorResponse:       map[string]interface{}{"Error": "failed to get git repository branches"},
+			expectedErrorResponse:       map[string]interface{}{"Error": "failed to get the git repository branches for a project"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

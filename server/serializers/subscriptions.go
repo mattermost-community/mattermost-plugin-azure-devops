@@ -14,9 +14,14 @@ type UserID struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
-type PublisherInputs struct {
+type PublisherInputsBoards struct {
+	ProjectID string `json:"projectId"`
+}
+
+type PublisherInputsRepos struct {
 	ProjectID  string `json:"projectId"`
 	Repository string `json:"repository"`
+	Branch     string `json:"branch"`
 }
 
 type ConsumerInputs struct {
@@ -24,16 +29,16 @@ type ConsumerInputs struct {
 }
 
 type SubscriptionValue struct {
-	ID               string          `json:"id"`
-	URL              string          `json:"url"`
-	EventType        string          `json:"eventType"`
-	ServiceType      string          `json:"serviceType"`
-	ConsumerID       string          `json:"consumerId"`
-	ConsumerActionID string          `json:"consumerActionId"`
-	CreatedBy        UserID          `json:"createdBy"`
-	ModifiedBy       UserID          `json:"modifiedBy"`
-	PublisherInputs  PublisherInputs `json:"publisherInputs"`
-	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
+	ID               string         `json:"id"`
+	URL              string         `json:"url"`
+	EventType        string         `json:"eventType"`
+	ServiceType      string         `json:"serviceType"`
+	ConsumerID       string         `json:"consumerId"`
+	ConsumerActionID string         `json:"consumerActionId"`
+	CreatedBy        UserID         `json:"createdBy"`
+	ModifiedBy       UserID         `json:"modifiedBy"`
+	PublisherInputs  interface{}    `json:"publisherInputs"`
+	ConsumerInputs   ConsumerInputs `json:"consumerInputs"`
 }
 
 type SubscriptionList struct {
@@ -42,21 +47,23 @@ type SubscriptionList struct {
 }
 
 type CreateSubscriptionRequestPayload struct {
-	Organization string `json:"organization"`
-	Project      string `json:"project"`
-	EventType    string `json:"eventType"`
-	ServiceType  string `json:"serviceType"`
-	ChannelID    string `json:"channelID"`
-	Repository   string `json:"repository"`
+	Organization   string `json:"organization"`
+	Project        string `json:"project"`
+	EventType      string `json:"eventType"`
+	ServiceType    string `json:"serviceType"`
+	ChannelID      string `json:"channelID"`
+	Repository     string `json:"repository"`
+	RepositoryName string `json:"repositoryName"`
+	TargetBranch   string `json:"targetBranch"`
 }
 
 type CreateSubscriptionBodyPayload struct {
-	PublisherID      string          `json:"publisherId"`
-	EventType        string          `json:"eventType"`
-	ConsumerID       string          `json:"consumerId"`
-	ConsumerActionID string          `json:"consumerActionId"`
-	PublisherInputs  PublisherInputs `json:"publisherInputs"`
-	ConsumerInputs   ConsumerInputs  `json:"consumerInputs"`
+	PublisherID      string         `json:"publisherId"`
+	EventType        string         `json:"eventType"`
+	ConsumerID       string         `json:"consumerId"`
+	ConsumerActionID string         `json:"consumerActionId"`
+	PublisherInputs  interface{}    `json:"publisherInputs"`
+	ConsumerInputs   ConsumerInputs `json:"consumerInputs"`
 }
 
 type SubscriptionDetails struct {
@@ -71,6 +78,9 @@ type SubscriptionDetails struct {
 	ChannelType      string `json:"channelType"`
 	SubscriptionID   string `json:"subscriptionID"`
 	CreatedBy        string `json:"createdBy"`
+	TargetBranch     string `json:"targetBranch"`
+	Repository       string `json:"repository"`
+	RepositoryName   string `json:"repositoryName"`
 }
 
 type DetailedMessage struct {
@@ -139,6 +149,8 @@ type DeleteSubscriptionRequestPayload struct {
 	ServiceType  string `json:"serviceType"`
 	ChannelID    string `json:"channelID"`
 	MMUserID     string `json:"mmUserID"`
+	TargetBranch string `json:"targetBranch"`
+	Repository   string `json:"repository"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

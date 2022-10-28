@@ -102,6 +102,16 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    repositoryName: {
+        label: 'Repository Name',
+        type: 'hidden',
+        value: '',
+    },
+    targetBranch: {
+        label: 'Target branch',
+        type: 'hidden',
+        value: '',
+    },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
     timestamp: {

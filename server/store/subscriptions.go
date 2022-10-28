@@ -58,7 +58,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		subscriptionList.ByMattermostUserID[userID] = make(SubscriptionListMap)
 	}
 
-	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType)
+	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch)
 	subscriptionListValue := serializers.SubscriptionDetails{
 		MattermostUserID: userID,
 		ProjectName:      subscription.ProjectName,
@@ -71,6 +71,9 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelName:      subscription.ChannelName,
 		ChannelType:      subscription.ChannelType,
 		CreatedBy:        subscription.CreatedBy,
+		Repository:       subscription.Repository,
+		TargetBranch:     subscription.TargetBranch,
+		RepositoryName:   subscription.RepositoryName,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }
@@ -119,7 +122,7 @@ func deleteSubscriptionAtomicModify(subscription *serializers.SubscriptionDetail
 	if err != nil {
 		return nil, err
 	}
-	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType)
+	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch)
 	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
 	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
 	if marshalErr != nil {

@@ -71,10 +71,14 @@ export const addPathParamsToApiUrl = (url: string, pathParams?: Record<string, s
     return newUrl;
 };
 
-export const formLabelValuePair = (labelKey: string, valueKey: string, data: Record<string, string>): LabelValuePair => ({
-    label: data[labelKey] ?? '',
-    value: data[valueKey] ?? '',
-});
+export const formLabelValuePair = (labelKey: string, valueKey: string, data: Record<string, string>) => {
+    const labelValuePair: LabelValuePair = {
+        label: data[labelKey] ?? '',
+        value: data[valueKey] ?? '',
+    };
+
+    return labelValuePair;
+};
 
 export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Record<string, string>[]) => {
     const labelValuePairs: LabelValuePair[] = [];

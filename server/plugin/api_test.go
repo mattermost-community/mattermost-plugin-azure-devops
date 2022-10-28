@@ -33,20 +33,28 @@ func (ph panicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	panic("bad handler")
 }
 
-func TestInitRoutes(t *testing.T) {
-	p := Plugin{}
-	mockAPI := &plugintest.API{}
-	p.API = mockAPI
+func setupMockPlugin(api *plugintest.API, store *mocks.MockKVStore, client *mocks.MockClient) *Plugin {
+	p := &Plugin{}
+	p.API = api
+	if store != nil {
+		p.Store = store
+	}
+
+	if client != nil {
+		p.Client = client
+	}
 	p.router = p.InitAPI()
+	return p
+}
+
+func TestInitRoutes(t *testing.T) {
+	p := setupMockPlugin(&plugintest.API{}, nil, nil)
 	p.InitRoutes()
 }
 
 func TestHandleStaticFiles(t *testing.T) {
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
-
-	p.router = p.InitAPI()
+	p := setupMockPlugin(mockAPI, nil, nil)
 	mockAPI.On("GetBundlePath").Return("/test-path", nil)
 	p.HandleStaticFiles()
 }
@@ -58,10 +66,9 @@ func TestWithRecovery(t *testing.T) {
 		}
 	}()
 
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
+	p := setupMockPlugin(mockAPI, nil, nil)
 	mockAPI.On("LogError", "Recovered from a panic", "url", "http://random", "error", "bad handler", "stack", mock.Anything)
-	p.SetAPI(mockAPI)
 
 	ph := panicHandler{}
 	handler := p.WithRecovery(ph)
@@ -79,9 +86,7 @@ func TestWithRecovery(t *testing.T) {
 }
 
 func TestHandleAuthRequired(t *testing.T) {
-	p := Plugin{}
-	mockAPI := &plugintest.API{}
-	p.API = mockAPI
+	p := setupMockPlugin(&plugintest.API{}, nil, nil)
 	for _, testCase := range []struct {
 		description string
 	}{
@@ -107,12 +112,10 @@ func TestHandleAuthRequired(t *testing.T) {
 
 func TestHandleCreateTask(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.API = mockAPI
-	p.Client = mockedClient
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
 	for _, testCase := range []struct {
 		description        string
 		body               string
@@ -206,14 +209,11 @@ func TestHandleCreateTask(t *testing.T) {
 }
 
 func TestHandleLink(t *testing.T) {
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Client = mockedClient
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
 		description string
 		body        string
@@ -296,12 +296,10 @@ func TestHandleLink(t *testing.T) {
 
 func TestHandleGetAllLinkedProjects(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, nil)
 	for _, testCase := range []struct {
 		description string
 		projectList []serializers.ProjectDetails
@@ -341,12 +339,10 @@ func TestHandleGetAllLinkedProjects(t *testing.T) {
 
 func TestHandleUnlinkProject(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, nil)
 	for _, testCase := range []struct {
 		description        string
 		body               string
@@ -429,7 +425,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
 				return &serializers.ProjectDetails{}, true
 			})
 
@@ -455,12 +451,10 @@ func TestHandleUnlinkProject(t *testing.T) {
 
 func TestHandleGetUserAccountDetails(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, nil)
 	for _, testCase := range []struct {
 		description   string
 		err           error
@@ -519,14 +513,11 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 
 func TestHandleCreateSubscriptions(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Client = mockedClient
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
 		description        string
 		body               string
@@ -621,10 +612,10 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
 				return &serializers.ProjectDetails{}, true
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 				return &serializers.SubscriptionDetails{}, false
 			})
 
@@ -648,12 +639,10 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 
 func TestHandleGetSubscriptions(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, nil)
 	for _, testCase := range []struct {
 		description                                          string
 		subscriptionList                                     []*serializers.SubscriptionDetails
@@ -728,7 +717,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return testCase.isTeamIDValid
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
 				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
 			})
 
@@ -745,9 +734,8 @@ func TestHandleGetSubscriptions(t *testing.T) {
 
 func TestHandleSubscriptionNotifications(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
+	p := setupMockPlugin(mockAPI, nil, nil)
 	for _, testCase := range []struct {
 		description      string
 		body             string
@@ -823,14 +811,11 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 
 func TestHandleDeleteSubscriptions(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	p.API = mockAPI
-	p.Client = mockedClient
-	p.Store = mockedStore
+	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
 		description      string
 		body             string
@@ -885,7 +870,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("LogDebug", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 				return &serializers.SubscriptionDetails{}, true
 			})
 
@@ -908,9 +893,8 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 
 func TestGetUserChannelsForTeam(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
-	p.API = mockAPI
+	p := setupMockPlugin(mockAPI, nil, nil)
 	for _, testCase := range []struct {
 		description string
 		teamID      string
@@ -979,12 +963,10 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 
 func TestHandleGetGitRepositories(t *testing.T) {
 	defer monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.API = mockAPI
-	p.Client = mockedClient
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
 	for _, testCase := range []struct {
 		description           string
 		organization          string
@@ -1032,6 +1014,100 @@ func TestHandleGetGitRepositories(t *testing.T) {
 			p.handleGetGitRepositories(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandleGetGitRepositoryBranches(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	for _, testCase := range []struct {
+		description                      string
+		organization                     string
+		repository                       string
+		project                          string
+		getGitRepositoryBranchesErr      error
+		statusCode                       int
+		getGitRepositoryBranchesResponse *serializers.GitBranchesResponse
+		expectedResponse                 []*serializers.GitBranch
+		expectedErrorResponse            interface{}
+	}{
+		{
+			description:  "HandleGetGitRepositoryBranches: valid",
+			organization: "mockOrganization",
+			project:      "mockProject",
+			repository:   "mockRepository",
+			statusCode:   http.StatusOK,
+			getGitRepositoryBranchesResponse: &serializers.GitBranchesResponse{
+				Value: testutils.GetGitBranchesPayload(),
+			},
+			expectedResponse: []*serializers.GitBranch{
+				{
+					ID:   "mockID-1",
+					Name: "mockName-1",
+				},
+				{
+					ID:   "mockID-2",
+					Name: "mockName-2",
+				},
+			},
+		},
+		{
+			description:           "HandleGetGitRepositoryBranches: Invalid organization, project or repository params",
+			organization:          "mockOrganization",
+			project:               "mockProject",
+			statusCode:            http.StatusBadRequest,
+			expectedErrorResponse: map[string]interface{}{"Error": constants.ErrorRepositoryPathParam},
+		},
+		{
+			description:                 "HandleGetGitRepositoryBranches: GetGitRepositoryBranches returns error",
+			organization:                "mockOrganization",
+			project:                     "mockProject",
+			repository:                  "mockRepository",
+			getGitRepositoryBranchesErr: errors.New("failed to get the git repository branches for a project"),
+			statusCode:                  http.StatusInternalServerError,
+			expectedErrorResponse:       map[string]interface{}{"Error": "failed to get the git repository branches for a project"},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
+				mockedClient.EXPECT().GetGitRepositoryBranches(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.getGitRepositoryBranchesResponse, testCase.statusCode, testCase.getGitRepositoryBranchesErr)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			pathParams := map[string]string{
+				"organization": testCase.organization,
+				"project":      testCase.project,
+				"repository":   testCase.repository,
+			}
+
+			req = mux.SetURLVars(req, pathParams)
+
+			w := httptest.NewRecorder()
+			p.handleGetGitRepositoryBranches(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+
+			if testCase.expectedErrorResponse != nil {
+				var actualResponse interface{}
+				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
+				require.Nil(t, err)
+				assert.Equal(t, testCase.expectedErrorResponse, actualResponse)
+			}
+
+			if testCase.expectedResponse != nil {
+				var actualResponse []*serializers.GitBranch
+				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
+				require.Nil(t, err)
+				assert.Equal(t, testCase.expectedResponse, actualResponse)
+			}
 		})
 	}
 }

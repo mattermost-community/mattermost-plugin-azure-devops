@@ -25,6 +25,7 @@ type Client interface {
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
+	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 }
 
 type client struct {
@@ -136,11 +137,6 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	publisherInputs := serializers.PublisherInputs{
-		ProjectID:  project.ProjectID,
-		Repository: body.Repository,
-	}
-
 	consumerInputs := serializers.ConsumerInputs{
 		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, channelID),
 	}
@@ -150,9 +146,22 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		EventType:        body.EventType,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
-		PublisherInputs:  publisherInputs,
 		ConsumerInputs:   consumerInputs,
 	}
+
+	switch body.ServiceType {
+	case constants.ServiceTypeBoards:
+		payload.PublisherInputs = serializers.PublisherInputsBoards{
+			ProjectID: project.ProjectID,
+		}
+	case constants.ServiceTypeRepos:
+		payload.PublisherInputs = serializers.PublisherInputsRepos{
+			ProjectID:  project.ProjectID,
+			Repository: body.Repository,
+			Branch:     body.TargetBranch,
+		}
+	}
+
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
@@ -168,7 +177,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
-	publisherInputs := serializers.PublisherInputs{
+	publisherInputs := serializers.PublisherInputsBoards{
 		ProjectID: projectID,
 	}
 
@@ -213,6 +222,18 @@ func (c *client) GetGitRepositories(organization, projectName, mattermostUserID 
 	}
 
 	return gitRepositories, statusCode, nil
+}
+
+func (c *client) GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error) {
+	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositoryBranches, organization, projectName, repository)
+
+	var gitBranchesResponse *serializers.GitBranchesResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitBranchesResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the git repository branches for a project")
+	}
+
+	return gitBranchesResponse, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

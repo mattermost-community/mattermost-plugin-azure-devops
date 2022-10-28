@@ -73,6 +73,9 @@ type SubscriptionDetails = {
     channelName: string,
     channelType: string,
     createdBy: string,
+    repository: string,
+    targetBranch: string,
+    repositoryName: string
 }
 
 type WebsocketEventParams = {
@@ -93,5 +96,10 @@ type SubscriptionFilters = {
 
 type ReposSubscriptionFiltersResponse = {
     id: string,
+    name: string
+}
+
+type ReposSubscriptionTargetBranchFilterResponse = {
+    objectId: string,
     name: string
 }

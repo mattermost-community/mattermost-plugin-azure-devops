@@ -48,6 +48,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 }
 
 // API to create task of a project in an organization.
@@ -253,7 +254,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType}); isSubscriptionPresent {
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType, Repository: body.Repository, TargetBranch: body.TargetBranch}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
 		return
@@ -287,7 +288,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
-		ProjectID:        subscription.PublisherInputs.ProjectID,
+		ProjectID:        project.ProjectID,
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ServiceType:      body.ServiceType,
@@ -296,6 +297,9 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ChannelName:      channel.DisplayName,
 		ChannelType:      channel.Type,
 		CreatedBy:        createdByDisplayName,
+		Repository:       body.Repository,
+		TargetBranch:     body.TargetBranch,
+		RepositoryName:   body.RepositoryName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -331,7 +335,6 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	}
 
 	offset, limit := p.GetOffsetAndLimitFromQueryParams(r)
-
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
 	eventType := r.URL.Query().Get(constants.QueryParamEventType)
@@ -372,7 +375,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType
+			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType+subscriptionByProject[i].TargetBranch < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType+subscriptionByProject[j].TargetBranch
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
@@ -584,6 +587,8 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		ProjectName:      body.Project,
 		ChannelID:        body.ChannelID,
 		EventType:        body.EventType,
+		Repository:       body.Repository,
+		TargetBranch:     body.TargetBranch,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
@@ -603,6 +608,8 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		OrganizationName: body.Organization,
 		EventType:        body.EventType,
 		ChannelID:        body.ChannelID,
+		Repository:       body.Repository,
+		TargetBranch:     body.TargetBranch,
 	}); deleteErr != nil {
 		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
@@ -730,12 +737,12 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
 	pathParams := mux.Vars(r)
-	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
-	project := strings.TrimSpace(pathParams[constants.PathParamProject])
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
 
-	if len(organization) == 0 || len(project) == 0 {
-		p.API.LogError(constants.ErrorInvalidOrganizationOrProject)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorInvalidOrganizationOrProject})
+	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
+		p.API.LogError(constants.ErrorOrganizationOrProjectQueryParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorOrganizationOrProjectQueryParam})
 		return
 	}
 
@@ -744,6 +751,37 @@ func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request
 		p.API.LogError("Error in fetching git repositories", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
+	}
+
+	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
+	project := strings.TrimSpace(pathParams[constants.PathParamProject])
+	repository := strings.TrimSpace(pathParams[constants.PathParamRepository])
+
+	if len(organization) == 0 || len(project) == 0 || len(repository) == 0 {
+		p.API.LogError(constants.ErrorRepositoryPathParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorRepositoryPathParam})
+		return
+	}
+
+	response, statusCode, err := p.Client.GetGitRepositoryBranches(organization, project, repository, mattermostUserID)
+	if err != nil {
+		p.API.LogError("Error in fetching git repository branches", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	// Azure DevOps returns branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
+	for _, value := range response.Value {
+		if strings.Contains(value.Name, "refs/heads/") && len(value.Name) > 11 {
+			value.Name = value.Name[11:]
+		}
 	}
 
 	p.writeJSON(w, response.Value)

@@ -63,6 +63,7 @@ const (
 	PathParamTeamID       = "team_id"
 	PathParamOrganization = "organization"
 	PathParamProject      = "project"
+	PathParamRepository   = "repository"
 
 	// URL query params constants
 	QueryParamProject     = "project"
@@ -115,6 +116,9 @@ const (
 
 	SlackAttachmentAuthorNameRepos  = "Azure Repos"
 	SlackAttachmentAuthorNameBoards = "Azure Boards"
+
+	ServiceTypeBoards = "boards"
+	ServiceTypeRepos  = "repos"
 )
 
 var (

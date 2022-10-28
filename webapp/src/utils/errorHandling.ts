@@ -11,10 +11,10 @@ const getErrorMessage = (
 
     switch (component) {
     case 'SubscribeModal': // Create subscription modal
-        if (errorState.status === 400 && errorState.data.error === pluginConstants.messages.error.subscriptionAlreadyExists) {
-            return errorState.data.error;
+        if (errorState.status === 400 && errorState.data.Error === pluginConstants.messages.error.subscriptionAlreadyExists) {
+            return pluginConstants.messages.error.subscriptionAlreadyExists;
         }
-        if (errorState.status === 403 && errorState.data.error.includes(pluginConstants.messages.error.accessDenied)) {
+        if (errorState.status === 403 && errorState.data.Error.includes(pluginConstants.messages.error.accessDenied)) {
             return pluginConstants.messages.error.adminAccessError;
         }
         return pluginConstants.messages.error.generic;
@@ -26,10 +26,10 @@ const getErrorMessage = (
         return pluginConstants.messages.error.generic;
 
     case 'ConfirmationModal':
-        if (errorState.status === 403 && errorState.data.error.includes(pluginConstants.messages.error.accessDenied)) {
+        if (errorState.status === 403 && errorState.data.Error.includes(pluginConstants.messages.error.accessDenied)) {
             return pluginConstants.messages.error.adminAccessError;
         }
-        if (errorState.status === 404 && errorState.data.error.includes(pluginConstants.messages.error.subscriptionNotFound)) {
+        if (errorState.status === 404 && errorState.data.Error.includes(pluginConstants.messages.error.subscriptionNotFound)) {
             return pluginConstants.messages.error.subscriptionNotFound;
         }
         return pluginConstants.messages.error.generic;

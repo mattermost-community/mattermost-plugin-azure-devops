@@ -186,7 +186,7 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 
 func (p *Plugin) IsSubscriptionPresent(subscriptionList []*serializers.SubscriptionDetails, subscription *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 	for _, a := range subscriptionList {
-		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType {
+		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType && a.Repository == subscription.Repository && a.TargetBranch == subscription.TargetBranch {
 			return a, true
 		}
 	}

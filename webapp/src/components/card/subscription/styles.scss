@@ -22,3 +22,13 @@
 .color-repos {
     color: #d74f27;
 }
+
+.card-filter {
+    align-self: flex-start;
+}
+
+.card-chip-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+}

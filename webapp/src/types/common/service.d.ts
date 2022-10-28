@@ -10,7 +10,8 @@ type ApiServiceName =
     'getChannels' |
     'getSubscriptionList' |
     'deleteSubscription' |
-    'getRepositories'
+    'getRepositories' |
+    'getRepositoryBranches'
 
 type PluginApiService = {
     path: string,
@@ -20,7 +21,7 @@ type PluginApiService = {
 
 type ApiErrorResponse = {
     data: {
-        error: string
+        Error: string
     },
     status: number
 }
@@ -35,4 +36,5 @@ type APIRequestPayload =
     FetchSubscriptionList |
     ReposSubscriptionFiltersRequest |
     ReposSubscriptionFiltersResponse |
+    ReposSubscriptionTargetBranchFilterResponse |
     void;

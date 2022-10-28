@@ -18,6 +18,9 @@ type SubscriptionPayload = {
     serviceType: string,
     channelID: string,
     mmUserID: string,
+    repository: string,
+    targetBranch: string,
+    repositoryName: string
 }
 
 interface PaginationQueryParams {
@@ -28,4 +31,5 @@ interface PaginationQueryParams {
 type ReposSubscriptionFiltersRequest = {
     organization: string
     project: string
+    repository?: string
 }

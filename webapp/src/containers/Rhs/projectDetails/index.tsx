@@ -96,6 +96,9 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             serviceType: subscriptionDetails.serviceType,
             channelID: subscriptionDetails.channelID,
             mmUserID: subscriptionDetails.mattermostUserID,
+            repository: subscriptionDetails.repository,
+            targetBranch: subscriptionDetails.targetBranch,
+            repositoryName: subscriptionDetails.repositoryName,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);

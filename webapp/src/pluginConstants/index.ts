@@ -14,6 +14,7 @@ import {
     subscriptionFilters,
     boards,
     repos,
+    pipelines,
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
 } from './common';
@@ -44,6 +45,7 @@ export default {
         subscriptionFilters,
         boards,
         repos,
+        pipelines,
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
     },

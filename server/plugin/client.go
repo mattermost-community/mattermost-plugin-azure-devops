@@ -134,6 +134,29 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.Call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+var publisherID = map[string]string{
+	constants.SubscriptionEventPullRequestCreated:                 "tfs",
+	constants.SubscriptionEventPullRequestUpdated:                 "tfs",
+	constants.SubscriptionEventPullRequestCommented:               "tfs",
+	constants.SubscriptionEventPullRequestMerged:                  "tfs",
+	constants.SubscriptionEventCodePushed:                         "tfs",
+	constants.SubscriptionEventWorkItemCreated:                    "tfs",
+	constants.SubscriptionEventWorkItemUpdated:                    "tfs",
+	constants.SubscriptionEventWorkItemDeleted:                    "tfs",
+	constants.SubscriptionEventWorkItemCommented:                  "tfs",
+	constants.SubscriptionEventBuildCompleted:                     "tfs",
+	constants.SubscriptionEventReleaseAbandoned:                   "rm",
+	constants.SubscriptionEventReleaseCreated:                     "rm",
+	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "rm",
+	constants.SubscriptionEventReleaseDeploymentEventPending:      "rm",
+	constants.SubscriptionEventReleaseDeploymentCompleted:         "rm",
+	constants.SubscriptionEventReleaseDeploymentStarted:           "rm",
+	constants.SubscriptionEventRunStageApprovalCompleted:          "pipelines",
+	constants.SubscriptionEventRunStageStateChanged:               "pipelines",
+	constants.SubscriptionEventRunStageWaitingForApproval:         "pipelines",
+	constants.SubscriptionEventRunStateChanged:                    "pipelines",
+}
+
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
@@ -142,7 +165,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherID,
+		PublisherID:      publisherID[body.EventType],
 		EventType:        body.EventType,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
@@ -160,10 +183,18 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			Repository: body.Repository,
 			Branch:     body.TargetBranch,
 		}
+	case constants.ServiceTypePipelines:
+		payload.PublisherInputs = serializers.PublisherInputsPipelines{
+			ProjectID: project.ProjectID,
+		}
 	}
 
 	var subscription *serializers.SubscriptionValue
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	if strings.Contains(body.EventType, "release") {
+		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	}
+	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
 	}

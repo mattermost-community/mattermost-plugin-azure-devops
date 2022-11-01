@@ -22,7 +22,7 @@ import {getSubscribeModalState} from 'selectors';
 import Utils from 'utils';
 
 import './styles.scss';
-import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
+import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 
 import {filterLabelValuePairAll} from 'pluginConstants/common';
 
@@ -121,6 +121,8 @@ const SubscribeModal = () => {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
         } else if (formFields.serviceType === pluginConstants.common.repos) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
+        } else if (formFields.serviceType === pluginConstants.common.pipelines) {
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: pipelineEventTypeOptions}});
         }
 
         dispatch(setServiceType(formFields.serviceType ?? ''));

@@ -21,9 +21,24 @@ export const eventTypeRepos = {
     'git.push': 'Code Pushed',
 };
 
+export const eventTypePipelines = {
+    'build.complete': 'Build Completed',
+    'ms.vss-release.release-abandoned-event': 'Release Abandoned',
+    'ms.vss-release.release-created-event': 'Release Created',
+    'ms.vss-release.deployment-approval-completed-event': 'Release deployment approval completed',
+    'ms.vss-release.deployment-approval-pending-event': 'Release deployment approval pending',
+    'ms.vss-release.deployment-completed-event': 'Release deployment completed',
+    'ms.vss-release.deployment-started-event': 'Release deployment started',
+    'ms.vss-pipelinechecks-events.approval-completed': 'Run stage approval completed',
+    'ms.vss-pipelines.stage-state-changed-event': 'Run stage state changed',
+    'ms.vss-pipelinechecks-events.approval-pending': 'Run stage waiting for approval',
+    'ms.vss-pipelines.run-state-changed-event': 'Run state changed',
+};
+
 export const eventTypeMap: Record<EventType, string> = {
     ...eventTypeBoards,
     ...eventTypeRepos,
+    ...eventTypePipelines,
 };
 
 export const serviceTypeMap: Record<EventType, string> = {
@@ -36,10 +51,22 @@ export const serviceTypeMap: Record<EventType, string> = {
     'ms.vss-code.git-pullrequest-comment-event': 'Repos',
     'git.pullrequest.merged': 'Repos',
     'git.push': 'Repos',
+    'build.complete': 'Build Completed',
+    'ms.vss-release.release-abandoned-event': 'Release Abandoned',
+    'ms.vss-release.release-created-event': 'Release Created',
+    'ms.vss-release.deployment-approval-completed-event': 'Release deployment approval completed',
+    'ms.vss-release.deployment-approval-pending-event': 'Release deployment approval pending',
+    'ms.vss-release.deployment-completed-event': 'Release deployment completed',
+    'ms.vss-release.deployment-started-event': 'Release deployment started',
+    'ms.vss-pipelinechecks-events.approval-completed': 'Run stage approval completed',
+    'ms.vss-pipelines.stage-state-changed-event': 'Run stage state changed',
+    'ms.vss-pipelinechecks-events.approval-pending': 'Run stage waiting for approval',
+    'ms.vss-pipelines.run-state-changed-event': 'Run state changed',
 };
 
 export const boards = 'boards';
 export const repos = 'repos';
+export const pipelines = 'pipelines';
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;

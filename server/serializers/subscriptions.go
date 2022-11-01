@@ -24,6 +24,10 @@ type PublisherInputsRepos struct {
 	Branch     string `json:"branch"`
 }
 
+type PublisherInputsPipelines struct {
+	ProjectID string `json:"projectId"`
+}
+
 type ConsumerInputs struct {
 	URL string `json:"url"`
 }

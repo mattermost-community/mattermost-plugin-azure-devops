@@ -136,8 +136,8 @@ func GetSubscriptionListMapKey() string {
 	return GetKeyHash(constants.SubscriptionPrefix)
 }
 
-func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch string) string {
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch)
+func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains string) string {
+	return fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains)
 }
 
 // GetKeyHash can be used to create a hash from a string

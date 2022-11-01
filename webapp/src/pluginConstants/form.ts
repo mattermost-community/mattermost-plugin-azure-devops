@@ -112,6 +112,16 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    pullRequestCreatedBy: {
+        label: 'Requested by a member of group',
+        type: 'hidden',
+        value: '',
+    },
+    pullRequestReviewersContains: {
+        label: 'Reviewer includes group',
+        type: 'hidden',
+        value: '',
+    },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
     timestamp: {

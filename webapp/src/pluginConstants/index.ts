@@ -16,6 +16,7 @@ import {
     repos,
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
+    eventTypeReposKeys,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -46,6 +47,7 @@ export default {
         repos,
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
+        eventTypeReposKeys,
     },
     form: {
         linkProjectModal,

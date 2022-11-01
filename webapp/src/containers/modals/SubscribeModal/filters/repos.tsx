@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
 import pluginConstants from 'pluginConstants';
 import {filterLabelValuePairAll} from 'pluginConstants/common';
@@ -10,58 +10,65 @@ import usePluginApi from 'hooks/usePluginApi';
 import {formLabelValuePairs} from 'utils';
 
 type ReposFilterProps = {
-    handleSelectRepo: (repo: string, repoName?: string) => void
+    organization: string;
+    projectId: string;
+    eventType: string;
     selectedRepo: string
+    handleSelectRepo: (repo: string, repoName?: string) => void
     selectedTargetBranch: string
     handleSelectTargetBranch: (branch: string) => void
-} & ReposSubscriptionFiltersRequest
+    selectedPullRequestCreatedBy: string
+    handleSelectPullRequestCreatedBy: (pullrequestCreatedBy: string) => void
+    selectedPullRequestReviewersContains: string
+    handlePullRequestReviewersContains: (pullrequestReviewersContains: string) => void
+}
 
-const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, selectedTargetBranch, handleSelectTargetBranch}: ReposFilterProps) => {
+const subscriptionFiltersNameForRepos = {
+    repository: 'repository',
+    branch: 'branch',
+    pullrequestCreatedBy: 'pullrequestCreatedBy',
+    pullrequestReviewersContains: 'pullrequestReviewersContains',
+};
+const subscriptionFiltersForRepos = [
+    subscriptionFiltersNameForRepos.repository,
+    subscriptionFiltersNameForRepos.branch,
+    subscriptionFiltersNameForRepos.pullrequestCreatedBy,
+    subscriptionFiltersNameForRepos.pullrequestReviewersContains,
+];
+
+const ReposFilter = ({organization, projectId, eventType, selectedRepo, handleSelectRepo, selectedTargetBranch, handleSelectTargetBranch, selectedPullRequestCreatedBy, handleSelectPullRequestCreatedBy, selectedPullRequestReviewersContains, handlePullRequestReviewersContains}: ReposFilterProps) => {
     const {
         getApiState,
         makeApiRequestWithCompletionStatus,
     } = usePluginApi();
 
-    const reposSubscriptionFiltersRequest = useMemo<ReposSubscriptionFiltersRequest>(() => ({
+    const getSubscriptionFiltersRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
         organization,
-        project,
-    }), [organization, project]);
-
-    const reposSubscriptionTargetBranchFiltersRequest = useMemo<ReposSubscriptionFiltersRequest>(() => ({
-        organization,
-        project,
-        repository: selectedRepo,
-    }), [organization, project, selectedRepo]);
+        projectId,
+        filters: subscriptionFiltersForRepos,
+        eventType,
+        repositoryId: selectedRepo,
+    }), [organization, projectId, eventType, subscriptionFiltersForRepos, selectedRepo]);
 
     useEffect(() => {
-        makeApiRequestWithCompletionStatus(
-            pluginConstants.pluginApiServiceConfigs.getRepositories.apiServiceName,
-            reposSubscriptionFiltersRequest,
-        );
-    }, [reposSubscriptionFiltersRequest]);
-
-    useEffect(() => {
-        if (selectedRepo !== filterLabelValuePairAll.value) {
+        if (eventType) {
             makeApiRequestWithCompletionStatus(
-                pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,
-                reposSubscriptionTargetBranchFiltersRequest,
+                pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
+                getSubscriptionFiltersRequest,
             );
         }
-    }, [reposSubscriptionTargetBranchFiltersRequest.repository]);
+    }, [getSubscriptionFiltersRequest]);
 
-    const {data: repositoriesDateFromApi, isLoading: isGetRepositoriesLoading, isError: isGetRepositoriesError} = getApiState(
-        pluginConstants.pluginApiServiceConfigs.getRepositories.apiServiceName,
-        reposSubscriptionFiltersRequest as APIRequestPayload,
+    const {data, isLoading, isError, isSuccess} = getApiState(
+        pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
+        getSubscriptionFiltersRequest as APIRequestPayload,
     );
-    const repositoriesData = repositoriesDateFromApi as ReposSubscriptionFiltersResponse[] || [];
+    const filtersData = data as GetSubscriptionFiltersResponse || [];
 
-    const {data: repositoryBranchesDataFromApi, isLoading: isGetRepositoryBranchesLoading, isError: isGetRepositoryBranchesError} = getApiState(
-        pluginConstants.pluginApiServiceConfigs.getRepositoryBranches.apiServiceName,
-        reposSubscriptionTargetBranchFiltersRequest as APIRequestPayload,
-    );
-    const repositoryBranchesData = repositoryBranchesDataFromApi as ReposSubscriptionTargetBranchFilterResponse[] || [];
-
-    const getTargetBranchOptions = () => ([{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'name', repositoryBranchesData)]);
+    const getRepositoryOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]);
+    const getTargetBranchOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]);
+    const getPullrequestCreatedByOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]);
+    const getPullrequestReviewersContainsOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]);
 
     return (
         <>
@@ -70,21 +77,50 @@ const ReposFilter = ({handleSelectRepo, project, organization, selectedRepo, sel
                     placeholder='Repository'
                     value={selectedRepo}
                     onChange={handleSelectRepo}
-                    options={[{...filterLabelValuePairAll}, ...formLabelValuePairs('name', 'id', repositoriesData)]}
-                    error={isGetRepositoriesError}
-                    loadingOptions={isGetRepositoriesLoading}
-                    disabled={isGetRepositoriesLoading}
+                    options={getRepositoryOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                    error={isError}
+                    loadingOptions={isLoading}
+                    disabled={!eventType || isLoading}
                 />
             </div>
-            <Dropdown
-                placeholder='Target Branch'
-                value={selectedTargetBranch}
-                onChange={handleSelectTargetBranch}
-                options={getTargetBranchOptions()}
-                error={isGetRepositoryBranchesError}
-                loadingOptions={isGetRepositoryBranchesLoading}
-                disabled={selectedRepo === filterLabelValuePairAll.value || isGetRepositoryBranchesLoading}
-            />
+            <div className='margin-bottom-10'>
+                <Dropdown
+                    placeholder='Target Branch'
+                    value={selectedTargetBranch}
+                    onChange={handleSelectTargetBranch}
+                    options={getTargetBranchOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                    error={isError}
+                    loadingOptions={isLoading}
+                    disabled={selectedRepo === filterLabelValuePairAll.value || isLoading}
+                />
+            </div>
+            {
+                eventType !== pluginConstants.common.eventTypeReposKeys.commented &&
+                eventType !== pluginConstants.common.eventTypeReposKeys.codePushed && (
+                    <>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Requested by a member of group'
+                                value={selectedPullRequestCreatedBy}
+                                onChange={handleSelectPullRequestCreatedBy}
+                                options={getPullrequestCreatedByOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={!eventType || isLoading}
+                            />
+                        </div>
+                        <Dropdown
+                            placeholder='Reviewer includes group'
+                            value={selectedPullRequestReviewersContains}
+                            onChange={handlePullRequestReviewersContains}
+                            options={getPullrequestReviewersContainsOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={!eventType || isLoading}
+                        />
+                    </>
+                )
+            }
         </>
     );
 };

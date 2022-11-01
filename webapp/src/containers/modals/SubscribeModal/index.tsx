@@ -47,7 +47,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility, project, organization, serviceType} = getSubscribeModalState(state);
+    const {visibility, project, organization, serviceType, projectID} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
@@ -239,6 +239,18 @@ const SubscribeModal = () => {
             targetBranch: newValue === filterLabelValuePairAll.value ? '' : newValue,
         });
 
+    const handleSetPullRequestCreatedByFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestCreatedBy: newValue,
+        });
+
+    const handleSetPullRequestReviewersContainsFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestReviewersContains: newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -279,11 +291,17 @@ const SubscribeModal = () => {
                                         <>
                                             <ReposFilter
                                                 organization={organization as string}
-                                                project={project as string}
+                                                projectId={projectID as string}
+                                                eventType={formFields.eventType || ''}
                                                 selectedRepo={formFields.repository || filterLabelValuePairAll.value}
                                                 handleSelectRepo={handleSetRepoFilter}
                                                 selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
                                                 handleSelectTargetBranch={handleSetTargetBranchFilter}
+                                                selectedPullRequestCreatedBy={formFields.pullRequestCreatedBy || filterLabelValuePairAll.value}
+                                                handleSelectPullRequestCreatedBy={handleSetPullRequestCreatedByFilter}
+                                                selectedPullRequestReviewersContains={formFields.pullRequestReviewersContains || filterLabelValuePairAll.value}
+                                                handlePullRequestReviewersContains={handleSetPullRequestReviewersContainsFilter}
+
                                             />
                                         </>
                                     )

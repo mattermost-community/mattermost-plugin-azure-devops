@@ -23,9 +23,11 @@ type PublisherInputsBoards struct {
 }
 
 type PublisherInputsRepos struct {
-	ProjectID  string `json:"projectId"`
-	Repository string `json:"repository"`
-	Branch     string `json:"branch"`
+	ProjectID                    string `json:"projectId"`
+	Repository                   string `json:"repository"`
+	Branch                       string `json:"branch"`
+	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
 }
 
 type ConsumerInputs struct {
@@ -50,14 +52,16 @@ type SubscriptionList struct {
 	SubscriptionValue []SubscriptionValue `json:"value"`
 }
 type CreateSubscriptionRequestPayload struct {
-	Organization   string `json:"organization"`
-	Project        string `json:"project"`
-	EventType      string `json:"eventType"`
-	ServiceType    string `json:"serviceType"`
-	ChannelID      string `json:"channelID"`
-	Repository     string `json:"repository"`
-	RepositoryName string `json:"repositoryName"`
-	TargetBranch   string `json:"targetBranch"`
+	Organization                 string `json:"organization"`
+	Project                      string `json:"project"`
+	EventType                    string `json:"eventType"`
+	ServiceType                  string `json:"serviceType"`
+	ChannelID                    string `json:"channelID"`
+	Repository                   string `json:"repository"`
+	RepositoryName               string `json:"repositoryName"`
+	TargetBranch                 string `json:"targetBranch"`
+	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
@@ -65,6 +69,7 @@ type GetSubscriptionFilterPossibleValuesRequestPayload struct {
 	ProjectID    string   `json:"projectId"`
 	EventType    string   `json:"eventType"`
 	Filters      []string `json:"filters"`
+	RepositoryID string   `json:"repositoryId"`
 }
 
 type SubscriptionFilter struct {
@@ -101,20 +106,22 @@ type CreateSubscriptionBodyPayload struct {
 }
 
 type SubscriptionDetails struct {
-	MattermostUserID string `json:"mattermostUserID"`
-	ProjectName      string `json:"projectName"`
-	ProjectID        string `json:"projectID"`
-	OrganizationName string `json:"organizationName"`
-	EventType        string `json:"eventType"`
-	ServiceType      string `json:"serviceType"`
-	ChannelID        string `json:"channelID"`
-	ChannelName      string `json:"channelName"`
-	ChannelType      string `json:"channelType"`
-	SubscriptionID   string `json:"subscriptionID"`
-	CreatedBy        string `json:"createdBy"`
-	TargetBranch     string `json:"targetBranch"`
-	Repository       string `json:"repository"`
-	RepositoryName   string `json:"repositoryName"`
+	MattermostUserID             string `json:"mattermostUserID"`
+	ProjectName                  string `json:"projectName"`
+	ProjectID                    string `json:"projectID"`
+	OrganizationName             string `json:"organizationName"`
+	EventType                    string `json:"eventType"`
+	ServiceType                  string `json:"serviceType"`
+	ChannelID                    string `json:"channelID"`
+	ChannelName                  string `json:"channelName"`
+	ChannelType                  string `json:"channelType"`
+	SubscriptionID               string `json:"subscriptionID"`
+	CreatedBy                    string `json:"createdBy"`
+	TargetBranch                 string `json:"targetBranch"`
+	Repository                   string `json:"repository"`
+	RepositoryName               string `json:"repositoryName"`
+	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
 }
 
 type DetailedMessage struct {
@@ -177,14 +184,16 @@ type Reviewer struct {
 }
 
 type DeleteSubscriptionRequestPayload struct {
-	Organization string `json:"organization"`
-	Project      string `json:"project"`
-	EventType    string `json:"eventType"`
-	ServiceType  string `json:"serviceType"`
-	ChannelID    string `json:"channelID"`
-	MMUserID     string `json:"mmUserID"`
-	TargetBranch string `json:"targetBranch"`
-	Repository   string `json:"repository"`
+	Organization                 string `json:"organization"`
+	Project                      string `json:"project"`
+	EventType                    string `json:"eventType"`
+	ServiceType                  string `json:"serviceType"`
+	ChannelID                    string `json:"channelID"`
+	MMUserID                     string `json:"mmUserID"`
+	TargetBranch                 string `json:"targetBranch"`
+	Repository                   string `json:"repository"`
+	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
 }
 
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {

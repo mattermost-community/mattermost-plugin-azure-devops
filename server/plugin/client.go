@@ -157,9 +157,11 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		}
 	case constants.ServiceTypeRepos:
 		payload.PublisherInputs = serializers.PublisherInputsRepos{
-			ProjectID:  project.ProjectID,
-			Repository: body.Repository,
-			Branch:     body.TargetBranch,
+			ProjectID:                    project.ProjectID,
+			Repository:                   body.Repository,
+			Branch:                       body.TargetBranch,
+			PullRequestCreatedBy:         body.PullRequestCreatedBy,
+			PullRequestReviewersContains: body.PullRequestReviewersContains,
 		}
 	}
 
@@ -257,6 +259,13 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		},
 		InputValues: subscriptionFilters,
 		Scope:       10,
+	}
+
+	if constants.ValidSubscriptionEventsForRepos[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsRepos{
+			ProjectID:  request.ProjectID,
+			Repository: request.RepositoryID,
+		}
 	}
 
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient

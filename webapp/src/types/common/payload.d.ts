@@ -33,3 +33,18 @@ type ReposSubscriptionFiltersRequest = {
     project: string
     repository?: string
 }
+
+type SubscriptionFiltersPossibleValues = {
+    displayValue: string
+    value: string
+}
+
+type GetSubscriptionFiltersResponse = Record<string, SubscriptionFiltersPossibleValues[]>
+
+type GetSubscriptionFiltersRequest = {
+    organization: string
+    projectId: string
+    eventType: string
+    filters: string[]
+    repositoryId: string
+}

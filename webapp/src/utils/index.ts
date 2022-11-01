@@ -6,7 +6,7 @@ import Constants from 'pluginConstants';
 import {getOrganizationList, getProjectList} from './filterData';
 import getErrorMessage from './errorHandling';
 
-const getBaseUrls = (): {pluginApiBaseUrl: string; mattermostApiBaseUrl: string} => {
+const getBaseUrls = (): { pluginApiBaseUrl: string; mattermostApiBaseUrl: string } => {
     const url = new URL(window.location.href);
     const baseUrl = `${url.protocol}//${url.host}`;
     const pluginUrl = `${baseUrl}/plugins/${Constants.common.pluginId}`;

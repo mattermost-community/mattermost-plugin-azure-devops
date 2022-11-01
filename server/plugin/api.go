@@ -49,7 +49,6 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
 }
 

@@ -137,6 +137,7 @@ func GetSubscriptionListMapKey() string {
 }
 
 func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch string) string {
+	// TODO: Optimize subscription key
 	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch)
 }
 

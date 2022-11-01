@@ -530,7 +530,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	case constants.SubscriptionEventCodePushed:
 		commits := ""
 		for i := 0; i < len(body.Resource.Commits); i++ {
-			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID[0:8], body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
 		}
 
 		if commits == "" {
@@ -762,11 +762,11 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 
 	pathParams := mux.Vars(r)
-	organization := pathParams[constants.PathParamOrganization]
-	project := pathParams[constants.PathParamProject]
-	repository := pathParams[constants.PathParamRepository]
+	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
+	project := strings.TrimSpace(pathParams[constants.PathParamProject])
+	repository := strings.TrimSpace(pathParams[constants.PathParamRepository])
 
-	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 || len(strings.TrimSpace(repository)) == 0 {
+	if len(organization) == 0 || len(project) == 0 || len(repository) == 0 {
 		p.API.LogError(constants.ErrorRepositoryPathParam)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorRepositoryPathParam})
 		return
@@ -779,9 +779,11 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// Azure DevOps return branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
-	for index, value := range response.Value {
-		response.Value[index].Name = value.Name[11:]
+	// Azure DevOps returns branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
+	for _, value := range response.Value {
+		if strings.Contains(value.Name, "refs/heads/") && len(value.Name) > 11 {
+			value.Name = value.Name[11:]
+		}
 	}
 
 	p.writeJSON(w, response.Value)

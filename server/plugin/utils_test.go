@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,12 +15,16 @@ import (
 	"bou.ke/monkey"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/Brightscout/mattermost-plugin-azure-devops/server/testutils"
 	"github.com/golang/mock/gomock"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type mockBLock struct{}
@@ -513,6 +518,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 					OrganizationName: "mockOrganizationName",
 					ChannelID:        "mockChannelID",
 					EventType:        "mockEventType",
+					Repository:       "mockRepository",
+					TargetBranch:     "mockTargetBranch",
 				},
 			},
 			subscription: &serializers.SubscriptionDetails{
@@ -520,6 +527,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 				OrganizationName: "mockOrganizationName",
 				ChannelID:        "mockChannelID",
 				EventType:        "mockEventType",
+				Repository:       "mockRepository",
+				TargetBranch:     "mockTargetBranch",
 			},
 		},
 		{
@@ -530,6 +539,8 @@ func TestIsSubscriptionPresent(t *testing.T) {
 					OrganizationName: "mockOrganizationName",
 					ChannelID:        "mockChannelID",
 					EventType:        "mockEventType",
+					Repository:       "mockRepository",
+					TargetBranch:     "mockTargetBranch",
 				},
 			},
 			subscription: &serializers.SubscriptionDetails{},
@@ -612,6 +623,131 @@ func TestGetConnectAccountFirstMessage(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			resp := p.getConnectAccountFirstMessage()
 			assert.NotNil(t, resp)
+		})
+	}
+}
+
+func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	p.API = mockAPI
+	for _, testCase := range []struct {
+		description       string
+		queryParamPage    string
+		queryParamPerPage string
+		expectedOffset    int
+		expectedLimit     int
+	}{
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: valid page and per_page query params",
+			queryParamPage:    "1",
+			queryParamPerPage: "10",
+			expectedOffset:    10,
+			expectedLimit:     10,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: empty page and per_page query params",
+			queryParamPage:    "",
+			queryParamPerPage: "",
+			expectedOffset:    0,
+			expectedLimit:     constants.DefaultPerPageLimit,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: invalid page query param",
+			queryParamPage:    "invalidNonIntegerString",
+			queryParamPerPage: "10",
+			expectedOffset:    0,
+			expectedLimit:     10,
+		},
+		{
+			description:       "GetOffsetAndLimitFromQueryParams: invalid per_page query param",
+			queryParamPage:    "1",
+			queryParamPerPage: "invalidNonIntegerString",
+			expectedOffset:    constants.DefaultPerPageLimit,
+			expectedLimit:     constants.DefaultPerPageLimit,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			if testCase.queryParamPage != "1" && testCase.queryParamPerPage != "10" && testCase.expectedLimit != 10 && testCase.expectedOffset != 10 {
+				mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+				defer mockAPI.AssertExpectations(t)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, "mockProject", testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+
+			offset, limit := p.GetOffsetAndLimitFromQueryParams(req)
+
+			assert.Equal(t, testCase.expectedOffset, offset)
+			assert.Equal(t, testCase.expectedLimit, limit)
+		})
+	}
+}
+
+func TestParseSubscriptionsToCommandResponse(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := Plugin{}
+	mockAPI := &plugintest.API{}
+	p.API = mockAPI
+	for _, testCase := range []struct {
+		description       string
+		subscriptionsList []*serializers.SubscriptionDetails
+		command           string
+		expectedMessage   string
+		createdBy         string
+		err               error
+	}{
+		{
+			description:       "ParseSubscriptionsToCommandResponse: empty repos subscription list",
+			command:           constants.CommandRepos,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandRepos),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: empty boards subscription list",
+			command:           constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: error in fetching filtered subscription list",
+			command:           constants.CommandBoards,
+			subscriptionsList: []*serializers.SubscriptionDetails{},
+			expectedMessage:   constants.GenericErrorMessage,
+			err:               errors.New("error in fetching filtered subscription list"),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by the user",
+			command:           constants.CommandBoards,
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+			createdBy:         constants.FilterCreatedByMe,
+			expectedMessage:   fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by anyone",
+			command:           constants.CommandBoards,
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+
+			createdBy:       constants.FilterCreatedByAnyone,
+			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+		},
+		{
+			description:       "ParseSubscriptionsToCommandResponse: no subscriptions created by the user is present",
+			command:           constants.CommandBoards,
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID-2", constants.CommandBoards),
+			createdBy:         constants.FilterCreatedByMe,
+			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return testCase.subscriptionsList, testCase.err
+			})
+
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", testCase.createdBy, "mockUserID", testCase.command, "mockTeamID")
+			assert.Equal(t, testCase.expectedMessage, message)
 		})
 	}
 }

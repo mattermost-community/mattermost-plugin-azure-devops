@@ -7,24 +7,24 @@ export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
 
 export const eventTypeBoards = {
-    'workitem.created': 'Work Item Created',
-    'workitem.updated': 'Work Item Updated',
-    'workitem.deleted': 'Work Item Deleted',
-    'workitem.commented': 'Work Item Commented On',
+    'workitem.created': 'Work item created',
+    'workitem.updated': 'Work item updated',
+    'workitem.deleted': 'Work item deleted',
+    'workitem.commented': 'Work item commented on',
 };
 
 export const eventTypeRepos = {
-    'git.pullrequest.created': 'Pull Request Created',
-    'git.pullrequest.updated': 'Pull Request Updated',
-    'ms.vss-code.git-pullrequest-comment-event': 'Pull Request Commented On',
-    'git.pullrequest.merged': 'Pull Request Merge Attempted',
+    'git.pullrequest.created': 'Pull request created',
+    'git.pullrequest.updated': 'Pull request updated',
+    'ms.vss-code.git-pullrequest-comment-event': 'Pull request commented on',
+    'git.pullrequest.merged': 'Pull request merge attempted',
     'git.push': 'Code Pushed',
 };
 
 export const eventTypePipelines = {
-    'build.complete': 'Build Completed',
-    'ms.vss-release.release-abandoned-event': 'Release Abandoned',
-    'ms.vss-release.release-created-event': 'Release Created',
+    'build.complete': 'Build completed',
+    'ms.vss-release.release-abandoned-event': 'Release abandoned',
+    'ms.vss-release.release-created-event': 'Release created',
     'ms.vss-release.deployment-approval-completed-event': 'Release deployment approval completed',
     'ms.vss-release.deployment-approval-pending-event': 'Release deployment approval pending',
     'ms.vss-release.deployment-completed-event': 'Release deployment completed',

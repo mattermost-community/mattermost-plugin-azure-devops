@@ -46,15 +46,15 @@ export const repoEventTypeOptions: LabelValuePair[] = [
 export const pipelineEventTypeOptions: LabelValuePair[] = [
     {
         value: 'build.complete',
-        label: 'Build Completed',
+        label: 'Build completed',
     },
     {
         value: 'ms.vss-release.release-abandoned-event',
-        label: 'Release Abandoned',
+        label: 'Release abandoned',
     },
     {
         value: 'ms.vss-release.release-created-event',
-        label: 'Release Created',
+        label: 'Release created',
     },
     {
         value: 'ms.vss-release.deployment-approval-completed-event',

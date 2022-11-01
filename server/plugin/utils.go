@@ -251,6 +251,28 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 			displayEventType = "Pull Requested Commented"
 		case constants.SubscriptionEventCodePushed:
 			displayEventType = "Code Pushed"
+		case constants.SubscriptionEventBuildCompleted:
+			displayEventType = "Build Completed"
+		case constants.SubscriptionEventReleaseAbandoned:
+			displayEventType = "Release Abandoned"
+		case constants.SubscriptionEventReleaseCreated:
+			displayEventType = "Release Created"
+		case constants.SubscriptionEventReleaseDeploymentApprovalCompleted:
+			displayEventType = "Release Deployment Approval Completed"
+		case constants.SubscriptionEventReleaseDeploymentCompleted:
+			displayEventType = "Release Deployment Completed"
+		case constants.SubscriptionEventReleaseDeploymentEventPending:
+			displayEventType = "Release Deployment Event Pending"
+		case constants.SubscriptionEventReleaseDeploymentStarted:
+			displayEventType = "Release Deployment Started"
+		case constants.SubscriptionEventRunStageApprovalCompleted:
+			displayEventType = "Run Stage Approval Completed"
+		case constants.SubscriptionEventRunStageStateChanged:
+			displayEventType = "Run Stage State Changed"
+		case constants.SubscriptionEventRunStageWaitingForApproval:
+			displayEventType = "Run Stage Waiting For Approval"
+		case constants.SubscriptionEventRunStateChanged:
+			displayEventType = "Run State Changed"
 		}
 
 		if channelID == "" || subscription.ChannelID == channelID {

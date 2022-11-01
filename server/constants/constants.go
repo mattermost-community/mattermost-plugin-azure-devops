@@ -28,6 +28,7 @@ const (
 	CommandLink         = "link"
 	CommandBoards       = "boards"
 	CommandRepos        = "repos"
+	CommandPipelines    = "pipelines"
 	CommandCreate       = "create"
 	CommandSubscription = "subscription"
 	CommandAdd          = "add"

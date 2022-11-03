@@ -99,6 +99,17 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             repository: subscriptionDetails.repository,
             targetBranch: subscriptionDetails.targetBranch,
             repositoryName: subscriptionDetails.repositoryName,
+            pullRequestCreatedBy: subscriptionDetails.pullRequestCreatedBy,
+            pullRequestCreatedByName: subscriptionDetails.pullRequestCreatedByName,
+            pullRequestReviewersContains: subscriptionDetails.pullRequestReviewersContains,
+            pullRequestReviewersContainsName: subscriptionDetails.pullRequestReviewersContainsName,
+            pushedBy: subscriptionDetails.pushedBy,
+            pushedByName: subscriptionDetails.pushedByName,
+            mergeResult: subscriptionDetails.mergeResult,
+            mergeResultName: subscriptionDetails.mergeResultName,
+            notificationType: subscriptionDetails.notificationType,
+            notificationTypeName: subscriptionDetails.notificationTypeName,
+            areaPath: subscriptionDetails.areaPath,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);

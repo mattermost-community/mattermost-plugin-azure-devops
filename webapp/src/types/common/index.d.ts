@@ -3,7 +3,7 @@
 */
 // TODO: create enums for these types
 type EventTypeBoards = 'workitem.created' | 'workitem.updated' | 'workitem.deleted' | 'workitem.commented'
-type EventTypeRepos = 'git.pullrequest.created'| 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
+type EventTypeRepos = 'git.pullrequest.created' | 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
 type EventType = EventTypeBoards | EventTypeRepos
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
@@ -76,6 +76,17 @@ type SubscriptionDetails = {
     repository: string,
     targetBranch: string,
     repositoryName: string
+    pullRequestCreatedBy: string
+    pullRequestReviewersContains: string
+    pullRequestCreatedByName: string
+    pullRequestReviewersContainsName: string
+    pushedBy: string
+    pushedByName: string
+    mergeResult: string
+    mergeResultName: string
+    notificationType: string
+    notificationTypeName: string
+    areaPath: string
 }
 
 type WebsocketEventParams = {

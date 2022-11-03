@@ -21,6 +21,17 @@ type SubscriptionPayload = {
     repository: string,
     targetBranch: string,
     repositoryName: string
+    pullRequestCreatedBy: string
+    pullRequestReviewersContains: string
+    pullRequestCreatedByName: string
+    pullRequestReviewersContainsName: string
+    pushedBy: string
+    pushedByName: string
+    mergeResult: string
+    mergeResultName: string
+    notificationType: string
+    notificationTypeName: string
+    areaPath: string
 }
 
 interface PaginationQueryParams {
@@ -46,5 +57,5 @@ type GetSubscriptionFiltersRequest = {
     projectId: string
     eventType: string
     filters: string[]
-    repositoryId: string
+    repositoryId?: string
 }

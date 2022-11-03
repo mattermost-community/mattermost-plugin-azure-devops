@@ -154,14 +154,43 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	case constants.ServiceTypeBoards:
 		payload.PublisherInputs = serializers.PublisherInputsBoards{
 			ProjectID: project.ProjectID,
+			AreaPath:  body.AreaPath,
 		}
 	case constants.ServiceTypeRepos:
-		payload.PublisherInputs = serializers.PublisherInputsRepos{
-			ProjectID:                    project.ProjectID,
-			Repository:                   body.Repository,
-			Branch:                       body.TargetBranch,
-			PullRequestCreatedBy:         body.PullRequestCreatedBy,
-			PullRequestReviewersContains: body.PullRequestReviewersContains,
+		switch body.EventType {
+		case constants.SubscriptionEventCodePushed:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:  project.ProjectID,
+				Repository: body.Repository,
+				Branch:     body.TargetBranch,
+				PushedBy:   body.PushedBy,
+			}
+		case constants.SubscriptionEventPullRequestMerged:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				MergeResult:                  body.MergeResult,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
+		case constants.SubscriptionEventPullRequestUpdated:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				NotificationType:             body.NotificationType,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
+		default:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
 		}
 	}
 

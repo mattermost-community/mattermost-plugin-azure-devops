@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
 import {filterLabelValuePairAll} from 'pluginConstants/common';
@@ -10,17 +10,24 @@ import usePluginApi from 'hooks/usePluginApi';
 import {formLabelValuePairs} from 'utils';
 
 type ReposFilterProps = {
-    organization: string;
-    projectId: string;
-    eventType: string;
+    organization: string
+    projectId: string
+    eventType: string
     selectedRepo: string
-    handleSelectRepo: (repo: string, repoName?: string) => void
+    handleSelectRepo: (value: string, name?: string) => void
     selectedTargetBranch: string
-    handleSelectTargetBranch: (branch: string) => void
+    handleSelectTargetBranch: (value: string, name?: string) => void
     selectedPullRequestCreatedBy: string
-    handleSelectPullRequestCreatedBy: (pullrequestCreatedBy: string) => void
+    handleSelectPullRequestCreatedBy: (value: string, name?: string) => void
     selectedPullRequestReviewersContains: string
-    handlePullRequestReviewersContains: (pullrequestReviewersContains: string) => void
+    handlePullRequestReviewersContains: (value: string, name?: string) => void
+    selectedPushedBy: string
+    handleSelectPushedBy: (value: string, name?: string) => void
+    selectedMergeResult: string
+    handleSelectMergeResult: (value: string, name?: string) => void
+    selectedNotificationType: string
+    handleSelectNotificationType: (value: string, name?: string) => void
+    setIsFiltersError: (value: boolean) => void
 }
 
 const subscriptionFiltersNameForRepos = {
@@ -28,15 +35,39 @@ const subscriptionFiltersNameForRepos = {
     branch: 'branch',
     pullrequestCreatedBy: 'pullrequestCreatedBy',
     pullrequestReviewersContains: 'pullrequestReviewersContains',
+    pushedBy: 'pushedBy',
 };
+
 const subscriptionFiltersForRepos = [
     subscriptionFiltersNameForRepos.repository,
     subscriptionFiltersNameForRepos.branch,
     subscriptionFiltersNameForRepos.pullrequestCreatedBy,
     subscriptionFiltersNameForRepos.pullrequestReviewersContains,
+    subscriptionFiltersNameForRepos.pushedBy,
 ];
 
-const ReposFilter = ({organization, projectId, eventType, selectedRepo, handleSelectRepo, selectedTargetBranch, handleSelectTargetBranch, selectedPullRequestCreatedBy, handleSelectPullRequestCreatedBy, selectedPullRequestReviewersContains, handlePullRequestReviewersContains}: ReposFilterProps) => {
+const ReposFilter = ({
+    organization,
+    projectId,
+    eventType,
+    selectedRepo,
+    handleSelectRepo,
+    selectedTargetBranch,
+    handleSelectTargetBranch,
+    selectedPullRequestCreatedBy,
+    handleSelectPullRequestCreatedBy,
+    selectedPullRequestReviewersContains,
+    handlePullRequestReviewersContains,
+    selectedPushedBy,
+    handleSelectPushedBy,
+    selectedMergeResult,
+    handleSelectMergeResult,
+    selectedNotificationType,
+    handleSelectNotificationType,
+    setIsFiltersError,
+}: ReposFilterProps) => {
+    const {mergeResultOptons, pullRequestChangeOptons} = pluginConstants.form;
+
     const {
         getApiState,
         makeApiRequestWithCompletionStatus,
@@ -65,10 +96,21 @@ const ReposFilter = ({organization, projectId, eventType, selectedRepo, handleSe
     );
     const filtersData = data as GetSubscriptionFiltersResponse || [];
 
-    const getRepositoryOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]);
-    const getTargetBranchOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]);
-    const getPullrequestCreatedByOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]);
-    const getPullrequestReviewersContainsOptions = () => isSuccess && ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]);
+    useEffect(() => {
+        if (isError && !isSuccess) {
+            setIsFiltersError(true);
+        } else {
+            (
+                setIsFiltersError(false)
+            );
+        }
+    }, [isLoading, isError, isSuccess]);
+
+    const getRepositoryOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getTargetBranchOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullrequestCreatedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullrequestReviewersContainsOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullrequestPushedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pushedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 
     return (
         <>
@@ -77,10 +119,10 @@ const ReposFilter = ({organization, projectId, eventType, selectedRepo, handleSe
                     placeholder='Repository'
                     value={selectedRepo}
                     onChange={handleSelectRepo}
-                    options={getRepositoryOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                    options={getRepositoryOptions()}
                     error={isError}
                     loadingOptions={isLoading}
-                    disabled={!eventType || isLoading}
+                    disabled={isLoading}
                 />
             </div>
             <div className='margin-bottom-10'>
@@ -88,37 +130,80 @@ const ReposFilter = ({organization, projectId, eventType, selectedRepo, handleSe
                     placeholder='Target Branch'
                     value={selectedTargetBranch}
                     onChange={handleSelectTargetBranch}
-                    options={getTargetBranchOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                    options={getTargetBranchOptions()}
                     error={isError}
                     loadingOptions={isLoading}
                     disabled={selectedRepo === filterLabelValuePairAll.value || isLoading}
                 />
             </div>
             {
+                eventType === pluginConstants.common.eventTypeReposKeys.merged && (
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Merge Result'
+                            value={selectedMergeResult}
+                            onChange={handleSelectMergeResult}
+                            options={mergeResultOptons}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
+                )
+            }
+            {
+                eventType === pluginConstants.common.eventTypeReposKeys.updated && (
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Change'
+                            value={selectedNotificationType}
+                            onChange={handleSelectNotificationType}
+                            options={pullRequestChangeOptons}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
+                )
+            }
+            {
                 eventType !== pluginConstants.common.eventTypeReposKeys.commented &&
-                eventType !== pluginConstants.common.eventTypeReposKeys.codePushed && (
+                    eventType !== pluginConstants.common.eventTypeReposKeys.codePushed && (
                     <>
                         <div className='margin-bottom-10'>
                             <Dropdown
                                 placeholder='Requested by a member of group'
                                 value={selectedPullRequestCreatedBy}
                                 onChange={handleSelectPullRequestCreatedBy}
-                                options={getPullrequestCreatedByOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                                options={getPullrequestCreatedByOptions()}
                                 error={isError}
                                 loadingOptions={isLoading}
-                                disabled={!eventType || isLoading}
+                                disabled={isLoading}
                             />
                         </div>
                         <Dropdown
                             placeholder='Reviewer includes group'
                             value={selectedPullRequestReviewersContains}
                             onChange={handlePullRequestReviewersContains}
-                            options={getPullrequestReviewersContainsOptions() || [pluginConstants.common.filterLabelValuePairAll]}
+                            options={getPullrequestReviewersContainsOptions()}
                             error={isError}
                             loadingOptions={isLoading}
-                            disabled={!eventType || isLoading}
+                            disabled={isLoading}
                         />
                     </>
+                )
+            }
+            {
+                eventType === pluginConstants.common.eventTypeReposKeys.codePushed && (
+                    <Dropdown
+                        placeholder='Pushed by a member of group'
+                        value={selectedPushedBy}
+                        onChange={handleSelectPushedBy}
+                        options={getPullrequestPushedByOptions()}
+                        error={isError}
+                        loadingOptions={isLoading}
+                        disabled={isLoading}
+                    />
                 )
             }
         </>

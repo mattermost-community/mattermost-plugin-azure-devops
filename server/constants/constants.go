@@ -122,15 +122,21 @@ const (
 	FileNameProjectIcon        = "project-icon.svg"
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
+	FileNamePipelinesIcon      = "pipelines-icon.svg"
 	IconColorBoards            = "#53bba1"
 	IconColorRepos             = "#d74f27"
+	IconColorPipelines         = "#4b68ad"
 
-	SlackAttachmentAuthorNameRepos  = "Azure Repos"
-	SlackAttachmentAuthorNameBoards = "Azure Boards"
+	SlackAttachmentAuthorNameRepos     = "Azure Repos"
+	SlackAttachmentAuthorNameBoards    = "Azure Boards"
+	SlackAttachmentAuthorNamePipelines = "Azure Pipelines"
 
 	ServiceTypeBoards    = "boards"
 	ServiceTypeRepos     = "repos"
 	ServiceTypePipelines = "pipelines"
+
+	DateTimeLayout = "2006-01-02T15:04:05"
+	TimeLayout     = "15:04:05"
 )
 
 var (

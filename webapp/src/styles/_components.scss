@@ -80,7 +80,7 @@
 // This class is used for the dimensions of author_icon in the Mattermost slack attachment
 .post .attachment {
     // Uniquely targetting a common img tag on this plugin to ensure these CSS properties do not conflict with the global or another CSS styling
-    img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"] {
+    img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/pipelines-icon.svg"] {
         width: 20px;
         height: 20px;
     }

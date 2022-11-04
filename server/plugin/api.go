@@ -9,9 +9,12 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -418,6 +421,9 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
+	// bdy, _ := ioutil.ReadAll(r.Body)
+
+	// fmt.Printf("\n\n\nNotificationnnnn   %+v\n\n\n\n", string(bdy))
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -544,6 +550,93 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameGitBranchIcon),
+		}
+	case constants.SubscriptionEventBuildCompleted:
+		startTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.StartTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		finishTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.FinishTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Build pipeline",
+					Value: body.Resource.Definition.Name,
+					Short: true,
+				},
+				{
+					Title: "Branch",
+					Value: body.Resource.SourceBranch,
+					Short: true,
+				},
+				{
+					Title: "Requested for",
+					Value: body.Resource.RequestedFor.Name,
+					Short: true,
+				},
+				{
+					Title: "Duration",
+					Short: true,
+					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
+				},
+			}, Footer: body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseCreated:
+		artifacts := ""
+		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			if i != len(body.Resource.Release.Artifacts)-1 {
+				artifacts += fmt.Sprintf("%s, ", body.Resource.Release.Artifacts[i].Name)
+			} else {
+				artifacts += body.Resource.Release.Artifacts[i].Name
+			}
+		}
+
+		if artifacts == "" {
+			artifacts = "No artifacs"
+		}
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Created by",
+					Value: body.Resource.Release.CreatedBy.DisplayName,
+					Short: true,
+				},
+				{
+					Title: "Trigger reason",
+					Value: cases.Title(language.Und).String(body.Resource.Release.Reason),
+					Short: true,
+				},
+				{
+					Title: "Artifacts",
+					Value: artifacts,
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	}
 

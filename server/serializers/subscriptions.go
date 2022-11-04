@@ -111,6 +111,34 @@ type Resource struct {
 	PullRequest   PullRequest  `json:"pullRequest"`
 	Commits       []Commit     `json:"commits"`
 	RefUpdates    []RefUpdates `json:"refUpdates"`
+	Definition    Definition   `json:"definition"`
+	SourceBranch  string       `json:"sourceBranch"`
+	Project       Project      `json:"project"`
+	RequestedFor  RequestedFor `json:"requestedFor"`
+	StartTime     string       `json:"startTime"`
+	FinishTime    string       `json:"finishTime"`
+	Release       Release      `json:"release"`
+}
+
+type Release struct {
+	Name              string     `json:"name"`
+	CreatedBy         Reviewer   `json:"createdBy"`
+	Artifacts         []Artifact `json:"artifacts"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
+	Reason            string     `json:"reason"`
+}
+
+type Artifact struct {
+	Name string `json:"alias"`
+}
+type RequestedFor struct {
+	Name string `json:"displayName"`
+}
+
+type Definition struct {
+	Name  string      `json:"name"`
+	URL   string      `json:"url"`
+	Links ProjectLink `json:"_links"`
 }
 
 type RefUpdates struct {

@@ -423,7 +423,7 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	// bdy, _ := ioutil.ReadAll(r.Body)
 
-	// fmt.Printf("\n\n\nNoqtificationnnnn   %+v\n\n\n\n", string(bdy))
+	// fmt.Printf("\n\n\nNotificationnnnn   %+v\n\n\n\n", string(bdy))
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -718,6 +718,38 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				{
 					Title: "Comment",
 					Value: comment,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventRunStageStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Stage.Links.PipelineWeb.Href),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventRunStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Run.Links.PipelineWeb.Href),
+					Short: true,
 				},
 			},
 			Footer:     body.Resource.Project.Name,

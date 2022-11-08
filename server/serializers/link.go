@@ -21,7 +21,8 @@ type Project struct {
 }
 
 type ProjectLink struct {
-	Web Href `json:"web"`
+	Web         Href `json:"web"`
+	PipelineWeb Href `json:"pipeline.web"`
 }
 
 // IsLinkPayloadValid function to validate request payload.

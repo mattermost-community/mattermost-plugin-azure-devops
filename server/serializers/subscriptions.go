@@ -120,6 +120,13 @@ type Resource struct {
 	Release       Release      `json:"release"`
 	StageName     string       `json:"stageName"`
 	Environment   Environment  `json:"environment"`
+	Stage         Stage        `json:"stage"`
+	Pipeline      Definition   `json:"pipeline"`
+	Run           Stage        `json:"run"`
+}
+
+type Stage struct {
+	Links ProjectLink `json:"_links"`
 }
 
 type CommentResponse struct {

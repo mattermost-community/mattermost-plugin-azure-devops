@@ -107,7 +107,7 @@ type Resource struct {
 	Title         string       `json:"title"`
 	Description   string       `json:"description"`
 	Repository    Repository   `json:"repository"`
-	Comment       Comment      `json:"comment"`
+	Comment       interface{}  `json:"comment"`
 	PullRequest   PullRequest  `json:"pullRequest"`
 	Commits       []Commit     `json:"commits"`
 	RefUpdates    []RefUpdates `json:"refUpdates"`
@@ -118,14 +118,28 @@ type Resource struct {
 	StartTime     string       `json:"startTime"`
 	FinishTime    string       `json:"finishTime"`
 	Release       Release      `json:"release"`
+	StageName     string       `json:"stageName"`
+	Environment   Environment  `json:"environment"`
+}
+
+type CommentResponse struct {
+	Value interface{}
+}
+
+type Environment struct {
+	Release           Release    `json:"release"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
 }
 
 type Release struct {
-	Name              string     `json:"name"`
-	CreatedBy         Reviewer   `json:"createdBy"`
-	Artifacts         []Artifact `json:"artifacts"`
-	ReleaseDefinition Definition `json:"releaseDefinition"`
-	Reason            string     `json:"reason"`
+	Name              string      `json:"name"`
+	CreatedBy         Reviewer    `json:"createdBy"`
+	Artifacts         []Artifact  `json:"artifacts"`
+	ReleaseDefinition Definition  `json:"releaseDefinition"`
+	Reason            string      `json:"reason"`
+	ModifiedOn        string      `json:"modifiedOn"`
+	ModifiedBy        Reviewer    `json:"modifiedBy"`
+	Links             ProjectLink `json:"_links"`
 }
 
 type Artifact struct {
@@ -184,6 +198,28 @@ type DeleteSubscriptionRequestPayload struct {
 	TargetBranch string `json:"targetBranch"`
 	Repository   string `json:"repository"`
 }
+
+// func (cr *Resource) UnmarshalJSON(data []byte) error {
+// 	var eventType struct {
+// 		EventType string `json:"eventType"`
+// 	}
+
+// 	if err := json.Unmarshal(data, &eventType); err != nil {
+// 		return err
+// 	}
+
+// 	if strings.Contains(eventType.EventType, "release") {
+// 		cr.Comment.Value = new(string)
+// 	} else {
+// 		cr.Comment.Value = new(Comment)
+// 	}
+
+// 	if cr.Comment.Value != nil {
+// 		return json.Unmarshal(data, cr.Comment.Value)
+// 	}
+
+// 	return nil
+// }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload

@@ -247,9 +247,9 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
 		Subscription: &serializers.CreateSubscriptionBodyPayload{
-			PublisherID:      "tfs",
-			ConsumerID:       "webHooks",
-			ConsumerActionID: "httpRequest",
+			PublisherID:      constants.PublisherID,
+			ConsumerID:       constants.ConsumerID,
+			ConsumerActionID: constants.ConsumerActionID,
 			EventType:        request.EventType,
 			PublisherInputs: serializers.PublisherInputsGeneric{
 				ProjectID: request.ProjectID,

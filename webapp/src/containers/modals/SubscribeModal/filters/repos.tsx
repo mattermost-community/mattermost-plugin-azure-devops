@@ -30,22 +30,6 @@ type ReposFilterProps = {
     setIsFiltersError: (value: boolean) => void
 }
 
-const subscriptionFiltersNameForRepos = {
-    repository: 'repository',
-    branch: 'branch',
-    pullrequestCreatedBy: 'pullrequestCreatedBy',
-    pullrequestReviewersContains: 'pullrequestReviewersContains',
-    pushedBy: 'pushedBy',
-};
-
-const subscriptionFiltersForRepos = [
-    subscriptionFiltersNameForRepos.repository,
-    subscriptionFiltersNameForRepos.branch,
-    subscriptionFiltersNameForRepos.pullrequestCreatedBy,
-    subscriptionFiltersNameForRepos.pullrequestReviewersContains,
-    subscriptionFiltersNameForRepos.pushedBy,
-];
-
 const ReposFilter = ({
     organization,
     projectId,
@@ -66,7 +50,7 @@ const ReposFilter = ({
     handleSelectNotificationType,
     setIsFiltersError,
 }: ReposFilterProps) => {
-    const {mergeResultOptons, pullRequestChangeOptons} = pluginConstants.form;
+    const {mergeResultOptons, pullRequestChangeOptons, subscriptionFiltersForRepos, subscriptionFiltersNameForRepos} = pluginConstants.form;
 
     const {
         getApiState,
@@ -100,17 +84,15 @@ const ReposFilter = ({
         if (isError && !isSuccess) {
             setIsFiltersError(true);
         } else {
-            (
-                setIsFiltersError(false)
-            );
+            setIsFiltersError(false);
         }
     }, [isLoading, isError, isSuccess]);
 
     const getRepositoryOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
     const getTargetBranchOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullrequestCreatedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullrequestReviewersContainsOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullrequestPushedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pushedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullRequestCreatedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullRequestReviewersContainsOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getPullRequestPushedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pushedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 
     return (
         <>
@@ -175,7 +157,7 @@ const ReposFilter = ({
                                 placeholder='Requested by a member of group'
                                 value={selectedPullRequestCreatedBy}
                                 onChange={handleSelectPullRequestCreatedBy}
-                                options={getPullrequestCreatedByOptions()}
+                                options={getPullRequestCreatedByOptions()}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={isLoading}
@@ -185,7 +167,7 @@ const ReposFilter = ({
                             placeholder='Reviewer includes group'
                             value={selectedPullRequestReviewersContains}
                             onChange={handlePullRequestReviewersContains}
-                            options={getPullrequestReviewersContainsOptions()}
+                            options={getPullRequestReviewersContainsOptions()}
                             error={isError}
                             loadingOptions={isLoading}
                             disabled={isLoading}
@@ -199,7 +181,7 @@ const ReposFilter = ({
                         placeholder='Pushed by a member of group'
                         value={selectedPushedBy}
                         onChange={handleSelectPushedBy}
-                        options={getPullrequestPushedByOptions()}
+                        options={getPullRequestPushedByOptions()}
                         error={isError}
                         loadingOptions={isLoading}
                         disabled={isLoading}

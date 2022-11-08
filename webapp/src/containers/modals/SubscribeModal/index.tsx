@@ -4,14 +4,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 import mm_constants from 'mattermost-redux/constants/general';
 
+import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
+import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
+import pluginConstants from 'pluginConstants';
+
 import Modal from 'components/modal';
 import Form from 'components/form';
 import EmptyState from 'components/emptyState';
 import ResultPanel from 'components/resultPanel';
-
-import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
-import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
-import pluginConstants from 'pluginConstants';
 
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
@@ -24,9 +24,9 @@ import {getSubscribeModalState} from 'selectors';
 import Utils from 'utils';
 
 import ReposFilter from './filters/repos';
+import BoardsFilter from './filters/boards';
 
 import './styles.scss';
-import BoardsFilter from './filters/boards';
 
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
@@ -274,6 +274,7 @@ const SubscribeModal = () => {
             notificationType: newValue,
             notificationTypeName: name === filterLabelValuePairAll.value ? '' : name,
         });
+
     const handleSetAreaPathFilter = (newValue: string) =>
         setSpecificFieldValue({
             ...formFields,
@@ -317,42 +318,38 @@ const SubscribeModal = () => {
                                 }
                                 {
                                     formFields.serviceType === pluginConstants.common.boards && formFields.eventType && Object.keys(eventTypeBoards).includes(formFields.eventType) && (
-                                        <>
-                                            <BoardsFilter
-                                                organization={organization as string}
-                                                projectId={projectID as string}
-                                                eventType={formFields.eventType || ''}
-                                                selectedAreaPath={formFields.areaPath || filterLabelValuePairAll.value}
-                                                handleSelectAreaPath={handleSetAreaPathFilter}
-                                                setIsFiltersError={setIsFiltersError}
-                                            />
-                                        </>
+                                        <BoardsFilter
+                                            organization={organization as string}
+                                            projectId={projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedAreaPath={formFields.areaPath || filterLabelValuePairAll.value}
+                                            handleSelectAreaPath={handleSetAreaPathFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
                                     )
                                 }
                                 {
                                     formFields.serviceType === pluginConstants.common.repos && formFields.eventType && Object.keys(eventTypeRepos).includes(formFields.eventType) && (
-                                        <>
-                                            <ReposFilter
-                                                organization={organization as string}
-                                                projectId={projectID as string}
-                                                eventType={formFields.eventType || ''}
-                                                selectedRepo={formFields.repository || filterLabelValuePairAll.value}
-                                                handleSelectRepo={handleSetRepoFilter}
-                                                selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
-                                                handleSelectTargetBranch={handleSetTargetBranchFilter}
-                                                selectedPullRequestCreatedBy={formFields.pullRequestCreatedBy || filterLabelValuePairAll.value}
-                                                handleSelectPullRequestCreatedBy={handleSetPullRequestCreatedByFilter}
-                                                selectedPullRequestReviewersContains={formFields.pullRequestReviewersContains || filterLabelValuePairAll.value}
-                                                handlePullRequestReviewersContains={handleSetPullRequestReviewersContainsFilter}
-                                                selectedPushedBy={formFields.pushedBy || filterLabelValuePairAll.value}
-                                                handleSelectPushedBy={handleSetPullRequestPushedByFilter}
-                                                selectedMergeResult={formFields.mergeResult || filterLabelValuePairAll.value}
-                                                handleSelectMergeResult={handleSetPullRequestMergeResultFilter}
-                                                selectedNotificationType={formFields.notificationType || filterLabelValuePairAll.value}
-                                                handleSelectNotificationType={handleSetPullRequestNotificationTypeFilter}
-                                                setIsFiltersError={setIsFiltersError}
-                                            />
-                                        </>
+                                        <ReposFilter
+                                            organization={organization as string}
+                                            projectId={projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedRepo={formFields.repository || filterLabelValuePairAll.value}
+                                            handleSelectRepo={handleSetRepoFilter}
+                                            selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
+                                            handleSelectTargetBranch={handleSetTargetBranchFilter}
+                                            selectedPullRequestCreatedBy={formFields.pullRequestCreatedBy || filterLabelValuePairAll.value}
+                                            handleSelectPullRequestCreatedBy={handleSetPullRequestCreatedByFilter}
+                                            selectedPullRequestReviewersContains={formFields.pullRequestReviewersContains || filterLabelValuePairAll.value}
+                                            handlePullRequestReviewersContains={handleSetPullRequestReviewersContainsFilter}
+                                            selectedPushedBy={formFields.pushedBy || filterLabelValuePairAll.value}
+                                            handleSelectPushedBy={handleSetPullRequestPushedByFilter}
+                                            selectedMergeResult={formFields.mergeResult || filterLabelValuePairAll.value}
+                                            handleSelectMergeResult={handleSetPullRequestMergeResultFilter}
+                                            selectedNotificationType={formFields.notificationType || filterLabelValuePairAll.value}
+                                            handleSelectNotificationType={handleSetPullRequestNotificationTypeFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
                                     )
                                 }
                             </>

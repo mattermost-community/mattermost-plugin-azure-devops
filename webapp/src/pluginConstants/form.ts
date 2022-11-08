@@ -367,3 +367,27 @@ export const pullRequestChangeOptons: LabelValuePair[] = [
         ...filterLabelValuePairAll,
     },
 ];
+
+const subscriptionFiltersNameForBoards = {
+    areaPath: 'areaPath',
+};
+
+const subscriptionFiltersForBoards = [
+    subscriptionFiltersNameForBoards.areaPath,
+];
+
+export const subscriptionFiltersNameForRepos = {
+    repository: 'repository',
+    branch: 'branch',
+    pullrequestCreatedBy: 'pullrequestCreatedBy',
+    pullrequestReviewersContains: 'pullrequestReviewersContains',
+    pushedBy: 'pushedBy',
+};
+
+export const subscriptionFiltersForRepos = [
+    subscriptionFiltersNameForRepos.repository,
+    subscriptionFiltersNameForRepos.branch,
+    subscriptionFiltersNameForRepos.pullrequestCreatedBy,
+    subscriptionFiltersNameForRepos.pullrequestReviewersContains,
+    subscriptionFiltersNameForRepos.pushedBy,
+];

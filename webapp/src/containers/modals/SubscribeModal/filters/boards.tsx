@@ -18,14 +18,6 @@ type BoardsFilterProps = {
     setIsFiltersError: (value: boolean) => void
 }
 
-const subscriptionFiltersNameForBoards = {
-    areaPath: 'areaPath',
-};
-
-const subscriptionFiltersForBoards = [
-    subscriptionFiltersNameForBoards.areaPath,
-];
-
 const BoardsFilter = ({
     organization,
     projectId,
@@ -34,6 +26,8 @@ const BoardsFilter = ({
     handleSelectAreaPath,
     setIsFiltersError,
 }: BoardsFilterProps) => {
+    const {subscriptionFiltersNameForBoards, subscriptionFiltersForBoards} = pluginConstants.form;
+
     const {
         getApiState,
         makeApiRequestWithCompletionStatus,
@@ -65,9 +59,7 @@ const BoardsFilter = ({
         if (isError && !isSuccess) {
             setIsFiltersError(true);
         } else {
-            (
-                setIsFiltersError(false)
-            );
+            setIsFiltersError(false);
         }
     }, [isLoading, isError, isSuccess]);
 

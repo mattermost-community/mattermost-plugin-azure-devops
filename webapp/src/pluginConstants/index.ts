@@ -29,6 +29,10 @@ import {
     subscriptionFilterEventTypeReposOptions,
     mergeResultOptons,
     pullRequestChangeOptons,
+    subscriptionFiltersNameForRepos,
+    subscriptionFiltersForRepos,
+    subscriptionFiltersNameForBoards,
+    subscriptionFiltersForBoards,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -61,6 +65,10 @@ export default {
         subscriptionFilterEventTypeReposOptions,
         mergeResultOptons,
         pullRequestChangeOptons,
+        subscriptionFiltersNameForRepos,
+        subscriptionFiltersForRepos,
+        subscriptionFiltersNameForBoards,
+        subscriptionFiltersForBoards,
     },
     messages: {
         error,

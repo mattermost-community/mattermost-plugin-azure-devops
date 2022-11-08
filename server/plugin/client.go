@@ -240,9 +240,9 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
 
-	var subscriptionFilters []serializers.SubscriptionFilter
+	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		subscriptionFilters = append(subscriptionFilters, serializers.SubscriptionFilter{InputID: filter})
+		subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
 	}
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
@@ -256,7 +256,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 			},
 		},
 		InputValues: subscriptionFilters,
-		Scope:       10,
+		Scope:       10, // TODO: This is a required field for Azure DevOps and must have value 10, it's use or role is not documented anywhere in the Azure DevOps API docs so, it can be investigated further for more details
 	}
 
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient

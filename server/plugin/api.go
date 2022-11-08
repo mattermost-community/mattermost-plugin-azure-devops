@@ -810,7 +810,7 @@ func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter
 		return
 	}
 
-	filterwiseResponse := make(map[string][]serializers.PossibleValues)
+	filterwiseResponse := make(map[string][]*serializers.PossibleValues)
 	for _, filter := range subscriptionFilterValues.InputValues {
 		filterwiseResponse[filter.InputID] = filter.PossibleValues
 	}

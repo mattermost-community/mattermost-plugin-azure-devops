@@ -73,7 +73,7 @@ type SubscriptionFilter struct {
 
 type GetSubscriptionFilterValuesRequestPayloadFromClient struct {
 	Subscription *CreateSubscriptionBodyPayload `json:"subscription"`
-	InputValues  []SubscriptionFilter           `json:"inputValues"`
+	InputValues  []*SubscriptionFilter          `json:"inputValues"`
 	Scope        int                            `json:"scope"`
 }
 
@@ -84,11 +84,11 @@ type PossibleValues struct {
 
 type InputValues struct {
 	SubscriptionFilter
-	PossibleValues []PossibleValues `json:"possibleValues"`
+	PossibleValues []*PossibleValues `json:"possibleValues"`
 }
 
 type SubscriptionFilterPossibleValuesResponseFromClient struct {
-	InputValues []InputValues `json:"inputValues"`
+	InputValues []*InputValues `json:"inputValues"`
 }
 
 type CreateSubscriptionBodyPayload struct {

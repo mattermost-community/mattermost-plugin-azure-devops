@@ -84,7 +84,7 @@ export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Re
     let labelValuePairs: LabelValuePair[] = [];
     data.forEach((item) => labelValuePairs.push(formLabelValuePair(labelKey, valueKey, item)));
 
-    if (excludeKeys.length > 0) {
+    if (excludeKeys.length) {
         labelValuePairs = labelValuePairs.filter((item) => !excludeKeys.includes(item.label as string));
     }
 

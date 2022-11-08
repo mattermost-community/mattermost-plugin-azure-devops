@@ -49,6 +49,7 @@ type SubscriptionList struct {
 	Count             int                 `json:"count"`
 	SubscriptionValue []SubscriptionValue `json:"value"`
 }
+
 type CreateSubscriptionRequestPayload struct {
 	Organization   string `json:"organization"`
 	Project        string `json:"project"`

@@ -129,10 +129,6 @@ type Stage struct {
 	Links ProjectLink `json:"_links"`
 }
 
-type CommentResponse struct {
-	Value interface{}
-}
-
 type Environment struct {
 	Release           Release    `json:"release"`
 	ReleaseDefinition Definition `json:"releaseDefinition"`

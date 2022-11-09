@@ -499,7 +499,21 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
 		}
 
-		comment := body.Resource.Comment.(serializers.Comment)
+		// Convert map to json string
+		jsonStr, err := json.Marshal(body.Resource.Comment)
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		// Convert json string to struct
+		var comment serializers.Comment
+		if err := json.Unmarshal(jsonStr, &comment); err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
 
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,

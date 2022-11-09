@@ -206,28 +206,6 @@ type DeleteSubscriptionRequestPayload struct {
 	Repository   string `json:"repository"`
 }
 
-// func (cr *Resource) UnmarshalJSON(data []byte) error {
-// 	var eventType struct {
-// 		EventType string `json:"eventType"`
-// 	}
-
-// 	if err := json.Unmarshal(data, &eventType); err != nil {
-// 		return err
-// 	}
-
-// 	if strings.Contains(eventType.EventType, "release") {
-// 		cr.Comment.Value = new(string)
-// 	} else {
-// 		cr.Comment.Value = new(Comment)
-// 	}
-
-// 	if cr.Comment.Value != nil {
-// 		return json.Unmarshal(data, cr.Comment.Value)
-// 	}
-
-// 	return nil
-// }
-
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {

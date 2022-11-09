@@ -176,6 +176,23 @@ type Definition struct {
 	Name string `json:"name"`
 }
 
+type ReleaseDetails struct {
+	Name              string            `json:"name"`
+	ID                int               `json:"id"`
+	Status            string            `json:"status"`
+	Environments      []Environments    `json:"environments"`
+	Link              Link              `json:"_links"`
+	ReleaseDefinition ReleaseDefinition `json:"releaseDefinition"`
+}
+
+type Environments struct {
+	Name string `json:"name"`
+}
+
+type ReleaseDefinition struct {
+	Name string `json:"name"`
+}
+
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {

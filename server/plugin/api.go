@@ -417,6 +417,21 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 	return reviewers
 }
 
+func (p *Plugin) getPipelineReleaseEnvironmentList(environments []serializers.Environments) string {
+	envs := ""
+	for count, env := range environments {
+		envs += env.Name
+		if count != (len(environments) - 1) {
+			envs += " | "
+		}
+	}
+
+	if envs == "" {
+		return "None"
+	}
+	return envs
+}
+
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {

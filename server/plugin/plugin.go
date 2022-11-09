@@ -130,5 +130,11 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		return newPost, msg
 	}
 
+	// Check if a message contains a pipeline release link.
+	if releaseDetailsData, link, isValid := IsLinkPresent(post.Message, constants.ReleaseDetailsLinkRegex); isValid {
+		newPost, msg := p.PostReleaseDetailsPreview(releaseDetailsData, link, post.UserId, post.ChannelId)
+		return newPost, msg
+	}
+
 	return nil, ""
 }

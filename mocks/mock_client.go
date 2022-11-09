@@ -154,6 +154,16 @@ func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializer
 	return ret0, ret1, ret2
 }
 
+// GetReleaseDetails mocks base method
+func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializers.ReleaseDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReleaseDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.ReleaseDetails)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
 // GetPullRequest mocks base method
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()

@@ -27,6 +27,7 @@ type Client interface {
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
+	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 }
 
 type client struct {
@@ -124,10 +125,25 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 	var buildDetails *serializers.BuildDetails
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
 	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the pull request")
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
 	}
 
 	return buildDetails, statusCode, nil
+}
+
+// Function to get the pipeline release details.
+func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
+	buildDetailsURL := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
+
+	var releaseDetails *serializers.ReleaseDetails
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline release details")
+	}
+
+	return releaseDetails, statusCode, nil
 }
 
 // Function to link a project and an organization.

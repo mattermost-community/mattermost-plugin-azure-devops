@@ -368,11 +368,11 @@ export const pullRequestChangeOptons: LabelValuePair[] = [
     },
 ];
 
-const subscriptionFiltersNameForBoards = {
+export const subscriptionFiltersNameForBoards = {
     areaPath: 'areaPath',
 };
 
-const subscriptionFiltersForBoards = [
+export const subscriptionFiltersForBoards = [
     subscriptionFiltersNameForBoards.areaPath,
 ];
 

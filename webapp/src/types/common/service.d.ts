@@ -11,7 +11,8 @@ type ApiServiceName =
     'getSubscriptionList' |
     'deleteSubscription' |
     'getRepositories' |
-    'getRepositoryBranches'
+    'getRepositoryBranches' |
+    'getSubscriptionFilters'
 
 type PluginApiService = {
     path: string,
@@ -37,4 +38,6 @@ type APIRequestPayload =
     ReposSubscriptionFiltersRequest |
     ReposSubscriptionFiltersResponse |
     ReposSubscriptionTargetBranchFilterResponse |
+    GetSubscriptionFiltersRequest |
+    GetSubscriptionFiltersResponse |
     void;

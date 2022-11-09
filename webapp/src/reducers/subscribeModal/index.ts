@@ -19,14 +19,16 @@ export const subscriptionModalSlice = createSlice({
                 return;
             }
 
-            if (action.payload.args?.length === 2) {
+            if (action.payload.args?.length === 3) {
                 state.organization = action.payload.args[0];
                 state.project = action.payload.args[1];
+                state.projectID = action.payload.args[2];
                 return;
             }
 
             state.organization = null;
             state.project = null;
+            state.projectID = null;
         },
         toggleIsSubscribed: (state: SubscribeModalState, action: PayloadAction<boolean>) => {
             state.isCreated = action.payload;

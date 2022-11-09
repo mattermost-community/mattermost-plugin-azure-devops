@@ -27,6 +27,7 @@ type Client interface {
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
+	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
 type client struct {
@@ -190,12 +191,43 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	case constants.ServiceTypeBoards:
 		payload.PublisherInputs = serializers.PublisherInputsBoards{
 			ProjectID: project.ProjectID,
+			AreaPath:  body.AreaPath,
 		}
 	case constants.ServiceTypeRepos:
-		payload.PublisherInputs = serializers.PublisherInputsRepos{
-			ProjectID:  project.ProjectID,
-			Repository: body.Repository,
-			Branch:     body.TargetBranch,
+		switch body.EventType {
+		case constants.SubscriptionEventCodePushed:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:  project.ProjectID,
+				Repository: body.Repository,
+				Branch:     body.TargetBranch,
+				PushedBy:   body.PushedBy,
+			}
+		case constants.SubscriptionEventPullRequestMerged:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				MergeResult:                  body.MergeResult,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
+		case constants.SubscriptionEventPullRequestUpdated:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				NotificationType:             body.NotificationType,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
+		default:
+			payload.PublisherInputs = serializers.PublisherInputsRepos{
+				ProjectID:                    project.ProjectID,
+				Repository:                   body.Repository,
+				Branch:                       body.TargetBranch,
+				PullRequestCreatedBy:         body.PullRequestCreatedBy,
+				PullRequestReviewersContains: body.PullRequestReviewersContains,
+			}
 		}
 	case constants.ServiceTypePipelines:
 		payload.PublisherInputs = serializers.PublisherInputsPipelines{
@@ -279,6 +311,44 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 	}
 
 	return gitBranchesResponse, statusCode, nil
+}
+
+func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
+
+	var subscriptionFilters []*serializers.SubscriptionFilter
+	for _, filter := range request.Filters {
+		subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+	}
+
+	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
+		Subscription: &serializers.CreateSubscriptionBodyPayload{
+			PublisherID:      constants.PublisherID,
+			ConsumerID:       constants.ConsumerID,
+			ConsumerActionID: constants.ConsumerActionID,
+			EventType:        request.EventType,
+			PublisherInputs: serializers.PublisherInputsGeneric{
+				ProjectID: request.ProjectID,
+			},
+		},
+		InputValues: subscriptionFilters,
+		Scope:       10, // TODO: This is a required field for Azure DevOps and must have value 10, it's use or role is not documented anywhere in the Azure DevOps API docs so, it can be investigated further for more details
+	}
+
+	if constants.ValidSubscriptionEventsForRepos[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsRepos{
+			ProjectID:  request.ProjectID,
+			Repository: request.RepositoryID,
+		}
+	}
+
+	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
+	}
+
+	return subscriptionFiltersResponse, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

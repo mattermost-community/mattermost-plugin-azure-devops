@@ -77,6 +77,17 @@ type SubscriptionDetails = {
     repository: string,
     targetBranch: string,
     repositoryName: string
+    pullRequestCreatedBy: string
+    pullRequestReviewersContains: string
+    pullRequestCreatedByName: string
+    pullRequestReviewersContainsName: string
+    pushedBy: string
+    pushedByName: string
+    mergeResult: string
+    mergeResultName: string
+    notificationType: string
+    notificationTypeName: string
+    areaPath: string
 }
 
 type WebsocketEventParams = {

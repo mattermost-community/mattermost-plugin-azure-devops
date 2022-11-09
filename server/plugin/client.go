@@ -124,7 +124,7 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 	var buildDetails *serializers.BuildDetails
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
 	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the pull request")
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
 	}
 
 	return buildDetails, statusCode, nil

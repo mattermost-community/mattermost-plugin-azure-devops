@@ -106,3 +106,51 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 
 	return post, ""
 }
+
+func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {
+	organization := linkData[3]
+	project := linkData[4]
+	buildID := strings.Split(linkData[6], "&")[0][16:]
+	buildDetails, _, err := p.Client.GetBuildDetails(organization, project, buildID, userID)
+	if err != nil {
+		return nil, ""
+	}
+
+	post := &model.Post{
+		UserId:    userID,
+		ChannelId: channelID,
+	}
+	attachment := &model.SlackAttachment{
+		AuthorName: "Azure Pipeline",
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline), // TODO: update icon file
+		Title:      fmt.Sprintf(constants.BuildDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
+		Color:      constants.PipelineIconColor,
+		Fields: []*model.SlackAttachmentField{
+			{
+				Title: "Repository",
+				Value: buildDetails.Repository.Name,
+				Short: true,
+			},
+			{
+				Title: "Source Branch",
+				Value: buildDetails.SourceBranch,
+				Short: true,
+			},
+			{
+				Title: "Requested By",
+				Value: buildDetails.RequestedBy.DisplayName,
+				Short: true,
+			},
+			{
+				Title: "Status",
+				Value: buildDetails.Status,
+				Short: true,
+			},
+		},
+		Footer:     project,
+		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+	}
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+
+	return post, ""
+}

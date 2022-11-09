@@ -83,5 +83,6 @@
     img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/pipelines-icon.svg"] {
         width: 20px;
         height: 20px;
+        border-radius: 0;
     }
 }

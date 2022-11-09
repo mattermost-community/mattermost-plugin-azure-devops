@@ -421,9 +421,6 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
-	// bdy, _ := ioutil.ReadAll(r.Body)
-
-	// fmt.Printf("\n\n\nNotificationnnnn   %+v\n\n\n\n", string(bdy))
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -610,6 +607,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		if artifacts == "" {
 			artifacts = "No artifacts"
 		}
+
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
 			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
@@ -696,7 +694,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	case constants.SubscriptionEventReleaseDeploymentCompleted:
 		comment := body.Resource.Comment.(string)
 		if comment == "" {
-			comment = "N/A"
+			comment = "No comments"
 		}
 
 		attachment = &model.SlackAttachment{
@@ -736,8 +734,6 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Short: true,
 				},
 			},
-			Footer:     body.Resource.Project.Name,
-			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventRunStateChanged:
 		attachment = &model.SlackAttachment{
@@ -752,8 +748,6 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Short: true,
 				},
 			},
-			Footer:     body.Resource.Project.Name,
-			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	}
 

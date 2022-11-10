@@ -80,9 +80,13 @@ export const formLabelValuePair = (labelKey: string, valueKey: string, data: Rec
     return labelValuePair;
 };
 
-export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Record<string, string>[]) => {
-    const labelValuePairs: LabelValuePair[] = [];
+export const formLabelValuePairs = (labelKey: string, valueKey: string, data: Record<string, string>[], excludeKeys: string[] = []) => {
+    let labelValuePairs: LabelValuePair[] = [];
     data.forEach((item) => labelValuePairs.push(formLabelValuePair(labelKey, valueKey, item)));
+
+    if (excludeKeys.length) {
+        labelValuePairs = labelValuePairs.filter((item) => !excludeKeys.includes(item.label as string));
+    }
 
     return labelValuePairs;
 };

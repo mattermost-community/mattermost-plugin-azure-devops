@@ -1080,7 +1080,7 @@ func TestHandleGetGitRepositoryBranches(t *testing.T) {
 			}
 
 			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
 
 			pathParams := map[string]string{
 				"organization": testCase.organization,

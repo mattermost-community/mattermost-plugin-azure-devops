@@ -27,7 +27,7 @@ import utils from 'utils';
 import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
-    const {projectName, organizationName} = projectDetails;
+    const {projectName, organizationName, projectID} = projectDetails;
     const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = pluginConstants.common;
 
     // State variables
@@ -84,7 +84,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName]}));
+        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName, projectID]}));
     };
 
     // Opens a confirmation modal to confirm deletion of a subscription
@@ -99,6 +99,17 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             repository: subscriptionDetails.repository,
             targetBranch: subscriptionDetails.targetBranch,
             repositoryName: subscriptionDetails.repositoryName,
+            pullRequestCreatedBy: subscriptionDetails.pullRequestCreatedBy,
+            pullRequestCreatedByName: subscriptionDetails.pullRequestCreatedByName,
+            pullRequestReviewersContains: subscriptionDetails.pullRequestReviewersContains,
+            pullRequestReviewersContainsName: subscriptionDetails.pullRequestReviewersContainsName,
+            pushedBy: subscriptionDetails.pushedBy,
+            pushedByName: subscriptionDetails.pushedByName,
+            mergeResult: subscriptionDetails.mergeResult,
+            mergeResultName: subscriptionDetails.mergeResultName,
+            notificationType: subscriptionDetails.notificationType,
+            notificationTypeName: subscriptionDetails.notificationTypeName,
+            areaPath: subscriptionDetails.areaPath,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);

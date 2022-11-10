@@ -80,27 +80,13 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                                     // Remove the extra character "/" from start and end of the area path string returned by the API
                                     areaPath && <Chip text={`Area path - ${areaPath.substring(1, areaPath.length - 1)}`}/>
                                 }
-                                {
-                                    repositoryName && <Chip text={`Repository is: ${repositoryName}`}/>
-                                }
-                                {
-                                    targetBranch && <Chip text={`Target branch is: ${targetBranch}`}/>
-                                }
-                                {
-                                    pullRequestCreatedByName && <Chip text={`Requested by a member of group: ${pullRequestCreatedByName}`}/>
-                                }
-                                {
-                                    pullRequestReviewersContainsName && <Chip text={`Reviewer includes group: ${pullRequestReviewersContainsName}`}/>
-                                }
-                                {
-                                    pushedByName && <Chip text={`Pushed by a member of group: ${pushedByName}`}/>
-                                }
-                                {
-                                    mergeResultName && <Chip text={`Merge result: ${mergeResultName}`}/>
-                                }
-                                {
-                                    notificationTypeName && <Chip text={`Change: ${notificationTypeName}`}/>
-                                }
+                                {repositoryName && <Chip text={`Repository is: ${repositoryName}`}/>}
+                                {targetBranch && <Chip text={`Target branch is: ${targetBranch}`}/>}
+                                {pullRequestCreatedByName && <Chip text={`Requested by a member of group: ${pullRequestCreatedByName}`}/>}
+                                {pullRequestReviewersContainsName && <Chip text={`Reviewer includes group: ${pullRequestReviewersContainsName}`}/>}
+                                {pushedByName && <Chip text={`Pushed by a member of group: ${pushedByName}`}/>}
+                                {mergeResultName && <Chip text={`Merge result: ${mergeResultName}`}/>}
+                                {notificationTypeName && <Chip text={`Change: ${notificationTypeName}`}/>}
                             </div>
                         </div>
                     )

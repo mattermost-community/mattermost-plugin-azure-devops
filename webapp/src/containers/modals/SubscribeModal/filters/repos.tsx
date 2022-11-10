@@ -30,6 +30,7 @@ type ReposFilterProps = {
     setIsFiltersError: (value: boolean) => void
 }
 
+// TODO: Refactor the props to minimal
 const ReposFilter = ({
     organization,
     projectId,

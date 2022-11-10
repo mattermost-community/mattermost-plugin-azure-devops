@@ -255,7 +255,20 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType, Repository: body.Repository, TargetBranch: body.TargetBranch, PullRequestCreatedBy: body.PullRequestCreatedBy, PullRequestReviewersContains: body.PullRequestReviewersContains, PushedBy: body.PushedBy, MergeResult: body.MergeResult, NotificationType: body.NotificationType, AreaPath: body.AreaPath}); isSubscriptionPresent {
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{
+		OrganizationName:             body.Organization,
+		ProjectName:                  body.Project,
+		ChannelID:                    body.ChannelID,
+		EventType:                    body.EventType,
+		Repository:                   body.Repository,
+		TargetBranch:                 body.TargetBranch,
+		PullRequestCreatedBy:         body.PullRequestCreatedBy,
+		PullRequestReviewersContains: body.PullRequestReviewersContains,
+		PushedBy:                     body.PushedBy,
+		MergeResult:                  body.MergeResult,
+		NotificationType:             body.NotificationType,
+		AreaPath:                     body.AreaPath,
+	}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
 		return
@@ -387,7 +400,24 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType+subscriptionByProject[i].TargetBranch+subscriptionByProject[i].PullRequestCreatedByName+subscriptionByProject[i].PullRequestReviewersContainsName+subscriptionByProject[i].PushedByName+subscriptionByProject[i].MergeResultName+subscriptionByProject[i].NotificationTypeName+subscriptionByProject[i].AreaPath < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType+subscriptionByProject[j].TargetBranch+subscriptionByProject[j].PullRequestCreatedByName+subscriptionByProject[j].PullRequestReviewersContainsName+subscriptionByProject[j].PushedByName+subscriptionByProject[j].MergeResultName+subscriptionByProject[j].NotificationTypeName+subscriptionByProject[j].AreaPath
+			return subscriptionByProject[i].ChannelName+
+				subscriptionByProject[i].EventType+
+				subscriptionByProject[i].TargetBranch+
+				subscriptionByProject[i].PullRequestCreatedByName+
+				subscriptionByProject[i].PullRequestReviewersContainsName+
+				subscriptionByProject[i].PushedByName+
+				subscriptionByProject[i].MergeResultName+
+				subscriptionByProject[i].NotificationTypeName+
+				subscriptionByProject[i].AreaPath <
+				subscriptionByProject[j].ChannelName+
+					subscriptionByProject[j].EventType+
+					subscriptionByProject[j].TargetBranch+
+					subscriptionByProject[j].PullRequestCreatedByName+
+					subscriptionByProject[j].PullRequestReviewersContainsName+
+					subscriptionByProject[j].PushedByName+
+					subscriptionByProject[j].MergeResultName+
+					subscriptionByProject[j].NotificationTypeName+
+					subscriptionByProject[j].AreaPath
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)

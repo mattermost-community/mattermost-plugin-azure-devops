@@ -63,14 +63,14 @@ const BoardsFilter = ({
         }
     }, [isLoading, isError, isSuccess]);
 
-    const getAreapathOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getAreaPathOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 
     return (
         <Dropdown
             placeholder='Area Path'
             value={selectedAreaPath}
             onChange={handleSelectAreaPath}
-            options={getAreapathOptions()}
+            options={getAreaPathOptions()}
             error={isError}
             loadingOptions={isLoading}
             disabled={isLoading}

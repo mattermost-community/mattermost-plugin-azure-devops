@@ -148,50 +148,17 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
 		ConsumerInputs:   consumerInputs,
-	}
-
-	switch body.ServiceType {
-	case constants.ServiceTypeBoards:
-		payload.PublisherInputs = serializers.PublisherInputsBoards{
-			ProjectID: project.ProjectID,
-			AreaPath:  body.AreaPath,
-		}
-	case constants.ServiceTypeRepos:
-		switch body.EventType {
-		case constants.SubscriptionEventCodePushed:
-			payload.PublisherInputs = serializers.PublisherInputsRepos{
-				ProjectID:  project.ProjectID,
-				Repository: body.Repository,
-				Branch:     body.TargetBranch,
-				PushedBy:   body.PushedBy,
-			}
-		case constants.SubscriptionEventPullRequestMerged:
-			payload.PublisherInputs = serializers.PublisherInputsRepos{
-				ProjectID:                    project.ProjectID,
-				Repository:                   body.Repository,
-				Branch:                       body.TargetBranch,
-				MergeResult:                  body.MergeResult,
-				PullRequestCreatedBy:         body.PullRequestCreatedBy,
-				PullRequestReviewersContains: body.PullRequestReviewersContains,
-			}
-		case constants.SubscriptionEventPullRequestUpdated:
-			payload.PublisherInputs = serializers.PublisherInputsRepos{
-				ProjectID:                    project.ProjectID,
-				Repository:                   body.Repository,
-				Branch:                       body.TargetBranch,
-				NotificationType:             body.NotificationType,
-				PullRequestCreatedBy:         body.PullRequestCreatedBy,
-				PullRequestReviewersContains: body.PullRequestReviewersContains,
-			}
-		default:
-			payload.PublisherInputs = serializers.PublisherInputsRepos{
-				ProjectID:                    project.ProjectID,
-				Repository:                   body.Repository,
-				Branch:                       body.TargetBranch,
-				PullRequestCreatedBy:         body.PullRequestCreatedBy,
-				PullRequestReviewersContains: body.PullRequestReviewersContains,
-			}
-		}
+		PublisherInputs: serializers.PublisherInputsGeneric{
+			ProjectID:                    project.ProjectID,
+			AreaPath:                     body.AreaPath,
+			Repository:                   body.Repository,
+			Branch:                       body.TargetBranch,
+			PushedBy:                     body.PushedBy,
+			MergeResult:                  body.MergeResult,
+			PullRequestCreatedBy:         body.PullRequestCreatedBy,
+			PullRequestReviewersContains: body.PullRequestReviewersContains,
+			NotificationType:             body.NotificationType,
+		},
 	}
 
 	var subscription *serializers.SubscriptionValue
@@ -209,7 +176,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
-	publisherInputs := serializers.PublisherInputsBoards{
+	publisherInputs := serializers.PublisherInputsGeneric{
 		ProjectID: projectID,
 	}
 
@@ -291,7 +258,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 	}
 
 	if constants.ValidSubscriptionEventsForRepos[request.EventType] {
-		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsRepos{
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
 			ProjectID:  request.ProjectID,
 			Repository: request.RepositoryID,
 		}

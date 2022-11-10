@@ -15,16 +15,8 @@ type UserID struct {
 }
 
 type PublisherInputsGeneric struct {
-	ProjectID string `json:"projectId"`
-}
-
-type PublisherInputsBoards struct {
-	ProjectID string `json:"projectId"`
-	AreaPath  string `json:"areaPath,omitempty"`
-}
-
-type PublisherInputsRepos struct {
-	ProjectID                    string `json:"projectId"`
+	ProjectID                    string `json:"projectId,omitempty"`
+	AreaPath                     string `json:"areaPath,omitempty"`
 	Repository                   string `json:"repository,omitempty"`
 	Branch                       string `json:"branch,omitempty"`
 	PullRequestCreatedBy         string `json:"pullrequestCreatedBy,omitempty"`

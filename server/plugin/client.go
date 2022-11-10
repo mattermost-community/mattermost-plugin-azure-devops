@@ -148,19 +148,17 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
 		ConsumerInputs:   consumerInputs,
-	}
-
-	switch body.ServiceType {
-	case constants.ServiceTypeBoards:
-		payload.PublisherInputs = serializers.PublisherInputsBoards{
-			ProjectID: project.ProjectID,
-		}
-	case constants.ServiceTypeRepos:
-		payload.PublisherInputs = serializers.PublisherInputsRepos{
-			ProjectID:  project.ProjectID,
-			Repository: body.Repository,
-			Branch:     body.TargetBranch,
-		}
+		PublisherInputs: serializers.PublisherInputsGeneric{
+			ProjectID:                    project.ProjectID,
+			AreaPath:                     body.AreaPath,
+			Repository:                   body.Repository,
+			Branch:                       body.TargetBranch,
+			PushedBy:                     body.PushedBy,
+			MergeResult:                  body.MergeResult,
+			PullRequestCreatedBy:         body.PullRequestCreatedBy,
+			PullRequestReviewersContains: body.PullRequestReviewersContains,
+			NotificationType:             body.NotificationType,
+		},
 	}
 
 	var subscription *serializers.SubscriptionValue
@@ -178,7 +176,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
-	publisherInputs := serializers.PublisherInputsBoards{
+	publisherInputs := serializers.PublisherInputsGeneric{
 		ProjectID: projectID,
 	}
 
@@ -257,6 +255,13 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		},
 		InputValues: subscriptionFilters,
 		Scope:       10, // TODO: This is a required field for Azure DevOps and must have value 10, it's use or role is not documented anywhere in the Azure DevOps API docs so, it can be investigated further for more details
+	}
+
+	if constants.ValidSubscriptionEventsForRepos[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:  request.ProjectID,
+			Repository: request.RepositoryID,
+		}
 	}
 
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient

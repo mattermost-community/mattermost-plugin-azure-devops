@@ -94,6 +94,14 @@ const azureDevOpsPluginApi = createApi({
                 body: payload,
             }),
         }),
+        [Constants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName]: builder.query<GetSubscriptionFiltersResponse, GetSubscriptionFiltersRequest>({
+            query: (payload) => ({
+                headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
+                url: Constants.pluginApiServiceConfigs.getSubscriptionFilters.path,
+                method: Constants.pluginApiServiceConfigs.getSubscriptionFilters.method,
+                body: payload,
+            }),
+        }),
     }),
 });
 

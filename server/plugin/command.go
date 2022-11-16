@@ -124,7 +124,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 }
 
 func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// Check if user's Azure DevOps account is connected
+	// Check if the user's Azure DevOps account is connected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
@@ -152,7 +152,7 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 }
 
 func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// Check if user's Azure DevOps account is connected
+	// Check if the user's Azure DevOps account is connected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
@@ -177,7 +177,7 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 }
 
 func azureDevopsPipelinesCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// Check if user's Azure DevOps account is connected
+	// Check if the user's Azure DevOps account is connected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}

@@ -47,7 +47,9 @@ const (
 	TasksAPIVersion      = "6.0"
 
 	// Subscription constants
-	PublisherID                                         = "tfs"
+	PublisherIDTFS                                      = "tfs"
+	PublisherIDRM                                       = "rm"
+	PublisherIDPipelines                                = "pipelines"
 	ConsumerID                                          = "webHooks"
 	ConsumerActionID                                    = "httpRequest"
 	SubscriptionEventPullRequestCreated                 = "git.pullrequest.created"

@@ -13,6 +13,14 @@ export const eventTypeBoards = {
     'workitem.commented': 'Work item commented on',
 };
 
+export const eventTypeReposKeys = {
+    created: 'git.pullrequest.created',
+    updated: 'git.pullrequest.updated',
+    commented: 'ms.vss-code.git-pullrequest-comment-event',
+    merged: 'git.pullrequest.merged',
+    codePushed: 'git.push',
+};
+
 export const eventTypeRepos = {
     'git.pullrequest.created': 'Pull request created',
     'git.pullrequest.updated': 'Pull request updated',
@@ -39,29 +47,6 @@ export const eventTypeMap: Record<EventType, string> = {
     ...eventTypeBoards,
     ...eventTypeRepos,
     ...eventTypePipelines,
-};
-
-export const serviceTypeMap: Record<EventType, string> = {
-    'workitem.created': 'Boards',
-    'workitem.updated': 'Boards',
-    'workitem.deleted': 'Boards',
-    'workitem.commented': 'Boards',
-    'git.pullrequest.created': 'Repos',
-    'git.pullrequest.updated': 'Repos',
-    'ms.vss-code.git-pullrequest-comment-event': 'Repos',
-    'git.pullrequest.merged': 'Repos',
-    'git.push': 'Repos',
-    'build.complete': 'Build Completed',
-    'ms.vss-release.release-abandoned-event': 'Release Abandoned',
-    'ms.vss-release.release-created-event': 'Release Created',
-    'ms.vss-release.deployment-approval-completed-event': 'Release deployment approval completed',
-    'ms.vss-release.deployment-approval-pending-event': 'Release deployment approval pending',
-    'ms.vss-release.deployment-completed-event': 'Release deployment completed',
-    'ms.vss-release.deployment-started-event': 'Release deployment started',
-    'ms.vss-pipelinechecks-events.approval-completed': 'Run stage approval completed',
-    'ms.vss-pipelines.stage-state-changed-event': 'Run stage state changed',
-    'ms.vss-pipelinechecks-events.approval-pending': 'Run stage waiting for approval',
-    'ms.vss-pipelines.run-state-changed-event': 'Run state changed',
 };
 
 export const boards = 'boards';

@@ -26,6 +26,7 @@ type Client interface {
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
+	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
 type client struct {
@@ -135,26 +136,26 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 }
 
 var publisherID = map[string]string{
-	constants.SubscriptionEventPullRequestCreated:                 "tfs",
-	constants.SubscriptionEventPullRequestUpdated:                 "tfs",
-	constants.SubscriptionEventPullRequestCommented:               "tfs",
-	constants.SubscriptionEventPullRequestMerged:                  "tfs",
-	constants.SubscriptionEventCodePushed:                         "tfs",
-	constants.SubscriptionEventWorkItemCreated:                    "tfs",
-	constants.SubscriptionEventWorkItemUpdated:                    "tfs",
-	constants.SubscriptionEventWorkItemDeleted:                    "tfs",
-	constants.SubscriptionEventWorkItemCommented:                  "tfs",
-	constants.SubscriptionEventBuildCompleted:                     "tfs",
-	constants.SubscriptionEventReleaseAbandoned:                   "rm",
-	constants.SubscriptionEventReleaseCreated:                     "rm",
-	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "rm",
-	constants.SubscriptionEventReleaseDeploymentEventPending:      "rm",
-	constants.SubscriptionEventReleaseDeploymentCompleted:         "rm",
-	constants.SubscriptionEventReleaseDeploymentStarted:           "rm",
-	constants.SubscriptionEventRunStageApprovalCompleted:          "pipelines",
-	constants.SubscriptionEventRunStageStateChanged:               "pipelines",
-	constants.SubscriptionEventRunStageWaitingForApproval:         "pipelines",
-	constants.SubscriptionEventRunStateChanged:                    "pipelines",
+	constants.SubscriptionEventPullRequestCreated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestUpdated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestCommented:               constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestMerged:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventCodePushed:                         constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCreated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemUpdated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemDeleted:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCommented:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventBuildCompleted:                     constants.PublisherIDTFS,
+	constants.SubscriptionEventReleaseAbandoned:                   constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseCreated:                     constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentEventPending:      constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentCompleted:         constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentStarted:           constants.PublisherIDRM,
+	constants.SubscriptionEventRunStageApprovalCompleted:          constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageStateChanged:               constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageWaitingForApproval:         constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStateChanged:                    constants.PublisherIDPipelines,
 }
 
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
@@ -170,30 +171,25 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
 		ConsumerInputs:   consumerInputs,
+		PublisherInputs: serializers.PublisherInputsGeneric{
+			ProjectID:                    project.ProjectID,
+			AreaPath:                     body.AreaPath,
+			Repository:                   body.Repository,
+			Branch:                       body.TargetBranch,
+			PushedBy:                     body.PushedBy,
+			MergeResult:                  body.MergeResult,
+			PullRequestCreatedBy:         body.PullRequestCreatedBy,
+			PullRequestReviewersContains: body.PullRequestReviewersContains,
+			NotificationType:             body.NotificationType,
+		},
 	}
 
-	switch body.ServiceType {
-	case constants.ServiceTypeBoards:
-		payload.PublisherInputs = serializers.PublisherInputsBoards{
-			ProjectID: project.ProjectID,
-		}
-	case constants.ServiceTypeRepos:
-		payload.PublisherInputs = serializers.PublisherInputsRepos{
-			ProjectID:  project.ProjectID,
-			Repository: body.Repository,
-			Branch:     body.TargetBranch,
-		}
-	case constants.ServiceTypePipelines:
-		payload.PublisherInputs = serializers.PublisherInputsPipelines{
-			ProjectID: project.ProjectID,
-		}
-	}
-
-	var subscription *serializers.SubscriptionValue
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	if strings.Contains(body.EventType, "release") {
 		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	}
+
+	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
@@ -208,7 +204,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
 
-	publisherInputs := serializers.PublisherInputsBoards{
+	publisherInputs := serializers.PublisherInputsGeneric{
 		ProjectID: projectID,
 	}
 
@@ -217,7 +213,7 @@ func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginUR
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherID,
+		PublisherID:      constants.PublisherIDTFS,
 		EventType:        constants.SubscriptionEventTypeDummy,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
@@ -265,6 +261,44 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 	}
 
 	return gitBranchesResponse, statusCode, nil
+}
+
+func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
+
+	var subscriptionFilters []*serializers.SubscriptionFilter
+	for _, filter := range request.Filters {
+		subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+	}
+
+	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
+		Subscription: &serializers.CreateSubscriptionBodyPayload{
+			PublisherID:      constants.PublisherIDTFS,
+			ConsumerID:       constants.ConsumerID,
+			ConsumerActionID: constants.ConsumerActionID,
+			EventType:        request.EventType,
+			PublisherInputs: serializers.PublisherInputsGeneric{
+				ProjectID: request.ProjectID,
+			},
+		},
+		InputValues: subscriptionFilters,
+		Scope:       10, // TODO: This is a required field for Azure DevOps and must have value 10, it's use or role is not documented anywhere in the Azure DevOps API docs so, it can be investigated further for more details
+	}
+
+	if constants.ValidSubscriptionEventsForRepos[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:  request.ProjectID,
+			Repository: request.RepositoryID,
+		}
+	}
+
+	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
+	}
+
+	return subscriptionFiltersResponse, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

@@ -58,4 +58,5 @@ type GetSubscriptionFiltersRequest = {
     eventType: string
     filters: string[]
     repositoryId?: string
+    releasePipelineId?: string
 }

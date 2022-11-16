@@ -90,12 +90,15 @@ const (
 	QueryParamPerPage     = "per_page"
 
 	// Filters
-	FilterCreatedByMe     = "me"
-	FilterCreatedByAnyone = "anyone"
-	FilterAllChannels     = "all_channels"
-	FilterAll             = "all"
-	FilterBoards          = "boards"
-	FilterRepos           = "repos"
+	FilterCreatedByMe            = "me"
+	FilterCreatedByAnyone        = "anyone"
+	FilterAllChannels            = "all_channels"
+	FilterAll                    = "all"
+	FilterBoards                 = "boards"
+	FilterRepos                  = "repos"
+	EventTypeRelease             = "release"
+	FilterIDReleaseDefinitionID  = "releaseDefinitionId"
+	FilterIDReleaseEnvironmentID = "releaseEnvironmentId"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

@@ -15,7 +15,8 @@ type UserID struct {
 }
 
 type PublisherInputsGeneric struct {
-	ProjectID string `json:"projectId"`
+	ProjectID           string `json:"projectId"`
+	ReleaseDefinitionID string `json:"releaseDefinitionId"`
 }
 
 type PublisherInputsBoards struct {
@@ -83,11 +84,12 @@ type CreateSubscriptionRequestPayload struct {
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
-	Organization string   `json:"organization"`
-	ProjectID    string   `json:"projectId"`
-	EventType    string   `json:"eventType"`
-	Filters      []string `json:"filters"`
-	RepositoryID string   `json:"repositoryId"`
+	Organization      string   `json:"organization"`
+	ProjectID         string   `json:"projectId"`
+	EventType         string   `json:"eventType"`
+	Filters           []string `json:"filters"`
+	RepositoryID      string   `json:"repositoryId"`
+	ReleasePipelineID string   `json:"releasePipelineId"`
 }
 
 type SubscriptionFilter struct {

@@ -29,6 +29,20 @@ export const eventTypeRepos = {
     'git.push': 'Code Pushed',
 };
 
+export const eventTypePipelineKeys = {
+    buildCompleted: 'build.complete',
+    releaseAbandoned: 'ms.vss-release.release-abandoned-event',
+    releaseCreated: 'ms.vss-release.release-created-event',
+    releaseDeploymentApprovalComplete: 'ms.vss-release.deployment-approval-completed-event',
+    releaseDeploymentApprovalPending: 'ms.vss-release.deployment-approval-pending-event',
+    releaseDeploymentCompleted: 'ms.vss-release.deployment-completed-event',
+    releaseDeploymentStarted: 'ms.vss-release.deployment-started-event',
+    runStageApprovalComplete: 'ms.vss-pipelinechecks-events.approval-completed',
+    runStageStateChanged: 'ms.vss-pipelines.stage-state-changed-event',
+    runStageApprovalPending: 'ms.vss-pipelinechecks-events.approval-pending',
+    runStateChanged: 'ms.vss-pipelines.run-state-changed-event',
+};
+
 export const eventTypePipelines = {
     'build.complete': 'Build completed',
     'ms.vss-release.release-abandoned-event': 'Release abandoned',

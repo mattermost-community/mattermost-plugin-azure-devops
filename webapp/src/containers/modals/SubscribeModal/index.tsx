@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 import mm_constants from 'mattermost-redux/constants/general';
 
-import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
+import {eventTypeBoards, eventTypePipelines, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
 import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 import pluginConstants from 'pluginConstants';
 
@@ -21,12 +21,12 @@ import {setServiceType, toggleShowSubscribeModal} from 'reducers/subscribeModal'
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getSubscribeModalState} from 'selectors';
 
-import ReposFilter from './filters/repos';
-import BoardsFilter from './filters/boards';
-import './styles.scss';
-
 import Utils from 'utils';
 
+import ReposFilter from './filters/repos';
+import BoardsFilter from './filters/boards';
+import PipelinesFilter from './filters/pipelines';
+import './styles.scss';
 
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
@@ -283,6 +283,48 @@ const SubscribeModal = () => {
             areaPath: newValue,
         });
 
+    const handleSetBuildPipelineFilter = (newValue: string, pipelineName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            buildPipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetBuildStatusFilter = (newValue: string, status?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            buildStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetReleasePipelineFilter = (newValue: string, pipelineName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            releasePipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetStageNameFilter = (newValue: string, stageName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            stageName: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetApprovalTypeFilter = (newValue: string, type?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            approvalType: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetApprovalStatusFilter = (newValue: string, status?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            approvalStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetReleaseStatusFilter = (newValue: string, status?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            releaseStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -351,6 +393,30 @@ const SubscribeModal = () => {
                                             selectedNotificationType={formFields.notificationType || filterLabelValuePairAll.value}
                                             handleSelectNotificationType={handleSetPullRequestNotificationTypeFilter}
                                             setIsFiltersError={setIsFiltersError}
+                                        />
+                                    )
+                                }
+                                {
+                                    formFields.serviceType === pluginConstants.common.pipelines && formFields.eventType && Object.keys(eventTypePipelines).includes(formFields.eventType) && (
+                                        <PipelinesFilter
+                                            organization={organization as string}
+                                            projectId={projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedBuildPipeline={formFields.buildPipeline || filterLabelValuePairAll.value}
+                                            handleSelectBuildPipeline={handleSetBuildPipelineFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                            selectedBuildStatus={formFields.buildPipeline || filterLabelValuePairAll.value}
+                                            handleSelectBuildStatus={handleSetBuildStatusFilter}
+                                            selectedReleasePipeline={formFields.releasePipeline || filterLabelValuePairAll.value}
+                                            handleSelectReleasePipeline={handleSetReleasePipelineFilter}
+                                            selectedStageName={formFields.stageName || filterLabelValuePairAll.value}
+                                            handleSelectStageName={handleSetStageNameFilter}
+                                            selectedApprovalType={formFields.approvalType || filterLabelValuePairAll.value}
+                                            handleSelectApprovalType={handleSetApprovalTypeFilter}
+                                            selectedApprovalStatus={formFields.approvalStatus || filterLabelValuePairAll.value}
+                                            handleSelectApprovalStatus={handleSetApprovalStatusFilter}
+                                            selectedReleaseStatus={formFields.releaseStatus || filterLabelValuePairAll.value}
+                                            handleSelectReleaseStatus={handleSetReleaseStatusFilter}
                                         />
                                     )
                                 }

@@ -18,6 +18,7 @@ import {
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
     eventTypeReposKeys,
+    eventTypePipelineKeys,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -34,6 +35,12 @@ import {
     subscriptionFiltersForRepos,
     subscriptionFiltersNameForBoards,
     subscriptionFiltersForBoards,
+    subscriptionFiltersForPipelines,
+    buildStatusOptions,
+    releaseApprovalTypeOptions,
+    releaseApprovalStatusOptions,
+    releaseStatusOptions,
+    subscriptionFiltersNameForPipelines,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -56,6 +63,7 @@ export default {
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
         eventTypeReposKeys,
+        eventTypePipelineKeys,
     },
     form: {
         linkProjectModal,
@@ -71,6 +79,12 @@ export default {
         subscriptionFiltersForRepos,
         subscriptionFiltersNameForBoards,
         subscriptionFiltersForBoards,
+        subscriptionFiltersForPipelines,
+        buildStatusOptions,
+        releaseApprovalTypeOptions,
+        releaseApprovalStatusOptions,
+        releaseStatusOptions,
+        subscriptionFiltersNameForPipelines,
     },
     messages: {
         error,

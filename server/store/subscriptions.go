@@ -58,22 +58,33 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		subscriptionList.ByMattermostUserID[userID] = make(SubscriptionListMap)
 	}
 
-	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch)
+	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath)
 	subscriptionListValue := serializers.SubscriptionDetails{
-		MattermostUserID: userID,
-		ProjectName:      subscription.ProjectName,
-		ProjectID:        subscription.ProjectID,
-		OrganizationName: subscription.OrganizationName,
-		ChannelID:        subscription.ChannelID,
-		EventType:        subscription.EventType,
-		ServiceType:      subscription.ServiceType,
-		SubscriptionID:   subscription.SubscriptionID,
-		ChannelName:      subscription.ChannelName,
-		ChannelType:      subscription.ChannelType,
-		CreatedBy:        subscription.CreatedBy,
-		Repository:       subscription.Repository,
-		TargetBranch:     subscription.TargetBranch,
-		RepositoryName:   subscription.RepositoryName,
+		MattermostUserID:                 userID,
+		ProjectName:                      subscription.ProjectName,
+		ProjectID:                        subscription.ProjectID,
+		OrganizationName:                 subscription.OrganizationName,
+		ChannelID:                        subscription.ChannelID,
+		EventType:                        subscription.EventType,
+		ServiceType:                      subscription.ServiceType,
+		SubscriptionID:                   subscription.SubscriptionID,
+		ChannelName:                      subscription.ChannelName,
+		ChannelType:                      subscription.ChannelType,
+		CreatedBy:                        subscription.CreatedBy,
+		Repository:                       subscription.Repository,
+		TargetBranch:                     subscription.TargetBranch,
+		RepositoryName:                   subscription.RepositoryName,
+		PullRequestCreatedBy:             subscription.PullRequestCreatedBy,
+		PullRequestReviewersContains:     subscription.PullRequestReviewersContains,
+		PullRequestCreatedByName:         subscription.PullRequestCreatedByName,
+		PullRequestReviewersContainsName: subscription.PullRequestReviewersContainsName,
+		PushedBy:                         subscription.PushedBy,
+		PushedByName:                     subscription.PushedByName,
+		MergeResult:                      subscription.MergeResult,
+		MergeResultName:                  subscription.MergeResultName,
+		NotificationType:                 subscription.NotificationType,
+		NotificationTypeName:             subscription.NotificationTypeName,
+		AreaPath:                         subscription.AreaPath,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }
@@ -122,7 +133,7 @@ func deleteSubscriptionAtomicModify(subscription *serializers.SubscriptionDetail
 	if err != nil {
 		return nil, err
 	}
-	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch)
+	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath)
 	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
 	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
 	if marshalErr != nil {

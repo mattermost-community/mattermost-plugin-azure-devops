@@ -17,7 +17,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, repository, targetBranch, repositoryName}, subscriptionDetails}: SubscriptionCardProps) => {
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath}, subscriptionDetails}: SubscriptionCardProps) => {
     let serviceTypeIcon = pluginConstants.SVGIcons.boards;
     if (serviceType === pluginConstants.common.repos) {
         serviceTypeIcon = pluginConstants.SVGIcons.repos;
@@ -54,7 +54,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                             <SVGWrapper
                                 width={12}
                                 height={12}
-                                viewBox='0 0 10 10'
+                                viewBox=' 0 0 10 10'
                             >
                                 {pluginConstants.SVGIcons.workEvent}
                             </SVGWrapper>
@@ -67,11 +67,11 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         value={channelName}
                     />
                     <LabelValuePair
-                        labelIconClassName='icon icon-account-outline icon-label'
+                        labelIconClassName={'icon icon-account-outline icon-label'}
                         value={`Subscription created by ${createdBy}`}
                     />
                     {
-                        (repositoryName || targetBranch) && (
+                        (areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName) && (
                             <div className='d-flex align-item-center margin-left-5'>
                                 <div className='card-filter'>
                                     <SVGWrapper
@@ -84,11 +84,17 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                                 </div>
                                 <div className='card-chip-wrapper'>
                                     {
-                                        repositoryName && <Chip text={`Repository is ${repositoryName}`}/>
+
+                                        // Remove the extra character "/" from start and end of the area path string returned by the API
+                                        areaPath && <Chip text={`Area path - ${areaPath.substring(1, areaPath.length - 1)}`}/>
                                     }
-                                    {
-                                        targetBranch && <Chip text={`Target Branch is ${targetBranch}`}/>
-                                    }
+                                    {repositoryName && <Chip text={`Repository is: ${repositoryName}`}/>}
+                                    {targetBranch && <Chip text={`Target branch is: ${targetBranch}`}/>}
+                                    {pullRequestCreatedByName && <Chip text={`Requested by a member of group: ${pullRequestCreatedByName}`}/>}
+                                    {pullRequestReviewersContainsName && <Chip text={`Reviewer includes group: ${pullRequestReviewersContainsName}`}/>}
+                                    {pushedByName && <Chip text={`Pushed by a member of group: ${pushedByName}`}/>}
+                                    {mergeResultName && <Chip text={`Merge result: ${mergeResultName}`}/>}
+                                    {notificationTypeName && <Chip text={`Change: ${notificationTypeName}`}/>}
                                 </div>
                             </div>
                         )

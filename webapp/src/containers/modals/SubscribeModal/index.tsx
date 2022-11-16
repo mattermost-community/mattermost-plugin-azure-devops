@@ -4,12 +4,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 import mm_constants from 'mattermost-redux/constants/general';
 
+import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
+import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
+import pluginConstants from 'pluginConstants';
+
 import Modal from 'components/modal';
 import Form from 'components/form';
 import EmptyState from 'components/emptyState';
 import ResultPanel from 'components/resultPanel';
-
-import pluginConstants from 'pluginConstants';
 
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
@@ -21,16 +23,14 @@ import {getSubscribeModalState} from 'selectors';
 
 import Utils from 'utils';
 
-import './styles.scss';
-import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
-
-import {filterLabelValuePairAll} from 'pluginConstants/common';
-
 import ReposFilter from './filters/repos';
+import BoardsFilter from './filters/boards';
+import './styles.scss';
 
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
     const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
+    const [isFiltersError, setIsFiltersError] = useState<boolean>(false);
 
     // Hooks
     const {
@@ -47,7 +47,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility, project, organization, serviceType} = getSubscribeModalState(state);
+    const {visibility, project, organization, serviceType, projectID} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
@@ -141,7 +141,7 @@ const SubscribeModal = () => {
     };
 
     // Return different types of error messages occurred on API call
-    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
+    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error?: ApiErrorResponse) => {
         if (isChannelListError) {
             return pluginConstants.messages.error.errorFetchingChannelsList;
         }
@@ -241,6 +241,47 @@ const SubscribeModal = () => {
             targetBranch: newValue === filterLabelValuePairAll.value ? '' : newValue,
         });
 
+    const handleSetPullRequestCreatedByFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestCreatedBy: newValue,
+            pullRequestCreatedByName: name === filterLabelValuePairAll.value ? '' : name,
+        });
+
+    const handleSetPullRequestReviewersContainsFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestReviewersContains: newValue,
+            pullRequestReviewersContainsName: name === filterLabelValuePairAll.value ? '' : name,
+        });
+
+    const handleSetPullRequestPushedByFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pushedBy: newValue,
+            pushedByName: name === filterLabelValuePairAll.value ? '' : name,
+        });
+
+    const handleSetPullRequestMergeResultFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            mergeResult: newValue,
+            mergeResultName: name === filterLabelValuePairAll.value ? '' : name,
+        });
+
+    const handleSetPullRequestNotificationTypeFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            notificationType: newValue,
+            notificationTypeName: name === filterLabelValuePairAll.value ? '' : name,
+        });
+
+    const handleSetAreaPathFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            areaPath: newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -256,7 +297,7 @@ const SubscribeModal = () => {
             cancelDisabled={isLoading}
             loading={isLoading}
             showFooter={!showResultPanel}
-            error={showApiErrorMessages(isError, error as ApiErrorResponse)}
+            error={showApiErrorMessages(isError, error as ApiErrorResponse) || showApiErrorMessages(isFiltersError)}
         >
             <>
                 {
@@ -277,17 +318,39 @@ const SubscribeModal = () => {
                                     ))
                                 }
                                 {
-                                    formFields.serviceType === pluginConstants.common.repos && (
-                                        <>
-                                            <ReposFilter
-                                                organization={organization as string}
-                                                project={project as string}
-                                                selectedRepo={formFields.repository || filterLabelValuePairAll.value}
-                                                handleSelectRepo={handleSetRepoFilter}
-                                                selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
-                                                handleSelectTargetBranch={handleSetTargetBranchFilter}
-                                            />
-                                        </>
+                                    formFields.serviceType === pluginConstants.common.boards && formFields.eventType && Object.keys(eventTypeBoards).includes(formFields.eventType) && (
+                                        <BoardsFilter
+                                            organization={organization as string}
+                                            projectId={projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedAreaPath={formFields.areaPath || filterLabelValuePairAll.value}
+                                            handleSelectAreaPath={handleSetAreaPathFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
+                                    )
+                                }
+                                {
+                                    formFields.serviceType === pluginConstants.common.repos && formFields.eventType && Object.keys(eventTypeRepos).includes(formFields.eventType) && (
+                                        <ReposFilter
+                                            organization={organization as string}
+                                            projectId={projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedRepo={formFields.repository || filterLabelValuePairAll.value}
+                                            handleSelectRepo={handleSetRepoFilter}
+                                            selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
+                                            handleSelectTargetBranch={handleSetTargetBranchFilter}
+                                            selectedPullRequestCreatedBy={formFields.pullRequestCreatedBy || filterLabelValuePairAll.value}
+                                            handleSelectPullRequestCreatedBy={handleSetPullRequestCreatedByFilter}
+                                            selectedPullRequestReviewersContains={formFields.pullRequestReviewersContains || filterLabelValuePairAll.value}
+                                            handlePullRequestReviewersContains={handleSetPullRequestReviewersContainsFilter}
+                                            selectedPushedBy={formFields.pushedBy || filterLabelValuePairAll.value}
+                                            handleSelectPushedBy={handleSetPullRequestPushedByFilter}
+                                            selectedMergeResult={formFields.mergeResult || filterLabelValuePairAll.value}
+                                            handleSelectMergeResult={handleSetPullRequestMergeResultFilter}
+                                            selectedNotificationType={formFields.notificationType || filterLabelValuePairAll.value}
+                                            handleSelectNotificationType={handleSetPullRequestNotificationTypeFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
                                     )
                                 }
                             </>

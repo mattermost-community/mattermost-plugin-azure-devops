@@ -13,6 +13,14 @@ export const eventTypeBoards = {
     'workitem.commented': 'Work item commented on',
 };
 
+export const eventTypeReposKeys = {
+    created: 'git.pullrequest.created',
+    updated: 'git.pullrequest.updated',
+    commented: 'ms.vss-code.git-pullrequest-comment-event',
+    merged: 'git.pullrequest.merged',
+    codePushed: 'git.push',
+};
+
 export const eventTypeRepos = {
     'git.pullrequest.created': 'Pull request created',
     'git.pullrequest.updated': 'Pull request updated',

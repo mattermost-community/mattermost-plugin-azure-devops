@@ -2,6 +2,7 @@ package store
 
 import (
 	"bytes"
+	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
@@ -137,8 +138,13 @@ func GetSubscriptionListMapKey() string {
 }
 
 func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath string) string {
-	// TODO: Optimize subscription key
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath)
+	return GetKeyMD5Hash(fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath))
+}
+
+// GetKeyMD5Hash can be used to create a md5 hash from a string
+func GetKeyMD5Hash(key string) string {
+	hash := md5.Sum([]byte(key))
+	return fmt.Sprintf("%x", hash)
 }
 
 // GetKeyHash can be used to create a hash from a string

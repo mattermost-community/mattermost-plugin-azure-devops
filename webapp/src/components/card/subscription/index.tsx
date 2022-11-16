@@ -67,7 +67,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         value={channelName}
                     />
                     <LabelValuePair
-                        labelIconClassName={'icon icon-account-outline icon-label'}
+                        labelIconClassName='icon icon-account-outline icon-label'
                         value={`Subscription created by ${createdBy}`}
                     />
                     {

@@ -489,19 +489,19 @@ export const mergeResultOptons: LabelValuePair[] = [
     },
     {
         value: 'Unsuccessful',
-        label: 'Merge Unsucessful - Reason: Any',
+        label: 'Merge Unsuccessful - Reason: Any',
     },
     {
         value: 'Conflicts',
-        label: 'Merge Unsucessful - Reason: Conflicts',
+        label: 'Merge Unsuccessful - Reason: Conflicts',
     },
     {
         value: 'Failure',
-        label: 'Merge Unsucessful - Reason: Failure',
+        label: 'Merge Unsuccessful - Reason: Failure',
     },
     {
         value: 'RejectedByPolicy',
-        label: 'Merge Unsucessful - Reason: Rejected By Policy',
+        label: 'Merge Unsuccessful - Reason: Rejected By Policy',
     },
     {
         ...filterLabelValuePairAll,

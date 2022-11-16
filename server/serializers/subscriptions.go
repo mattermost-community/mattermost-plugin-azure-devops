@@ -15,17 +15,8 @@ type UserID struct {
 }
 
 type PublisherInputsGeneric struct {
-	ProjectID           string `json:"projectId"`
-	ReleaseDefinitionID string `json:"releaseDefinitionId"`
-}
-
-type PublisherInputsBoards struct {
-	ProjectID string `json:"projectId"`
-	AreaPath  string `json:"areaPath,omitempty"`
-}
-
-type PublisherInputsRepos struct {
-	ProjectID                    string `json:"projectId"`
+	ProjectID                    string `json:"projectId,omitempty"`
+	AreaPath                     string `json:"areaPath,omitempty"`
 	Repository                   string `json:"repository,omitempty"`
 	Branch                       string `json:"branch,omitempty"`
 	PullRequestCreatedBy         string `json:"pullrequestCreatedBy,omitempty"`
@@ -33,10 +24,7 @@ type PublisherInputsRepos struct {
 	PushedBy                     string `json:"pushedBy,omitempty"`
 	MergeResult                  string `json:"mergeResult,omitempty"`
 	NotificationType             string `json:"notificationType,omitempty"`
-}
-
-type PublisherInputsPipelines struct {
-	ProjectID string `json:"projectId"`
+	ReleaseDefinitionID          string `json:"releaseDefinitionId,omitempty"`
 }
 
 type ConsumerInputs struct {

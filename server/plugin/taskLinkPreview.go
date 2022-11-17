@@ -34,7 +34,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 		AuthorName: "Azure Boards",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 		Title:      fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href),
-		Color:      constants.BoardsIconColor,
+		Color:      constants.IconColorBoards,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "State",
@@ -82,7 +82,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 		AuthorName: "Azure Repos",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
 		Title:      fmt.Sprintf(constants.PullRequestTitle, pullRequest.PullRequestID, pullRequest.Title, link),
-		Color:      constants.ReposIconColor,
+		Color:      constants.IconColorRepos,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Target Branch",
@@ -120,11 +120,12 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 		UserId:    userID,
 		ChannelId: channelID,
 	}
+
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipeline",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline), // TODO: update icon file
 		Title:      fmt.Sprintf(constants.BuildDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
-		Color:      constants.PipelineIconColor,
+		Color:      constants.IconColorPipeline,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repository",
@@ -150,7 +151,7 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 		Footer:     project,
 		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
-	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post, ""
 }

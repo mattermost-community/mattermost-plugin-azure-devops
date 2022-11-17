@@ -55,4 +55,9 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         method: 'GET',
         apiServiceName: 'getRepositoryBranches',
     },
+    getSubscriptionFilters: {
+        path: '/subscriptions/filters',
+        method: 'POST',
+        apiServiceName: 'getSubscriptionFilters',
+    },
 };

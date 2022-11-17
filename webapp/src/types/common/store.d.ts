@@ -32,6 +32,7 @@ type SubscribeModalState = {
     serviceType: string,
     organization?: string | null,
     project?: string | null,
+    projectID?: string | null
 }
 
 type CreateTaskCommandArgs = {

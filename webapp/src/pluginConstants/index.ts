@@ -8,7 +8,6 @@ import {
     pluginId,
     RightSidebarHeader,
     eventTypeMap,
-    serviceTypeMap,
     defaultPage,
     defaultPerPageLimit,
     subscriptionFilters,
@@ -17,6 +16,7 @@ import {
     pipelines,
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
+    eventTypeReposKeys,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -27,6 +27,12 @@ import {
     subscriptionFilterServiceTypeOptions,
     subscriptionFilterEventTypeBoardsOptions,
     subscriptionFilterEventTypeReposOptions,
+    mergeResultOptons,
+    pullRequestChangeOptons,
+    subscriptionFiltersNameForRepos,
+    subscriptionFiltersForRepos,
+    subscriptionFiltersNameForBoards,
+    subscriptionFiltersForBoards,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -39,7 +45,6 @@ export default {
         AzureDevops,
         RightSidebarHeader,
         eventTypeMap,
-        serviceTypeMap,
         defaultPage,
         defaultPerPageLimit,
         subscriptionFilters,
@@ -48,6 +53,7 @@ export default {
         pipelines,
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
+        eventTypeReposKeys,
     },
     form: {
         linkProjectModal,
@@ -57,6 +63,12 @@ export default {
         subscriptionFilterServiceTypeOptions,
         subscriptionFilterEventTypeBoardsOptions,
         subscriptionFilterEventTypeReposOptions,
+        mergeResultOptons,
+        pullRequestChangeOptons,
+        subscriptionFiltersNameForRepos,
+        subscriptionFiltersForRepos,
+        subscriptionFiltersNameForBoards,
+        subscriptionFiltersForBoards,
     },
     messages: {
         error,

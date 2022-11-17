@@ -24,7 +24,7 @@ type PublisherInputsGeneric struct {
 	PushedBy                     string `json:"pushedBy,omitempty"`
 	MergeResult                  string `json:"mergeResult,omitempty"`
 	NotificationType             string `json:"notificationType,omitempty"`
-	ReleaseDefinitionID          string `json:"releaseDefinitionId,omitempty"`
+	ReleasePipeline              string `json:"releaseDefinitionId,omitempty"`
 }
 
 type ConsumerInputs struct {

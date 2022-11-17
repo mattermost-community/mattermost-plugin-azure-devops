@@ -311,8 +311,8 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	if strings.Contains(request.EventType, constants.EventTypeRelease) {
 		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
-			ProjectID:           request.ProjectID,
-			ReleaseDefinitionID: request.ReleasePipelineID,
+			ProjectID:       request.ProjectID,
+			ReleasePipeline: request.ReleasePipelineID,
 		}
 	}
 

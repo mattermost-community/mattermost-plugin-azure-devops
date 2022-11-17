@@ -26,6 +26,7 @@ type Client interface {
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
+	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalId int) (int, error)
 }
 
 type client struct {
@@ -265,6 +266,19 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 	}
 
 	return gitBranchesResponse, statusCode, nil
+}
+
+func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalId int) (int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalId)
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
+	if err != nil {
+		return statusCode, err
+	}
+
+	return statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

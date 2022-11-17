@@ -52,6 +52,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathPipelineRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRequest))).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -749,6 +750,77 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 			},
 		}
+	case constants.SubscriptionEventRunStageWaitingForApproval:
+		// TODO
+	case constants.SubscriptionEventReleaseDeploymentEventPending:
+		artifacts := ""
+		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			if i != len(body.Resource.Release.Artifacts)-1 {
+				artifacts += fmt.Sprintf("%s, ", body.Resource.Release.Artifacts[i].Name)
+			} else {
+				artifacts += body.Resource.Release.Artifacts[i].Name
+			}
+		}
+
+		if artifacts == "" {
+			artifacts = "No artifacts"
+		}
+
+		organization := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")[3]
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Artifacts",
+					Value: artifacts,
+					Short: true,
+				},
+				{
+					Title: "Approvers",
+					Value: body.Resource.Approval.Approver.DisplayName,
+				},
+			},
+			Actions: []*model.PostAction{
+				{
+					Id:    constants.PipelineRequestIDApprove,
+					Type:  "button",
+					Name:  "Approve",
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDApprove,
+						},
+					},
+				},
+				{
+					Id:    constants.PipelineRequestIDReject,
+					Type:  "button",
+					Name:  "Reject",
+					Style: "danger",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDReject,
+						},
+					},
+				},
+			},
+		}
 	case constants.SubscriptionEventRunStateChanged:
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
@@ -1003,6 +1075,81 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 	}
 
 	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	response := &model.PostActionIntegrationResponse{}
+	decoder := json.NewDecoder(r.Body)
+	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
+	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
+		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+			p.API.LogError("Failed to DM", "Error", DMErr.Error())
+		}
+		p.API.LogError("Error decoding PostActionIntegrationRequest params: ", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	requestType := postActionIntegrationRequest.Context[constants.PipelineRequestContextRequestType].(string)
+	pipelineApproveRequestPayload := &serializers.PipelineApproveRequest{
+		Status:   requestType,
+		Comments: "", // TODO: integrate comment flow
+	}
+	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
+	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
+	approvalId := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
+	statusCode, err := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalId)
+	switch statusCode {
+	case http.StatusOK:
+		post, _ := p.API.GetPost(postActionIntegrationRequest.PostId)
+		slackAttachment := post.Attachments()[0]
+		slackAttachment.Actions = nil
+		slackAttachment.Fields = []*model.SlackAttachmentField{
+			slackAttachment.Fields[0],
+			slackAttachment.Fields[1],
+			{
+				Title: "Approvers",
+				Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
+			},
+		}
+
+		model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+		if _, err := p.API.UpdatePost(post); err != nil {
+			if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+				p.API.LogError("Failed to DM", "Error", DMErr.Error())
+			}
+			p.API.LogError("Error in updating post", "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+	case http.StatusBadRequest:
+		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorUpdatingNonPendingPipelineRequest, approvalId), true); DMErr != nil {
+			p.API.LogError("Failed to DM", "Error", DMErr.Error())
+		}
+		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+
+	default:
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+			p.API.LogError("Failed to DM", "Error", DMErr.Error())
+		}
+		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	p.returnPostActionIntegrationResponse(w, response)
+}
+
+func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(res.ToJson()); err != nil {
+		p.API.LogWarn("failed to write PostActionIntegrationResponse", "Error", err.Error())
+	}
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, v interface{}) {

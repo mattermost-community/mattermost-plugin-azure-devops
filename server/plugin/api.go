@@ -1099,8 +1099,8 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	}
 	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
 	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
-	approvalId := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
-	statusCode, err := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalId)
+	approvalID := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
+	statusCode, err := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
 	switch statusCode {
 	case http.StatusOK:
 		post, _ := p.API.GetPost(postActionIntegrationRequest.PostId)
@@ -1126,7 +1126,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		}
 
 	case http.StatusBadRequest:
-		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorUpdatingNonPendingPipelineRequest, approvalId), true); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorUpdatingNonPendingPipelineRequest, approvalID), true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
 		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())

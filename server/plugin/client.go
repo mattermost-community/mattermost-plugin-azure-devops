@@ -26,7 +26,7 @@ type Client interface {
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
-	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalId int) (int, error)
+	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 }
 
 type client struct {
@@ -268,8 +268,8 @@ func (c *client) GetGitRepositoryBranches(organization, projectName, repository,
 	return gitBranchesResponse, statusCode, nil
 }
 
-func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalId int) (int, error) {
-	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalId)
+func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)

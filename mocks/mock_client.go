@@ -144,6 +144,15 @@ func (mr *MockClientMockRecorder) GetGitRepositoryBranches(arg0, arg1, arg2, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositoryBranches", reflect.TypeOf((*MockClient)(nil).GetGitRepositoryBranches), arg0, arg1, arg2, arg3)
 }
 
+// UpdatePipelineApprovalRequest mocks base method
+func (m *MockClient) UpdatePipelineApprovalRequest(arg0 *serializers.PipelineApproveRequest, arg1, arg2, arg3 string, arg4 int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePipelineApprovalRequest", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[1].(int)
+	ret1, _ := ret[2].(error)
+	return ret0, ret1
+}
+
 // GetPullRequest mocks base method
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()

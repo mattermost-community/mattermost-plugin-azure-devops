@@ -50,7 +50,9 @@ const (
 	TasksAPIVersion      = "6.0"
 
 	// Subscription constants
-	PublisherID                                         = "tfs"
+	PublisherIDTFS                                      = "tfs"
+	PublisherIDRM                                       = "rm"
+	PublisherIDPipelines                                = "pipelines"
 	ConsumerID                                          = "webHooks"
 	ConsumerActionID                                    = "httpRequest"
 	SubscriptionEventPullRequestCreated                 = "git.pullrequest.created"
@@ -121,9 +123,9 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	ReposIconColor    = "#d74f27"
-	BoardsIconColor   = "#53bba1"
-	PipelineIconColor = "#4275E4"
+	IconColorRepos    = "#d74f27"
+	IconColorBoards   = "#53bba1"
+	IconColorPipeline = "#4275E4"
 
 	SubscriptionEventTypeDummy = "dummy"
 	FileNameGitBranchIcon      = "git-branch-icon.svg"
@@ -131,8 +133,6 @@ const (
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
 	FileNamePipeline           = "pipeline-icon.svg"
-	IconColorBoards            = "#53bba1"
-	IconColorRepos             = "#d74f27"
 
 	SlackAttachmentAuthorNameRepos  = "Azure Repos"
 	SlackAttachmentAuthorNameBoards = "Azure Boards"

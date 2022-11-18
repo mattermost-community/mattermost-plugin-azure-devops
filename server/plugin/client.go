@@ -195,6 +195,13 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			PullRequestCreatedBy:         body.PullRequestCreatedBy,
 			PullRequestReviewersContains: body.PullRequestReviewersContains,
 			NotificationType:             body.NotificationType,
+			BuildStatus:                  body.BuildStatus,
+			BuildPipeline:                body.BuildPipeline,
+			StageName:                    body.StageName,
+			ReleasePipeline:              body.ReleasePipeline,
+			ReleaseStatus:                body.ReleaseStatus,
+			ApprovalType:                 body.ApprovalType,
+			ApprovalStatus:               body.ApprovalStatus,
 		},
 	}
 

@@ -88,6 +88,19 @@ type SubscriptionDetails = {
     notificationType: string
     notificationTypeName: string
     areaPath: string
+    buildPipeline: string
+    buildStatus: string
+    releasePipeline: string
+    stageName: string
+    approvalType: string
+    approvalStatus: string
+    releaseStatus: string
+    buildStatusName: string
+    releasePipelineName: string
+    stageNameValue: string
+    approvalTypeName: string
+    approvalStatusName: string
+    releaseStatusName: string
 }
 
 type WebsocketEventParams = {

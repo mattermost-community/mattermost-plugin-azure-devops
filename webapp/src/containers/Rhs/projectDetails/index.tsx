@@ -110,6 +110,19 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             notificationType: subscriptionDetails.notificationType,
             notificationTypeName: subscriptionDetails.notificationTypeName,
             areaPath: subscriptionDetails.areaPath,
+            buildPipeline: subscriptionDetails.buildPipeline,
+            releasePipeline: subscriptionDetails.releasePipeline,
+            buildStatus: subscriptionDetails.buildStatus,
+            approvalStatus: subscriptionDetails.approvalStatus,
+            approvalType: subscriptionDetails.approvalType,
+            stageName: subscriptionDetails.stageName,
+            releaseStatus: subscriptionDetails.releaseStatus,
+            releasePipelineName: subscriptionDetails.releasePipelineName,
+            buildStatusName: subscriptionDetails.buildStatusName,
+            approvalStatusName: subscriptionDetails.approvalStatusName,
+            approvalTypeName: subscriptionDetails.approvalTypeName,
+            stageNameValue: subscriptionDetails.stageNameValue,
+            releaseStatusName: subscriptionDetails.releaseStatusName,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);

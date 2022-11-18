@@ -301,12 +301,27 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         value: '',
         optionsList: buildStatusOptions,
     },
+    buildStatusName: {
+        label: 'Build Status',
+        type: 'hidden',
+        value: '',
+    },
     releasePipeline: {
         label: 'Release Pipeline Name',
         type: 'hidden',
         value: '',
     },
+    releasePipelineName: {
+        label: 'Release Pipeline Name',
+        type: 'hidden',
+        value: '',
+    },
     stageName: {
+        label: 'Stage Name',
+        type: 'hidden',
+        value: '',
+    },
+    stageNameValue: {
         label: 'Stage Name',
         type: 'hidden',
         value: '',
@@ -317,17 +332,32 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         value: '',
         optionsList: releaseApprovalTypeOptions,
     },
+    approvalTypeName: {
+        label: 'Approval Type',
+        type: 'hidden',
+        value: '',
+    },
     approvalStatus: {
         label: 'Approval Status',
         type: 'hidden',
         value: '',
         optionsList: releaseApprovalStatusOptions,
     },
+    approvalStatusName: {
+        label: 'Approval Status',
+        type: 'hidden',
+        value: '',
+    },
     releaseStatus: {
         label: 'Status',
         type: 'hidden',
         value: '',
         optionsList: releaseStatusOptions,
+    },
+    releaseStatusName: {
+        label: 'Status',
+        type: 'hidden',
+        value: '',
     },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query

@@ -1,4 +1,6 @@
+import { subscriptionModal } from 'pluginConstants/form';
 import {useState} from 'react';
+import subscribeModal from 'reducers/subscribeModal';
 
 // Set initial value of form fields
 const getInitialFieldValues = (
@@ -67,8 +69,16 @@ function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFiel
      * and reset field error state
      */
     const onChangeFormField = (fieldName: FormFieldNames, value: string) => {
+        if(fieldName === "eventType"){
+            setErrorState({...errorState, [fieldName]: ''});
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID:formFields.channelID, serviceType: formFields.serviceType});
+        }else if(fieldName === "serviceType"){
+            setErrorState({...errorState, [fieldName]: ''});
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID:formFields.channelID});
+        }else{
         setErrorState({...errorState, [fieldName]: ''});
         setFormFields({...formFields, [fieldName]: value});
+        }
     };
 
     // Validate all form fields and set error if any

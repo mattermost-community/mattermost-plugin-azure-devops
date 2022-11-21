@@ -244,35 +244,35 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             pullRequestCreatedBy: newValue,
-            pullRequestCreatedByName: name === filterLabelValuePairAll.value ? '' : name,
+            pullRequestCreatedByName: name === filterLabelValuePairAll.label ? '' : name,
         });
 
     const handleSetPullRequestReviewersContainsFilter = (newValue: string, name?: string) =>
         setSpecificFieldValue({
             ...formFields,
             pullRequestReviewersContains: newValue,
-            pullRequestReviewersContainsName: name === filterLabelValuePairAll.value ? '' : name,
+            pullRequestReviewersContainsName: name === filterLabelValuePairAll.label ? '' : name,
         });
 
     const handleSetPullRequestPushedByFilter = (newValue: string, name?: string) =>
         setSpecificFieldValue({
             ...formFields,
             pushedBy: newValue,
-            pushedByName: name === filterLabelValuePairAll.value ? '' : name,
+            pushedByName: name === filterLabelValuePairAll.label ? '' : name,
         });
 
     const handleSetPullRequestMergeResultFilter = (newValue: string, name?: string) =>
         setSpecificFieldValue({
             ...formFields,
             mergeResult: newValue,
-            mergeResultName: name === filterLabelValuePairAll.value ? '' : name,
+            mergeResultName: name === filterLabelValuePairAll.label ? '' : name,
         });
 
     const handleSetPullRequestNotificationTypeFilter = (newValue: string, name?: string) =>
         setSpecificFieldValue({
             ...formFields,
             notificationType: newValue,
-            notificationTypeName: name === filterLabelValuePairAll.value ? '' : name,
+            notificationTypeName: name === filterLabelValuePairAll.label ? '' : name,
         });
 
     const handleSetAreaPathFilter = (newValue: string) =>

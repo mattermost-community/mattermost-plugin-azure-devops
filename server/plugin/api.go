@@ -1097,25 +1097,25 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
 	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
 	approvalID := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
-	statusCode, err := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
+	statusCode, updatePipelineApprovalRequestErr := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
 	switch statusCode {
 	case http.StatusOK:
-		if err := p.UpdatePipelineReleaseApprovalPost(requestType, postActionIntegrationRequest.PostId, mattermostUserID); err != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineReleaseApprovalPost(requestType, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineReleaseApprovalPostErr)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
 			return
 		}
 	case http.StatusBadRequest:
-		pipelineApprovalDetails, statusCode, err := p.Client.GetApprovalDetails(organization, projectName, mattermostUserID, approvalID)
-		if err != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
-			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		pipelineApprovalDetails, statusCode, getApprovalDetailsErr := p.Client.GetApprovalDetails(organization, projectName, mattermostUserID, approvalID)
+		if getApprovalDetailsErr != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, getApprovalDetailsErr)
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: getApprovalDetailsErr.Error()})
 			return
 		}
 
-		if err := p.UpdatePipelineReleaseApprovalPost(pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); err != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineReleaseApprovalPost(pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, updatePipelineReleaseApprovalPostErr)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
 			return
 		}
 
@@ -1127,8 +1127,8 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		_ = p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
 
 	default:
-		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineApprovalRequestErr)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineApprovalRequestErr.Error()})
 		return
 	}
 

@@ -213,6 +213,11 @@ type DeleteSubscriptionRequestPayload struct {
 	Repository   string `json:"repository"`
 }
 
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {

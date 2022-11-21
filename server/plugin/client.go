@@ -27,6 +27,7 @@ type Client interface {
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
+	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
 }
 
 type client struct {
@@ -279,6 +280,20 @@ func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *se
 	}
 
 	return statusCode, nil
+}
+
+func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	var pipelineApprovalDetails *serializers.PipelineApprovalDetails
+	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineApprovalDetails, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

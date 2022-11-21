@@ -163,6 +163,16 @@ func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers
 	return ret0, ret1, ret2
 }
 
+// GetApprovalDetails mocks base method
+func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*serializers.PipelineApprovalDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetApprovalDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.PipelineApprovalDetails)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
 // GetPullRequest indicates an expected call of GetPullRequest
 func (mr *MockClientMockRecorder) GetPullRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()

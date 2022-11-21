@@ -1084,10 +1084,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
 	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
 		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
-		p.API.LogError("Error decoding PostActionIntegrationRequest params: ", err.Error())
+		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest params: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -1103,46 +1100,68 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	statusCode, err := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
 	switch statusCode {
 	case http.StatusOK:
-		post, _ := p.API.GetPost(postActionIntegrationRequest.PostId)
-		slackAttachment := post.Attachments()[0]
-		slackAttachment.Actions = nil
-		slackAttachment.Fields = []*model.SlackAttachmentField{
-			slackAttachment.Fields[0],
-			slackAttachment.Fields[1],
-			{
-				Title: "Approvers",
-				Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
-			},
+		if err := p.UpdatePipelineReleaseApprovalPost(requestType, postActionIntegrationRequest.PostId, mattermostUserID); err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+	case http.StatusBadRequest:
+		pipelineApprovalDetails, statusCode, err := p.Client.GetApprovalDetails(organization, projectName, mattermostUserID, approvalID)
+		if err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
 		}
 
-		model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
-		if _, err := p.API.UpdatePost(post); err != nil {
-			if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
-				p.API.LogError("Failed to DM", "Error", DMErr.Error())
-			}
-			p.API.LogError("Error in updating post", "Error", err.Error())
+		if err := p.UpdatePipelineReleaseApprovalPost(pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 			return
 		}
 
-	case http.StatusBadRequest:
-		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorUpdatingNonPendingPipelineRequest, approvalID), true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
+		alreadyUpdatedInformationPost := &model.Post{
+			UserId:    p.botUserID,
+			ChannelId: postActionIntegrationRequest.ChannelId,
+			Message:   "This deployment approval pending request has already been processed.",
 		}
-		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
-		return
+		_ = p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
 
 	default:
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
-		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
 	p.returnPostActionIntegrationResponse(w, response)
+}
+
+func (p *Plugin) UpdatePipelineReleaseApprovalPost(requestType, postID, mattermostUserID string) error {
+	post, _ := p.API.GetPost(postID)
+	slackAttachment := post.Attachments()[0]
+	slackAttachment.Actions = nil
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: "Approvers",
+			Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
+		},
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError("Error in updating post", mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Plugin) handlePipelineApprovalRequestUpdateError(errorMessage, mattermostUserID string, err error) {
+	if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+		p.API.LogError("Failed to DM", "Error", DMErr.Error())
+	}
+	p.API.LogError(errorMessage, "Error", err.Error())
 }
 
 func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {

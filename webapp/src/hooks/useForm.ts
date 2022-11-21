@@ -1,5 +1,6 @@
-import { subscriptionModal } from 'pluginConstants/form';
 import {useState} from 'react';
+
+import {subscriptionModal} from 'pluginConstants/form';
 import subscribeModal from 'reducers/subscribeModal';
 
 // Set initial value of form fields
@@ -69,15 +70,15 @@ function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFiel
      * and reset field error state
      */
     const onChangeFormField = (fieldName: FormFieldNames, value: string) => {
-        if(fieldName === "eventType"){
+        if (fieldName === 'eventType') {
             setErrorState({...errorState, [fieldName]: ''});
-            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID:formFields.channelID, serviceType: formFields.serviceType});
-        }else if(fieldName === "serviceType"){
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID, serviceType: formFields.serviceType});
+        } else if (fieldName === 'serviceType') {
             setErrorState({...errorState, [fieldName]: ''});
-            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID:formFields.channelID});
-        }else{
-        setErrorState({...errorState, [fieldName]: ''});
-        setFormFields({...formFields, [fieldName]: value});
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID});
+        } else {
+            setErrorState({...errorState, [fieldName]: ''});
+            setFormFields({...formFields, [fieldName]: value});
         }
     };
 

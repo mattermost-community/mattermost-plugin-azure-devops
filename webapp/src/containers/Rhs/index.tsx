@@ -1,16 +1,23 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 
 import usePluginApi from 'hooks/usePluginApi';
 
 import {getProjectDetailsState, getWebsocketEventState} from 'selectors';
+
+import pluginConstants from 'pluginConstants';
 
 import AccountNotLinked from './accountNotLinked';
 import ProjectList from './projectList';
 import ProjectDetails from './projectDetails';
 
 const Rhs = (): JSX.Element => {
-    const {state} = usePluginApi();
+    const {state, makeApiRequest} = usePluginApi();
     const {isConnected} = getWebsocketEventState(state);
+
+    // Check if user is connected on page reload
+    useEffect(() => {
+        makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+    }, []);
 
     return (
         <div

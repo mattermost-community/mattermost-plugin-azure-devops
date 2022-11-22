@@ -73,8 +73,8 @@ function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFiel
         if (fieldName === eventType) {
             setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID, serviceType: formFields.serviceType});
             return;
-        } 
-        
+        }
+
         if (fieldName === serviceType) {
             setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID});
             return;

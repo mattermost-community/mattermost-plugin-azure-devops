@@ -6,10 +6,11 @@ import {getProjectDetailsState, getWebsocketEventState} from 'selectors';
 
 import pluginConstants from 'pluginConstants';
 
+import LinearLoader from 'components/loader/linear';
+
 import AccountNotLinked from './accountNotLinked';
 import ProjectList from './projectList';
 import ProjectDetails from './projectDetails';
-import LinearLoader from 'components/loader/linear';
 
 const Rhs = (): JSX.Element => {
     const {state, makeApiRequest, getApiState} = usePluginApi();

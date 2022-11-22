@@ -48,6 +48,8 @@ export const serviceTypeMap: Record<EventType, string> = {
 
 export const boards = 'boards';
 export const repos = 'repos';
+export const serviceType = 'serviceType'
+export const eventType = 'eventType'
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;

@@ -39,6 +39,7 @@ const (
 	Error                                      = "Error"
 	NotAuthorized                              = "Not authorized"
 	UnableToDisconnectUser                     = "Unable to disconnect user"
+	UnableToDMBot                              = "Unable to send DM to bot"
 	UnableToCheckIfAlreadyConnected            = "Unable to check if user account is already connected"
 	UnableToStoreOauthState                    = "Unable to store oAuth state for the userID %s"
 	AuthAttemptExpired                         = "Authentication attempt expired, please try again"

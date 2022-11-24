@@ -5,6 +5,7 @@ export const RightSidebarHeader = 'Azure DevOps';
 
 export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
+export const StatusCodeForbidden = 403
 
 export const eventTypeBoards = {
     'workitem.created': 'Work Item Created',

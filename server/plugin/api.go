@@ -203,6 +203,14 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if project.DeleteSubscriptions {
+		if statusCode, err := p.handleDeleteAllSubscriptions(mattermostUserID, project.ProjectID); err != nil {
+			p.API.LogError("Error deleting the project subscriptions", "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+	}
+
 	if deleteErr := p.Store.DeleteProject(&serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        project.ProjectID,
@@ -218,6 +226,43 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, &successResponse)
+}
+
+func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string) (int, error) {
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
+		return http.StatusInternalServerError, err
+	}
+
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectID == projectID && subscription.MattermostUserID == mattermostUserID {
+			if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+				p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
+				return statusCode, err
+			}
+
+			if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
+				MattermostUserID:             subscription.MattermostUserID,
+				ProjectName:                  subscription.ProjectName,
+				OrganizationName:             subscription.OrganizationName,
+				EventType:                    subscription.EventType,
+				ChannelID:                    subscription.ChannelID,
+				Repository:                   subscription.Repository,
+				TargetBranch:                 subscription.TargetBranch,
+				PullRequestCreatedBy:         subscription.PullRequestCreatedBy,
+				PullRequestReviewersContains: subscription.PullRequestReviewersContains,
+				PushedBy:                     subscription.PushedBy,
+				MergeResult:                  subscription.MergeResult,
+				NotificationType:             subscription.NotificationType,
+				AreaPath:                     subscription.AreaPath,
+			}); deleteErr != nil {
+				p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+				return http.StatusInternalServerError, deleteErr
+			}
+		}
+	}
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {

@@ -30,10 +30,11 @@ type CreateTaskFields = {
 }
 
 type ProjectDetails = {
-    mattermostUserID: string
+    mattermostUserID: string,
     projectID: string,
     projectName: string,
-    organizationName: string
+    organizationName: string,
+    deleteSubscriptions?: boolean
 }
 
 type UserDetails = {

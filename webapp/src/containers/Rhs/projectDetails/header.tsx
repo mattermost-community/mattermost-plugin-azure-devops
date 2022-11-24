@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {ChangeEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import pluginConstants from 'pluginConstants';
@@ -34,6 +34,9 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
     const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = pluginConstants.common;
     const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = pluginConstants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
+    const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
+    const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
+    const [confirmationModalDescription, setConfirmationModalDescription] = useState(`Are you sure you want to unlink ${projectName}?`);
 
     const [showFilter, setShowFilter] = useState(false);
 
@@ -58,22 +61,32 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
-        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectDetails, deleteSubscriptions} as APIRequestPayload);
+    };
+
+    // Updated the message on modal when project unlinking fails
+    const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
+        if (err.status === pluginConstants.common.StatusCodeForbidden && err.data.Error.includes('Access denied')) {
+            setConfirmationModalDescription('You do not have the permissions to delete subscriptions but you can still unlink the project');
+            setDeleteSubscriptions(false);
+            setShowDeleteSubscriptionsCheckbox(false);
+        }
     };
 
     useApiRequestCompletionState({
         serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
-        payload: projectDetails,
+        payload: {...projectDetails, deleteSubscriptions} as APIRequestPayload,
         handleSuccess: () => {
             dispatch(toggleIsLinkedProjectListChanged(true));
             handleResetProjectDetails();
             setShowProjectConfirmationModal(false);
         },
+        handleError: handleActionsAfterUnlinkingProjectFailed,
     });
 
     const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
 
-    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectDetails, deleteSubscriptions} as APIRequestPayload);
 
     // Detects and closes the filter popover whenever it is opened and the user clicks outside of it
     const wrapperRef = useRef(null);
@@ -88,6 +101,21 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         }
     }, [filter.serviceType]);
 
+    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setDeleteSubscriptions(e.target.checked);
+    };
+
+    const deleteSubscriptionsCheckbox = (
+        <div>
+            <input
+                type='checkbox'
+                id='deleteSubscriptions'
+                onChange={handleCheckboxChange}
+            />
+            <label>{' Delete all your subscriptions associated with this project'}</label>
+        </div>
+    );
+
     return (
         <>
             <ConfirmationModal
@@ -96,9 +124,11 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                 onConfirm={handleConfirmUnlinkProject}
                 isLoading={isUnlinkProjectLoading}
                 confirmBtnText='Unlink'
-                description={`Are you sure you want to unlink ${projectName}?`}
+                description={confirmationModalDescription}
                 title='Confirm Project Unlink'
-            />
+            >
+                {showDeleteSubscriptionsCheckbox ? deleteSubscriptionsCheckbox : <></>}
+            </ConfirmationModal>
             <div className='position-relative rhs-header-divider'>
                 <div className='d-flex align-item-center'>
                     <BackButton onClick={handleResetProjectDetails}/>

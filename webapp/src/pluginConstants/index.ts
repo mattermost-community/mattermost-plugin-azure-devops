@@ -17,6 +17,7 @@ import {
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
     eventTypeReposKeys,
+    StatusCodeForbidden,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -54,6 +55,7 @@ export default {
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
         eventTypeReposKeys,
+        StatusCodeForbidden,
     },
     form: {
         linkProjectModal,

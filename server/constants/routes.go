@@ -16,8 +16,6 @@ const (
 	PathGetSubscriptions                    = "/subscriptions/{team_id:[A-Za-z0-9]+}"
 	PathSubscriptionNotifications           = "/notification"
 	PathGetUserChannelsForTeam              = "/channels/{team_id:[A-Za-z0-9]+}"
-	PathGetGitRepositories                  = "/{organization:[A-Za-z0-9-/ ]+}/{project:[A-Za-z0-9-/ ]+}/repositories"
-	PathGetGitRepositoryBranches            = "/{organization:[A-Za-z0-9-/ ]+}/{project:[A-Za-z0-9-/ ]+}/repositories/{repository:[A-Za-z0-9-/]+}/branches"
 	PathGetSubscriptionFilterPossibleValues = "/subscriptions/filters"
 
 	// Azure API paths

@@ -118,13 +118,3 @@ type SubscriptionFilters = {
     serviceType: string,
     eventType: string,
 }
-
-type ReposSubscriptionFiltersResponse = {
-    id: string,
-    name: string
-}
-
-type ReposSubscriptionTargetBranchFilterResponse = {
-    objectId: string,
-    name: string
-}

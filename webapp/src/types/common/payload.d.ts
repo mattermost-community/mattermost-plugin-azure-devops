@@ -52,12 +52,6 @@ interface PaginationQueryParams {
     per_page: number;
 }
 
-type ReposSubscriptionFiltersRequest = {
-    organization: string
-    project: string
-    repository?: string
-}
-
 type SubscriptionFiltersPossibleValues = {
     displayValue: string
     value: string

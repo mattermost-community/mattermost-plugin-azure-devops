@@ -12,6 +12,7 @@ import (
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 )
 
@@ -317,6 +318,23 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	if basePath != constants.BaseOauthURL {
 		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+				message := constants.SessionExpiredMessage
+				if isDeleted, dErr := c.plugin.Store.DeleteUser(mattermostUserID); !isDeleted {
+					if dErr != nil {
+						c.plugin.API.LogError(constants.UnableToDisconnectUser, "Error", dErr.Error())
+					}
+					message = constants.GenericErrorMessage
+				}
+
+				c.plugin.API.PublishWebSocketEvent(
+					constants.WSEventDisconnect,
+					nil,
+					&model.WebsocketBroadcast{UserId: mattermostUserID},
+				)
+
+				if _, DMErr := c.plugin.DM(mattermostUserID, message, false); DMErr != nil {
+					c.plugin.API.LogError(constants.UnableToDMBot, "Error", DMErr.Error())
+				}
 				return nil, http.StatusInternalServerError, errRefreshingToken
 			}
 		}

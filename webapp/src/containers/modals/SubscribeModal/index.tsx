@@ -63,6 +63,7 @@ const SubscribeModal = () => {
         resetFormFields();
         setChannelOptions([]);
         setShowResultPanel(false);
+        setIsFiltersError(false);
     };
 
     // Get organization and project state

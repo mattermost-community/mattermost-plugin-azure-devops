@@ -64,10 +64,10 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	link.AddTextArgument("URL of the project to be linked", "[projectURL]", "")
 	azureDevops.AddCommand(link)
 
-	subscription := model.NewAutocompleteData(constants.CommandSubscription, "", "Add/list/unsubscribe subscriptions")
+	subscription := model.NewAutocompleteData(constants.CommandSubscription, "", "Add/list/delete subscriptions")
 	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
 	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
-	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Unsubscribe a subscription")
+	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Delete a subscription")
 	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
 	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
 	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")

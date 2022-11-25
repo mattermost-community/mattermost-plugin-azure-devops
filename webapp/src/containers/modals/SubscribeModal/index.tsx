@@ -354,14 +354,15 @@ const SubscribeModal = () => {
                                     )
                                 }
                             </>
-                        ) : (
-                            <EmptyState
-                                title='No Project Linked'
-                                subTitle={{text: 'You can link a project by clicking the below button.'}}
-                                buttonText='Link new project'
-                                buttonAction={handleOpenLinkProjectModal}
-                            />
-                        )
+                        ) :
+                            !isLoading && (
+                                <EmptyState
+                                    title='No Project Linked'
+                                    subTitle={{text: 'You can link a project by clicking the below button.'}}
+                                    buttonText='Link new project'
+                                    buttonAction={handleOpenLinkProjectModal}
+                                />
+                            )
                     )
                 }
                 {

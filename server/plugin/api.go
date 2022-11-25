@@ -108,9 +108,6 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
 		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}

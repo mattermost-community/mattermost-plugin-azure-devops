@@ -126,7 +126,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                 className='margin-0'
                 onChange={handleCheckboxChange}
             />
-            <label className='margin-left-5 margin-bottom-0'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+            <label className='margin-left-5 margin-bottom-0 font-weight-normal'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
         </div>
     );
 

@@ -21,7 +21,7 @@ const ProjectList = () => {
     const [projectToBeUnlinked, setProjectToBeUnlinked] = useState<ProjectDetails>();
     const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
     const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
-    const [confirmationModalDescription, setConfirmationModalDescription] = useState(`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`);
+    const [confirmationModalDescription, setConfirmationModalDescription] = useState('');
     const [unlinkConfirmationModalError, setUnlinkConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     // Hooks
@@ -44,6 +44,7 @@ const ProjectList = () => {
      */
     const handleUnlinkProject = (projectDetails: ProjectDetails) => {
         setProjectToBeUnlinked(projectDetails);
+        setConfirmationModalDescription(`Are you sure you want to unlink ${projectDetails?.projectName}?`);
         setShowConfirmationModal(true);
     };
 
@@ -102,7 +103,7 @@ const ProjectList = () => {
                 className='margin-0'
                 onChange={handleCheckboxChange}
             />
-            <label className='margin-left-5 margin-bottom-0'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+            <label className='margin-left-5 margin-bottom-0 font-weight-normal'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
         </div>
     );
 

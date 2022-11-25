@@ -677,6 +677,7 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	if deleteErr != nil {
 		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: deleteErr.Error()})
+		return
 	}
 
 	returnStatusOK(w)

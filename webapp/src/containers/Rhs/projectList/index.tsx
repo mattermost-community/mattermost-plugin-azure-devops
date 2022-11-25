@@ -97,14 +97,14 @@ const ProjectList = () => {
     };
 
     const deleteSubscriptionsCheckbox = (
-        <div>
+        <>
             <input
                 type='checkbox'
                 id='deleteSubscriptions'
                 onChange={handleCheckboxChange}
             />
-            <label>{'Delete all your subscriptions associated with this project'}</label>
-        </div>
+            <label>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+        </>
     );
 
     const {data, isSuccess, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);

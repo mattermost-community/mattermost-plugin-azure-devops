@@ -237,7 +237,7 @@ func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string
 	}
 
 	for _, subscription := range subscriptionList {
-		if subscription.ProjectID == projectID && subscription.MattermostUserID == mattermostUserID {
+		if subscription.ProjectID == projectID {
 			if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
 				p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
 				return statusCode, err
@@ -263,6 +263,7 @@ func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string
 			}
 		}
 	}
+
 	return http.StatusOK, nil
 }
 
@@ -790,6 +791,7 @@ func returnStatusWithMessage(w http.ResponseWriter, statusCode int, message stri
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
 	if _, err := w.Write(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

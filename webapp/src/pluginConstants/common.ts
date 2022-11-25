@@ -7,6 +7,10 @@ export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
 export const StatusCodeForbidden = 403;
 
+export const deleteAllSubscriptionsMessage = 'Delete all your subscriptions associated with this project';
+export const projectLinkedSuccessfullyMessage = 'Project linked successfully.';
+export const projectAlreadyLinkedMessage = 'Project already linked.';
+
 export const eventTypeBoards = {
     'workitem.created': 'Work Item Created',
     'workitem.updated': 'Work Item Updated',

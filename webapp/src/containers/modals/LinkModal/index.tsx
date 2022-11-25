@@ -34,14 +34,14 @@ const LinkModal = () => {
     // State variables
     const {visibility, organization, project} = getLinkModalState(state);
     const [showResultPanel, setShowResultPanel] = useState(false);
-    const [resultPanelHeader, setResultPanelHeader] = useState('Project linked successfully.');
+    const [resultPanelHeader, setResultPanelHeader] = useState(pluginConstants.common.projectLinkedSuccessfullyMessage);
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
         dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
         resetFormFields();
         setShowResultPanel(false);
-        setResultPanelHeader('Project linked successfully.');
+        setResultPanelHeader(pluginConstants.common.projectLinkedSuccessfullyMessage);
     };
 
     // Opens link project modal
@@ -65,8 +65,8 @@ const LinkModal = () => {
         serviceName: pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName,
         payload: formFields as LinkPayload,
         handleSuccess: () => {
-            if ((data as CreateLinkResponse)?.message === 'This project is already linked.') {
-                setResultPanelHeader('Project already linked.');
+            if ((data as CreateLinkResponse)?.message === pluginConstants.messages.error.projectAlreadyLinkedError) {
+                setResultPanelHeader(pluginConstants.common.projectAlreadyLinkedMessage);
             }
             setShowResultPanel(true);
             dispatch(toggleShowLinkModal({isVisible: true, commandArgs: [], isActionDone: true}));

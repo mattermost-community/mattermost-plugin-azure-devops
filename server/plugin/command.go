@@ -66,19 +66,19 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 
 	subscription := model.NewAutocompleteData(constants.CommandSubscription, "", "Add/list/delete subscriptions")
 	subscriptionAdd := model.NewAutocompleteData(constants.CommandAdd, "", "Add a new subscription")
-	subscriptionView := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
-	subscriptionUnsubscribe := model.NewAutocompleteData(constants.CommandDelete, "", "Delete a subscription")
-	subscriptionUnsubscribe.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
+	subscriptionList := model.NewAutocompleteData(constants.CommandList, "", "List subscriptions")
+	subscriptionDelete := model.NewAutocompleteData(constants.CommandDelete, "", "Delete a subscription")
+	subscriptionDelete.AddTextArgument("ID of the subscription to be deleted", "[subscription id]", "")
 	subscriptionCreatedByMe := model.NewAutocompleteData(constants.FilterCreatedByMe, "", "Created By Me")
 	subscriptionShowForAllChannels := model.NewAutocompleteData(constants.FilterAllChannels, "", "Show for all channels or You can leave this argument to show for the current channel only")
 	subscriptionCreatedByMe.AddCommand(subscriptionShowForAllChannels)
-	subscriptionView.AddCommand(subscriptionCreatedByMe)
+	subscriptionList.AddCommand(subscriptionCreatedByMe)
 	subscriptionCreatedByAnyone := model.NewAutocompleteData(constants.FilterCreatedByAnyone, "", "Created By Anyone")
 	subscriptionCreatedByAnyone.AddCommand(subscriptionShowForAllChannels)
-	subscriptionView.AddCommand(subscriptionCreatedByAnyone)
+	subscriptionList.AddCommand(subscriptionCreatedByAnyone)
 	subscription.AddCommand(subscriptionAdd)
-	subscription.AddCommand(subscriptionView)
-	subscription.AddCommand(subscriptionUnsubscribe)
+	subscription.AddCommand(subscriptionList)
+	subscription.AddCommand(subscriptionDelete)
 
 	boards := model.NewAutocompleteData(constants.CommandBoards, "", "Create a new work-item or add/list/delete board subscriptions")
 	create := model.NewAutocompleteData(constants.CommandCreate, "", "Create a new work-item")
@@ -137,7 +137,7 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandBoards, args...)
 			}
 		case constants.CommandDelete:
-			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandBoards, args...)
+			return azureDevopsDeleteCommand(p, c, commandArgs, constants.CommandBoards, args...)
 		case constants.CommandAdd:
 			return &model.CommandResponse{}, nil
 		}
@@ -162,7 +162,7 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandRepos, args...)
 			}
 		case constants.CommandDelete:
-			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandRepos, args...)
+			return azureDevopsDeleteCommand(p, c, commandArgs, constants.CommandRepos, args...)
 		case constants.CommandAdd:
 			return &model.CommandResponse{}, nil
 		}
@@ -171,7 +171,7 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 	return executeDefault(p, c, commandArgs, args...)
 }
 
-func azureDevopsUnsubscribeCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsDeleteCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
 	if len(args) < 3 {
 		return p.sendEphemeralPostForCommand(commandArgs, "Subscription ID is not provided")
 	}

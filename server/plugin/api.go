@@ -687,21 +687,7 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 		return statusCode, err
 	}
 
-	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID:             subscription.MattermostUserID,
-		ProjectName:                  subscription.ProjectName,
-		OrganizationName:             subscription.OrganizationName,
-		EventType:                    subscription.EventType,
-		ChannelID:                    subscription.ChannelID,
-		Repository:                   subscription.Repository,
-		TargetBranch:                 subscription.TargetBranch,
-		PullRequestCreatedBy:         subscription.PullRequestCreatedBy,
-		PullRequestReviewersContains: subscription.PullRequestReviewersContains,
-		PushedBy:                     subscription.PushedBy,
-		MergeResult:                  subscription.MergeResult,
-		NotificationType:             subscription.NotificationType,
-		AreaPath:                     subscription.AreaPath,
-	}); deleteErr != nil {
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
 		return http.StatusInternalServerError, deleteErr
 	}
 

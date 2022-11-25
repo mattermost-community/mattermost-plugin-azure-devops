@@ -64,7 +64,7 @@ const ProjectList = () => {
         setShowConfirmationModal(false);
     };
 
-    // Updated the message on modal when project unlinking fails
+    // Update the modal when project unlinking fails
     const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
         const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', err);
         if (errorMessage === pluginConstants.messages.error.adminAccessError) {

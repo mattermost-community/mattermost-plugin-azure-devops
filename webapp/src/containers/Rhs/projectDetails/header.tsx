@@ -66,7 +66,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectDetails, deleteSubscriptions} as APIRequestPayload);
     };
 
-    // Updated the message on modal when project unlinking fails
+    // Update the modal when project unlinking fails
     const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
         const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', err);
         if (errorMessage === pluginConstants.messages.error.adminAccessError) {

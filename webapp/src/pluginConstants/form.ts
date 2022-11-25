@@ -46,7 +46,7 @@ export const repoEventTypeOptions: LabelValuePair[] = [
 const serviceTypeOptions: LabelValuePair[] = [
     {
         value: 'boards',
-        label: 'Board',
+        label: 'Boards',
     },
     {
         value: 'repos',

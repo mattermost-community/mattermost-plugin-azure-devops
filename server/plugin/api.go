@@ -108,9 +108,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
+		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}
 
@@ -203,6 +201,14 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if project.DeleteSubscriptions {
+		if statusCode, err := p.handleDeleteAllSubscriptions(mattermostUserID, project.ProjectID); err != nil {
+			p.API.LogError("Error deleting the project subscriptions", "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+	}
+
 	if deleteErr := p.Store.DeleteProject(&serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        project.ProjectID,
@@ -218,6 +224,26 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, &successResponse)
+}
+
+func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string) (int, error) {
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
+		return http.StatusInternalServerError, err
+	}
+
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectID == projectID {
+			statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+			if deleteErr != nil {
+				p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+				return statusCode, deleteErr
+			}
+		}
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
@@ -644,32 +670,26 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID); err != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+	statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+	if deleteErr != nil {
+		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: deleteErr.Error()})
 		return
 	}
 
-	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID:             body.MMUserID,
-		ProjectName:                  body.Project,
-		OrganizationName:             body.Organization,
-		EventType:                    body.EventType,
-		ChannelID:                    body.ChannelID,
-		Repository:                   body.Repository,
-		TargetBranch:                 body.TargetBranch,
-		PullRequestCreatedBy:         body.PullRequestCreatedBy,
-		PullRequestReviewersContains: body.PullRequestReviewersContains,
-		PushedBy:                     body.PushedBy,
-		MergeResult:                  body.MergeResult,
-		NotificationType:             body.NotificationType,
-		AreaPath:                     body.AreaPath,
-	}); deleteErr != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
+	returnStatusOK(w)
+}
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+		return statusCode, err
 	}
 
-	returnStatusOK(w)
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
@@ -734,6 +754,20 @@ func returnStatusOK(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func returnStatusWithMessage(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	m := map[string]string{"message": message}
+	response, err := json.Marshal(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.

@@ -119,14 +119,15 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
     };
 
     const deleteSubscriptionsCheckbox = (
-        <>
+        <div className='d-flex align-item-center'>
             <input
                 type='checkbox'
                 id='deleteSubscriptions'
+                className='margin-0'
                 onChange={handleCheckboxChange}
             />
-            <label>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
-        </>
+            <label className='margin-left-5 margin-bottom-0'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+        </div>
     );
 
     return (

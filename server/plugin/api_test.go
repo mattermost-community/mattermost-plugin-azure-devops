@@ -877,7 +877,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
-				mockedStore.EXPECT().DeleteSubscription(testCase.subscription).Return(nil)
+				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))

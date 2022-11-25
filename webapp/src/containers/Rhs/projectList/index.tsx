@@ -92,19 +92,18 @@ const ProjectList = () => {
         handleError: handleActionsAfterUnlinkingProjectFailed,
     });
 
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDeleteSubscriptions(e.target.checked);
-    };
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeleteSubscriptions(e.target.checked);
 
     const deleteSubscriptionsCheckbox = (
-        <>
+        <div className='d-flex align-item-center'>
             <input
                 type='checkbox'
                 id='deleteSubscriptions'
+                className='margin-0'
                 onChange={handleCheckboxChange}
             />
-            <label>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
-        </>
+            <label className='margin-left-5 margin-bottom-0'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+        </div>
     );
 
     const {data, isSuccess, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);

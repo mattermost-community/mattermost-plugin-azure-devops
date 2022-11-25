@@ -13,6 +13,6 @@ export const error = {
 
     // Link
     notAccessibleError: 'Looks like this project/organization does not exist or you do not have permissions to access it',
-    adminAccessErrorForUnlinking: 'You do not have the permissions to delete subscriptions but you can still unlink the project',
+    adminAccessErrorForUnlinking: 'You do not have sufficient permissions to delete subscriptions for this project but you can still unlink the project',
     projectAlreadyLinkedError: 'This project is already linked.',
 };

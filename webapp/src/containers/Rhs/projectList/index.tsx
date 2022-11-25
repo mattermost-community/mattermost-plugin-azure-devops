@@ -13,7 +13,7 @@ import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/li
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
-import {sortProjectList} from 'utils';
+import utils, {sortProjectList} from 'utils';
 
 const ProjectList = () => {
     // State variables
@@ -22,6 +22,7 @@ const ProjectList = () => {
     const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
     const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
     const [confirmationModalDescription, setConfirmationModalDescription] = useState(`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`);
+    const [unlinkConfirmationModalError, setUnlinkConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     // Hooks
     const dispatch = useDispatch();
@@ -65,11 +66,22 @@ const ProjectList = () => {
 
     // Updated the message on modal when project unlinking fails
     const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
-        if (err.status === pluginConstants.common.StatusCodeForbidden && err.data.Error.includes('Access denied')) {
-            setConfirmationModalDescription('You do not have the permissions to delete subscriptions but you can still unlink the project');
-            setDeleteSubscriptions(false);
-            setShowDeleteSubscriptionsCheckbox(false);
+        const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', err);
+        if (errorMessage === pluginConstants.messages.error.adminAccessError) {
+            setConfirmationModalDescription(pluginConstants.messages.error.adminAccessErrorForUnlinking);
         }
+
+        setUnlinkConfirmationModalError({
+            title: errorMessage,
+            onSecondaryBtnClick: () => {
+                setShowConfirmationModal(false);
+                setUnlinkConfirmationModalError(null);
+                setShowDeleteSubscriptionsCheckbox(true);
+            },
+        });
+
+        setDeleteSubscriptions(false);
+        setShowDeleteSubscriptionsCheckbox(false);
     };
 
     // Handle sucess/error response of API call made to unlink project
@@ -91,7 +103,7 @@ const ProjectList = () => {
                 id='deleteSubscriptions'
                 onChange={handleCheckboxChange}
             />
-            <label>{' Delete all your subscriptions associated with this project'}</label>
+            <label>{'Delete all your subscriptions associated with this project'}</label>
         </div>
     );
 
@@ -111,6 +123,7 @@ const ProjectList = () => {
                     confirmBtnText='Unlink'
                     description={confirmationModalDescription}
                     title='Confirm Project Unlink'
+                    showErrorPanel={unlinkConfirmationModalError}
                 >
                     {showDeleteSubscriptionsCheckbox ? deleteSubscriptionsCheckbox : <></>}
                 </ConfirmationModal>

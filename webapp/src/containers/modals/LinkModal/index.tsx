@@ -34,12 +34,14 @@ const LinkModal = () => {
     // State variables
     const {visibility, organization, project} = getLinkModalState(state);
     const [showResultPanel, setShowResultPanel] = useState(false);
+    const [resultPanelHeader, setResultPanelHeader] = useState('Project linked successfully.');
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
         dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
         resetFormFields();
         setShowResultPanel(false);
+        setResultPanelHeader('Project linked successfully.');
     };
 
     // Opens link project modal
@@ -63,6 +65,9 @@ const LinkModal = () => {
         serviceName: pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName,
         payload: formFields as LinkPayload,
         handleSuccess: () => {
+            if ((data as CreateLinkResponse)?.message === 'This project is already linked.') {
+                setResultPanelHeader('Project already linked.');
+            }
             setShowResultPanel(true);
             dispatch(toggleShowLinkModal({isVisible: true, commandArgs: [], isActionDone: true}));
         },
@@ -76,7 +81,7 @@ const LinkModal = () => {
         });
     }, [visibility]);
 
-    const {isLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
+    const {isLoading, isError, error, data} = getApiState(pluginConstants.pluginApiServiceConfigs.createLink.apiServiceName, formFields as LinkPayload);
 
     return (
         <Modal
@@ -95,7 +100,7 @@ const LinkModal = () => {
                 {
                     showResultPanel ? (
                         <ResultPanel
-                            header='Project linked successfully.'
+                            header={resultPanelHeader}
                             primaryBtnText='Link new project'
                             secondaryBtnText='Close'
                             onPrimaryBtnClick={handleOpenLinkProjectModal}

@@ -41,6 +41,10 @@ type UserDetails = {
     MattermostUserID: string
 }
 
+type CreateLinkResponse = {
+    message: string
+}
+
 type ChannelList = {
     display_name: string,
     id: string,

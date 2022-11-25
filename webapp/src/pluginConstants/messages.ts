@@ -10,6 +10,7 @@ export const error = {
     accessDenied: 'Access Denied',
     subscriptionNotFound: 'Requested subscription does not exist',
     adminAccessError: 'Looks like you do not have access to add/delete a subscription for this project. Please make sure you are a project or team administrator for this project',
+    adminAccessErrorForUnlinking: 'You do not have the permissions to delete subscriptions but you can still unlink the project',
 
     // Link
     notAccessibleError: 'Looks like this project/organization does not exist or you do not have permissions to access it',

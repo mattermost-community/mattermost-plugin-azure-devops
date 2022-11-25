@@ -111,6 +111,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
+		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}
 
@@ -779,6 +780,19 @@ func returnStatusOK(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func returnStatusWithMessage(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	m := map[string]string{"message": message}
+	response, err := json.Marshal(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.

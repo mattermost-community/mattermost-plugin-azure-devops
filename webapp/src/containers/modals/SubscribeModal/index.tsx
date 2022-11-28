@@ -135,11 +135,17 @@ const SubscribeModal = () => {
     }, [showResultPanel]);
 
     useEffect(() => {
-        if (formFields.serviceType === pluginConstants.common.boards) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions, isFieldDisabled: !formFields.project}, serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project}});
-        } else if (formFields.serviceType === pluginConstants.common.repos) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions, isFieldDisabled: !formFields.project}, serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project}});
+        let optionsList: LabelValuePair[] = boardEventTypeOptions;
+
+        if (formFields.serviceType === pluginConstants.common.repos) {
+            optionsList = repoEventTypeOptions;
         }
+
+        setSubscriptionModalFields({
+            ...subscriptionModalFields,
+            eventType: {...subscriptionModalFields.eventType, optionsList, isFieldDisabled: !formFields.project},
+            serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project},
+        });
 
         dispatch(setServiceType(formFields.serviceType ?? ''));
     }, [formFields.serviceType, formFields.project]);

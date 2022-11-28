@@ -134,17 +134,14 @@ const ProjectList = () => {
                     sortedProjectList.length > 0 ?
                         <>
                             <div className='rhs-wrapper__content padding-16'>
-                                {
-                                    sortedProjectList.map((item: ProjectDetails) => (
-                                        <ProjectCard
-                                            onProjectTitleClick={handleProjectTitleClick}
-                                            projectDetails={item}
-                                            key={item.projectID}
-                                            handleUnlinkProject={handleUnlinkProject}
-                                        />
-                                    ),
-                                    )
-                                }
+                                {sortedProjectList.map((item: ProjectDetails) => (
+                                    <ProjectCard
+                                        onProjectTitleClick={handleProjectTitleClick}
+                                        projectDetails={item}
+                                        key={item.projectID}
+                                        handleUnlinkProject={handleUnlinkProject}
+                                    />
+                                ))}
                             </div>
                             <div className='rhs-project-list-wrapper'>
                                 <button

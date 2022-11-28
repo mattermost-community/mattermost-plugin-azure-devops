@@ -244,16 +244,13 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                                     scrollableTarget='scrollableArea'
                                 >
 
-                                    {
-                                        subscriptionList.map((item) => (
-                                            <SubscriptionCard
-                                                subscriptionDetails={item}
-                                                key={item.mattermostUserID}
-                                                handleDeleteSubscrption={handleDeleteSubscription}
-                                            />
-                                        ),
-                                        )
-                                    }
+                                    {subscriptionList.map((item) => (
+                                        <SubscriptionCard
+                                            subscriptionDetails={item}
+                                            key={item.mattermostUserID}
+                                            handleDeleteSubscrption={handleDeleteSubscription}
+                                        />
+                                    ))}
                                 </InfiniteScroll>
                             </div>
                             <div className='rhs-project-list-wrapper'>

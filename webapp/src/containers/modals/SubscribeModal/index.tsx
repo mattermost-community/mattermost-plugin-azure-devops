@@ -31,7 +31,6 @@ import './styles.scss';
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
     const [subscriptionModalFields, setSubscriptionModalFields] = useState<Record<SubscriptionModalFields, ModalFormFieldConfig>>(subscriptionModal);
-    const [isFiltersError, setIsFiltersError] = useState<boolean>(false);
 
     // Hooks
     const {
@@ -56,6 +55,8 @@ const SubscribeModal = () => {
     // State variables
     const [channelOptions, setChannelOptions] = useState<LabelValuePair[]>([]);
     const [showResultPanel, setShowResultPanel] = useState(false);
+    const [isFiltersError, setIsFiltersError] = useState<boolean>(false);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
@@ -118,15 +119,30 @@ const SubscribeModal = () => {
         }
     };
 
+    const setSelectedDropdownOption = (field: SubscriptionModalFields, newValue: string, selectedOption?: Record<string, string>) => {
+        onChangeFormField(field as SubscriptionModalFields, newValue);
+
+        if (field === 'project' && selectedOption) {
+            const selectedProject = selectedOption as ProjectListLabelValuePair;
+            setSelectedProjectId(selectedProject.projectID ?? projectID);
+        }
+    };
+
+    useEffect(() => {
+        if (projectList.length === 1) {
+            setSelectedProjectId(projectList[0].projectID);
+        }
+    }, [showResultPanel]);
+
     useEffect(() => {
         if (formFields.serviceType === pluginConstants.common.boards) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions, isFieldDisabled: !formFields.project}, serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project}});
         } else if (formFields.serviceType === pluginConstants.common.repos) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions, isFieldDisabled: !formFields.project}, serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project}});
         }
 
         dispatch(setServiceType(formFields.serviceType ?? ''));
-    }, [formFields.serviceType]);
+    }, [formFields.serviceType, formFields.project]);
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {
@@ -311,7 +327,7 @@ const SubscribeModal = () => {
                                             fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
                                             value={formFields[field as SubscriptionModalFields] ?? ''}
                                             optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                            onChange={(newValue, _, selectedOption) => setSelectedDropdownOption(field as SubscriptionModalFields, newValue, selectedOption)}
                                             error={errorState[field as SubscriptionModalFields]}
                                             isDisabled={isLoading}
                                         />
@@ -320,8 +336,8 @@ const SubscribeModal = () => {
                                 {
                                     formFields.serviceType === pluginConstants.common.boards && formFields.eventType && Object.keys(eventTypeBoards).includes(formFields.eventType) && (
                                         <BoardsFilter
-                                            organization={organization as string}
-                                            projectId={projectID as string}
+                                            organization={formFields.organization as string}
+                                            projectId={selectedProjectId || projectID as string}
                                             eventType={formFields.eventType || ''}
                                             selectedAreaPath={formFields.areaPath || filterLabelValuePairAll.value}
                                             handleSelectAreaPath={handleSetAreaPathFilter}
@@ -332,8 +348,8 @@ const SubscribeModal = () => {
                                 {
                                     formFields.serviceType === pluginConstants.common.repos && formFields.eventType && Object.keys(eventTypeRepos).includes(formFields.eventType) && (
                                         <ReposFilter
-                                            organization={organization as string}
-                                            projectId={projectID as string}
+                                            organization={formFields.organization as string}
+                                            projectId={selectedProjectId || projectID as string}
                                             eventType={formFields.eventType || ''}
                                             selectedRepo={formFields.repository || filterLabelValuePairAll.value}
                                             handleSelectRepo={handleSetRepoFilter}

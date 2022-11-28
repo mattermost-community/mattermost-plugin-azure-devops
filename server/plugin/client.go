@@ -317,12 +317,12 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
-	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	if strings.Contains(request.EventType, constants.EventTypeRelease) {
 		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	}
 
+	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
 	_, statusCode, err := c.CallJSON(baseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")

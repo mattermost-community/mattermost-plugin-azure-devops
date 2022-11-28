@@ -405,7 +405,7 @@ const SubscribeModal = () => {
                                             selectedBuildPipeline={formFields.buildPipeline || filterLabelValuePairAll.value}
                                             handleSelectBuildPipeline={handleSetBuildPipelineFilter}
                                             setIsFiltersError={setIsFiltersError}
-                                            selectedBuildStatus={formFields.buildPipeline || filterLabelValuePairAll.value}
+                                            selectedBuildStatus={formFields.buildStatus || filterLabelValuePairAll.value}
                                             handleSelectBuildStatus={handleSetBuildStatusFilter}
                                             selectedReleasePipeline={formFields.releasePipeline || filterLabelValuePairAll.value}
                                             handleSelectReleasePipeline={handleSetReleasePipelineFilter}

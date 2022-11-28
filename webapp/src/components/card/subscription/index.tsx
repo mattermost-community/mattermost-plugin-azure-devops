@@ -27,7 +27,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
 
     return (
         <BaseCard>
-            <div>
+            <>
                 <div className='d-flex justify-content-between align-items-center mb-2'>
                     <div className='d-flex align-item-center'>
                         <SVGWrapper
@@ -100,7 +100,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         )
                     }
                 </div>
-            </div>
+            </>
         </BaseCard>
     );
 };

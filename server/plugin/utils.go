@@ -229,63 +229,42 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
+	displayEventType := map[string]string{
+		constants.SubscriptionEventWorkItemCreated:                    "Work Item Created",
+		constants.SubscriptionEventWorkItemUpdated:                    "Work Item Updated",
+		constants.SubscriptionEventWorkItemDeleted:                    "Work Item Deleted",
+		constants.SubscriptionEventWorkItemCommented:                  "Work Item Commented",
+		constants.SubscriptionEventPullRequestCreated:                 "Pull Request Created",
+		constants.SubscriptionEventPullRequestUpdated:                 "Pull Request Updated",
+		constants.SubscriptionEventPullRequestMerged:                  "Pull Request Merge Attempted",
+		constants.SubscriptionEventPullRequestCommented:               "Pull Requested Commented",
+		constants.SubscriptionEventCodePushed:                         "Code Pushed",
+		constants.SubscriptionEventBuildCompleted:                     "Build Completed",
+		constants.SubscriptionEventReleaseAbandoned:                   "Release Abandoned",
+		constants.SubscriptionEventReleaseCreated:                     "Release Created",
+		constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "Release Deployment Approval Completed",
+		constants.SubscriptionEventReleaseDeploymentCompleted:         "Release Deployment Completed",
+		constants.SubscriptionEventReleaseDeploymentEventPending:      "Release Deployment Event Pending",
+		constants.SubscriptionEventReleaseDeploymentStarted:           "Release Deployment Started",
+		constants.SubscriptionEventRunStageApprovalCompleted:          "Run Stage Approval Completed",
+		constants.SubscriptionEventRunStageStateChanged:               "Run Stage State Changed",
+		constants.SubscriptionEventRunStageWaitingForApproval:         "Run Stage Waiting For Approval",
+		constants.SubscriptionEventRunStateChanged:                    "Run State Changed",
+	}
+
 	noSubscriptionFound := true
 	for _, subscription := range filteredSubscriptionList {
-		displayEventType := ""
-		switch subscription.EventType {
-		case constants.SubscriptionEventWorkItemCreated:
-			displayEventType = "Work Item Created"
-		case constants.SubscriptionEventWorkItemUpdated:
-			displayEventType = "Work Item Updated"
-		case constants.SubscriptionEventWorkItemDeleted:
-			displayEventType = "Work Item Deleted"
-		case constants.SubscriptionEventWorkItemCommented:
-			displayEventType = "Work Item Commented"
-		case constants.SubscriptionEventPullRequestCreated:
-			displayEventType = "Pull Request Created"
-		case constants.SubscriptionEventPullRequestUpdated:
-			displayEventType = "Pull Request Updated"
-		case constants.SubscriptionEventPullRequestMerged:
-			displayEventType = "Pull Request Merge Attempted"
-		case constants.SubscriptionEventPullRequestCommented:
-			displayEventType = "Pull Requested Commented"
-		case constants.SubscriptionEventCodePushed:
-			displayEventType = "Code Pushed"
-		case constants.SubscriptionEventBuildCompleted:
-			displayEventType = "Build Completed"
-		case constants.SubscriptionEventReleaseAbandoned:
-			displayEventType = "Release Abandoned"
-		case constants.SubscriptionEventReleaseCreated:
-			displayEventType = "Release Created"
-		case constants.SubscriptionEventReleaseDeploymentApprovalCompleted:
-			displayEventType = "Release Deployment Approval Completed"
-		case constants.SubscriptionEventReleaseDeploymentCompleted:
-			displayEventType = "Release Deployment Completed"
-		case constants.SubscriptionEventReleaseDeploymentEventPending:
-			displayEventType = "Release Deployment Event Pending"
-		case constants.SubscriptionEventReleaseDeploymentStarted:
-			displayEventType = "Release Deployment Started"
-		case constants.SubscriptionEventRunStageApprovalCompleted:
-			displayEventType = "Run Stage Approval Completed"
-		case constants.SubscriptionEventRunStageStateChanged:
-			displayEventType = "Run Stage State Changed"
-		case constants.SubscriptionEventRunStageWaitingForApproval:
-			displayEventType = "Run Stage Waiting For Approval"
-		case constants.SubscriptionEventRunStateChanged:
-			displayEventType = "Run State Changed"
-		}
-
 		if channelID == "" || subscription.ChannelID == channelID {
 			switch createdBy {
 			case constants.FilterCreatedByMe:
 				if subscription.MattermostUserID == userID && subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			case constants.FilterCreatedByAnyone:
 				if subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			}
 		}

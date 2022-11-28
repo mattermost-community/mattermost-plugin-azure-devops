@@ -148,6 +148,7 @@ type Release struct {
 type Artifact struct {
 	Name string `json:"alias"`
 }
+
 type RequestedFor struct {
 	Name string `json:"displayName"`
 }

@@ -500,7 +500,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		// Convert map to json string
-		jsonStr, err := json.Marshal(body.Resource.Comment)
+		jsonBytes, err := json.Marshal(body.Resource.Comment)
 		if err != nil {
 			p.API.LogError(err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -509,7 +509,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		// Convert json string to struct
 		var comment serializers.Comment
-		if err := json.Unmarshal(jsonStr, &comment); err != nil {
+		if err := json.Unmarshal(jsonBytes, &comment); err != nil {
 			p.API.LogError(err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 			return
@@ -605,16 +605,16 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Short: true,
 					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
 				},
-			}, Footer: body.Resource.Project.Name,
+			},
+			Footer:     body.Resource.Project.Name,
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventReleaseCreated:
 		artifacts := ""
 		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			artifacts += body.Resource.Release.Artifacts[i].Name
 			if i != len(body.Resource.Release.Artifacts)-1 {
-				artifacts += fmt.Sprintf("%s, ", body.Resource.Release.Artifacts[i].Name)
-			} else {
-				artifacts += body.Resource.Release.Artifacts[i].Name
+				artifacts += ", "
 			}
 		}
 

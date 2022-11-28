@@ -9,7 +9,7 @@
 
     ![Screenshot from 2022-07-29 13-25-38](https://user-images.githubusercontent.com/100013900/181712472-d4faec27-a61c-4565-9e27-fc7156241b17.png)
 
-  - Under "Authorized scopes" check "Work items(full)" and "Code(full)".
+  - Under "Authorized scopes" check "Work items(full)", Build(read and execute), Release(read, write, execute and manage) and "Code(full)".
 
     ![Screenshot from 2022-10-07 12-54-13](https://user-images.githubusercontent.com/55234496/194496403-dfd54566-ae6b-4daa-96c9-6a6c7e24c296.png)
 

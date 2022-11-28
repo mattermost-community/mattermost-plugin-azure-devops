@@ -26,10 +26,6 @@ type PublisherInputsGeneric struct {
 	NotificationType             string `json:"notificationType,omitempty"`
 }
 
-type PublisherInputsPipelines struct {
-	ProjectID string `json:"projectId"`
-}
-
 type ConsumerInputs struct {
 	URL string `json:"url"`
 }

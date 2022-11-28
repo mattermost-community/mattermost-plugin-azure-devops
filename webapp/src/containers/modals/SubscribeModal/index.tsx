@@ -331,6 +331,54 @@ const SubscribeModal = () => {
             releaseStatusName: status === filterLabelValuePairAll.value ? '' : status,
         });
 
+    const handleSetRunPipelineFilter = (newValue: string, pipelienName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runPipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunStageFilter = (newValue: string, stageName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runStage: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunEnvironmentFilter = (newValue: string, environmentName?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runEnvironment: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunStageIdFilter = (newValue: string, stageNameId?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runStageId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunStageStateIdFilter = (newValue: string, stateId?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runStageStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunStageResultIdFilter = (newValue: string, resultId?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runStageResultId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunStateIdFilter = (newValue: string, stateId?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetRunResultIdFilter = (newValue: string, resultId?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            runResultId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
     const isLoading = isChannelListLoading || isOrganizationAndProjectListLoading || isCreateSubscriptionLoading;
@@ -423,6 +471,22 @@ const SubscribeModal = () => {
                                             handleSelectApprovalStatus={handleSetApprovalStatusFilter}
                                             selectedReleaseStatus={formFields.releaseStatus || filterLabelValuePairAll.value}
                                             handleSelectReleaseStatus={handleSetReleaseStatusFilter}
+                                            selectedRunPipeline={formFields.runPipeline || filterLabelValuePairAll.value}
+                                            handleSelectRunPipeline={handleSetRunPipelineFilter}
+                                            selectedRunStage={formFields.runStage || filterLabelValuePairAll.value}
+                                            handleSelectRunStage={handleSetRunStageFilter}
+                                            selectedRunEnvironment={formFields.runEnvironment || filterLabelValuePairAll.value}
+                                            handleSelectRunEnvironment={handleSetRunEnvironmentFilter}
+                                            selectedRunStageId={formFields.runStageId || filterLabelValuePairAll.value}
+                                            handleSelectRunStageId={handleSetRunStageIdFilter}
+                                            selectedRunStageStateId={formFields.runStageStateId || filterLabelValuePairAll.value}
+                                            handleSelectRunStageStateId={handleSetRunStageStateIdFilter}
+                                            selectedRunStageResultId={formFields.runStageResultId || filterLabelValuePairAll.value}
+                                            handleSelectRunStageResultId={handleSetRunStageResultIdFilter}
+                                            selectedRunStateId={formFields.runStateId || filterLabelValuePairAll.value}
+                                            handleSelectRunStateId={handleSetRunStateIdFilter}
+                                            selectedRunResultId={formFields.runResultId || filterLabelValuePairAll.value}
+                                            handleSelectRunResultId={handleSetRunResultIdFilter}
                                         />
                                     )
                                 }

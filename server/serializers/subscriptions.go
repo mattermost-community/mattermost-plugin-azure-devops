@@ -31,6 +31,7 @@ type PublisherInputsGeneric struct {
 	ApprovalType                 string `json:"releaseApprovalType,omitempty"`
 	ApprovalStatus               string `json:"releaseApprovalStatus,omitempty"`
 	ReleaseStatus                string `json:"releaseEnvironmentStatus,omitempty"`
+	RunPipeline                  string `json:"pipelineId,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -97,6 +98,7 @@ type GetSubscriptionFilterPossibleValuesRequestPayload struct {
 	Filters           []string `json:"filters"`
 	RepositoryID      string   `json:"repositoryId"`
 	ReleasePipelineID string   `json:"releasePipelineId"`
+	RunPipeline       string   `json:"runPipeline"`
 }
 
 type SubscriptionFilter struct {

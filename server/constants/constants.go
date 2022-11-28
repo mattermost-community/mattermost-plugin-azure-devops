@@ -157,4 +157,11 @@ var (
 		SubscriptionEventPullRequestCommented: true,
 		SubscriptionEventCodePushed:           true,
 	}
+
+	ValidSubscriptionEventsForRun = map[string]bool{
+		SubscriptionEventRunStageApprovalCompleted:  true,
+		SubscriptionEventRunStageStateChanged:       true,
+		SubscriptionEventRunStageWaitingForApproval: true,
+		SubscriptionEventRunStateChanged:            true,
+	}
 )

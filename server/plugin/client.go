@@ -297,6 +297,13 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
+	if constants.ValidSubscriptionEventsForRun[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:   request.ProjectID,
+			RunPipeline: request.RunPipeline,
+		}
+	}
+
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	if strings.Contains(request.EventType, constants.EventTypeRelease) {

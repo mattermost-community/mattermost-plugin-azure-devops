@@ -66,4 +66,5 @@ type GetSubscriptionFiltersRequest = {
     filters: string[]
     repositoryId?: string
     releasePipelineId?: string
+    runPipeline?: string
 }

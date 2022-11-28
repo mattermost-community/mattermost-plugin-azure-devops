@@ -28,6 +28,22 @@ type PipelinesFilterProps = {
     selectedApprovalStatus: string
     selectedReleaseStatus: string
     handleSelectReleaseStatus: (value: string, name?: string) => void
+    selectedRunPipeline: string
+    handleSelectRunPipeline: (value: string, name?: string) => void
+    selectedRunStage: string
+    handleSelectRunStage: (value: string, name?: string) => void
+    selectedRunEnvironment: string
+    handleSelectRunEnvironment: (value: string, name?: string) => void
+    selectedRunStageId: string
+    handleSelectRunStageId: (value: string, name?: string) => void
+    selectedRunStageStateId: string
+    handleSelectRunStageStateId: (value: string, name?: string) => void
+    selectedRunStageResultId: string
+    handleSelectRunStageResultId: (value: string, name?: string) => void
+    selectedRunStateId: string
+    handleSelectRunStateId: (value: string, name?: string) => void
+    selectedRunResultId: string
+    handleSelectRunResultId: (value: string, name?: string) => void
 }
 
 const PipelinesFilter = ({
@@ -49,8 +65,24 @@ const PipelinesFilter = ({
     selectedApprovalStatus,
     selectedReleaseStatus,
     handleSelectReleaseStatus,
+    handleSelectRunPipeline,
+    selectedRunPipeline,
+    handleSelectRunStage,
+    selectedRunStage,
+    handleSelectRunEnvironment,
+    selectedRunEnvironment,
+    selectedRunStageId,
+    handleSelectRunStageId,
+    selectedRunStageStateId,
+    handleSelectRunStageStateId,
+    selectedRunStageResultId,
+    handleSelectRunStageResultId,
+    selectedRunStateId,
+    handleSelectRunStateId,
+    selectedRunResultId,
+    handleSelectRunResultId,
 }: PipelinesFilterProps) => {
-    const {buildStatusOptions, releaseApprovalTypeOptions, releaseApprovalStatusOptions, releaseStatusOptions, subscriptionFiltersForPipelines, subscriptionFiltersNameForPipelines} = pluginConstants.form;
+    const {buildStatusOptions, releaseApprovalTypeOptions, releaseApprovalStatusOptions, releaseStatusOptions, subscriptionFiltersForPipelines, subscriptionFiltersNameForPipelines, runStageStateIdOptions, runStageResultIdOptions, runStateIdOptions, runResultIdOptions} = pluginConstants.form;
 
     const {
         getApiState,
@@ -63,7 +95,8 @@ const PipelinesFilter = ({
         filters: subscriptionFiltersForPipelines,
         eventType,
         releasePipelineId: selectedReleasePipeline,
-    }), [organization, projectId, eventType, subscriptionFiltersForPipelines, selectedBuildPipeline, selectedReleasePipeline]);
+        runPipeline: selectedRunPipeline,
+    }), [organization, projectId, eventType, subscriptionFiltersForPipelines, selectedBuildPipeline, selectedReleasePipeline, selectedRunPipeline]);
 
     useEffect(() => {
         if (eventType) {
@@ -91,6 +124,10 @@ const PipelinesFilter = ({
     const getBuildPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.buildPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
     const getReleasePipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.releasePipelineName], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
     const getStageNameOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.stageName], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getRunPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getRunStageOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runStage], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getRunEnvironmentOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runEnvironment], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const getRunStageIdOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runStageId], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 
     return (
         <>
@@ -200,6 +237,116 @@ const PipelinesFilter = ({
                                 value={selectedReleaseStatus}
                                 onChange={handleSelectReleaseStatus}
                                 options={releaseStatusOptions}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </>
+                )
+            }
+            {
+                (eventType === pluginConstants.common.eventTypePipelineKeys.runStageApprovalComplete || eventType === pluginConstants.common.eventTypePipelineKeys.runStageApprovalPending || eventType === pluginConstants.common.eventTypePipelineKeys.runStageStateChanged || eventType === pluginConstants.common.eventTypePipelineKeys.runStateChanged) && (
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Pipeline'
+                            value={selectedRunPipeline}
+                            onChange={handleSelectRunPipeline}
+                            options={getRunPipelineOptions()}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
+                )
+            }
+            {
+                (eventType === pluginConstants.common.eventTypePipelineKeys.runStageApprovalComplete || eventType === pluginConstants.common.eventTypePipelineKeys.runStageApprovalPending) && (
+                    <>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Stage'
+                                value={selectedRunStage}
+                                onChange={handleSelectRunStage}
+                                options={getRunStageOptions()}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={selectedRunPipeline === filterLabelValuePairAll.value || isLoading}
+                            />
+                        </div>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Environment'
+                                value={selectedRunEnvironment}
+                                onChange={handleSelectRunEnvironment}
+                                options={getRunEnvironmentOptions()}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={isLoading}
+                            />
+                        </div>
+                    </>
+                )
+            }
+            {
+                eventType === pluginConstants.common.eventTypePipelineKeys.runStageStateChanged && (
+                    <>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Stage'
+                                value={selectedRunStageId}
+                                onChange={handleSelectRunStageId}
+                                options={getRunStageIdOptions()}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={selectedRunPipeline === filterLabelValuePairAll.value || isLoading}
+                            />
+                        </div>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='State'
+                                value={selectedRunStageStateId}
+                                onChange={handleSelectRunStageStateId}
+                                options={runStageStateIdOptions}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Result'
+                                value={selectedRunStageResultId}
+                                onChange={handleSelectRunStageResultId}
+                                options={runStageResultIdOptions}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={(selectedRunStageStateId !== filterLabelValuePairAll.value && selectedRunStageStateId !== 'Completed') || isLoading}
+                            />
+                        </div>
+                    </>
+                )
+            }
+            {
+                eventType === pluginConstants.common.eventTypePipelineKeys.runStateChanged && (
+                    <>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='State'
+                                value={selectedRunStateId}
+                                onChange={handleSelectRunStateId}
+                                options={runStateIdOptions}
+                                error={isError}
+                                loadingOptions={isLoading}
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='margin-bottom-10'>
+                            <Dropdown
+                                placeholder='Result'
+                                value={selectedRunResultId}
+                                onChange={handleSelectRunResultId}
+                                options={runResultIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={isLoading}

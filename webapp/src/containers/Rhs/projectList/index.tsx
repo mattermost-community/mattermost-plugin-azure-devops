@@ -112,8 +112,8 @@ const ProjectList = () => {
     const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]); // TODO: Look for best optimisation method here
 
     return (
-        <>
-            <p className='rhs-title margin-bottom-15'>{'Linked Projects'}</p>
+        <div className='rhs-wrapper'>
+            <p className='rhs-title padding-16'>{'Linked Projects'}</p>
             {
                 <ConfirmationModal
                     isOpen={showConfirmationModal}
@@ -133,17 +133,16 @@ const ProjectList = () => {
                 isSuccess && (
                     sortedProjectList.length > 0 ?
                         <>
-                            {
-                                sortedProjectList.map((item: ProjectDetails) => (
+                            <div className='rhs-wrapper__content padding-16'>
+                                {sortedProjectList.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}
                                         key={item.projectID}
                                         handleUnlinkProject={handleUnlinkProject}
                                     />
-                                ),
-                                )
-                            }
+                                ))}
+                            </div>
                             <div className='rhs-project-list-wrapper'>
                                 <button
                                     onClick={handleOpenLinkProjectModal}
@@ -162,7 +161,7 @@ const ProjectList = () => {
                             isLoading={isLoading}
                         />)
             }
-        </>
+        </div>
     );
 };
 

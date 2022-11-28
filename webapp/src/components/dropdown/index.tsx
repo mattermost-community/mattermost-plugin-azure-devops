@@ -5,7 +5,7 @@ import './styles.scss';
 type DropdownProps = {
     value: string | null;
     placeholder: string;
-    onChange: (newValue: string, targetLabel?: string) => void;
+    onChange: (newValue: string, targetLabel?: string, selectedOption?: Record<string, string>) => void;
     options: LabelValuePair[];
     customOption?: LabelValuePair & {
         onClick: (customOptionValue: string) => void;
@@ -26,7 +26,7 @@ const Dropdown = ({value, placeholder, options, onChange, customOption, loadingO
 
         // Trigger onChange only if there is a change in the dropdown value
         if (newOption.value !== value) {
-            onChange(newOption.value, newOption.label as string);
+            onChange(newOption.value, newOption.label as string, newOption as Record<string, string>);
         }
     };
 

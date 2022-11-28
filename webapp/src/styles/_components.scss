@@ -20,9 +20,7 @@
 }
 
 .rhs-project-list-wrapper {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    margin-top: auto;
     padding: 15px 0 30px;
     width: 100%;
     background-color: var(--center-channel-bg);
@@ -35,7 +33,6 @@
 }
 
 .rhs-header-divider {
-    margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
 }

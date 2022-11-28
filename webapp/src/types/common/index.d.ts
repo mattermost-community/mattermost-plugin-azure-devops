@@ -23,6 +23,10 @@ type LabelValuePair = {
     metaData?: string;
 }
 
+type ProjectListLabelValuePair = LabelValuePair & {
+    projectID: string
+}
+
 type CreateTaskFields = {
     title: string,
     description: string,

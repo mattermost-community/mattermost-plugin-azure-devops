@@ -120,23 +120,28 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	IconColorRepos    = "#d74f27"
-	IconColorBoards   = "#53bba1"
-	IconColorPipeline = "#4275E4"
+	IconColorRepos     = "#d74f27"
+	IconColorBoards    = "#53bba1"
+	IconColorPipelines = "#4275E4"
 
 	SubscriptionEventTypeDummy = "dummy"
 	FileNameGitBranchIcon      = "git-branch-icon.svg"
 	FileNameProjectIcon        = "project-icon.svg"
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
-	FileNamePipeline           = "pipeline-icon.svg"
+	FileNamePipelinesIcon      = "pipeline-icon.svg"
 
-	SlackAttachmentAuthorNameRepos  = "Azure Repos"
-	SlackAttachmentAuthorNameBoards = "Azure Boards"
+	SlackAttachmentAuthorNameRepos     = "Azure Repos"
+	SlackAttachmentAuthorNameBoards    = "Azure Boards"
+	SlackAttachmentAuthorNamePipelines = "Azure Pipelines"
 
 	ServiceTypeBoards    = "boards"
 	ServiceTypeRepos     = "repos"
 	ServiceTypePipelines = "pipelines"
+
+	DateTimeFormat = "Mon Jan 2 15:04:05 -0700 MST 2006"
+	DateTimeLayout = "2006-01-02T15:04:05"
+	TimeLayout     = "15:04:05"
 )
 
 var (

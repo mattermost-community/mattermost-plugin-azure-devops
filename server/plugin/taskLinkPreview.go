@@ -126,9 +126,9 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipelines",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline), // TODO: update icon file
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon), // TODO: update icon file
 		Title:      fmt.Sprintf(constants.BuildDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
-		Color:      constants.IconColorPipeline,
+		Color:      constants.IconColorPipelines,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repository",

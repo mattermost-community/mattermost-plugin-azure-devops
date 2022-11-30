@@ -149,6 +149,7 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.Call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+// publishedID is sent in the payload while calling the Azure DevOps API and it varies according to the eventType
 var publisherID = map[string]string{
 	constants.SubscriptionEventPullRequestCreated:                 constants.PublisherIDTFS,
 	constants.SubscriptionEventPullRequestUpdated:                 constants.PublisherIDTFS,
@@ -198,11 +199,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		},
 	}
 
-	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
-	if strings.Contains(body.EventType, "release") {
-		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	}
-
+	baseURL := c.plugin.updateBaseURLForReleaseEventTypes(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, body.EventType)
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {

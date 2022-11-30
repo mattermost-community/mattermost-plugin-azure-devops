@@ -1,3 +1,5 @@
+import {SVGIcons} from './icons';
+
 export const pluginId = 'mattermost-plugin-azure-devops';
 
 export const AzureDevops = 'Azure DevOps';
@@ -86,4 +88,19 @@ export const defaultSubscriptionFilters = {
 export const filterLabelValuePairAll = {
     value: 'all',
     label: 'All',
+};
+
+export const serviceTypeIcon = {
+    [boards as string]: {
+        icon: SVGIcons.boards,
+        viewBox: '0 0 16 16',
+    },
+    [repos as string]: {
+        icon: SVGIcons.repos,
+        viewBox: '0 0 16 16',
+    },
+    [pipelines as string]: {
+        icon: SVGIcons.pipelines,
+        viewBox: '0 0 17 17',
+    },
 };

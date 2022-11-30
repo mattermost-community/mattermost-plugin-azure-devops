@@ -70,6 +70,6 @@ const (
 	ErrorOrganizationOrProjectQueryParam   = "Invalid organization or project name"
 	ErrorRepositoryPathParam               = "Invalid organization, project or repository params"
 	ErrorInvalidOrganizationOrProject      = "Invalid organization or project name"
-	ErrorUpdatingPipelineApprovalRequest   = "failed to update pipeline approval request"
+	ErrorUpdatingPipelineApprovalRequest   = "Failed to update pipeline approval request"
 	ErrorUpdatingNonPendingPipelineRequest = "Approval(s) %d are not in a pending state. Only pending approval(s) can be updated"
 )

@@ -274,11 +274,8 @@ func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *se
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
-	if err != nil {
-		return statusCode, err
-	}
 
-	return statusCode, nil
+	return statusCode, err
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

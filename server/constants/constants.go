@@ -139,8 +139,8 @@ const (
 	DateTimeLayout = "2006-01-02T15:04:05"
 	TimeLayout     = "15:04:05"
 
-	PipelineRequestIDApprove           = "approved"
-	PipelineRequestIDReject            = "rejected"
+	PipelineRequestIDApproved          = "approved"
+	PipelineRequestIDRejected          = "rejected"
 	PipelineRequestContextApprovalID   = "approvalId"
 	PipelineRequestContextOrganization = "organization"
 	PipelineRequestContextProjectName  = "projectName"
@@ -164,7 +164,7 @@ var (
 	}
 
 	PipelineRequestUpdateEmoji = map[string]string{
-		PipelineRequestIDApprove: "&#9989;",
-		PipelineRequestIDReject:  "&#10060;",
+		PipelineRequestIDApproved: "&#9989;",
+		PipelineRequestIDRejected: "&#10060;",
 	}
 )

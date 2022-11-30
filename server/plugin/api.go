@@ -755,10 +755,9 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	case constants.SubscriptionEventReleaseDeploymentEventPending:
 		artifacts := ""
 		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			artifacts += body.Resource.Release.Artifacts[i].Name
 			if i != len(body.Resource.Release.Artifacts)-1 {
-				artifacts += fmt.Sprintf("%s, ", body.Resource.Release.Artifacts[i].Name)
-			} else {
-				artifacts += body.Resource.Release.Artifacts[i].Name
+				artifacts += ", "
 			}
 		}
 
@@ -784,13 +783,13 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Short: true,
 				},
 				{
-					Title: "Approvers",
+					Title: "Approver(s)",
 					Value: body.Resource.Approval.Approver.DisplayName,
 				},
 			},
 			Actions: []*model.PostAction{
 				{
-					Id:    constants.PipelineRequestIDApprove,
+					Id:    constants.PipelineRequestIDApproved,
 					Type:  "button",
 					Name:  "Approve",
 					Style: "primary",
@@ -800,12 +799,12 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
 							constants.PipelineRequestContextOrganization: organization,
 							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
-							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDApprove,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDApproved,
 						},
 					},
 				},
 				{
-					Id:    constants.PipelineRequestIDReject,
+					Id:    constants.PipelineRequestIDRejected,
 					Type:  "button",
 					Name:  "Reject",
 					Style: "danger",
@@ -815,7 +814,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
 							constants.PipelineRequestContextOrganization: organization,
 							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
-							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDReject,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDRejected,
 						},
 					},
 				},
@@ -1079,7 +1078,6 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 
 func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	response := &model.PostActionIntegrationResponse{}
 	decoder := json.NewDecoder(r.Body)
 	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
 	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
@@ -1087,6 +1085,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
+
 		p.API.LogError("Error decoding PostActionIntegrationRequest params: ", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
@@ -1097,6 +1096,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		Status:   requestType,
 		Comments: "", // TODO: integrate comment flow
 	}
+
 	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
 	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
 	approvalID := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
@@ -1120,6 +1120,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 			if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
 				p.API.LogError("Failed to DM", "Error", DMErr.Error())
 			}
+
 			p.API.LogError("Error in updating post", "Error", err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 			return
@@ -1129,6 +1130,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorUpdatingNonPendingPipelineRequest, approvalID), true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
+
 		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
@@ -1137,18 +1139,20 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
 			p.API.LogError("Failed to DM", "Error", DMErr.Error())
 		}
+
 		p.API.LogError(constants.ErrorUpdatingPipelineApprovalRequest, err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
 
+	response := &model.PostActionIntegrationResponse{}
 	p.returnPostActionIntegrationResponse(w, response)
 }
 
 func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(res.ToJson()); err != nil {
-		p.API.LogWarn("failed to write PostActionIntegrationResponse", "Error", err.Error())
+		p.API.LogWarn("Failed to write PostActionIntegrationResponse", "Error", err.Error())
 	}
 }
 

@@ -31,6 +31,7 @@ var azureDevopsCommandHandler = Handler{
 		constants.CommandLink:       azureDevopsAccountConnectionCheck,
 		constants.CommandBoards:     azureDevopsBoardsCommand,
 		constants.CommandRepos:      azureDevopsReposCommand,
+		constants.CommandPipelines:  azureDevopsPipelinesCommand,
 	},
 	defaultHandler: executeDefault,
 }
@@ -92,6 +93,10 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	repos.AddCommand(subscription)
 	azureDevops.AddCommand(repos)
 
+	pipelines := model.NewAutocompleteData(constants.CommandPipelines, "", "Add/list/delete pipeline subscriptions")
+	pipelines.AddCommand(subscription)
+	azureDevops.AddCommand(pipelines)
+
 	return azureDevops
 }
 
@@ -119,7 +124,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 }
 
 func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// Check if user's Azure DevOps account is connected
+	// Check if the user's Azure DevOps account is connected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
@@ -147,7 +152,7 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 }
 
 func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	// Check if user's Azure DevOps account is connected
+	// Check if the user's Azure DevOps account is connected
 	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
@@ -163,6 +168,31 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 			}
 		case constants.CommandDelete:
 			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandRepos, args...)
+		case constants.CommandAdd:
+			return &model.CommandResponse{}, nil
+		}
+	}
+
+	return executeDefault(p, c, commandArgs, args...)
+}
+
+func azureDevopsPipelinesCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+	// Check if the user's Azure DevOps account is connected
+	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
+	}
+
+	// Validate commands and their arguments
+	// For "subscription" command there must be at least 2 arguments
+	if len(args) >= 2 && args[0] == constants.CommandSubscription {
+		switch args[1] {
+		case constants.CommandList:
+			// For "list" command there must be at least 3 arguments
+			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
+				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandPipelines, args...)
+			}
+		case constants.CommandDelete:
+			return azureDevopsUnsubscribeCommand(p, c, commandArgs, constants.CommandPipelines, args...)
 		case constants.CommandAdd:
 			return &model.CommandResponse{}, nil
 		}

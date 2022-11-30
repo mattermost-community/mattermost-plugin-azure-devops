@@ -13,6 +13,7 @@ import (
 func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*model.Post, string) {
 	task, _, err := p.Client.GetTask(linkData[3], linkData[7], linkData[4], userID)
 	if err != nil {
+		p.API.LogDebug("Error in getting task details from Azure", "Error", err.Error())
 		return nil, ""
 	}
 
@@ -34,7 +35,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 		AuthorName: "Azure Boards",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 		Title:      fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href),
-		Color:      constants.BoardsIconColor,
+		Color:      constants.IconColorBoards,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "State",
@@ -61,6 +62,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {
 	pullRequest, _, err := p.Client.GetPullRequest(linkData[3], linkData[8], linkData[6], userID)
 	if err != nil {
+		p.API.LogDebug("Error in getting pull request details from Azure", "Error", err.Error())
 		return nil, ""
 	}
 
@@ -82,7 +84,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 		AuthorName: "Azure Repos",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
 		Title:      fmt.Sprintf(constants.PullRequestTitle, pullRequest.PullRequestID, pullRequest.Title, link),
-		Color:      constants.ReposIconColor,
+		Color:      constants.IconColorRepos,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Target Branch",
@@ -113,6 +115,7 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 	buildID := strings.Split(linkData[6], "&")[0][16:]
 	buildDetails, _, err := p.Client.GetBuildDetails(organization, project, buildID, userID)
 	if err != nil {
+		p.API.LogDebug("Error in getting build details from Azure", "Error", err.Error())
 		return nil, ""
 	}
 
@@ -120,11 +123,12 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 		UserId:    userID,
 		ChannelId: channelID,
 	}
+
 	attachment := &model.SlackAttachment{
-		AuthorName: "Azure Pipeline",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline),
+		AuthorName: "Azure Pipelines",
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline), // TODO: update icon file
 		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
-		Color:      constants.PipelineIconColor,
+		Color:      constants.IconColorPipeline,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repository",
@@ -150,8 +154,8 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 		Footer:     project,
 		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
-	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post, ""
 }
 
@@ -173,7 +177,7 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 		AuthorName: "Azure Pipeline",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline),
 		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, releaseDetails.Name, releaseDetails.Link.Web.Href, releaseDetails.ReleaseDefinition.Name),
-		Color:      constants.PipelineIconColor,
+		Color:      constants.IconColorPipeline,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Environments",

@@ -180,6 +180,22 @@ func (mr *MockClientMockRecorder) GetPullRequest(arg0, arg1, arg2, arg3 interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPullRequest", reflect.TypeOf((*MockClient)(nil).GetPullRequest), arg0, arg1, arg2, arg3)
 }
 
+// GetSubscriptionFilterPossibleValues mocks base method
+func (m *MockClient) GetSubscriptionFilterPossibleValues(arg0 *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, arg1 string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionFilterPossibleValues", arg0, arg1)
+	ret0, _ := ret[0].(*serializers.SubscriptionFilterPossibleValuesResponseFromClient)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetSubscriptionFilterPossibleValues indicates an expected call of GetSubscriptionFilterPossibleValues
+func (mr *MockClientMockRecorder) GetSubscriptionFilterPossibleValues(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionFilterPossibleValues", reflect.TypeOf((*MockClient)(nil).GetSubscriptionFilterPossibleValues), arg0, arg1)
+}
+
 // GetTask mocks base method
 func (m *MockClient) GetTask(arg0, arg1, arg2, arg3 string) (*serializers.TaskValue, int, error) {
 	m.ctrl.T.Helper()

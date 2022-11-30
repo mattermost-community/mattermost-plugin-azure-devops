@@ -163,6 +163,61 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    pullRequestCreatedBy: {
+        label: 'Requested by a member of group',
+        type: 'hidden',
+        value: '',
+    },
+    pullRequestReviewersContains: {
+        label: 'Reviewer includes group',
+        type: 'hidden',
+        value: '',
+    },
+    pullRequestCreatedByName: {
+        label: 'Requested by a member of group',
+        type: 'hidden',
+        value: '',
+    },
+    pullRequestReviewersContainsName: {
+        label: 'Reviewer includes group',
+        type: 'hidden',
+        value: '',
+    },
+    pushedBy: {
+        label: 'Pushed by a member of group',
+        type: 'hidden',
+        value: '',
+    },
+    mergeResult: {
+        label: 'Merge Result',
+        type: 'hidden',
+        value: '',
+    },
+    notificationType: {
+        label: 'Change',
+        type: 'hidden',
+        value: '',
+    },
+    pushedByName: {
+        label: 'Pushed by a member of group',
+        type: 'hidden',
+        value: '',
+    },
+    mergeResultName: {
+        label: 'Merge Result',
+        type: 'hidden',
+        value: '',
+    },
+    notificationTypeName: {
+        label: 'Change',
+        type: 'hidden',
+        value: '',
+    },
+    areaPath: {
+        label: 'Area Path',
+        type: 'hidden',
+        value: '',
+    },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
     timestamp: {
@@ -314,3 +369,76 @@ export const subscriptionFilterEventTypeReposOptions = () => {
     options.push(filterLabelValuePairAll);
     return options;
 };
+
+// Repos subscription filters
+export const mergeResultOptons: LabelValuePair[] = [
+    {
+        value: 'Succeeded',
+        label: 'Merge successful',
+    },
+    {
+        value: 'Unsuccessful',
+        label: 'Merge Unsuccessful - Reason: Any',
+    },
+    {
+        value: 'Conflicts',
+        label: 'Merge Unsuccessful - Reason: Conflicts',
+    },
+    {
+        value: 'Failure',
+        label: 'Merge Unsuccessful - Reason: Failure',
+    },
+    {
+        value: 'RejectedByPolicy',
+        label: 'Merge Unsuccessful - Reason: Rejected By Policy',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const pullRequestChangeOptons: LabelValuePair[] = [
+    {
+        value: 'PushNotification',
+        label: 'Source branch updated',
+    },
+    {
+        value: 'ReviewersUpdateNotification',
+        label: 'Reviewers changed',
+    },
+    {
+        value: 'StatusUpdateNotification',
+        label: 'Status changed',
+    },
+    {
+        value: 'ReviewerVoteNotification',
+        label: 'Votes score changed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const subscriptionFiltersNameForBoards = {
+    areaPath: 'areaPath',
+};
+
+export const subscriptionFiltersForBoards = [
+    subscriptionFiltersNameForBoards.areaPath,
+];
+
+export const subscriptionFiltersNameForRepos = {
+    repository: 'repository',
+    branch: 'branch',
+    pullrequestCreatedBy: 'pullrequestCreatedBy',
+    pullrequestReviewersContains: 'pullrequestReviewersContains',
+    pushedBy: 'pushedBy',
+};
+
+export const subscriptionFiltersForRepos = [
+    subscriptionFiltersNameForRepos.repository,
+    subscriptionFiltersNameForRepos.branch,
+    subscriptionFiltersNameForRepos.pullrequestCreatedBy,
+    subscriptionFiltersNameForRepos.pullrequestReviewersContains,
+    subscriptionFiltersNameForRepos.pushedBy,
+];

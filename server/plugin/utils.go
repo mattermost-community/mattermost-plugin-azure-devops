@@ -331,3 +331,12 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 
 	return filteredSubscriptionList, nil
 }
+
+// TODO: use this function at all the places where baseURL need to be updated this way
+func (p *Plugin) updateBaseURLForReleaseEventTypes(url, eventType string) string {
+	if strings.Contains(eventType, "release") {
+		url = strings.Replace(url, "://", "://vsrm.", 1)
+	}
+
+	return url
+}

@@ -135,6 +135,30 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.Call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+// publishedID is sent in the payload while calling the Azure DevOps API and it varies according to the eventType
+var publisherID = map[string]string{
+	constants.SubscriptionEventPullRequestCreated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestUpdated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestCommented:               constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestMerged:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventCodePushed:                         constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCreated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemUpdated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemDeleted:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCommented:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventBuildCompleted:                     constants.PublisherIDTFS,
+	constants.SubscriptionEventReleaseAbandoned:                   constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseCreated:                     constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentEventPending:      constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentCompleted:         constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentStarted:           constants.PublisherIDRM,
+	constants.SubscriptionEventRunStageApprovalCompleted:          constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageStateChanged:               constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageWaitingForApproval:         constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStateChanged:                    constants.PublisherIDPipelines,
+}
+
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
@@ -143,7 +167,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherID,
+		PublisherID:      publisherID[body.EventType],
 		EventType:        body.EventType,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
@@ -161,8 +185,9 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		},
 	}
 
+	baseURL := c.plugin.updateBaseURLForReleaseEventTypes(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, body.EventType)
 	var subscription *serializers.SubscriptionValue
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
+	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
 	}
@@ -185,7 +210,7 @@ func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginUR
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherID,
+		PublisherID:      constants.PublisherIDTFS,
 		EventType:        constants.SubscriptionEventTypeDummy,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
@@ -245,7 +270,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
 		Subscription: &serializers.CreateSubscriptionBodyPayload{
-			PublisherID:      constants.PublisherID,
+			PublisherID:      constants.PublisherIDTFS,
 			ConsumerID:       constants.ConsumerID,
 			ConsumerActionID: constants.ConsumerActionID,
 			EventType:        request.EventType,

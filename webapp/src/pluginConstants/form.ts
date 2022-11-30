@@ -43,6 +43,53 @@ export const repoEventTypeOptions: LabelValuePair[] = [
     },
 ];
 
+export const pipelineEventTypeOptions: LabelValuePair[] = [
+    {
+        value: 'build.complete',
+        label: 'Build completed',
+    },
+    {
+        value: 'ms.vss-release.release-abandoned-event',
+        label: 'Release abandoned',
+    },
+    {
+        value: 'ms.vss-release.release-created-event',
+        label: 'Release created',
+    },
+    {
+        value: 'ms.vss-release.deployment-approval-completed-event',
+        label: 'Release deployment approval completed',
+    },
+    {
+        value: 'ms.vss-release.deployment-approval-pending-event',
+        label: 'Release deployment approval pending',
+    },
+    {
+        value: 'ms.vss-release.deployment-completed-event',
+        label: 'Release deployment completed',
+    },
+    {
+        value: 'ms.vss-release.deployment-started-event',
+        label: 'Release deployment started',
+    },
+    {
+        value: 'ms.vss-pipelinechecks-events.approval-completed',
+        label: 'Run stage approval completed',
+    },
+    {
+        value: 'ms.vss-pipelines.stage-state-changed-event',
+        label: 'Run stage state changed',
+    },
+    {
+        value: 'ms.vss-pipelinechecks-events.approval-pending',
+        label: 'Run stage waiting for approval',
+    },
+    {
+        value: 'ms.vss-pipelines.run-state-changed-event',
+        label: 'Run state changed',
+    },
+];
+
 const serviceTypeOptions: LabelValuePair[] = [
     {
         value: 'boards',
@@ -51,6 +98,10 @@ const serviceTypeOptions: LabelValuePair[] = [
     {
         value: 'repos',
         label: 'Repos',
+    },
+    {
+        value: 'pipelines',
+        label: 'Pipelines',
     },
 ];
 

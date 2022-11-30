@@ -5,7 +5,7 @@ import {GlobalState} from 'mattermost-redux/types/store';
 import mm_constants from 'mattermost-redux/constants/general';
 
 import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
-import {boardEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
+import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
 import pluginConstants from 'pluginConstants';
 
 import Modal from 'components/modal';
@@ -25,7 +25,6 @@ import Utils from 'utils';
 
 import ReposFilter from './filters/repos';
 import BoardsFilter from './filters/boards';
-
 import './styles.scss';
 
 const SubscribeModal = () => {
@@ -122,6 +121,8 @@ const SubscribeModal = () => {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
         } else if (formFields.serviceType === pluginConstants.common.repos) {
             setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
+        } else if (formFields.serviceType === pluginConstants.common.pipelines) {
+            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: pipelineEventTypeOptions}});
         }
 
         dispatch(setServiceType(formFields.serviceType ?? ''));

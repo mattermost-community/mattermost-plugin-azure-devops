@@ -3,8 +3,9 @@
 */
 // TODO: create enums for these types
 type EventTypeBoards = 'workitem.created' | 'workitem.updated' | 'workitem.deleted' | 'workitem.commented'
-type EventTypeRepos = 'git.pullrequest.created' | 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
-type EventType = EventTypeBoards | EventTypeRepos
+type EventTypeRepos = 'git.pullrequest.created'| 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
+type EventTypePipelines = 'build.complete' | 'ms.vss-release.release-abandoned-event' | 'ms.vss-release.release-created-event' | 'ms.vss-release.deployment-approval-completed-event' | 'ms.vss-release.deployment-approval-pending-event' | 'ms.vss-release.deployment-completed-event' | 'ms.vss-release.deployment-started-event' | 'ms.vss-pipelinechecks-events.approval-completed' | 'ms.vss-pipelines.stage-state-changed-event' | 'ms.vss-pipelinechecks-events.approval-pending' | 'ms.vss-pipelines.run-state-changed-event'
+type EventType = EventTypeBoards | EventTypeRepos | EventTypePipelines
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
 type TabData = {

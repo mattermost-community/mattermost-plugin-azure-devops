@@ -112,7 +112,9 @@ To add a new subscription for a linked project click on the project title under 
 ## Connecting to Azure Devops
   - Enter slash command `/azuredevops connect`.
   - You will get a response with a link to connect your Azure DevOps account.
-  ![Screenshot from 2022-07-29 13-01-14](https://user-images.githubusercontent.com/100013900/181709568-9468b4a7-aaef-45a5-8968-882d560f43c3.png)
+
+    ![image](https://user-images.githubusercontent.com/100013900/181709568-9468b4a7-aaef-45a5-8968-882d560f43c3.png)
+
   - Click on that link. If it asks for a login, enter your credentials and connect to your account.
 
 After connecting successfully, you will get a direct message from the Azure DevOps bot containing a Welcome message and some useful information. 

@@ -282,7 +282,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterIDReleaseDefinitionID || filter == constants.FilterIDReleaseEnvironmentID) {
+		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
 		} else if !strings.Contains(request.EventType, constants.EventTypeRelease) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})

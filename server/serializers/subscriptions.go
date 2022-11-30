@@ -137,7 +137,7 @@ type Environment struct {
 type Release struct {
 	Name              string      `json:"name"`
 	CreatedBy         Reviewer    `json:"createdBy"`
-	Artifacts         []Artifact  `json:"artifacts"`
+	Artifacts         []*Artifact `json:"artifacts"`
 	ReleaseDefinition Definition  `json:"releaseDefinition"`
 	Reason            string      `json:"reason"`
 	ModifiedOn        string      `json:"modifiedOn"`

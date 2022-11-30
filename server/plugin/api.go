@@ -602,8 +602,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 				{
 					Title: "Duration",
-					Short: true,
 					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
+					Short: true,
 				},
 			},
 			Footer:     body.Resource.Project.Name,

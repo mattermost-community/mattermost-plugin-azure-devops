@@ -32,6 +32,13 @@ type PublisherInputsGeneric struct {
 	ApprovalStatus               string `json:"releaseApprovalStatus,omitempty"`
 	ReleaseStatus                string `json:"releaseEnvironmentStatus,omitempty"`
 	RunPipeline                  string `json:"pipelineId,omitempty"`
+	RunStageName                 string `json:"stageName,omitempty"`
+	RunEnvironmentName           string `json:"environmentName,omitempty"`
+	RunStageNameID               string `json:"stageNameId,omitempty"`
+	RunStageStateID              string `json:"stageStateId,omitempty"`
+	RunStageResultID             string `json:"stageResultId,omitempty"`
+	RunStateID                   string `json:"runStateId,omitempty"`
+	RunResultID                  string `json:"runResultId,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -89,6 +96,14 @@ type CreateSubscriptionRequestPayload struct {
 	ApprovalStatusName               string `json:"approvalStatusName"`
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
+	RunPipeline                      string `json:"runPipeline"`
+	RunStageName                     string `json:"runStage"`
+	RunEnvironmentName               string `json:"runEnvironment"`
+	RunStageNameID                   string `json:"runStageId"`
+	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageResultID                 string `json:"runStageResultId"`
+	RunStateID                       string `json:"runStateId"`
+	RunResultID                      string `json:"runResultId"`
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
@@ -173,6 +188,14 @@ type SubscriptionDetails struct {
 	ApprovalStatusName               string `json:"approvalStatusName"`
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
+	RunPipeline                      string `json:"runPipeline"`
+	RunStageName                     string `json:"runStage"`
+	RunEnvironmentName               string `json:"runEnvironment"`
+	RunStageNameID                   string `json:"runStageId"`
+	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageResultID                 string `json:"runStageResultId"`
+	RunStateID                       string `json:"runStateId"`
+	RunResultID                      string `json:"runResultId"`
 }
 
 type DetailedMessage struct {
@@ -256,6 +279,14 @@ type DeleteSubscriptionRequestPayload struct {
 	ApprovalType                 string `json:"approvalType"`
 	ApprovalStatus               string `json:"approvalStatus"`
 	ReleaseStatus                string `json:"releaseStatus"`
+	RunPipeline                  string `json:"runPipeline"`
+	RunStageName                 string `json:"runStage"`
+	RunEnvironmentName           string `json:"runEnvironment"`
+	RunStageNameID               string `json:"runStageId"`
+	RunStageStateID              string `json:"runStageStateId"`
+	RunStageResultID             string `json:"runStageResultId"`
+	RunStateID                   string `json:"runStateId"`
+	RunResultID                  string `json:"runResultId"`
 }
 
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {

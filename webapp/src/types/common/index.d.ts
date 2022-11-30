@@ -101,6 +101,14 @@ type SubscriptionDetails = {
     approvalTypeName: string
     approvalStatusName: string
     releaseStatusName: string
+    runPipeline: string
+    runStage: string
+    runEnvironment: string
+    runStageId: string
+    runStageStateId: string
+    runStageResultId: string
+    runStateId: string
+    runResultId: string
 }
 
 type WebsocketEventParams = {

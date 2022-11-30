@@ -58,7 +58,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		subscriptionList.ByMattermostUserID[userID] = make(SubscriptionListMap)
 	}
 
-	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath, subscription.ReleasePipeline, subscription.BuildPipeline, subscription.BuildStatus, subscription.ApprovalType, subscription.ApprovalStatus, subscription.StageName, subscription.ReleaseStatus)
+	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath, subscription.ReleasePipeline, subscription.BuildPipeline, subscription.BuildStatus, subscription.ApprovalType, subscription.ApprovalStatus, subscription.StageName, subscription.ReleaseStatus, subscription.RunPipeline, subscription.RunStageName, subscription.RunEnvironmentName, subscription.RunStageNameID, subscription.RunStageStateID, subscription.RunStageResultID, subscription.RunStateID, subscription.RunResultID)
 	subscriptionListValue := serializers.SubscriptionDetails{
 		MattermostUserID:                 userID,
 		ProjectName:                      subscription.ProjectName,
@@ -98,6 +98,14 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ReleaseStatusName:                subscription.ReleaseStatusName,
 		ApprovalTypeName:                 subscription.ApprovalTypeName,
 		ApprovalStatusName:               subscription.ApprovalStatusName,
+		RunPipeline:                      subscription.RunPipeline,
+		RunStageName:                     subscription.RunStageName,
+		RunEnvironmentName:               subscription.RunEnvironmentName,
+		RunStageNameID:                   subscription.RunStageNameID,
+		RunStageStateID:                  subscription.RunStageStateID,
+		RunStageResultID:                 subscription.RunStageResultID,
+		RunStateID:                       subscription.RunStateID,
+		RunResultID:                      subscription.RunResultID,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
 }
@@ -146,7 +154,7 @@ func deleteSubscriptionAtomicModify(subscription *serializers.SubscriptionDetail
 	if err != nil {
 		return nil, err
 	}
-	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath, subscription.ReleasePipeline, subscription.BuildPipeline, subscription.BuildStatus, subscription.ApprovalType, subscription.ApprovalStatus, subscription.StageName, subscription.ReleaseStatus)
+	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath, subscription.ReleasePipeline, subscription.BuildPipeline, subscription.BuildStatus, subscription.ApprovalType, subscription.ApprovalStatus, subscription.StageName, subscription.ReleaseStatus, subscription.RunPipeline, subscription.RunStageName, subscription.RunEnvironmentName, subscription.RunStageNameID, subscription.RunStageStateID, subscription.RunStageResultID, subscription.RunStateID, subscription.RunResultID)
 	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
 	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
 	if marshalErr != nil {

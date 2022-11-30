@@ -273,6 +273,14 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ReleaseStatus:                body.ReleaseStatus,
 		ApprovalType:                 body.ApprovalType,
 		ApprovalStatus:               body.ApprovalStatus,
+		RunPipeline:                  body.RunPipeline,
+		RunStageName:                 body.RunStageName,
+		RunEnvironmentName:           body.RunEnvironmentName,
+		RunStageNameID:               body.RunStageNameID,
+		RunStageStateID:              body.RunStageStateID,
+		RunStageResultID:             body.RunStageResultID,
+		RunStateID:                   body.RunStateID,
+		RunResultID:                  body.RunResultID,
 	}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
@@ -343,6 +351,14 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ReleaseStatusName:                body.ReleaseStatusName,
 		ApprovalTypeName:                 body.ApprovalTypeName,
 		ApprovalStatusName:               body.ApprovalStatusName,
+		RunPipeline:                      body.RunPipeline,
+		RunStageName:                     body.RunStageName,
+		RunEnvironmentName:               body.RunEnvironmentName,
+		RunStageNameID:                   body.RunStageNameID,
+		RunStageStateID:                  body.RunStageStateID,
+		RunStageResultID:                 body.RunStageResultID,
+		RunStateID:                       body.RunStateID,
+		RunResultID:                      body.RunResultID,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -433,7 +449,16 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 				subscriptionByProject[i].ApprovalStatusName+
 				subscriptionByProject[i].ApprovalTypeName+
 				subscriptionByProject[i].StageNameValue+
-				subscriptionByProject[i].ReleaseStatusName <
+				subscriptionByProject[i].ReleaseStatusName+
+				subscriptionByProject[i].RunPipeline+
+				subscriptionByProject[i].ReleasePipelineName+
+				subscriptionByProject[i].RunStageName+
+				subscriptionByProject[i].RunEnvironmentName+
+				subscriptionByProject[i].RunStageNameID+
+				subscriptionByProject[i].RunStageStateID+
+				subscriptionByProject[i].RunStageResultID+
+				subscriptionByProject[i].RunStateID+
+				subscriptionByProject[i].RunResultID <
 				subscriptionByProject[j].ChannelName+
 					subscriptionByProject[j].EventType+
 					subscriptionByProject[j].TargetBranch+
@@ -449,7 +474,16 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					subscriptionByProject[i].ApprovalStatusName+
 					subscriptionByProject[i].ApprovalTypeName+
 					subscriptionByProject[i].StageNameValue+
-					subscriptionByProject[i].ReleaseStatusName
+					subscriptionByProject[i].ReleaseStatusName+
+					subscriptionByProject[i].RunPipeline+
+					subscriptionByProject[i].ReleasePipelineName+
+					subscriptionByProject[i].RunStageName+
+					subscriptionByProject[i].RunEnvironmentName+
+					subscriptionByProject[i].RunStageNameID+
+					subscriptionByProject[i].RunStageStateID+
+					subscriptionByProject[i].RunStageResultID+
+					subscriptionByProject[i].RunStateID+
+					subscriptionByProject[i].RunResultID
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
@@ -676,6 +710,14 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		ReleaseStatus:                body.ReleaseStatus,
 		ApprovalType:                 body.ApprovalType,
 		ApprovalStatus:               body.ApprovalStatus,
+		RunPipeline:                  body.RunPipeline,
+		RunStageName:                 body.RunStageName,
+		RunEnvironmentName:           body.RunEnvironmentName,
+		RunStageNameID:               body.RunStageNameID,
+		RunStageStateID:              body.RunStageStateID,
+		RunStageResultID:             body.RunStageResultID,
+		RunStateID:                   body.RunStateID,
+		RunResultID:                  body.RunResultID,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
@@ -710,6 +752,14 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		ReleaseStatus:                body.ReleaseStatus,
 		ApprovalType:                 body.ApprovalType,
 		ApprovalStatus:               body.ApprovalStatus,
+		RunPipeline:                  body.RunPipeline,
+		RunStageName:                 body.RunStageName,
+		RunEnvironmentName:           body.RunEnvironmentName,
+		RunStageNameID:               body.RunStageNameID,
+		RunStageStateID:              body.RunStageStateID,
+		RunStageResultID:             body.RunStageResultID,
+		RunStateID:                   body.RunStateID,
+		RunResultID:                  body.RunResultID,
 	}); deleteErr != nil {
 		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})

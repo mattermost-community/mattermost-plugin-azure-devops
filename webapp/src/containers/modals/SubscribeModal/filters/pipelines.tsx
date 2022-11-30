@@ -349,7 +349,7 @@ const PipelinesFilter = ({
                                 options={runResultIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
-                                disabled={isLoading}
+                                disabled={(selectedRunStateId !== filterLabelValuePairAll.value && selectedRunStateId !== 'Completed') || isLoading}
                             />
                         </div>
                     </>

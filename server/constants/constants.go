@@ -129,7 +129,7 @@ const (
 	FileNameProjectIcon        = "project-icon.svg"
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
-	FileNamePipelinesIcon      = "pipeline-icon.svg"
+	FileNamePipelinesIcon      = "pipelines-icon.svg"
 
 	SlackAttachmentAuthorNameRepos     = "Azure Repos"
 	SlackAttachmentAuthorNameBoards    = "Azure Boards"

@@ -9,9 +9,12 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -538,6 +541,22 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
 		}
 
+		// Convert map to json string
+		jsonBytes, err := json.Marshal(body.Resource.Comment)
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		// Convert json string to struct
+		var comment serializers.Comment
+		if err := json.Unmarshal(jsonBytes, &comment); err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
 			AuthorName: constants.SlackAttachmentAuthorNameRepos,
@@ -561,7 +580,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 				{
 					Title: "Comment",
-					Value: body.Resource.Comment.Content,
+					Value: comment.Content,
 				},
 			},
 			Footer:     body.Resource.PullRequest.Repository.Name,
@@ -586,6 +605,205 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameGitBranchIcon),
+		}
+	case constants.SubscriptionEventBuildCompleted:
+		startTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.StartTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		finishTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.FinishTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Build pipeline",
+					Value: body.Resource.Definition.Name,
+					Short: true,
+				},
+				{
+					Title: "Branch",
+					Value: body.Resource.SourceBranch,
+					Short: true,
+				},
+				{
+					Title: "Requested for",
+					Value: body.Resource.RequestedFor.Name,
+					Short: true,
+				},
+				{
+					Title: "Duration",
+					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseCreated:
+		artifacts := ""
+		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			artifacts += body.Resource.Release.Artifacts[i].Name
+			if i != len(body.Resource.Release.Artifacts)-1 {
+				artifacts += ", "
+			}
+		}
+
+		if artifacts == "" {
+			artifacts = "No artifacts"
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Created by",
+					Value: body.Resource.Release.CreatedBy.DisplayName,
+					Short: true,
+				},
+				{
+					Title: "Trigger reason",
+					Value: cases.Title(language.Und).String(body.Resource.Release.Reason),
+					Short: true,
+				},
+				{
+					Title: "Artifacts",
+					Value: artifacts,
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseAbandoned:
+		abandonTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.Release.ModifiedOn, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Abandoned by",
+					Value: body.Resource.Release.ModifiedBy.DisplayName,
+					Short: true,
+				},
+				{
+					Title: "Abandoned on",
+					Value: abandonTime.Format(constants.DateTimeFormat),
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseDeploymentStarted:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Release",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.Name, body.Resource.Release.Links.Web.Href),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseDeploymentCompleted:
+		comment := body.Resource.Comment.(string)
+		if comment == "" {
+			comment = "No comments"
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Environment.ReleaseDefinition.Name, body.Resource.Environment.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Release",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Environment.Release.Name, body.Resource.Environment.Release.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Comment",
+					Value: comment,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventRunStageStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Stage.Links.PipelineWeb.Href),
+					Short: true,
+				},
+			},
+		}
+	case constants.SubscriptionEventRunStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Run.Links.PipelineWeb.Href),
+					Short: true,
+				},
+			},
 		}
 	}
 

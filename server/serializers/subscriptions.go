@@ -159,10 +159,56 @@ type Resource struct {
 	Title         string       `json:"title"`
 	Description   string       `json:"description"`
 	Repository    Repository   `json:"repository"`
-	Comment       Comment      `json:"comment"`
+	Comment       interface{}  `json:"comment"`
 	PullRequest   PullRequest  `json:"pullRequest"`
 	Commits       []Commit     `json:"commits"`
 	RefUpdates    []RefUpdates `json:"refUpdates"`
+	Definition    Definition   `json:"definition"`
+	SourceBranch  string       `json:"sourceBranch"`
+	Project       Project      `json:"project"`
+	RequestedFor  RequestedFor `json:"requestedFor"`
+	StartTime     string       `json:"startTime"`
+	FinishTime    string       `json:"finishTime"`
+	Release       Release      `json:"release"`
+	StageName     string       `json:"stageName"`
+	Environment   Environment  `json:"environment"`
+	Stage         Stage        `json:"stage"`
+	Pipeline      Definition   `json:"pipeline"`
+	Run           Stage        `json:"run"`
+}
+
+type Stage struct {
+	Links ProjectLink `json:"_links"`
+}
+
+type Environment struct {
+	Release           Release    `json:"release"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
+}
+
+type Release struct {
+	Name              string      `json:"name"`
+	CreatedBy         Reviewer    `json:"createdBy"`
+	Artifacts         []*Artifact `json:"artifacts"`
+	ReleaseDefinition Definition  `json:"releaseDefinition"`
+	Reason            string      `json:"reason"`
+	ModifiedOn        string      `json:"modifiedOn"`
+	ModifiedBy        Reviewer    `json:"modifiedBy"`
+	Links             ProjectLink `json:"_links"`
+}
+
+type Artifact struct {
+	Name string `json:"alias"`
+}
+
+type RequestedFor struct {
+	Name string `json:"displayName"`
+}
+
+type Definition struct {
+	Name  string      `json:"name"`
+	URL   string      `json:"url"`
+	Links ProjectLink `json:"_links"`
 }
 
 type RefUpdates struct {

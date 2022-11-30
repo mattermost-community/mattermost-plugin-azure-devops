@@ -250,7 +250,7 @@ type ReleaseDetails struct {
 	Name              string            `json:"name"`
 	ID                int               `json:"id"`
 	Status            string            `json:"status"`
-	Environments      []Environments    `json:"environments"`
+	Environments      []*Environments   `json:"environments"`
 	Link              Link              `json:"_links"`
 	ReleaseDefinition ReleaseDefinition `json:"releaseDefinition"`
 }

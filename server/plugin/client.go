@@ -134,12 +134,12 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 
 // Function to get the pipeline release details.
 func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
-	buildDetailsURL := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
+	releaseDetailsURL := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
 
 	var releaseDetails *serializers.ReleaseDetails
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	_, statusCode, err := c.CallJSON(baseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
+	_, statusCode, err := c.CallJSON(baseURL, releaseDetailsURL, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline release details")
 	}

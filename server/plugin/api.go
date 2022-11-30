@@ -12,6 +12,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
@@ -107,7 +109,7 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: strings.ToLower(body.Organization), ProjectName: cases.Title(language.Und).String(body.Project)}); isProjectLinked {
 		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}
@@ -136,8 +138,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
-		ProjectName:      response.Name,
-		OrganizationName: body.Organization,
+		ProjectName:      cases.Title(language.Und).String(body.Project),
+		OrganizationName: strings.ToLower(body.Organization),
 		IsAdmin:          isAdmin,
 	}
 

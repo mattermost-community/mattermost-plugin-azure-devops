@@ -279,7 +279,8 @@ func TestHandleLink(t *testing.T) {
 				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 					MattermostUserID: "mockMattermostUserID",
-					OrganizationName: "mockOrganization",
+					ProjectName:      "Mockproject",
+					OrganizationName: "mockorganization",
 				}).Return(nil)
 			}
 

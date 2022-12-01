@@ -96,6 +96,7 @@ const (
 	FilterAll                    = "all"
 	FilterBoards                 = "boards"
 	FilterRepos                  = "repos"
+	FilterPipelines              = "pipelines"
 	EventTypeRelease             = "release"
 	FilterIDReleaseDefinitionID  = "releaseDefinitionId"
 	FilterIDReleaseEnvironmentID = "releaseEnvironmentId"
@@ -156,6 +157,20 @@ var (
 		SubscriptionEventPullRequestUpdated:   true,
 		SubscriptionEventPullRequestCommented: true,
 		SubscriptionEventCodePushed:           true,
+	}
+
+	ValidSubscriptionEventsForPipelines = map[string]bool{
+		SubscriptionEventBuildCompleted:                     true,
+		SubscriptionEventReleaseAbandoned:                   true,
+		SubscriptionEventReleaseCreated:                     true,
+		SubscriptionEventReleaseDeploymentApprovalCompleted: true,
+		SubscriptionEventReleaseDeploymentEventPending:      true,
+		SubscriptionEventReleaseDeploymentCompleted:         true,
+		SubscriptionEventReleaseDeploymentStarted:           true,
+		SubscriptionEventRunStageApprovalCompleted:          true,
+		SubscriptionEventRunStageStateChanged:               true,
+		SubscriptionEventRunStageWaitingForApproval:         true,
+		SubscriptionEventRunStateChanged:                    true,
 	}
 
 	ValidSubscriptionEventsForRun = map[string]bool{

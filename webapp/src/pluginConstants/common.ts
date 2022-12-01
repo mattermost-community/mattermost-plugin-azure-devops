@@ -101,6 +101,7 @@ export const subscriptionFilters = {
     serviceType: {
         boards: 'boards',
         repos: 'repos',
+        pipelines: 'pipelines',
         all: 'all',
     },
     eventType: {
@@ -109,6 +110,9 @@ export const subscriptionFilters = {
         },
         repos: {
             ...eventTypeRepos,
+        },
+        pipelines: {
+            ...eventTypePipelines,
         },
         all: 'all',
     },

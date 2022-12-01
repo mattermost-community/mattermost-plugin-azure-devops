@@ -431,6 +431,17 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 								subscriptionByProject = append(subscriptionByProject, subscription)
 							}
 						}
+					case constants.FilterPipelines:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
 					}
 				}
 			}

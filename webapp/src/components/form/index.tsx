@@ -1,7 +1,6 @@
 import React from 'react';
 
-import Dropdown from 'components/dropdown';
-import Input from 'components/inputField';
+import {Input, Select} from '@brightscout/mattermost-ui-library';
 
 type Props = {
     fieldConfig: Pick<ModalFormFieldConfig, 'label' | 'type' | 'validations'>
@@ -20,26 +19,25 @@ const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onCh
     switch (type) {
     case 'dropdown' :
         return (
-            <Dropdown
-                placeholder={label}
-                value={value}
-                onChange={onChange}
+            <Select
+                label={label}
                 options={optionsList || []}
-                required={validations?.isRequired as boolean}
-                error={error}
-                disabled={isDisabled}
+                onSelectOptionHandler={onChange}
+                className='form-input'
             />
         );
     case 'text' :
         return (
             <Input
+                label={label}
                 type='text'
-                placeholder={label}
                 value={value ?? ''}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
                 error={error}
                 required={validations?.isRequired as boolean}
                 disabled={isDisabled}
+                fullWidth={true}
+                className='form-input'
             />
         );
     default:

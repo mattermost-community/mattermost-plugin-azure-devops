@@ -64,15 +64,19 @@
     "webpack-cli": "3.3.12"
   },
   "dependencies": {
+    "@brightscout/mattermost-ui-library": "2.0.0",
     "@reduxjs/toolkit": "1.8.2",
+    "bootstrap": "4.6.2",
     "core-js": "3.6.5",
     "js-cookie": "3.0.1",
     "mattermost-redux": "5.27.0",
     "react": "16.13.1",
-    "react-bootstrap": "2.4.0",
+    "react-bootstrap": "1.6.1",
+    "react-dom": "16.13.1",
     "react-infinite-scroll-component": "6.1.0",
     "react-redux": "7.2.0",
     "redux": "4.0.5",
+    "styled-components": "~5.3.3",
     "typescript": "3.9.6"
   },
   "jest": {

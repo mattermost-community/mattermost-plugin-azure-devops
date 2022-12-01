@@ -1,87 +1,106 @@
 .height-rhs {
-    height: calc(100% - #{$rhs-bottom-button-height}); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
+  height: calc(
+    100% - #{$rhs-bottom-button-height}
+  ); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
 }
 
 .project-details-unlink-button {
-    max-width: 42px;
-    height: 34px;
-    margin-right: 16px;
-    display: block;
-    margin-left: auto;
+  max-width: 42px;
+  height: 34px;
+  margin-right: 16px;
+  display: block;
+  margin-left: auto;
 }
 
 .unlink-button {
-    margin-left: auto;
-    display: block;
+  margin-left: auto;
+  display: block;
 
-    i {
-        margin: 7px 3px;
-    }
+  i {
+    margin: 7px 3px;
+  }
 }
 
 .rhs-project-list-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    padding: 15px 0 30px;
-    width: 100%;
-    background-color: var(--center-channel-bg);
-    box-shadow: 5px -1px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 15px 0 30px;
+  width: 100%;
+  background-color: var(--center-channel-bg);
+  box-shadow: 5px -1px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
 
-    .project-list-btn {
-        width: calc(100% - 60px); // 60px is the width of padding from left and right
-    }
+  .project-list-btn {
+    width: calc(
+      100% - 60px
+    ); // 60px is the width of padding from left and right
+  }
 }
 
 .rhs-header-divider {
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
 }
 
 .result-panel-icon {
-    &--error {
-        font-size: 58px;
-        color: var(--error-text);
-    }
+  &--error {
+    font-size: 58px;
+    color: var(--error-text);
+  }
 }
 
 .rhs-filter-popover {
-    top: 71px;
-    width: calc(100% - 30px);
-    padding: 20px;
-    position: absolute;
-    height: fit-content;
-    border-radius: 4px;
-    border-color: rgba(var(--center-channel-color-rgb), 0.16);
-    background: var(--center-channel-bg);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  top: 71px;
+  width: calc(100% - 30px);
+  padding: 20px;
+  position: absolute;
+  height: fit-content;
+  border-radius: 4px;
+  border-color: rgba(var(--center-channel-color-rgb), 0.16);
+  background: var(--center-channel-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .filter-button {
-    position: relative;
+  position: relative;
 
-    &::after {
-        display: block;
-        content: "";
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        top: 6px;
-        left: 18px;
-        position: absolute;
-        border: 2px solid var(--center-channel-bg);
-        background-color: $primary-color;
-    }
+  &::after {
+    display: block;
+    content: "";
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    top: 6px;
+    left: 18px;
+    position: absolute;
+    border: 2px solid var(--center-channel-bg);
+    background-color: $primary-color;
+  }
 }
 
 // Do not modify this class, this is a direct class from mattermost-webapp
 // This class is used for the dimensions of author_icon in the Mattermost slack attachment
 .post .attachment {
-    // Uniquely targetting a common img tag on this plugin to ensure these CSS properties do not conflict with the global or another CSS styling
-    img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"] {
-        width: 20px;
-        height: 20px;
-    }
+  // Uniquely targetting a common img tag on this plugin to ensure these CSS properties do not conflict with the global or another CSS styling
+  img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"],
+  img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"] {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.form-input {
+  margin: 12px 0;
+}
+
+.linkModal-progress {
+  top: -28px;
+  left: -32px;
+  width: 112%;
+}
+
+.modal-backdrop.show {
+    opacity: .5;
 }

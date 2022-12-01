@@ -102,12 +102,15 @@ type SubscriptionDetails = {
     approvalStatusName: string
     releaseStatusName: string
     runPipeline: string
+    runPipelineName: string
     runStage: string
     runEnvironment: string
     runStageId: string
     runStageStateId: string
+    runStageStateIdName: string
     runStageResultId: string
     runStateId: string
+    runStateIdName: string
     runResultId: string
 }
 

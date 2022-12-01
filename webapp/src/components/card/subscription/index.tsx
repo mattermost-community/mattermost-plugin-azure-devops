@@ -17,7 +17,7 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath, releasePipelineName, buildPipeline, buildStatusName, approvalStatusName, approvalTypeName, releaseStatusName, stageNameValue}, subscriptionDetails}: SubscriptionCardProps) => {
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath, releasePipelineName, buildPipeline, buildStatusName, approvalStatusName, approvalTypeName, releaseStatusName, stageNameValue, runPipelineName, runEnvironment, runStage, runStageId, runResultId, runStageResultId, runStageStateIdName, runStateIdName}, subscriptionDetails}: SubscriptionCardProps) => {
     let serviceTypeIcon = pluginConstants.SVGIcons.boards;
     if (serviceType === pluginConstants.common.repos) {
         serviceTypeIcon = pluginConstants.SVGIcons.repos;
@@ -71,7 +71,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         value={`Subscription created by ${createdBy}`}
                     />
                     {
-                        (areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName || releasePipelineName || buildPipeline || buildStatusName || approvalStatusName || approvalTypeName || releaseStatusName || stageNameValue) && (
+                        (areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName || releasePipelineName || buildPipeline || buildStatusName || approvalStatusName || approvalTypeName || releaseStatusName || stageNameValue || runPipelineName || runEnvironment || runStage || runStageId || runResultId || runStageResultId || runStageStateIdName || runStateIdName) && (
                             <div className='d-flex align-item-center margin-left-5'>
                                 <div className='card-filter'>
                                     <SVGWrapper
@@ -102,6 +102,14 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                                     {approvalStatusName && <Chip text={`Approval status is: ${approvalStatusName}`}/>}
                                     {approvalTypeName && <Chip text={`Approval type is: ${approvalTypeName}`}/>}
                                     {releaseStatusName && <Chip text={`Release status is: ${releaseStatusName}`}/>}
+                                    {runPipelineName && <Chip text={`Pipeline is: ${runPipelineName}`}/>}
+                                    {runEnvironment && <Chip text={`Environment is: ${runEnvironment}`}/>}
+                                    {runStage && <Chip text={`Stage is: ${runStage}`}/>}
+                                    {runStageId && <Chip text={`Stage is: ${runStageId}`}/>}
+                                    {runStageStateIdName && <Chip text={`Stage state is: ${runStageStateIdName}`}/>}
+                                    {runStageResultId && <Chip text={`Stage result is: ${runStageResultId}`}/>}
+                                    {runStateIdName && <Chip text={`State is: ${runStateIdName}`}/>}
+                                    {runResultId && <Chip text={`Result is: ${runResultId}`}/>}
                                 </div>
                             </div>
                         )

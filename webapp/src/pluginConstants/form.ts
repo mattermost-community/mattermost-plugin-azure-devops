@@ -448,6 +448,11 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    runPipelineName: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
     runStage: {
         label: 'Stage',
         type: 'hidden',
@@ -469,6 +474,12 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         value: '',
         optionsList: runStageStateIdOptions,
     },
+    runStageStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
     runStageResultId: {
         label: 'Result',
         type: 'hidden',
@@ -476,6 +487,12 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         optionsList: runStageResultIdOptions,
     },
     runStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runStateIdName: {
         label: 'State',
         type: 'hidden',
         value: '',

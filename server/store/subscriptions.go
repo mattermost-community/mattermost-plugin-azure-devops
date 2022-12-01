@@ -99,12 +99,15 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ApprovalTypeName:                 subscription.ApprovalTypeName,
 		ApprovalStatusName:               subscription.ApprovalStatusName,
 		RunPipeline:                      subscription.RunPipeline,
+		RunPipelineName:                  subscription.RunPipelineName,
 		RunStageName:                     subscription.RunStageName,
 		RunEnvironmentName:               subscription.RunEnvironmentName,
 		RunStageNameID:                   subscription.RunStageNameID,
 		RunStageStateID:                  subscription.RunStageStateID,
+		RunStageStateIDName:              subscription.RunStageStateIDName,
 		RunStageResultID:                 subscription.RunStageResultID,
 		RunStateID:                       subscription.RunStateID,
+		RunStateIDName:                   subscription.RunStateIDName,
 		RunResultID:                      subscription.RunResultID,
 	}
 	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue

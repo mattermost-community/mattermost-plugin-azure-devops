@@ -124,12 +124,15 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             stageNameValue: subscriptionDetails.stageNameValue,
             releaseStatusName: subscriptionDetails.releaseStatusName,
             runPipeline: subscriptionDetails.runPipeline,
+            runPipelineName: subscriptionDetails.runPipelineName,
             runStage: subscriptionDetails.runStage,
             runEnvironment: subscriptionDetails.runEnvironment,
             runStageId: subscriptionDetails.runStageId,
             runStageStateId: subscriptionDetails.runStageStateId,
+            runStageStateIdName: subscriptionDetails.runStageStateIdName,
             runStageResultId: subscriptionDetails.runStageResultId,
             runStateId: subscriptionDetails.runStateId,
+            runStateIdName: subscriptionDetails.runStateIdName,
             runResultId: subscriptionDetails.runResultId,
         });
         setDeleteConfirmationModalError(null);

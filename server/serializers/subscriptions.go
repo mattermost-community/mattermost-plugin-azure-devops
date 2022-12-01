@@ -31,7 +31,7 @@ type PublisherInputsGeneric struct {
 	ReleaseApprovalType          string `json:"releaseApprovalType,omitempty"`
 	ReleaseApprovalStatus        string `json:"releaseApprovalStatus,omitempty"`
 	ReleaseEnvironmentStatus     string `json:"releaseEnvironmentStatus,omitempty"`
-	PipelineID                  string `json:"pipelineId,omitempty"`
+	PipelineID                   string `json:"pipelineId,omitempty"`
 }
 
 type ConsumerInputs struct {

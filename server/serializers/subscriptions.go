@@ -31,12 +31,12 @@ type PublisherInputsGeneric struct {
 	ReleaseApprovalType          string `json:"releaseApprovalType,omitempty"`
 	ReleaseApprovalStatus        string `json:"releaseApprovalStatus,omitempty"`
 	ReleaseEnvironmentStatus     string `json:"releaseEnvironmentStatus,omitempty"`
-	RunPipeline                  string `json:"pipelineId,omitempty"`
-	RunStageName                 string `json:"stageName,omitempty"`
-	RunEnvironmentName           string `json:"environmentName,omitempty"`
-	RunStageNameID               string `json:"stageNameId,omitempty"`
-	RunStageStateID              string `json:"stageStateId,omitempty"`
-	RunStageResultID             string `json:"stageResultId,omitempty"`
+	PipelineID                   string `json:"pipelineId,omitempty"`
+	StageName                    string `json:"stageName,omitempty"`
+	EnvironmentName              string `json:"environmentName,omitempty"`
+	StageNameID                  string `json:"stageNameId,omitempty"`
+	StageStateID                 string `json:"stageStateId,omitempty"`
+	StageResultID                string `json:"stageResultId,omitempty"`
 	RunStateID                   string `json:"runStateId,omitempty"`
 	RunResultID                  string `json:"runResultId,omitempty"`
 }

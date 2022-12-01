@@ -200,12 +200,12 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			ReleaseEnvironmentStatus:     body.ReleaseStatus,
 			ReleaseApprovalType:          body.ApprovalType,
 			ReleaseApprovalStatus:        body.ApprovalStatus,
-			RunPipeline:                  body.RunPipeline,
-			RunStageName:                 body.RunStageName,
-			RunEnvironmentName:           body.RunEnvironmentName,
-			RunStageNameID:               body.RunStageNameID,
-			RunStageStateID:              body.RunStageStateID,
-			RunStageResultID:             body.RunStageResultID,
+			PipelineID:                   body.RunPipeline,
+			StageName:                    body.RunStageName,
+			EnvironmentName:              body.RunEnvironmentName,
+			StageNameID:                  body.RunStageNameID,
+			StageStateID:                 body.RunStageStateID,
+			StageResultID:                body.RunStageResultID,
 			RunStateID:                   body.RunStateID,
 			RunResultID:                  body.RunResultID,
 		},
@@ -307,8 +307,8 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	if constants.ValidSubscriptionEventsForRun[request.EventType] {
 		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
-			ProjectID:   request.ProjectID,
-			RunPipeline: request.RunPipeline,
+			ProjectID:  request.ProjectID,
+			PipelineID: request.RunPipeline,
 		}
 	}
 

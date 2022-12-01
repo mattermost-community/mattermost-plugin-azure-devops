@@ -255,6 +255,7 @@ const SubscribeModal = () => {
             ...formFields,
             repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
             repositoryName: repoName === filterLabelValuePairAll.label ? '' : repoName,
+            targetBranch: repoName === filterLabelValuePairAll.label ? '' : formFields.targetBranch,
         });
 
     const handleSetTargetBranchFilter = (newValue: string) =>

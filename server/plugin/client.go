@@ -299,8 +299,8 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	if constants.ValidSubscriptionEventsForRun[request.EventType] {
 		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
-			ProjectID:   request.ProjectID,
-			RunPipeline: request.RunPipeline,
+			ProjectID:  request.ProjectID,
+			PipelineID: request.RunPipeline,
 		}
 	}
 

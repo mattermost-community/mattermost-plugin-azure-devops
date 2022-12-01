@@ -24,13 +24,13 @@ type PublisherInputsGeneric struct {
 	PushedBy                     string `json:"pushedBy,omitempty"`
 	MergeResult                  string `json:"mergeResult,omitempty"`
 	NotificationType             string `json:"notificationType,omitempty"`
-	BuildPipeline                string `json:"definitionName,omitempty"`
+	DefinitionName               string `json:"definitionName,omitempty"`
 	BuildStatus                  string `json:"buildStatus,omitempty"`
-	ReleasePipeline              string `json:"releaseDefinitionId,omitempty"`
-	StageName                    string `json:"releaseEnvironmentId,omitempty"`
-	ApprovalType                 string `json:"releaseApprovalType,omitempty"`
-	ApprovalStatus               string `json:"releaseApprovalStatus,omitempty"`
-	ReleaseStatus                string `json:"releaseEnvironmentStatus,omitempty"`
+	ReleaseDefinitionID          string `json:"releaseDefinitionId,omitempty"`
+	ReleaseEnvironmentID         string `json:"releaseEnvironmentId,omitempty"`
+	ReleaseApprovalType          string `json:"releaseApprovalType,omitempty"`
+	ReleaseApprovalStatus        string `json:"releaseApprovalStatus,omitempty"`
+	ReleaseEnvironmentStatus     string `json:"releaseEnvironmentStatus,omitempty"`
 	RunPipeline                  string `json:"pipelineId,omitempty"`
 	RunStageName                 string `json:"stageName,omitempty"`
 	RunEnvironmentName           string `json:"environmentName,omitempty"`

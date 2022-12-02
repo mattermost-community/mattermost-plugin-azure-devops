@@ -335,6 +335,8 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runPipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runStage: newValue === filterLabelValuePairAll.value ? '' : formFields.runStage,
+            runStageId: newValue === filterLabelValuePairAll.value ? '' : formFields.runStageId,
         });
 
     const handleSetRunStageFilter = (newValue: string, stageName?: string) =>
@@ -359,6 +361,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStageStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runStageResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runStageResultId,
         });
 
     const handleSetRunStageResultIdFilter = (newValue: string, resultId?: string) =>
@@ -371,6 +374,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runResultId,
         });
 
     const handleSetRunResultIdFilter = (newValue: string, resultId?: string) =>

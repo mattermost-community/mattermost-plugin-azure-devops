@@ -10,5 +10,5 @@ require (
 	github.com/mattermost/mattermost-server/v5 v5.37.9
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.7
 )

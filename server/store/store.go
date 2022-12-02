@@ -1,11 +1,11 @@
 package store
 
 import (
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
-
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type KVStore interface {

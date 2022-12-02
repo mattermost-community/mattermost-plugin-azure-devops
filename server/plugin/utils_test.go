@@ -14,17 +14,18 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/golang/mock/gomock"
-	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 type mockBLock struct{}

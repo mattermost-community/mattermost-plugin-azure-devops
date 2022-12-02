@@ -3,9 +3,10 @@ package store
 import (
 	"encoding/json"
 
+	"github.com/pkg/errors"
+
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
-	"github.com/pkg/errors"
 )
 
 type LinkStore interface {

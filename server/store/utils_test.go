@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 func TestEnsure(t *testing.T) {

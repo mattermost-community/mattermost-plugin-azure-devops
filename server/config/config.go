@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 // Configuration captures the plugin's external configuration as exposed in the Mattermost server

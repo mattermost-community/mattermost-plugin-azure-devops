@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 type Client interface {
@@ -373,7 +373,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	}
 	defer resp.Body.Close()
 
-	responseData, err = ioutil.ReadAll(resp.Body)
+	responseData, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}

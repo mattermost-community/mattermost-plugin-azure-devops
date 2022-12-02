@@ -1,9 +1,10 @@
 package testutils
 
 import (
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {

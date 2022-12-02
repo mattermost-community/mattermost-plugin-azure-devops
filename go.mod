@@ -1,4 +1,4 @@
-module github.com/Brightscout/mattermost-plugin-azure-devops
+module github.com/mattermost/mattermost-plugin-azure-devops
 
 go 1.16
 

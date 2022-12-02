@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/golang/mock/gomock"
+	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"

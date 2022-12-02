@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/stretchr/testify/assert"
 )
 

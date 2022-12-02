@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 // TODO: WIP.

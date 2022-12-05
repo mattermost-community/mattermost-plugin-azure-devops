@@ -12,7 +12,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 var ErrNotFound = errors.New("not found")

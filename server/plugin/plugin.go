@@ -14,9 +14,9 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/store"
 )
 
 // Plugin implements the interface expected by the Mattermost server to communicate between the server and plugin processes.

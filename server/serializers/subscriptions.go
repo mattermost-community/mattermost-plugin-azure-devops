@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type UserID struct {

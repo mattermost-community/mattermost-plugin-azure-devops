@@ -11,12 +11,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 var ErrNotFound = errors.New("not found")

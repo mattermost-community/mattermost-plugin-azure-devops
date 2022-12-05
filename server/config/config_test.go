@@ -3,9 +3,10 @@ package config
 import (
 	"testing"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 func TestIsValid(t *testing.T) {

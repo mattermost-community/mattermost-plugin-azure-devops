@@ -18,9 +18,9 @@ const (
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
-		"* `/azuredevops boards subscription add` - Add a new Boards subscription for your linked projects.\n" +
-		"* `/azuredevops boards subscription list [me or anyone] [all_channels]` - View Boards subscriptions.\n" +
-		"* `/azuredevops boards subscription delete [subscription id]` - Unsubscribe a Boards subscription"
+		"* `/azuredevops boards/repos subscription add` - Add a new Boards/Repos subscription for your linked projects.\n" +
+		"* `/azuredevops boards/repos subscription list [me or anyone] [all_channels]` - View Boards/Repos subscriptions.\n" +
+		"* `/azuredevops boards/repos subscription delete [subscription id]` - Delete a Boards/Repos subscription"
 	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
 	CommandHelp         = "help"
 	CommandConnect      = "connect"
@@ -50,7 +50,9 @@ const (
 	TasksAPIVersion      = "6.0"
 
 	// Subscription constants
-	PublisherID                                         = "tfs"
+	PublisherIDTFS                                      = "tfs"
+	PublisherIDRM                                       = "rm"
+	PublisherIDPipelines                                = "pipelines"
 	ConsumerID                                          = "webHooks"
 	ConsumerActionID                                    = "httpRequest"
 	SubscriptionEventPullRequestCreated                 = "git.pullrequest.created"
@@ -90,15 +92,15 @@ const (
 	QueryParamPerPage     = "per_page"
 
 	// Filters
-	FilterCreatedByMe            = "me"
-	FilterCreatedByAnyone        = "anyone"
-	FilterAllChannels            = "all_channels"
-	FilterAll                    = "all"
-	FilterBoards                 = "boards"
-	FilterRepos                  = "repos"
-	EventTypeRelease             = "release"
-	FilterIDReleaseDefinitionID  = "releaseDefinitionId"
-	FilterIDReleaseEnvironmentID = "releaseEnvironmentId"
+	FilterCreatedByMe          = "me"
+	FilterCreatedByAnyone      = "anyone"
+	FilterAllChannels          = "all_channels"
+	FilterAll                  = "all"
+	FilterBoards               = "boards"
+	FilterRepos                = "repos"
+	EventTypeRelease           = "release"
+	FilterReleaseDefinitionID  = "releaseDefinitionId"
+	FilterReleaseEnvironmentID = "releaseEnvironmentId"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50
@@ -121,25 +123,28 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	ReposIconColor    = "#d74f27"
-	BoardsIconColor   = "#53bba1"
-	PipelineIconColor = "#4275E4"
+	IconColorRepos     = "#d74f27"
+	IconColorBoards    = "#53bba1"
+	IconColorPipelines = "#4275E4"
 
 	SubscriptionEventTypeDummy = "dummy"
 	FileNameGitBranchIcon      = "git-branch-icon.svg"
 	FileNameProjectIcon        = "project-icon.svg"
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
-	FileNamePipeline           = "pipeline-icon.svg"
-	IconColorBoards            = "#53bba1"
-	IconColorRepos             = "#d74f27"
+	FileNamePipelinesIcon      = "pipelines-icon.svg"
 
-	SlackAttachmentAuthorNameRepos  = "Azure Repos"
-	SlackAttachmentAuthorNameBoards = "Azure Boards"
+	SlackAttachmentAuthorNameRepos     = "Azure Repos"
+	SlackAttachmentAuthorNameBoards    = "Azure Boards"
+	SlackAttachmentAuthorNamePipelines = "Azure Pipelines"
 
 	ServiceTypeBoards    = "boards"
 	ServiceTypeRepos     = "repos"
 	ServiceTypePipelines = "pipelines"
+
+	DateTimeFormat = "Mon Jan 2 15:04:05 -0700 MST 2006"
+	DateTimeLayout = "2006-01-02T15:04:05"
+	TimeLayout     = "15:04:05"
 )
 
 var (

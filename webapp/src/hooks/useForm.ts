@@ -1,5 +1,7 @@
 import {useState} from 'react';
 
+import {eventType, serviceType} from 'pluginConstants/common';
+
 // Set initial value of form fields
 const getInitialFieldValues = (
     formFields: Partial<Record<FormFieldNames, ModalFormFieldConfig>>,
@@ -68,6 +70,16 @@ function useForm(initialFormFields: Partial<Record<FormFieldNames, ModalFormFiel
      */
     const onChangeFormField = (fieldName: FormFieldNames, value: string) => {
         setErrorState({...errorState, [fieldName]: ''});
+        if (fieldName === eventType) {
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID, serviceType: formFields.serviceType});
+            return;
+        }
+
+        if (fieldName === serviceType) {
+            setFormFields({...getInitialFieldValues(initialFormFields), [fieldName]: value, organization: formFields.organization, project: formFields.project, channelID: formFields.channelID});
+            return;
+        }
+
         setFormFields({...formFields, [fieldName]: value});
     };
 

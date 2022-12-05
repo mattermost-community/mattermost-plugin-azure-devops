@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type UserID struct {
@@ -64,8 +64,8 @@ type CreateSubscriptionRequestPayload struct {
 	Repository                       string `json:"repository"`
 	RepositoryName                   string `json:"repositoryName"`
 	TargetBranch                     string `json:"targetBranch"`
-	PullRequestCreatedBy             string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains     string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
 	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
 	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
 	PushedBy                         string `json:"pushedBy"`
@@ -147,8 +147,8 @@ type SubscriptionDetails struct {
 	TargetBranch                     string `json:"targetBranch"`
 	Repository                       string `json:"repository"`
 	RepositoryName                   string `json:"repositoryName"`
-	PullRequestCreatedBy             string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains     string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
 	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
 	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
 	PushedBy                         string `json:"pushedBy"`
@@ -193,10 +193,56 @@ type Resource struct {
 	Title         string       `json:"title"`
 	Description   string       `json:"description"`
 	Repository    Repository   `json:"repository"`
-	Comment       Comment      `json:"comment"`
+	Comment       interface{}  `json:"comment"`
 	PullRequest   PullRequest  `json:"pullRequest"`
 	Commits       []Commit     `json:"commits"`
 	RefUpdates    []RefUpdates `json:"refUpdates"`
+	Definition    Definition   `json:"definition"`
+	SourceBranch  string       `json:"sourceBranch"`
+	Project       Project      `json:"project"`
+	RequestedFor  RequestedFor `json:"requestedFor"`
+	StartTime     string       `json:"startTime"`
+	FinishTime    string       `json:"finishTime"`
+	Release       Release      `json:"release"`
+	StageName     string       `json:"stageName"`
+	Environment   Environment  `json:"environment"`
+	Stage         Stage        `json:"stage"`
+	Pipeline      Definition   `json:"pipeline"`
+	Run           Stage        `json:"run"`
+}
+
+type Stage struct {
+	Links ProjectLink `json:"_links"`
+}
+
+type Environment struct {
+	Release           Release    `json:"release"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
+}
+
+type Release struct {
+	Name              string      `json:"name"`
+	CreatedBy         Reviewer    `json:"createdBy"`
+	Artifacts         []*Artifact `json:"artifacts"`
+	ReleaseDefinition Definition  `json:"releaseDefinition"`
+	Reason            string      `json:"reason"`
+	ModifiedOn        string      `json:"modifiedOn"`
+	ModifiedBy        Reviewer    `json:"modifiedBy"`
+	Links             ProjectLink `json:"_links"`
+}
+
+type Artifact struct {
+	Name string `json:"alias"`
+}
+
+type RequestedFor struct {
+	Name string `json:"displayName"`
+}
+
+type Definition struct {
+	Name  string      `json:"name"`
+	URL   string      `json:"url"`
+	Links ProjectLink `json:"_links"`
 }
 
 type RefUpdates struct {
@@ -241,8 +287,8 @@ type DeleteSubscriptionRequestPayload struct {
 	MMUserID                     string `json:"mmUserID"`
 	TargetBranch                 string `json:"targetBranch"`
 	Repository                   string `json:"repository"`
-	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy         string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullRequestReviewersContains"`
 	PushedBy                     string `json:"pushedBy"`
 	MergeResult                  string `json:"mergeResult"`
 	NotificationType             string `json:"notificationType"`
@@ -277,10 +323,6 @@ type BuildDetails struct {
 
 type RequestedBy struct {
 	DisplayName string `json:"displayName"`
-}
-
-type Definition struct {
-	Name string `json:"name"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

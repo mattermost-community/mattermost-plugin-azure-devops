@@ -4,11 +4,15 @@
     border: none !important;
   }
 
+  &__header-icon {
+    padding: 14px 11px 11px 15px !important;
+  }
+
   &__title {
     font-size: 20px;
     font-weight: 500;
     margin: 0;
-    max-width: 100%;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

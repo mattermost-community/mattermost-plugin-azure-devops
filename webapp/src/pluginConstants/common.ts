@@ -7,6 +7,11 @@ export const RightSidebarHeader = 'Azure DevOps';
 
 export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
+export const StatusCodeForbidden = 403;
+
+export const deleteAllSubscriptionsMessage = 'Delete all your subscriptions created for this project';
+export const projectLinkedSuccessfullyMessage = 'Project linked successfully.';
+export const projectAlreadyLinkedMessage = 'Project already linked.';
 
 export const eventTypeBoards = {
     'workitem.created': 'Work item created',
@@ -54,6 +59,8 @@ export const eventTypeMap: Record<EventType, string> = {
 export const boards = 'boards';
 export const repos = 'repos';
 export const pipelines = 'pipelines';
+export const serviceType = 'serviceType';
+export const eventType = 'eventType';
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;

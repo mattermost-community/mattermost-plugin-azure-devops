@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type UserID struct {
@@ -57,8 +57,8 @@ type CreateSubscriptionRequestPayload struct {
 	Repository                       string `json:"repository"`
 	RepositoryName                   string `json:"repositoryName"`
 	TargetBranch                     string `json:"targetBranch"`
-	PullRequestCreatedBy             string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains     string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
 	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
 	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
 	PushedBy                         string `json:"pushedBy"`
@@ -126,8 +126,8 @@ type SubscriptionDetails struct {
 	TargetBranch                     string `json:"targetBranch"`
 	Repository                       string `json:"repository"`
 	RepositoryName                   string `json:"repositoryName"`
-	PullRequestCreatedBy             string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains     string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
 	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
 	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
 	PushedBy                         string `json:"pushedBy"`
@@ -253,8 +253,8 @@ type DeleteSubscriptionRequestPayload struct {
 	MMUserID                     string `json:"mmUserID"`
 	TargetBranch                 string `json:"targetBranch"`
 	Repository                   string `json:"repository"`
-	PullRequestCreatedBy         string `json:"pullrequestCreatedBy"`
-	PullRequestReviewersContains string `json:"pullrequestReviewersContains"`
+	PullRequestCreatedBy         string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullRequestReviewersContains"`
 	PushedBy                     string `json:"pushedBy"`
 	MergeResult                  string `json:"mergeResult"`
 	NotificationType             string `json:"notificationType"`

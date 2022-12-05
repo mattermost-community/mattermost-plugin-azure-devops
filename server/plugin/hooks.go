@@ -3,8 +3,8 @@ package plugin
 import (
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/config"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/store"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/store"
 )
 
 // Invoked when configuration changes may have been made.

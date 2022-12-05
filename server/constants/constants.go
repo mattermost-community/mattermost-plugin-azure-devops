@@ -18,9 +18,9 @@ const (
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
-		"* `/azuredevops boards subscription add` - Add a new Boards subscription for your linked projects.\n" +
-		"* `/azuredevops boards subscription list [me or anyone] [all_channels]` - View Boards subscriptions.\n" +
-		"* `/azuredevops boards subscription delete [subscription id]` - Unsubscribe a Boards subscription"
+		"* `/azuredevops boards/repos subscription add` - Add a new Boards/Repos subscription for your linked projects.\n" +
+		"* `/azuredevops boards/repos subscription list [me or anyone] [all_channels]` - View Boards/Repos subscriptions.\n" +
+		"* `/azuredevops boards/repos subscription delete [subscription id]` - Delete a Boards/Repos subscription"
 	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
 	CommandHelp         = "help"
 	CommandConnect      = "connect"

@@ -11,8 +11,8 @@ import (
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 type OAuthConfig struct {

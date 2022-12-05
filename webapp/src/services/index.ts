@@ -19,7 +19,7 @@ const azureDevOpsPluginApi = createApi({
                 body: payload,
             }),
         }),
-        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<void, APIRequestPayload>({
+        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<CreateLinkResponse, APIRequestPayload>({
             query: (payload) => ({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
                 url: Constants.pluginApiServiceConfigs.createLink.path,

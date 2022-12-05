@@ -14,7 +14,7 @@ See the [LICENSE](./LICENSE) file for license rights and limitations.
 
 ## Overview
 
-This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Releases](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
+This plugin integrates the services of Azure DevOps in Mattermost. For a stable production release, please download the latest version from the [Github Releases](https://github.com/mattermost/mattermost-plugin-azure-devops/releases) and follow the instructions to [install](#installation) and [configure](#configuration) the plugin.
 
 ## Features
 
@@ -99,7 +99,7 @@ To add a new subscription for a linked project click on the project title under 
 
 ## Installation
 
-1. Go to the [releases page of this GitHub repository](https://github.com/Brightscout/mattermost-plugin-azure-devops/releases) and download the latest release for your Mattermost server.
+1. Go to the [releases page of this GitHub repository](https://github.com/mattermost/mattermost-plugin-azure-devops/releases) and download the latest release for your Mattermost server.
 2. Upload this file to the Mattermost **System Console > Plugins > Management** page to install the plugin. To learn more about how to upload a plugin, [see the documentation](https://docs.mattermost.com/administration/plugins.html#plugin-uploads).
 3. Enable the plugin from **System Console > Plugins > Mattermost Azure Devops plugin**.
 
@@ -112,7 +112,9 @@ To add a new subscription for a linked project click on the project title under 
 ## Connecting to Azure Devops
   - Enter slash command `/azuredevops connect`.
   - You will get a response with a link to connect your Azure DevOps account.
-  ![Screenshot from 2022-07-29 13-01-14](https://user-images.githubusercontent.com/100013900/181709568-9468b4a7-aaef-45a5-8968-882d560f43c3.png)
+
+    ![image](https://user-images.githubusercontent.com/100013900/181709568-9468b4a7-aaef-45a5-8968-882d560f43c3.png)
+
   - Click on that link. If it asks for a login, enter your credentials and connect to your account.
 
 After connecting successfully, you will get a direct message from the Azure DevOps bot containing a Welcome message and some useful information. 

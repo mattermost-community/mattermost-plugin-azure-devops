@@ -1,6 +1,6 @@
 package store
 
-import "github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+import "github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 
 type UserStore interface {
 	LoadUser(mattermostUserID string) (*serializers.User, error)

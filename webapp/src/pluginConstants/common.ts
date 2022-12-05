@@ -1,3 +1,5 @@
+import {SVGIcons} from './icons';
+
 export const pluginId = 'mattermost-plugin-azure-devops';
 
 export const AzureDevops = 'Azure DevOps';
@@ -5,6 +7,11 @@ export const RightSidebarHeader = 'Azure DevOps';
 
 export const MMCSRF = 'MMCSRF';
 export const HeaderCSRFToken = 'X-CSRF-Token';
+export const StatusCodeForbidden = 403;
+
+export const deleteAllSubscriptionsMessage = 'Delete all your subscriptions created for this project';
+export const projectLinkedSuccessfullyMessage = 'Project linked successfully.';
+export const projectAlreadyLinkedMessage = 'Project already linked.';
 
 export const eventTypeBoards = {
     'workitem.created': 'Work item created',
@@ -63,32 +70,11 @@ export const eventTypeMap: Record<EventType, string> = {
     ...eventTypePipelines,
 };
 
-export const serviceTypeMap: Record<EventType, string> = {
-    'workitem.created': 'Boards',
-    'workitem.updated': 'Boards',
-    'workitem.deleted': 'Boards',
-    'workitem.commented': 'Boards',
-    'git.pullrequest.created': 'Repos',
-    'git.pullrequest.updated': 'Repos',
-    'ms.vss-code.git-pullrequest-comment-event': 'Repos',
-    'git.pullrequest.merged': 'Repos',
-    'git.push': 'Repos',
-    'build.complete': 'Build Completed',
-    'ms.vss-release.release-abandoned-event': 'Release Abandoned',
-    'ms.vss-release.release-created-event': 'Release Created',
-    'ms.vss-release.deployment-approval-completed-event': 'Release deployment approval completed',
-    'ms.vss-release.deployment-approval-pending-event': 'Release deployment approval pending',
-    'ms.vss-release.deployment-completed-event': 'Release deployment completed',
-    'ms.vss-release.deployment-started-event': 'Release deployment started',
-    'ms.vss-pipelinechecks-events.approval-completed': 'Run stage approval completed',
-    'ms.vss-pipelines.stage-state-changed-event': 'Run stage state changed',
-    'ms.vss-pipelinechecks-events.approval-pending': 'Run stage waiting for approval',
-    'ms.vss-pipelines.run-state-changed-event': 'Run state changed',
-};
-
 export const boards = 'boards';
 export const repos = 'repos';
 export const pipelines = 'pipelines';
+export const serviceType = 'serviceType';
+export const eventType = 'eventType';
 
 export const defaultPage = 0;
 export const defaultPerPageLimit = 10;
@@ -123,4 +109,19 @@ export const defaultSubscriptionFilters = {
 export const filterLabelValuePairAll = {
     value: 'all',
     label: 'All',
+};
+
+export const serviceTypeIcon = {
+    [boards as string]: {
+        icon: SVGIcons.boards,
+        viewBox: '0 0 16 16',
+    },
+    [repos as string]: {
+        icon: SVGIcons.repos,
+        viewBox: '0 0 16 16',
+    },
+    [pipelines as string]: {
+        icon: SVGIcons.pipelines,
+        viewBox: '0 0 17 17',
+    },
 };

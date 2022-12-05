@@ -4,10 +4,10 @@ import Dropdown from 'components/dropdown';
 import Input from 'components/inputField';
 
 type Props = {
-    fieldConfig: Pick<ModalFormFieldConfig, 'label' | 'type' | 'validations'>
+    fieldConfig: Pick<ModalFormFieldConfig, 'label' | 'type' | 'validations' | 'isFieldDisabled'>
     value: string | null
     optionsList?: LabelValuePair[]
-    onChange: (newValue: string) => void;
+    onChange: (newValue: string, targetLabel?: string, selectedOption?: Record<string, string>) => void;
     error?: string
     isDisabled?: boolean
 }
@@ -16,7 +16,7 @@ type Props = {
  * A generic component to render form
  * you can add multiple input field types here
  */
-const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onChange, error, isDisabled}: Props): JSX.Element => {
+const Form = ({fieldConfig: {label, type, validations, isFieldDisabled}, value, optionsList, onChange, error, isDisabled}: Props): JSX.Element => {
     switch (type) {
     case 'dropdown' :
         return (
@@ -27,7 +27,7 @@ const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onCh
                 options={optionsList || []}
                 required={validations?.isRequired as boolean}
                 error={error}
-                disabled={isDisabled}
+                disabled={isDisabled || isFieldDisabled}
             />
         );
     case 'text' :
@@ -39,7 +39,7 @@ const Form = ({fieldConfig: {label, type, validations}, value, optionsList, onCh
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
                 error={error}
                 required={validations?.isRequired as boolean}
-                disabled={isDisabled}
+                disabled={isDisabled || isFieldDisabled}
             />
         );
     default:

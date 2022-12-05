@@ -84,10 +84,7 @@ const PipelinesFilter = ({
 }: PipelinesFilterProps) => {
     const {buildStatusOptions, releaseApprovalTypeOptions, releaseApprovalStatusOptions, releaseStatusOptions, subscriptionFiltersForPipelines, subscriptionFiltersNameForPipelines, runStageStateIdOptions, runStageResultIdOptions, runStateIdOptions, runResultIdOptions} = pluginConstants.form;
 
-    const {
-        getApiState,
-        makeApiRequestWithCompletionStatus,
-    } = usePluginApi();
+    const {getApiState, makeApiRequestWithCompletionStatus} = usePluginApi();
 
     const getSubscriptionFiltersRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
         organization,
@@ -111,14 +108,16 @@ const PipelinesFilter = ({
         pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
         getSubscriptionFiltersRequest as APIRequestPayload,
     );
+
     const filtersData = data as GetSubscriptionFiltersResponse || [];
 
     useEffect(() => {
         if (isError && !isSuccess) {
             setIsFiltersError(true);
-        } else {
-            setIsFiltersError(false);
+            return;
         }
+
+        setIsFiltersError(false);
     }, [isLoading, isError, isSuccess]);
 
     const getBuildPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.buildPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
@@ -161,88 +160,78 @@ const PipelinesFilter = ({
             }
             {
                 eventType.includes('release') && (
-                    <>
-                        <div className='margin-bottom-10'>
-                            <Dropdown
-                                placeholder='Release Pipeline Name'
-                                value={selectedReleasePipeline}
-                                onChange={handleSelectReleasePipeline}
-                                options={getReleasePipelineOptions()}
-                                error={isError}
-                                loadingOptions={isLoading}
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </>
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Release Pipeline Name'
+                            value={selectedReleasePipeline}
+                            onChange={handleSelectReleasePipeline}
+                            options={getReleasePipelineOptions()}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
                 )
             }
             {
                 eventType.includes('release.deployment') && (
-                    <>
-                        <div className='margin-bottom-10'>
-                            <Dropdown
-                                placeholder='Stage Name'
-                                value={selectedStageName}
-                                onChange={handleSelectStageName}
-                                options={getStageNameOptions()}
-                                error={isError}
-                                loadingOptions={isLoading}
-                                disabled={selectedReleasePipeline === filterLabelValuePairAll.value || isLoading}
-                            />
-                        </div>
-                    </>
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Stage Name'
+                            value={selectedStageName}
+                            onChange={handleSelectStageName}
+                            options={getStageNameOptions()}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={selectedReleasePipeline === filterLabelValuePairAll.value || isLoading}
+                        />
+                    </div>
                 )
             }
             {
                 (eventType === pluginConstants.common.eventTypePipelineKeys.releaseDeploymentApprovalPending ||
                     eventType === pluginConstants.common.eventTypePipelineKeys.releaseDeploymentApprovalComplete) && (
-                    <>
-                        <div className='margin-bottom-10'>
-                            <Dropdown
-                                placeholder='Approval Type'
-                                value={selectedApprovalType}
-                                onChange={handleSelectApprovalType}
-                                options={releaseApprovalTypeOptions}
-                                error={isError}
-                                loadingOptions={isLoading}
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </>
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Approval Type'
+                            value={selectedApprovalType}
+                            onChange={handleSelectApprovalType}
+                            options={releaseApprovalTypeOptions}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
                 )
             }
             {
                 eventType === pluginConstants.common.eventTypePipelineKeys.releaseDeploymentApprovalComplete && (
-                    <>
-                        <div className='margin-bottom-10'>
-                            <Dropdown
-                                placeholder='Approval Status'
-                                value={selectedApprovalStatus}
-                                onChange={handleSelectApprovalStatus}
-                                options={releaseApprovalStatusOptions}
-                                error={isError}
-                                loadingOptions={isLoading}
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </>
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Approval Status'
+                            value={selectedApprovalStatus}
+                            onChange={handleSelectApprovalStatus}
+                            options={releaseApprovalStatusOptions}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
                 )
             }
             {
                 eventType === pluginConstants.common.eventTypePipelineKeys.releaseDeploymentCompleted && (
-                    <>
-                        <div className='margin-bottom-10'>
-                            <Dropdown
-                                placeholder='Status'
-                                value={selectedReleaseStatus}
-                                onChange={handleSelectReleaseStatus}
-                                options={releaseStatusOptions}
-                                error={isError}
-                                loadingOptions={isLoading}
-                                disabled={isLoading}
-                            />
-                        </div>
-                    </>
+                    <div className='margin-bottom-10'>
+                        <Dropdown
+                            placeholder='Status'
+                            value={selectedReleaseStatus}
+                            onChange={handleSelectReleaseStatus}
+                            options={releaseStatusOptions}
+                            error={isError}
+                            loadingOptions={isLoading}
+                            disabled={isLoading}
+                        />
+                    </div>
                 )
             }
             {

@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 type Client interface {
@@ -123,7 +124,7 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 	var buildDetails *serializers.BuildDetails
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
 	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the pull request")
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
 	}
 
 	return buildDetails, statusCode, nil
@@ -147,27 +148,28 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.Call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+// publishedID is sent in the payload while calling the Azure DevOps API and it varies according to the eventType
 var publisherID = map[string]string{
-	constants.SubscriptionEventPullRequestCreated:                 "tfs",
-	constants.SubscriptionEventPullRequestUpdated:                 "tfs",
-	constants.SubscriptionEventPullRequestCommented:               "tfs",
-	constants.SubscriptionEventPullRequestMerged:                  "tfs",
-	constants.SubscriptionEventCodePushed:                         "tfs",
-	constants.SubscriptionEventWorkItemCreated:                    "tfs",
-	constants.SubscriptionEventWorkItemUpdated:                    "tfs",
-	constants.SubscriptionEventWorkItemDeleted:                    "tfs",
-	constants.SubscriptionEventWorkItemCommented:                  "tfs",
-	constants.SubscriptionEventBuildCompleted:                     "tfs",
-	constants.SubscriptionEventReleaseAbandoned:                   "rm",
-	constants.SubscriptionEventReleaseCreated:                     "rm",
-	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "rm",
-	constants.SubscriptionEventReleaseDeploymentEventPending:      "rm",
-	constants.SubscriptionEventReleaseDeploymentCompleted:         "rm",
-	constants.SubscriptionEventReleaseDeploymentStarted:           "rm",
-	constants.SubscriptionEventRunStageApprovalCompleted:          "pipelines",
-	constants.SubscriptionEventRunStageStateChanged:               "pipelines",
-	constants.SubscriptionEventRunStageWaitingForApproval:         "pipelines",
-	constants.SubscriptionEventRunStateChanged:                    "pipelines",
+	constants.SubscriptionEventPullRequestCreated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestUpdated:                 constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestCommented:               constants.PublisherIDTFS,
+	constants.SubscriptionEventPullRequestMerged:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventCodePushed:                         constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCreated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemUpdated:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemDeleted:                    constants.PublisherIDTFS,
+	constants.SubscriptionEventWorkItemCommented:                  constants.PublisherIDTFS,
+	constants.SubscriptionEventBuildCompleted:                     constants.PublisherIDTFS,
+	constants.SubscriptionEventReleaseAbandoned:                   constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseCreated:                     constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentApprovalCompleted: constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentEventPending:      constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentCompleted:         constants.PublisherIDRM,
+	constants.SubscriptionEventReleaseDeploymentStarted:           constants.PublisherIDRM,
+	constants.SubscriptionEventRunStageApprovalCompleted:          constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageStateChanged:               constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStageWaitingForApproval:         constants.PublisherIDPipelines,
+	constants.SubscriptionEventRunStateChanged:                    constants.PublisherIDPipelines,
 }
 
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
@@ -211,11 +213,8 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		},
 	}
 
+	baseURL := c.plugin.updateBaseURLForReleaseEventTypes(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, body.EventType)
 	var subscription *serializers.SubscriptionValue
-	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
-	if strings.Contains(body.EventType, "release") {
-		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	}
 	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
@@ -239,7 +238,7 @@ func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginUR
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherID,
+		PublisherID:      constants.PublisherIDTFS,
 		EventType:        constants.SubscriptionEventTypeDummy,
 		ConsumerID:       constants.ConsumerID,
 		ConsumerActionID: constants.ConsumerActionID,
@@ -270,7 +269,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterIDReleaseDefinitionID || filter == constants.FilterIDReleaseEnvironmentID) {
+		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
 		} else if !strings.Contains(request.EventType, constants.EventTypeRelease) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
@@ -312,12 +311,12 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
-	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	if strings.Contains(request.EventType, constants.EventTypeRelease) {
 		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	}
 
+	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
 	_, statusCode, err := c.CallJSON(baseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
@@ -370,6 +369,23 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	if basePath != constants.BaseOauthURL {
 		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+				message := constants.SessionExpiredMessage
+				if isDeleted, dErr := c.plugin.Store.DeleteUser(mattermostUserID); !isDeleted {
+					if dErr != nil {
+						c.plugin.API.LogError(constants.UnableToDisconnectUser, "Error", dErr.Error())
+					}
+					message = constants.GenericErrorMessage
+				}
+
+				c.plugin.API.PublishWebSocketEvent(
+					constants.WSEventDisconnect,
+					nil,
+					&model.WebsocketBroadcast{UserId: mattermostUserID},
+				)
+
+				if _, DMErr := c.plugin.DM(mattermostUserID, message, false); DMErr != nil {
+					c.plugin.API.LogError(constants.UnableToDMBot, "Error", DMErr.Error())
+				}
 				return nil, http.StatusInternalServerError, errRefreshingToken
 			}
 		}
@@ -408,7 +424,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	}
 	defer resp.Body.Close()
 
-	responseData, err = ioutil.ReadAll(resp.Body)
+	responseData, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}

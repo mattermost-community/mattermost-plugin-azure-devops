@@ -313,17 +313,16 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 		return nil, err
 	}
 
+	var filteredSubscriptionList []*serializers.SubscriptionDetails
 	if createdBy == constants.FilterCreatedByMe {
-		var filteredSubscriptionList1 []*serializers.SubscriptionDetails
 		for _, subscription := range subscriptionList {
 			if subscription.MattermostUserID == mattermostUserID {
-				filteredSubscriptionList1 = append(filteredSubscriptionList1, subscription)
+				filteredSubscriptionList = append(filteredSubscriptionList, subscription)
 			}
 		}
-		return filteredSubscriptionList1, nil
+		return filteredSubscriptionList, nil
 	}
 
-	var filteredSubscriptionList []*serializers.SubscriptionDetails
 	for _, subscription := range subscriptionList {
 		// For each subscription on a project check if a user is an admin or member of the MM channel to return subscriptions
 		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {

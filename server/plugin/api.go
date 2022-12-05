@@ -9,12 +9,15 @@ import (
 	"runtime/debug"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 // Initializes the plugin REST API
@@ -105,10 +108,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: strings.ToLower(body.Organization), ProjectName: cases.Title(language.Und).String(body.Project)}); isProjectLinked {
+		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}
 
@@ -136,8 +137,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
-		ProjectName:      response.Name,
-		OrganizationName: body.Organization,
+		ProjectName:      cases.Title(language.Und).String(body.Project),
+		OrganizationName: strings.ToLower(body.Organization),
 		IsAdmin:          isAdmin,
 	}
 
@@ -201,6 +202,14 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if project.DeleteSubscriptions {
+		if statusCode, err := p.handleDeleteAllSubscriptions(mattermostUserID, project.ProjectID); err != nil {
+			p.API.LogError("Error deleting the project subscriptions", "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+	}
+
 	if deleteErr := p.Store.DeleteProject(&serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        project.ProjectID,
@@ -216,6 +225,26 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, &successResponse)
+}
+
+func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string) (int, error) {
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
+		return http.StatusInternalServerError, err
+	}
+
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectID == projectID {
+			statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+			if deleteErr != nil {
+				p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+				return statusCode, deleteErr
+			}
+		}
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
@@ -622,6 +651,22 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			sourceBranchName = strings.Split(body.Resource.PullRequest.SourceRefName, "/")[2]
 		}
 
+		// Convert map to json string
+		jsonBytes, err := json.Marshal(body.Resource.Comment)
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		// Convert json string to struct
+		var comment serializers.Comment
+		if err := json.Unmarshal(jsonBytes, &comment); err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
 			AuthorName: constants.SlackAttachmentAuthorNameRepos,
@@ -645,7 +690,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 				{
 					Title: "Comment",
-					Value: body.Resource.Comment.Content,
+					Value: comment.Content,
 				},
 			},
 			Footer:     body.Resource.PullRequest.Repository.Name,
@@ -670,6 +715,205 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Text:       commits,
 			Footer:     fmt.Sprintf("%s | %s", strings.Split(body.Resource.RefUpdates[0].Name, "/")[2], body.Resource.Repository.Name),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameGitBranchIcon),
+		}
+	case constants.SubscriptionEventBuildCompleted:
+		startTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.StartTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		finishTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.FinishTime, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Build pipeline",
+					Value: body.Resource.Definition.Name,
+					Short: true,
+				},
+				{
+					Title: "Branch",
+					Value: body.Resource.SourceBranch,
+					Short: true,
+				},
+				{
+					Title: "Requested for",
+					Value: body.Resource.RequestedFor.Name,
+					Short: true,
+				},
+				{
+					Title: "Duration",
+					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseCreated:
+		artifacts := ""
+		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			artifacts += body.Resource.Release.Artifacts[i].Name
+			if i != len(body.Resource.Release.Artifacts)-1 {
+				artifacts += ", "
+			}
+		}
+
+		if artifacts == "" {
+			artifacts = "No artifacts"
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Created by",
+					Value: body.Resource.Release.CreatedBy.DisplayName,
+					Short: true,
+				},
+				{
+					Title: "Trigger reason",
+					Value: cases.Title(language.Und).String(body.Resource.Release.Reason),
+					Short: true,
+				},
+				{
+					Title: "Artifacts",
+					Value: artifacts,
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseAbandoned:
+		abandonTime, err := time.Parse(constants.DateTimeLayout, strings.Split(body.Resource.Release.ModifiedOn, ".")[0])
+		if err != nil {
+			p.API.LogError(err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Abandoned by",
+					Value: body.Resource.Release.ModifiedBy.DisplayName,
+					Short: true,
+				},
+				{
+					Title: "Abandoned on",
+					Value: abandonTime.Format(constants.DateTimeFormat),
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseDeploymentStarted:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.ReleaseDefinition.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Release",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.Name, body.Resource.Release.Links.Web.Href),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventReleaseDeploymentCompleted:
+		comment := body.Resource.Comment.(string)
+		if comment == "" {
+			comment = "No comments"
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Environment.ReleaseDefinition.Name, body.Resource.Environment.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Release",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Environment.Release.Name, body.Resource.Environment.Release.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Comment",
+					Value: comment,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventRunStageStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Stage.Links.PipelineWeb.Href),
+					Short: true,
+				},
+			},
+		}
+	case constants.SubscriptionEventRunStateChanged:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Run.Links.PipelineWeb.Href),
+					Short: true,
+				},
+			},
 		}
 	}
 
@@ -743,47 +987,26 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID); err != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+	statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+	if deleteErr != nil {
+		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: deleteErr.Error()})
 		return
 	}
 
-	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID:             body.MMUserID,
-		ProjectName:                  body.Project,
-		OrganizationName:             body.Organization,
-		EventType:                    body.EventType,
-		ChannelID:                    body.ChannelID,
-		Repository:                   body.Repository,
-		TargetBranch:                 body.TargetBranch,
-		PullRequestCreatedBy:         body.PullRequestCreatedBy,
-		PullRequestReviewersContains: body.PullRequestReviewersContains,
-		PushedBy:                     body.PushedBy,
-		MergeResult:                  body.MergeResult,
-		NotificationType:             body.NotificationType,
-		AreaPath:                     body.AreaPath,
-		BuildStatus:                  body.BuildStatus,
-		BuildPipeline:                body.BuildPipeline,
-		StageName:                    body.StageName,
-		ReleasePipeline:              body.ReleasePipeline,
-		ReleaseStatus:                body.ReleaseStatus,
-		ApprovalType:                 body.ApprovalType,
-		ApprovalStatus:               body.ApprovalStatus,
-		RunPipeline:                  body.RunPipeline,
-		RunStageName:                 body.RunStageName,
-		RunEnvironmentName:           body.RunEnvironmentName,
-		RunStageNameID:               body.RunStageNameID,
-		RunStageStateID:              body.RunStageStateID,
-		RunStageResultID:             body.RunStageResultID,
-		RunStateID:                   body.RunStateID,
-		RunResultID:                  body.RunResultID,
-	}); deleteErr != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
+	returnStatusOK(w)
+}
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+		return statusCode, err
 	}
 
-	returnStatusOK(w)
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
@@ -848,6 +1071,20 @@ func returnStatusOK(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func returnStatusWithMessage(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	m := map[string]string{"message": message}
+	response, err := json.Marshal(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.

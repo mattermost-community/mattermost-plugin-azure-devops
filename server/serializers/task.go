@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 // TODO: WIP.
@@ -45,14 +45,10 @@ type TaskFieldValue struct {
 
 type Link struct {
 	HTML Href `json:"html"`
-	Web  Web  `json:"web"`
+	Web  Href `json:"web"`
 }
 
 type Href struct {
-	Href string `json:"href"`
-}
-
-type Web struct {
 	Href string `json:"href"`
 }
 

@@ -12,3 +12,14 @@
 .button-wrapper {
     flex-basis: 30%;
 }
+
+.rhs-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 120px); // 120px is the height of button wrapper
+
+    &__content {
+        overflow: auto;
+    }
+}

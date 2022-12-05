@@ -8,7 +8,7 @@ import {
     pluginId,
     RightSidebarHeader,
     eventTypeMap,
-    serviceTypeMap,
+    serviceTypeIcon,
     defaultPage,
     defaultPerPageLimit,
     subscriptionFilters,
@@ -19,6 +19,10 @@ import {
     filterLabelValuePairAll,
     eventTypeReposKeys,
     eventTypePipelineKeys,
+    deleteAllSubscriptionsMessage,
+    StatusCodeForbidden,
+    projectAlreadyLinkedMessage,
+    projectLinkedSuccessfullyMessage,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -56,9 +60,10 @@ export default {
         MMCSRF,
         HeaderCSRFToken,
         AzureDevops,
+        deleteAllSubscriptionsMessage,
         RightSidebarHeader,
         eventTypeMap,
-        serviceTypeMap,
+        serviceTypeIcon,
         defaultPage,
         defaultPerPageLimit,
         subscriptionFilters,
@@ -69,6 +74,9 @@ export default {
         filterLabelValuePairAll,
         eventTypeReposKeys,
         eventTypePipelineKeys,
+        StatusCodeForbidden,
+        projectAlreadyLinkedMessage,
+        projectLinkedSuccessfullyMessage,
     },
     form: {
         linkProjectModal,

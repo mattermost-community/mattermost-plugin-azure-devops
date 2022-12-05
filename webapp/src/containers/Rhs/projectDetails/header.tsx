@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {ChangeEvent, useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import pluginConstants from 'pluginConstants';
@@ -16,6 +16,7 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import IconButton from 'components/buttons/iconButton';
 import SVGWrapper from 'components/svgWrapper';
 import useOutsideClick from 'hooks/useClickOutside';
+import utils from 'utils';
 
 type HeaderProps = {
     projectDetails: ProjectDetails
@@ -33,6 +34,10 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
     const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = pluginConstants.common;
     const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionFilterEventTypeReposOptions, subscriptionFilterEventTypePipelinesOptions} = pluginConstants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
+    const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
+    const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
+    const [confirmationModalDescription, setConfirmationModalDescription] = useState(`Are you sure you want to unlink ${projectName}?`);
+    const [unlinkConfirmationModalError, setUnlinkConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     const [showFilter, setShowFilter] = useState(false);
 
@@ -59,22 +64,43 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
     // Handles unlinking a project and fetching the modified project list
     const handleConfirmUnlinkProject = () => {
-        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+        makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectDetails, deleteSubscriptions} as APIRequestPayload);
+    };
+
+    // Update the modal when project unlinking fails
+    const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
+        const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', err);
+        if (errorMessage === pluginConstants.messages.error.adminAccessError) {
+            setConfirmationModalDescription(pluginConstants.messages.error.adminAccessErrorForUnlinking);
+        }
+
+        setUnlinkConfirmationModalError({
+            title: errorMessage,
+            onSecondaryBtnClick: () => {
+                setShowProjectConfirmationModal(false);
+                setUnlinkConfirmationModalError(null);
+                setShowDeleteSubscriptionsCheckbox(true);
+            },
+        });
+
+        setDeleteSubscriptions(false);
+        setShowDeleteSubscriptionsCheckbox(false);
     };
 
     useApiRequestCompletionState({
         serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
-        payload: projectDetails,
+        payload: {...projectDetails, deleteSubscriptions} as APIRequestPayload,
         handleSuccess: () => {
             dispatch(toggleIsLinkedProjectListChanged(true));
             handleResetProjectDetails();
             setShowProjectConfirmationModal(false);
         },
+        handleError: handleActionsAfterUnlinkingProjectFailed,
     });
 
     const isFilterApplied = useCallback(() => showAllSubscriptions || filter.createdBy !== defaultSubscriptionFilters.createdBy || filter.serviceType !== defaultSubscriptionFilters.serviceType || filter.eventType !== defaultSubscriptionFilters.eventType, [filter, showAllSubscriptions]);
 
-    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectDetails);
+    const {isLoading: isUnlinkProjectLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectDetails, deleteSubscriptions} as APIRequestPayload);
 
     // Detects and closes the filter popover whenever it is opened and the user clicks outside of it
     const wrapperRef = useRef(null);
@@ -89,6 +115,22 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
         }
     }, [filter.serviceType]);
 
+    const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setDeleteSubscriptions(e.target.checked);
+    };
+
+    const deleteSubscriptionsCheckbox = (
+        <div className='d-flex align-item-center'>
+            <input
+                type='checkbox'
+                id='deleteSubscriptions'
+                className='margin-0'
+                onChange={handleCheckboxChange}
+            />
+            <label className='margin-left-5 margin-bottom-0 font-weight-normal'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+        </div>
+    );
+
     return (
         <>
             <ConfirmationModal
@@ -97,9 +139,12 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                 onConfirm={handleConfirmUnlinkProject}
                 isLoading={isUnlinkProjectLoading}
                 confirmBtnText='Unlink'
-                description={`Are you sure you want to unlink ${projectName}?`}
+                description={confirmationModalDescription}
                 title='Confirm Project Unlink'
-            />
+                showErrorPanel={unlinkConfirmationModalError}
+            >
+                {showDeleteSubscriptionsCheckbox ? deleteSubscriptionsCheckbox : <></>}
+            </ConfirmationModal>
             <div className='position-relative rhs-header-divider'>
                 <div className='d-flex align-item-center'>
                     <BackButton onClick={handleResetProjectDetails}/>

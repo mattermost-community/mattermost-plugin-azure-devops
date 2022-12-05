@@ -18,24 +18,19 @@ type SubscriptionCardProps = {
 }
 
 const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath, releasePipelineName, buildPipeline, buildStatusName, approvalStatusName, approvalTypeName, releaseStatusName, stageNameValue, runPipelineName, runEnvironment, runStage, runStageId, runResultId, runStageResultId, runStageStateIdName, runStateIdName}, subscriptionDetails}: SubscriptionCardProps) => {
-    let serviceTypeIcon = pluginConstants.SVGIcons.boards;
-    if (serviceType === pluginConstants.common.repos) {
-        serviceTypeIcon = pluginConstants.SVGIcons.repos;
-    } else if (serviceType === pluginConstants.common.pipelines) {
-        serviceTypeIcon = pluginConstants.SVGIcons.pipelines;
-    }
+    const showFilter = areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName;
 
     return (
         <BaseCard>
-            <div>
+            <>
                 <div className='d-flex justify-content-between align-items-center mb-2'>
                     <div className='d-flex align-item-center'>
                         <SVGWrapper
                             width={20}
                             height={20}
-                            viewBox={serviceType === pluginConstants.common.pipelines ? ' 0 0 17 17' : ' 0 0 16 16'}
+                            viewBox={pluginConstants.common.serviceTypeIcon[serviceType].viewBox}
                         >
-                            {serviceTypeIcon}
+                            {pluginConstants.common.serviceTypeIcon[serviceType].icon}
                         </SVGWrapper>
                         <p className={`ml-1 mb-0 font-bold color-${serviceType} text-capitalize`}>{serviceType}</p>
                     </div>
@@ -71,7 +66,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         value={`Subscription created by ${createdBy}`}
                     />
                     {
-                        (areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName || releasePipelineName || buildPipeline || buildStatusName || approvalStatusName || approvalTypeName || releaseStatusName || stageNameValue || runPipelineName || runEnvironment || runStage || runStageId || runResultId || runStageResultId || runStageStateIdName || runStateIdName) && (
+                        showFilter && (
                             <div className='d-flex align-item-center margin-left-5'>
                                 <div className='card-filter'>
                                     <SVGWrapper
@@ -115,7 +110,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         )
                     }
                 </div>
-            </div>
+            </>
         </BaseCard>
     );
 };

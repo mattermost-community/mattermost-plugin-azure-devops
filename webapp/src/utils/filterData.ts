@@ -13,9 +13,9 @@ export const getOrganizationList = (data: ProjectDetails[]) => {
 };
 
 export const getProjectList = (data: ProjectDetails[]) => {
-    const projectList: LabelValuePair[] = [];
+    const projectList: ProjectListLabelValuePair[] = [];
 
     // TODO: add proper structure for Organization in metaData field
-    data.map((project) => projectList.push({value: project.projectName, label: project.projectName, metaData: project.organizationName}));
+    data.map((project) => projectList.push({value: project.projectName, label: project.projectName, metaData: project.organizationName, projectID: project.projectID}));
     return projectList;
 };

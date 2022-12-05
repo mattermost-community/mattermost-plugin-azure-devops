@@ -19,7 +19,7 @@ const azureDevOpsPluginApi = createApi({
                 body: payload,
             }),
         }),
-        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<void, APIRequestPayload>({
+        [Constants.pluginApiServiceConfigs.createLink.apiServiceName]: builder.query<CreateLinkResponse, APIRequestPayload>({
             query: (payload) => ({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
                 url: Constants.pluginApiServiceConfigs.createLink.path,
@@ -91,6 +91,14 @@ const azureDevOpsPluginApi = createApi({
                 headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
                 url: Constants.pluginApiServiceConfigs.deleteSubscription.path,
                 method: Constants.pluginApiServiceConfigs.deleteSubscription.method,
+                body: payload,
+            }),
+        }),
+        [Constants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName]: builder.query<GetSubscriptionFiltersResponse, GetSubscriptionFiltersRequest>({
+            query: (payload) => ({
+                headers: {[Constants.common.HeaderCSRFToken]: Cookies.get(Constants.common.MMCSRF)},
+                url: Constants.pluginApiServiceConfigs.getSubscriptionFilters.path,
+                method: Constants.pluginApiServiceConfigs.getSubscriptionFilters.method,
                 body: payload,
             }),
         }),

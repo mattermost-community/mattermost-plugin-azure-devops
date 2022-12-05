@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type UserID struct {
@@ -14,18 +14,16 @@ type UserID struct {
 	UniqueName  string `json:"uniqueName"`
 }
 
-type PublisherInputsBoards struct {
-	ProjectID string `json:"projectId"`
-}
-
-type PublisherInputsRepos struct {
-	ProjectID  string `json:"projectId"`
-	Repository string `json:"repository"`
-	Branch     string `json:"branch"`
-}
-
-type PublisherInputsPipelines struct {
-	ProjectID string `json:"projectId"`
+type PublisherInputsGeneric struct {
+	ProjectID                    string `json:"projectId,omitempty"`
+	AreaPath                     string `json:"areaPath,omitempty"`
+	Repository                   string `json:"repository,omitempty"`
+	Branch                       string `json:"branch,omitempty"`
+	PullRequestCreatedBy         string `json:"pullrequestCreatedBy,omitempty"`
+	PullRequestReviewersContains string `json:"pullrequestReviewersContains,omitempty"`
+	PushedBy                     string `json:"pushedBy,omitempty"`
+	MergeResult                  string `json:"mergeResult,omitempty"`
+	NotificationType             string `json:"notificationType,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -51,14 +49,57 @@ type SubscriptionList struct {
 }
 
 type CreateSubscriptionRequestPayload struct {
-	Organization   string `json:"organization"`
-	Project        string `json:"project"`
-	EventType      string `json:"eventType"`
-	ServiceType    string `json:"serviceType"`
-	ChannelID      string `json:"channelID"`
-	Repository     string `json:"repository"`
-	RepositoryName string `json:"repositoryName"`
-	TargetBranch   string `json:"targetBranch"`
+	Organization                     string `json:"organization"`
+	Project                          string `json:"project"`
+	EventType                        string `json:"eventType"`
+	ServiceType                      string `json:"serviceType"`
+	ChannelID                        string `json:"channelID"`
+	Repository                       string `json:"repository"`
+	RepositoryName                   string `json:"repositoryName"`
+	TargetBranch                     string `json:"targetBranch"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
+	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
+	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
+	PushedBy                         string `json:"pushedBy"`
+	PushedByName                     string `json:"pushedByName"`
+	MergeResult                      string `json:"mergeResult"`
+	MergeResultName                  string `json:"mergeResultName"`
+	NotificationType                 string `json:"notificationType"`
+	NotificationTypeName             string `json:"notificationTypeName"`
+	AreaPath                         string `json:"areaPath"`
+}
+
+type GetSubscriptionFilterPossibleValuesRequestPayload struct {
+	Organization string   `json:"organization"`
+	ProjectID    string   `json:"projectId"`
+	EventType    string   `json:"eventType"`
+	Filters      []string `json:"filters"`
+	RepositoryID string   `json:"repositoryId"`
+}
+
+type SubscriptionFilter struct {
+	InputID string `json:"inputId"`
+}
+
+type GetSubscriptionFilterValuesRequestPayloadFromClient struct {
+	Subscription *CreateSubscriptionBodyPayload `json:"subscription"`
+	InputValues  []*SubscriptionFilter          `json:"inputValues"`
+	Scope        int                            `json:"scope"`
+}
+
+type PossibleValues struct {
+	DisplayValue string `json:"displayValue"`
+	Value        string `json:"value"`
+}
+
+type InputValues struct {
+	SubscriptionFilter
+	PossibleValues []*PossibleValues `json:"possibleValues"`
+}
+
+type SubscriptionFilterPossibleValuesResponseFromClient struct {
+	InputValues []*InputValues `json:"inputValues"`
 }
 
 type CreateSubscriptionBodyPayload struct {
@@ -71,20 +112,31 @@ type CreateSubscriptionBodyPayload struct {
 }
 
 type SubscriptionDetails struct {
-	MattermostUserID string `json:"mattermostUserID"`
-	ProjectName      string `json:"projectName"`
-	ProjectID        string `json:"projectID"`
-	OrganizationName string `json:"organizationName"`
-	EventType        string `json:"eventType"`
-	ServiceType      string `json:"serviceType"`
-	ChannelID        string `json:"channelID"`
-	ChannelName      string `json:"channelName"`
-	ChannelType      string `json:"channelType"`
-	SubscriptionID   string `json:"subscriptionID"`
-	CreatedBy        string `json:"createdBy"`
-	TargetBranch     string `json:"targetBranch"`
-	Repository       string `json:"repository"`
-	RepositoryName   string `json:"repositoryName"`
+	MattermostUserID                 string `json:"mattermostUserID"`
+	ProjectName                      string `json:"projectName"`
+	ProjectID                        string `json:"projectID"`
+	OrganizationName                 string `json:"organizationName"`
+	EventType                        string `json:"eventType"`
+	ServiceType                      string `json:"serviceType"`
+	ChannelID                        string `json:"channelID"`
+	ChannelName                      string `json:"channelName"`
+	ChannelType                      string `json:"channelType"`
+	SubscriptionID                   string `json:"subscriptionID"`
+	CreatedBy                        string `json:"createdBy"`
+	TargetBranch                     string `json:"targetBranch"`
+	Repository                       string `json:"repository"`
+	RepositoryName                   string `json:"repositoryName"`
+	PullRequestCreatedBy             string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains     string `json:"pullRequestReviewersContains"`
+	PullRequestCreatedByName         string `json:"pullRequestCreatedByName"`
+	PullRequestReviewersContainsName string `json:"pullRequestReviewersContainsName"`
+	PushedBy                         string `json:"pushedBy"`
+	PushedByName                     string `json:"pushedByName"`
+	MergeResult                      string `json:"mergeResult"`
+	MergeResultName                  string `json:"mergeResultName"`
+	NotificationType                 string `json:"notificationType"`
+	NotificationTypeName             string `json:"notificationTypeName"`
+	AreaPath                         string `json:"areaPath"`
 }
 
 type DetailedMessage struct {
@@ -148,7 +200,7 @@ type Environment struct {
 type Release struct {
 	Name              string      `json:"name"`
 	CreatedBy         Reviewer    `json:"createdBy"`
-	Artifacts         []Artifact  `json:"artifacts"`
+	Artifacts         []*Artifact `json:"artifacts"`
 	ReleaseDefinition Definition  `json:"releaseDefinition"`
 	Reason            string      `json:"reason"`
 	ModifiedOn        string      `json:"modifiedOn"`
@@ -159,6 +211,7 @@ type Release struct {
 type Artifact struct {
 	Name string `json:"alias"`
 }
+
 type RequestedFor struct {
 	Name string `json:"displayName"`
 }
@@ -203,14 +256,28 @@ type Reviewer struct {
 }
 
 type DeleteSubscriptionRequestPayload struct {
-	Organization string `json:"organization"`
-	Project      string `json:"project"`
-	EventType    string `json:"eventType"`
-	ServiceType  string `json:"serviceType"`
-	ChannelID    string `json:"channelID"`
-	MMUserID     string `json:"mmUserID"`
-	TargetBranch string `json:"targetBranch"`
-	Repository   string `json:"repository"`
+	Organization                 string `json:"organization"`
+	Project                      string `json:"project"`
+	EventType                    string `json:"eventType"`
+	ServiceType                  string `json:"serviceType"`
+	ChannelID                    string `json:"channelID"`
+	MMUserID                     string `json:"mmUserID"`
+	TargetBranch                 string `json:"targetBranch"`
+	Repository                   string `json:"repository"`
+	PullRequestCreatedBy         string `json:"pullRequestCreatedBy"`
+	PullRequestReviewersContains string `json:"pullRequestReviewersContains"`
+	PushedBy                     string `json:"pushedBy"`
+	MergeResult                  string `json:"mergeResult"`
+	NotificationType             string `json:"notificationType"`
+	AreaPath                     string `json:"areaPath"`
+}
+
+func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {
+	var body *GetSubscriptionFilterPossibleValuesRequestPayload
+	if err := json.NewDecoder(data).Decode(&body); err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
@@ -235,6 +302,22 @@ func DeleteSubscriptionRequestPayloadFromJSON(data io.Reader) (*DeleteSubscripti
 		return nil, err
 	}
 	return body, nil
+}
+
+func (t *GetSubscriptionFilterPossibleValuesRequestPayload) IsSubscriptionRequestPayloadValid() error {
+	if t.Organization == "" {
+		return errors.New(constants.OrganizationRequired)
+	}
+	if t.ProjectID == "" {
+		return errors.New(constants.ProjectIDRequired)
+	}
+	if t.EventType == "" {
+		return errors.New(constants.EventTypeRequired)
+	}
+	if t.Filters == nil {
+		return errors.New(constants.FiltersRequired)
+	}
+	return nil
 }
 
 func (t *CreateSubscriptionRequestPayload) IsSubscriptionRequestPayloadValid() error {

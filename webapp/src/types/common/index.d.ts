@@ -24,6 +24,10 @@ type LabelValuePair = {
     metaData?: string;
 }
 
+type ProjectListLabelValuePair = LabelValuePair & {
+    projectID: string
+}
+
 type CreateTaskFields = {
     title: string,
     description: string,
@@ -31,14 +35,19 @@ type CreateTaskFields = {
 }
 
 type ProjectDetails = {
-    mattermostUserID: string
+    mattermostUserID: string,
     projectID: string,
     projectName: string,
-    organizationName: string
+    organizationName: string,
+    deleteSubscriptions?: boolean
 }
 
 type UserDetails = {
     MattermostUserID: string
+}
+
+type CreateLinkResponse = {
+    message: string
 }
 
 type ChannelList = {
@@ -77,6 +86,17 @@ type SubscriptionDetails = {
     repository: string,
     targetBranch: string,
     repositoryName: string
+    pullRequestCreatedBy: string
+    pullRequestReviewersContains: string
+    pullRequestCreatedByName: string
+    pullRequestReviewersContainsName: string
+    pushedBy: string
+    pushedByName: string
+    mergeResult: string
+    mergeResultName: string
+    notificationType: string
+    notificationTypeName: string
+    areaPath: string
 }
 
 type WebsocketEventParams = {

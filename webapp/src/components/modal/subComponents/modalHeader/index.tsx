@@ -11,7 +11,7 @@ type ModalHeaderProps = {
 
 const ModalHeader = ({title, showCloseIconInHeader, onHide}: ModalHeaderProps) : JSX.Element => (
     <>{(title || showCloseIconInHeader) && (
-        <RBModal.Header className='modal__header'>
+        <RBModal.Header className='modal__header modal__header-icon'>
             <div className='modal__title d-flex align-items-center justify-content-between'>
                 {title && <p className='modal__title'>{title}</p>}
                 {showCloseIconInHeader && (

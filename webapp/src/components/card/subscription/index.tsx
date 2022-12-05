@@ -17,13 +17,8 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, repository, targetBranch, repositoryName}, subscriptionDetails}: SubscriptionCardProps) => {
-    let serviceTypeIcon = pluginConstants.SVGIcons.boards;
-    if (serviceType === pluginConstants.common.repos) {
-        serviceTypeIcon = pluginConstants.SVGIcons.repos;
-    } else if (serviceType === pluginConstants.common.pipelines) {
-        serviceTypeIcon = pluginConstants.SVGIcons.pipelines;
-    }
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath}, subscriptionDetails}: SubscriptionCardProps) => {
+    const showFilter = areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName;
 
     return (
         <BaseCard>
@@ -33,9 +28,9 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         <SVGWrapper
                             width={20}
                             height={20}
-                            viewBox={serviceType === pluginConstants.common.pipelines ? ' 0 0 17 17' : ' 0 0 16 16'}
+                            viewBox={pluginConstants.common.serviceTypeIcon[serviceType].viewBox}
                         >
-                            {serviceTypeIcon}
+                            {pluginConstants.common.serviceTypeIcon[serviceType].icon}
                         </SVGWrapper>
                         <p className={`ml-1 mb-0 font-bold color-${serviceType} text-capitalize`}>{serviceType}</p>
                     </div>
@@ -71,7 +66,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         value={`Subscription created by ${createdBy}`}
                     />
                     {
-                        (repositoryName || targetBranch) && (
+                        showFilter && (
                             <div className='d-flex align-item-center margin-left-5'>
                                 <div className='card-filter'>
                                     <SVGWrapper
@@ -84,11 +79,17 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                                 </div>
                                 <div className='card-chip-wrapper'>
                                     {
-                                        repositoryName && <Chip text={`Repository is ${repositoryName}`}/>
+
+                                        // Remove the extra character "/" from start and end of the area path string returned by the API
+                                        areaPath && <Chip text={`Area path - ${areaPath.substring(1, areaPath.length - 1)}`}/>
                                     }
-                                    {
-                                        targetBranch && <Chip text={`Target Branch is ${targetBranch}`}/>
-                                    }
+                                    {repositoryName && <Chip text={`Repository is: ${repositoryName}`}/>}
+                                    {targetBranch && <Chip text={`Target branch is: ${targetBranch}`}/>}
+                                    {pullRequestCreatedByName && <Chip text={`Requested by a member of group: ${pullRequestCreatedByName}`}/>}
+                                    {pullRequestReviewersContainsName && <Chip text={`Reviewer includes group: ${pullRequestReviewersContainsName}`}/>}
+                                    {pushedByName && <Chip text={`Pushed by a member of group: ${pushedByName}`}/>}
+                                    {mergeResultName && <Chip text={`Merge result: ${mergeResultName}`}/>}
+                                    {notificationTypeName && <Chip text={`Change: ${notificationTypeName}`}/>}
                                 </div>
                             </div>
                         )

@@ -16,8 +16,8 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 // Initializes the plugin REST API
@@ -53,6 +53,7 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathPipelineRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRequest))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
 }
 
 // API to create task of a project in an organization.
@@ -110,10 +111,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: body.Organization, ProjectName: body.Project}); isProjectLinked {
-		if _, DMErr := p.DM(mattermostUserID, constants.AlreadyLinkedProject, true); DMErr != nil {
-			p.API.LogError("Failed to DM", "Error", DMErr.Error())
-		}
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: strings.ToLower(body.Organization), ProjectName: cases.Title(language.Und).String(body.Project)}); isProjectLinked {
+		returnStatusWithMessage(w, http.StatusOK, constants.AlreadyLinkedProject)
 		return
 	}
 
@@ -141,8 +140,8 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
-		ProjectName:      response.Name,
-		OrganizationName: body.Organization,
+		ProjectName:      cases.Title(language.Und).String(body.Project),
+		OrganizationName: strings.ToLower(body.Organization),
 		IsAdmin:          isAdmin,
 	}
 
@@ -206,6 +205,14 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if project.DeleteSubscriptions {
+		if statusCode, err := p.handleDeleteAllSubscriptions(mattermostUserID, project.ProjectID); err != nil {
+			p.API.LogError("Error deleting the project subscriptions", "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+	}
+
 	if deleteErr := p.Store.DeleteProject(&serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        project.ProjectID,
@@ -221,6 +228,26 @@ func (p *Plugin) handleUnlinkProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, &successResponse)
+}
+
+func (p *Plugin) handleDeleteAllSubscriptions(mattermostUserID, projectID string) (int, error) {
+	subscriptionList, err := p.Store.GetAllSubscriptions(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.FetchSubscriptionListError, "Error", err.Error())
+		return http.StatusInternalServerError, err
+	}
+
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectID == projectID {
+			statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+			if deleteErr != nil {
+				p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+				return statusCode, deleteErr
+			}
+		}
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
@@ -258,7 +285,20 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{OrganizationName: body.Organization, ProjectName: body.Project, ChannelID: body.ChannelID, EventType: body.EventType, Repository: body.Repository, TargetBranch: body.TargetBranch}); isSubscriptionPresent {
+	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{
+		OrganizationName:             body.Organization,
+		ProjectName:                  body.Project,
+		ChannelID:                    body.ChannelID,
+		EventType:                    body.EventType,
+		Repository:                   body.Repository,
+		TargetBranch:                 body.TargetBranch,
+		PullRequestCreatedBy:         body.PullRequestCreatedBy,
+		PullRequestReviewersContains: body.PullRequestReviewersContains,
+		PushedBy:                     body.PushedBy,
+		MergeResult:                  body.MergeResult,
+		NotificationType:             body.NotificationType,
+		AreaPath:                     body.AreaPath,
+	}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
 		return
@@ -290,20 +330,31 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
 	}
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID: mattermostUserID,
-		ProjectName:      body.Project,
-		ProjectID:        project.ProjectID,
-		OrganizationName: body.Organization,
-		EventType:        body.EventType,
-		ServiceType:      body.ServiceType,
-		ChannelID:        body.ChannelID,
-		SubscriptionID:   subscription.ID,
-		ChannelName:      channel.DisplayName,
-		ChannelType:      channel.Type,
-		CreatedBy:        createdByDisplayName,
-		Repository:       body.Repository,
-		TargetBranch:     body.TargetBranch,
-		RepositoryName:   body.RepositoryName,
+		MattermostUserID:                 mattermostUserID,
+		ProjectName:                      body.Project,
+		ProjectID:                        project.ProjectID,
+		OrganizationName:                 body.Organization,
+		EventType:                        body.EventType,
+		ServiceType:                      body.ServiceType,
+		ChannelID:                        body.ChannelID,
+		SubscriptionID:                   subscription.ID,
+		ChannelName:                      channel.DisplayName,
+		ChannelType:                      channel.Type,
+		CreatedBy:                        createdByDisplayName,
+		Repository:                       body.Repository,
+		TargetBranch:                     body.TargetBranch,
+		RepositoryName:                   body.RepositoryName,
+		PullRequestCreatedBy:             body.PullRequestCreatedBy,
+		PullRequestReviewersContains:     body.PullRequestReviewersContains,
+		PullRequestCreatedByName:         body.PullRequestCreatedByName,
+		PullRequestReviewersContainsName: body.PullRequestReviewersContainsName,
+		PushedBy:                         body.PushedBy,
+		PushedByName:                     body.PushedByName,
+		MergeResult:                      body.MergeResult,
+		MergeResultName:                  body.MergeResultName,
+		NotificationType:                 body.NotificationType,
+		NotificationTypeName:             body.NotificationTypeName,
+		AreaPath:                         body.AreaPath,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -379,7 +430,24 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].ChannelName+subscriptionByProject[i].EventType+subscriptionByProject[i].TargetBranch < subscriptionByProject[j].ChannelName+subscriptionByProject[j].EventType+subscriptionByProject[j].TargetBranch
+			return subscriptionByProject[i].ChannelName+
+				subscriptionByProject[i].EventType+
+				subscriptionByProject[i].TargetBranch+
+				subscriptionByProject[i].PullRequestCreatedByName+
+				subscriptionByProject[i].PullRequestReviewersContainsName+
+				subscriptionByProject[i].PushedByName+
+				subscriptionByProject[i].MergeResultName+
+				subscriptionByProject[i].NotificationTypeName+
+				subscriptionByProject[i].AreaPath <
+				subscriptionByProject[j].ChannelName+
+					subscriptionByProject[j].EventType+
+					subscriptionByProject[j].TargetBranch+
+					subscriptionByProject[j].PullRequestCreatedByName+
+					subscriptionByProject[j].PullRequestReviewersContainsName+
+					subscriptionByProject[j].PushedByName+
+					subscriptionByProject[j].MergeResultName+
+					subscriptionByProject[j].NotificationTypeName+
+					subscriptionByProject[j].AreaPath
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
@@ -501,7 +569,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		// Convert map to json string
-		jsonStr, err := json.Marshal(body.Resource.Comment)
+		jsonBytes, err := json.Marshal(body.Resource.Comment)
 		if err != nil {
 			p.API.LogError(err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -510,7 +578,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 		// Convert json string to struct
 		var comment serializers.Comment
-		if err := json.Unmarshal(jsonStr, &comment); err != nil {
+		if err := json.Unmarshal(jsonBytes, &comment); err != nil {
 			p.API.LogError(err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 			return
@@ -548,7 +616,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	case constants.SubscriptionEventCodePushed:
 		commits := ""
 		for i := 0; i < len(body.Resource.Commits); i++ {
-			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID, body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
+			commits += fmt.Sprintf("\n[%s](%s): **%s**", body.Resource.Commits[i].CommitID[0:8], body.Resource.Commits[i].URL, body.Resource.Commits[i].Comment)
 		}
 
 		if commits == "" {
@@ -603,19 +671,19 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 				{
 					Title: "Duration",
-					Short: true,
 					Value: time.Time{}.Add(finishTime.Sub(startTime)).Format(constants.TimeLayout),
+					Short: true,
 				},
-			}, Footer: body.Resource.Project.Name,
+			},
+			Footer:     body.Resource.Project.Name,
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventReleaseCreated:
 		artifacts := ""
 		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
+			artifacts += body.Resource.Release.Artifacts[i].Name
 			if i != len(body.Resource.Release.Artifacts)-1 {
-				artifacts += fmt.Sprintf("%s, ", body.Resource.Release.Artifacts[i].Name)
-			} else {
-				artifacts += body.Resource.Release.Artifacts[i].Name
+				artifacts += ", "
 			}
 		}
 
@@ -872,12 +940,18 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	subscription, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{
-		OrganizationName: body.Organization,
-		ProjectName:      body.Project,
-		ChannelID:        body.ChannelID,
-		EventType:        body.EventType,
-		Repository:       body.Repository,
-		TargetBranch:     body.TargetBranch,
+		OrganizationName:             body.Organization,
+		ProjectName:                  body.Project,
+		ChannelID:                    body.ChannelID,
+		EventType:                    body.EventType,
+		Repository:                   body.Repository,
+		TargetBranch:                 body.TargetBranch,
+		PullRequestCreatedBy:         body.PullRequestCreatedBy,
+		PullRequestReviewersContains: body.PullRequestReviewersContains,
+		PushedBy:                     body.PushedBy,
+		MergeResult:                  body.MergeResult,
+		NotificationType:             body.NotificationType,
+		AreaPath:                     body.AreaPath,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)
@@ -885,26 +959,26 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if statusCode, err := p.Client.DeleteSubscription(body.Organization, subscription.SubscriptionID, mattermostUserID); err != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+	statusCode, deleteErr := p.deleteSubscription(subscription, mattermostUserID)
+	if deleteErr != nil {
+		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: deleteErr.Error()})
 		return
 	}
 
-	if deleteErr := p.Store.DeleteSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID: body.MMUserID,
-		ProjectName:      body.Project,
-		OrganizationName: body.Organization,
-		EventType:        body.EventType,
-		ChannelID:        body.ChannelID,
-		Repository:       body.Repository,
-		TargetBranch:     body.TargetBranch,
-	}); deleteErr != nil {
-		p.API.LogError(constants.DeleteSubscriptionError, "Error", deleteErr.Error())
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: deleteErr.Error()})
+	returnStatusOK(w)
+}
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+		return statusCode, err
 	}
 
-	returnStatusOK(w)
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
 }
 
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
@@ -969,6 +1043,20 @@ func returnStatusOK(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	m[model.STATUS] = model.STATUS_OK
 	_, _ = w.Write([]byte(model.MapToJson(m)))
+}
+
+func returnStatusWithMessage(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	m := map[string]string{"message": message}
+	response, err := json.Marshal(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	if _, err := w.Write(response); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 // handleAuthRequired verifies if the provided request is performed by an authorized source.
@@ -1154,6 +1242,36 @@ func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res 
 	if _, err := w.Write(res.ToJson()); err != nil {
 		p.API.LogWarn("Failed to write PostActionIntegrationResponse", "Error", err.Error())
 	}
+}
+
+func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	body, err := serializers.GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(r.Body)
+	if err != nil {
+		p.API.LogError("Error in decoding the body for fetching subscription filter possible values", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	if validationErr := body.IsSubscriptionRequestPayloadValid(); validationErr != nil {
+		p.API.LogError("Request payload for fetching subscription filter possible values is not valid", "Error", validationErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: validationErr.Error()})
+		return
+	}
+
+	subscriptionFilterValues, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(body, mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchSubscriptionFilterPossibleValues, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+	filterwiseResponse := make(map[string][]*serializers.PossibleValues)
+	for _, filter := range subscriptionFilterValues.InputValues {
+		filterwiseResponse[filter.InputID] = filter.PossibleValues
+	}
+
+	p.writeJSON(w, filterwiseResponse)
 }
 
 func (p *Plugin) writeJSON(w http.ResponseWriter, v interface{}) {

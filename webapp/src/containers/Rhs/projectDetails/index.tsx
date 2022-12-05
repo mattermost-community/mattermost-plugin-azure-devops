@@ -27,7 +27,7 @@ import utils from 'utils';
 import Header from './header';
 
 const ProjectDetails = memo((projectDetails: ProjectDetails) => {
-    const {projectName, organizationName} = projectDetails;
+    const {projectName, organizationName, projectID} = projectDetails;
     const {defaultPage, defaultPerPageLimit, defaultSubscriptionFilters} = pluginConstants.common;
 
     // State variables
@@ -84,7 +84,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
 
     // Opens subscription modal
     const handleSubscriptionModal = () => {
-        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName]}));
+        dispatch(toggleShowSubscribeModal({isVisible: true, commandArgs: [], args: [organizationName, projectName, projectID]}));
     };
 
     // Opens a confirmation modal to confirm deletion of a subscription
@@ -99,6 +99,17 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             repository: subscriptionDetails.repository,
             targetBranch: subscriptionDetails.targetBranch,
             repositoryName: subscriptionDetails.repositoryName,
+            pullRequestCreatedBy: subscriptionDetails.pullRequestCreatedBy,
+            pullRequestCreatedByName: subscriptionDetails.pullRequestCreatedByName,
+            pullRequestReviewersContains: subscriptionDetails.pullRequestReviewersContains,
+            pullRequestReviewersContainsName: subscriptionDetails.pullRequestReviewersContainsName,
+            pushedBy: subscriptionDetails.pushedBy,
+            pushedByName: subscriptionDetails.pushedByName,
+            mergeResult: subscriptionDetails.mergeResult,
+            mergeResultName: subscriptionDetails.mergeResultName,
+            notificationType: subscriptionDetails.notificationType,
+            notificationTypeName: subscriptionDetails.notificationTypeName,
+            areaPath: subscriptionDetails.areaPath,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);
@@ -203,41 +214,45 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 showErrorPanel={deleteConfirmationModalError}
             />
             {isLoading && <LinearLoader extraClass='top-0'/>}
-            <Header
-                projectDetails={projectDetails}
-                handleResetProjectDetails={handleResetProjectDetails}
-                showAllSubscriptions={showAllSubscriptions}
-                setShowAllSubscriptions={setShowAllSubscriptions}
-                handlePagination={handlePagination}
-                filter={filter}
-                setFilter={handleSetFilter}
-                setSubscriptionList={setSubscriptionList}
-            />
-            {
-                subscriptionList.length ? (
-                    <InfiniteScroll
-                        dataLength={defaultPerPageLimit}
-                        next={handlePagination}
-                        hasMore={hasMoreSubscriptions}
-                        loader={<Spinner/>}
-                        endMessage={
-                            <p style={{textAlign: 'center'}}>
-                                <b>{'No more subscriptions present.'}</b>
-                            </p>
-                        }
-                        scrollableTarget='scrollableArea'
-                    >
+            <div className='rhs-wrapper'>
+                <div className='padding-16'>
+                    <Header
+                        projectDetails={projectDetails}
+                        handleResetProjectDetails={handleResetProjectDetails}
+                        showAllSubscriptions={showAllSubscriptions}
+                        setShowAllSubscriptions={setShowAllSubscriptions}
+                        handlePagination={handlePagination}
+                        filter={filter}
+                        setFilter={handleSetFilter}
+                        setSubscriptionList={setSubscriptionList}
+                    />
+                </div>
+                {
+                    subscriptionList.length ? (
                         <>
-                            {
-                                subscriptionList.map((item) => (
-                                    <SubscriptionCard
-                                        subscriptionDetails={item}
-                                        key={item.mattermostUserID}
-                                        handleDeleteSubscrption={handleDeleteSubscription}
-                                    />
-                                ),
-                                )
-                            }
+                            <div className='rhs-wrapper__content padding-16'>
+                                <InfiniteScroll
+                                    dataLength={defaultPerPageLimit}
+                                    next={handlePagination}
+                                    hasMore={hasMoreSubscriptions}
+                                    loader={<Spinner/>}
+                                    endMessage={
+                                        <p style={{textAlign: 'center'}}>
+                                            <b>{'No more subscriptions present.'}</b>
+                                        </p>
+                                    }
+                                    scrollableTarget='scrollableArea'
+                                >
+
+                                    {subscriptionList.map((item) => (
+                                        <SubscriptionCard
+                                            subscriptionDetails={item}
+                                            key={item.mattermostUserID}
+                                            handleDeleteSubscrption={handleDeleteSubscription}
+                                        />
+                                    ))}
+                                </InfiniteScroll>
+                            </div>
                             <div className='rhs-project-list-wrapper'>
                                 <button
                                     onClick={handleSubscriptionModal}
@@ -247,19 +262,19 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                                 </button>
                             </div>
                         </>
-                    </InfiniteScroll>
-                ) : (
-                    <EmptyState
-                        title='No subscriptions yet'
-                        subTitle={{text: 'You can add a subscription by clicking the below button.'}}
-                        buttonText='Add new subscription'
-                        buttonAction={handleSubscriptionModal}
-                        icon='subscriptions'
-                        wrapperExtraClass='margin-top-80'
-                        isLoading={isLoading}
-                    />
-                )
-            }
+                    ) : (
+                        <EmptyState
+                            title='No subscriptions yet'
+                            subTitle={{text: 'You can add a subscription by clicking the below button.'}}
+                            buttonText='Add new subscription'
+                            buttonAction={handleSubscriptionModal}
+                            icon='subscriptions'
+                            wrapperExtraClass='margin-top-80'
+                            isLoading={isLoading}
+                        />
+                    )
+                }
+            </div>
         </>
     );
 });

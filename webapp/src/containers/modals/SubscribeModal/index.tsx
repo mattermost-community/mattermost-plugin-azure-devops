@@ -4,12 +4,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GlobalState} from 'mattermost-redux/types/store';
 import mm_constants from 'mattermost-redux/constants/general';
 
+import {eventTypeBoards, eventTypeRepos, filterLabelValuePairAll} from 'pluginConstants/common';
+import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
+import pluginConstants from 'pluginConstants';
+
 import Modal from 'components/modal';
 import Form from 'components/form';
 import EmptyState from 'components/emptyState';
 import ResultPanel from 'components/resultPanel';
-
-import pluginConstants from 'pluginConstants';
 
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
@@ -21,12 +23,9 @@ import {getSubscribeModalState} from 'selectors';
 
 import Utils from 'utils';
 
-import './styles.scss';
-import {boardEventTypeOptions, pipelineEventTypeOptions, repoEventTypeOptions} from 'pluginConstants/form';
-
-import {filterLabelValuePairAll} from 'pluginConstants/common';
-
 import ReposFilter from './filters/repos';
+import BoardsFilter from './filters/boards';
+import './styles.scss';
 
 const SubscribeModal = () => {
     const {subscriptionModal} = pluginConstants.form;
@@ -47,7 +46,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
-    const {visibility, project, organization, serviceType} = getSubscribeModalState(state);
+    const {visibility, project, organization, serviceType, projectID} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
     const dispatch = useDispatch();
@@ -55,6 +54,8 @@ const SubscribeModal = () => {
     // State variables
     const [channelOptions, setChannelOptions] = useState<LabelValuePair[]>([]);
     const [showResultPanel, setShowResultPanel] = useState(false);
+    const [isFiltersError, setIsFiltersError] = useState<boolean>(false);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
@@ -62,6 +63,7 @@ const SubscribeModal = () => {
         resetFormFields();
         setChannelOptions([]);
         setShowResultPanel(false);
+        setIsFiltersError(false);
     };
 
     // Get organization and project state
@@ -116,17 +118,38 @@ const SubscribeModal = () => {
         }
     };
 
+    const setSelectedDropdownOption = (field: SubscriptionModalFields, newValue: string, selectedOption?: Record<string, string>) => {
+        onChangeFormField(field as SubscriptionModalFields, newValue);
+
+        if (field === 'project' && selectedOption) {
+            const selectedProject = selectedOption as ProjectListLabelValuePair;
+            setSelectedProjectId(selectedProject.projectID ?? projectID);
+        }
+    };
+
     useEffect(() => {
-        if (formFields.serviceType === pluginConstants.common.boards) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: boardEventTypeOptions}});
-        } else if (formFields.serviceType === pluginConstants.common.repos) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: repoEventTypeOptions}});
+        if (projectList.length === 1) {
+            setSelectedProjectId(projectList[0].projectID);
+        }
+    }, [showResultPanel]);
+
+    useEffect(() => {
+        let optionsList: LabelValuePair[] = boardEventTypeOptions;
+
+        if (formFields.serviceType === pluginConstants.common.repos) {
+            optionsList = repoEventTypeOptions;
         } else if (formFields.serviceType === pluginConstants.common.pipelines) {
-            setSubscriptionModalFields({...subscriptionModalFields, eventType: {...subscriptionModalFields.eventType, optionsList: pipelineEventTypeOptions}});
+            optionsList = pipelineEventTypeOptions;
         }
 
+        setSubscriptionModalFields({
+            ...subscriptionModalFields,
+            eventType: {...subscriptionModalFields.eventType, optionsList, isFieldDisabled: !formFields.project},
+            serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project},
+        });
+
         dispatch(setServiceType(formFields.serviceType ?? ''));
-    }, [formFields.serviceType]);
+    }, [formFields.serviceType, formFields.project]);
 
     // Opens link project modal
     const handleOpenLinkProjectModal = () => {
@@ -141,7 +164,7 @@ const SubscribeModal = () => {
     };
 
     // Return different types of error messages occurred on API call
-    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error: ApiErrorResponse) => {
+    const showApiErrorMessages = (isCreateSubscriptionError: boolean, error?: ApiErrorResponse) => {
         if (isChannelListError) {
             return pluginConstants.messages.error.errorFetchingChannelsList;
         }
@@ -233,12 +256,54 @@ const SubscribeModal = () => {
             ...formFields,
             repository: newValue === filterLabelValuePairAll.value ? '' : newValue,
             repositoryName: repoName === filterLabelValuePairAll.label ? '' : repoName,
+            targetBranch: repoName === filterLabelValuePairAll.label ? '' : formFields.targetBranch,
         });
 
     const handleSetTargetBranchFilter = (newValue: string) =>
         setSpecificFieldValue({
             ...formFields,
             targetBranch: newValue === filterLabelValuePairAll.value ? '' : newValue,
+        });
+
+    const handleSetPullRequestCreatedByFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestCreatedBy: newValue,
+            pullRequestCreatedByName: name === filterLabelValuePairAll.label ? '' : name,
+        });
+
+    const handleSetPullRequestReviewersContainsFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pullRequestReviewersContains: newValue,
+            pullRequestReviewersContainsName: name === filterLabelValuePairAll.label ? '' : name,
+        });
+
+    const handleSetPullRequestPushedByFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            pushedBy: newValue,
+            pushedByName: name === filterLabelValuePairAll.label ? '' : name,
+        });
+
+    const handleSetPullRequestMergeResultFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            mergeResult: newValue,
+            mergeResultName: name === filterLabelValuePairAll.label ? '' : name,
+        });
+
+    const handleSetPullRequestNotificationTypeFilter = (newValue: string, name?: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            notificationType: newValue,
+            notificationTypeName: name === filterLabelValuePairAll.label ? '' : name,
+        });
+
+    const handleSetAreaPathFilter = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            areaPath: newValue,
         });
 
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);
@@ -256,7 +321,7 @@ const SubscribeModal = () => {
             cancelDisabled={isLoading}
             loading={isLoading}
             showFooter={!showResultPanel}
-            error={showApiErrorMessages(isError, error as ApiErrorResponse)}
+            error={showApiErrorMessages(isError, error as ApiErrorResponse) || showApiErrorMessages(isFiltersError)}
         >
             <>
                 {
@@ -270,35 +335,58 @@ const SubscribeModal = () => {
                                             fieldConfig={subscriptionModalFields[field as SubscriptionModalFields]}
                                             value={formFields[field as SubscriptionModalFields] ?? ''}
                                             optionsList={getDropDownOptions(field as SubscriptionModalFields)}
-                                            onChange={(newValue) => onChangeFormField(field as SubscriptionModalFields, newValue)}
+                                            onChange={(newValue, _, selectedOption) => setSelectedDropdownOption(field as SubscriptionModalFields, newValue, selectedOption)}
                                             error={errorState[field as SubscriptionModalFields]}
                                             isDisabled={isLoading}
                                         />
                                     ))
                                 }
                                 {
-                                    formFields.serviceType === pluginConstants.common.repos && (
-                                        <>
-                                            <ReposFilter
-                                                organization={organization as string}
-                                                project={project as string}
-                                                selectedRepo={formFields.repository || filterLabelValuePairAll.value}
-                                                handleSelectRepo={handleSetRepoFilter}
-                                                selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
-                                                handleSelectTargetBranch={handleSetTargetBranchFilter}
-                                            />
-                                        </>
+                                    formFields.serviceType === pluginConstants.common.boards && formFields.eventType && Object.keys(eventTypeBoards).includes(formFields.eventType) && (
+                                        <BoardsFilter
+                                            organization={formFields.organization as string}
+                                            projectId={selectedProjectId || projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedAreaPath={formFields.areaPath || filterLabelValuePairAll.value}
+                                            handleSelectAreaPath={handleSetAreaPathFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
+                                    )
+                                }
+                                {
+                                    formFields.serviceType === pluginConstants.common.repos && formFields.eventType && Object.keys(eventTypeRepos).includes(formFields.eventType) && (
+                                        <ReposFilter
+                                            organization={formFields.organization as string}
+                                            projectId={selectedProjectId || projectID as string}
+                                            eventType={formFields.eventType || ''}
+                                            selectedRepo={formFields.repository || filterLabelValuePairAll.value}
+                                            handleSelectRepo={handleSetRepoFilter}
+                                            selectedTargetBranch={formFields.targetBranch || filterLabelValuePairAll.value}
+                                            handleSelectTargetBranch={handleSetTargetBranchFilter}
+                                            selectedPullRequestCreatedBy={formFields.pullRequestCreatedBy || filterLabelValuePairAll.value}
+                                            handleSelectPullRequestCreatedBy={handleSetPullRequestCreatedByFilter}
+                                            selectedPullRequestReviewersContains={formFields.pullRequestReviewersContains || filterLabelValuePairAll.value}
+                                            handlePullRequestReviewersContains={handleSetPullRequestReviewersContainsFilter}
+                                            selectedPushedBy={formFields.pushedBy || filterLabelValuePairAll.value}
+                                            handleSelectPushedBy={handleSetPullRequestPushedByFilter}
+                                            selectedMergeResult={formFields.mergeResult || filterLabelValuePairAll.value}
+                                            handleSelectMergeResult={handleSetPullRequestMergeResultFilter}
+                                            selectedNotificationType={formFields.notificationType || filterLabelValuePairAll.value}
+                                            handleSelectNotificationType={handleSetPullRequestNotificationTypeFilter}
+                                            setIsFiltersError={setIsFiltersError}
+                                        />
                                     )
                                 }
                             </>
-                        ) : (
-                            <EmptyState
-                                title='No Project Linked'
-                                subTitle={{text: 'You can link a project by clicking the below button.'}}
-                                buttonText='Link new project'
-                                buttonAction={handleOpenLinkProjectModal}
-                            />
-                        )
+                        ) :
+                            !isLoading && (
+                                <EmptyState
+                                    title='No Project Linked'
+                                    subTitle={{text: 'You can link a project by clicking the below button.'}}
+                                    buttonText='Link new project'
+                                    buttonAction={handleOpenLinkProjectModal}
+                                />
+                            )
                     )
                 }
                 {

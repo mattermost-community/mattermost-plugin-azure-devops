@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 func TestNewSubscriptionListt(t *testing.T) {
@@ -248,7 +249,7 @@ func TestDeleteSubscriptionAtomicModify(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.Patch(GetSubscriptionKey, func(string, string, string, string, string, string) string {
+			monkey.Patch(GetSubscriptionKey, func(string, string, string, string, string, string, string, string, string, string, string, string) string {
 				return "mockSubscriptionKey"
 			})
 			monkey.Patch(SubscriptionListFromJSON, func([]byte) (*SubscriptionList, error) {

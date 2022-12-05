@@ -1,5 +1,5 @@
 .height-rhs {
-    height: calc(100% - #{$rhs-bottom-button-height}); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
+    height: 100%;
 }
 
 .project-details-unlink-button {
@@ -20,9 +20,7 @@
 }
 
 .rhs-project-list-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    margin-top: auto;
     padding: 15px 0 30px;
     width: 100%;
     background-color: var(--center-channel-bg);
@@ -35,7 +33,6 @@
 }
 
 .rhs-header-divider {
-    margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
 }

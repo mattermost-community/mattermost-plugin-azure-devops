@@ -11,12 +11,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -186,7 +187,7 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 
 func (p *Plugin) IsSubscriptionPresent(subscriptionList []*serializers.SubscriptionDetails, subscription *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 	for _, a := range subscriptionList {
-		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType && a.Repository == subscription.Repository && a.TargetBranch == subscription.TargetBranch {
+		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType && a.Repository == subscription.Repository && a.TargetBranch == subscription.TargetBranch && a.PullRequestCreatedBy == subscription.PullRequestCreatedBy && a.PullRequestReviewersContains == subscription.PullRequestReviewersContains && a.PushedBy == subscription.PushedBy && a.MergeResult == subscription.MergeResult && a.NotificationType == subscription.NotificationType && a.AreaPath == subscription.AreaPath {
 			return a, true
 		}
 	}
@@ -229,41 +230,42 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
+	displayEventType := map[string]string{
+		constants.SubscriptionEventWorkItemCreated:                    "Work Item Created",
+		constants.SubscriptionEventWorkItemUpdated:                    "Work Item Updated",
+		constants.SubscriptionEventWorkItemDeleted:                    "Work Item Deleted",
+		constants.SubscriptionEventWorkItemCommented:                  "Work Item Commented",
+		constants.SubscriptionEventPullRequestCreated:                 "Pull Request Created",
+		constants.SubscriptionEventPullRequestUpdated:                 "Pull Request Updated",
+		constants.SubscriptionEventPullRequestMerged:                  "Pull Request Merge Attempted",
+		constants.SubscriptionEventPullRequestCommented:               "Pull Requested Commented",
+		constants.SubscriptionEventCodePushed:                         "Code Pushed",
+		constants.SubscriptionEventBuildCompleted:                     "Build Completed",
+		constants.SubscriptionEventReleaseAbandoned:                   "Release Abandoned",
+		constants.SubscriptionEventReleaseCreated:                     "Release Created",
+		constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "Release Deployment Approval Completed",
+		constants.SubscriptionEventReleaseDeploymentCompleted:         "Release Deployment Completed",
+		constants.SubscriptionEventReleaseDeploymentEventPending:      "Release Deployment Event Pending",
+		constants.SubscriptionEventReleaseDeploymentStarted:           "Release Deployment Started",
+		constants.SubscriptionEventRunStageApprovalCompleted:          "Run Stage Approval Completed",
+		constants.SubscriptionEventRunStageStateChanged:               "Run Stage State Changed",
+		constants.SubscriptionEventRunStageWaitingForApproval:         "Run Stage Waiting For Approval",
+		constants.SubscriptionEventRunStateChanged:                    "Run State Changed",
+	}
+
 	noSubscriptionFound := true
 	for _, subscription := range filteredSubscriptionList {
-		displayEventType := ""
-		switch subscription.EventType {
-		case constants.SubscriptionEventWorkItemCreated:
-			displayEventType = "Work Item Created"
-		case constants.SubscriptionEventWorkItemUpdated:
-			displayEventType = "Work Item Updated"
-		case constants.SubscriptionEventWorkItemDeleted:
-			displayEventType = "Work Item Deleted"
-		case constants.SubscriptionEventWorkItemCommented:
-			displayEventType = "Work Item Commented"
-		case constants.SubscriptionEventPullRequestCreated:
-			displayEventType = "Pull Request Created"
-		case constants.SubscriptionEventPullRequestUpdated:
-			displayEventType = "Pull Request Updated"
-		case constants.SubscriptionEventPullRequestMerged:
-			displayEventType = "Pull Request Merge Attempted"
-		case constants.SubscriptionEventPullRequestCommented:
-			displayEventType = "Pull Requested Commented"
-		case constants.SubscriptionEventCodePushed:
-			displayEventType = "Code Pushed"
-		}
-
 		if channelID == "" || subscription.ChannelID == channelID {
 			switch createdBy {
 			case constants.FilterCreatedByMe:
 				if subscription.MattermostUserID == userID && subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			case constants.FilterCreatedByAnyone:
 				if subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			}
 		}
@@ -330,4 +332,13 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 	}
 
 	return filteredSubscriptionList, nil
+}
+
+// TODO: use this function at all the places where baseURL need to be updated this way
+func (p *Plugin) updateBaseURLForReleaseEventTypes(url, eventType string) string {
+	if strings.Contains(eventType, "release") {
+		url = strings.Replace(url, "://", "://vsrm.", 1)
+	}
+
+	return url
 }

@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/mocks"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 func TestPostTaskPreview(t *testing.T) {

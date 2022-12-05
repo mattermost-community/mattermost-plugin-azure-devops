@@ -4,14 +4,15 @@ type ErrorComponents = 'LinkProjectModal' | 'CreateTaskModal' | 'SubscribeModal'
 
 type LinkProjectModalFields = 'organization' | 'project' | 'timestamp'
 type CreateTaskModalFields = 'organization' | 'project' | 'type' | 'title' | 'description' | 'areaPath' | 'timestamp'
-type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp' | 'serviceType' | 'repository' | 'targetBranch' | 'repositoryName'
+type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'channelID' | 'timestamp' | 'serviceType' | 'repository' | 'targetBranch' | 'repositoryName' | 'pullRequestCreatedBy' | 'pullRequestReviewersContains' | 'pullRequestCreatedByName' | 'pullRequestReviewersContainsName' | 'pushedBy' | 'mergeResult' | 'notificationType' | 'pushedByName' | 'mergeResultName' | 'notificationTypeName' | 'areaPath'
 
 type ModalFormFieldConfig = {
     label: string
     value: string
-    type: FieldType,
+    type: FieldType
     optionsList?: LabelValuePair[]
     validations?: Partial<Record<ValidationTypes, string | number | boolean>>
+    isFieldDisabled?: boolean
 }
 
 type FormFieldNames = LinkProjectModalFields | CreateTaskModalFields | SubscriptionModalFields

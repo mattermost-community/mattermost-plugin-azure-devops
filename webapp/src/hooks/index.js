@@ -1,4 +1,4 @@
-import {boards, repos} from 'pluginConstants/common';
+import {boards, pipelines, repos} from 'pluginConstants/common';
 import {setGlobalModalState} from 'reducers/globalModal';
 import {getCommandArgs} from 'utils';
 
@@ -43,6 +43,15 @@ export default class Hooks {
         if (commandTrimmed && commandTrimmed.startsWith('/azuredevops repos subscription add')) {
             const commandArgs = getCommandArgs(commandTrimmed);
             this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs: [...commandArgs, repos]}));
+            return {
+                message,
+                args: contextArgs,
+            };
+        }
+
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops pipelines subscription add')) {
+            const commandArgs = getCommandArgs(commandTrimmed);
+            this.store.dispatch(setGlobalModalState({modalId: 'subscribeProject', commandArgs: [...commandArgs, pipelines]}));
             return {
                 message,
                 args: contextArgs,

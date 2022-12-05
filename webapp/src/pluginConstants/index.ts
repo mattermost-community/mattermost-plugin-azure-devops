@@ -8,7 +8,7 @@ import {
     pluginId,
     RightSidebarHeader,
     eventTypeMap,
-    serviceTypeMap,
+    serviceTypeIcon,
     defaultPage,
     defaultPerPageLimit,
     subscriptionFilters,
@@ -17,6 +17,11 @@ import {
     pipelines,
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
+    eventTypeReposKeys,
+    deleteAllSubscriptionsMessage,
+    StatusCodeForbidden,
+    projectAlreadyLinkedMessage,
+    projectLinkedSuccessfullyMessage,
 } from './common';
 import {SVGIcons} from './icons';
 import {
@@ -27,6 +32,12 @@ import {
     subscriptionFilterServiceTypeOptions,
     subscriptionFilterEventTypeBoardsOptions,
     subscriptionFilterEventTypeReposOptions,
+    mergeResultOptons,
+    pullRequestChangeOptons,
+    subscriptionFiltersNameForRepos,
+    subscriptionFiltersForRepos,
+    subscriptionFiltersNameForBoards,
+    subscriptionFiltersForBoards,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -37,9 +48,10 @@ export default {
         MMCSRF,
         HeaderCSRFToken,
         AzureDevops,
+        deleteAllSubscriptionsMessage,
         RightSidebarHeader,
         eventTypeMap,
-        serviceTypeMap,
+        serviceTypeIcon,
         defaultPage,
         defaultPerPageLimit,
         subscriptionFilters,
@@ -48,6 +60,10 @@ export default {
         pipelines,
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
+        eventTypeReposKeys,
+        StatusCodeForbidden,
+        projectAlreadyLinkedMessage,
+        projectLinkedSuccessfullyMessage,
     },
     form: {
         linkProjectModal,
@@ -57,6 +73,12 @@ export default {
         subscriptionFilterServiceTypeOptions,
         subscriptionFilterEventTypeBoardsOptions,
         subscriptionFilterEventTypeReposOptions,
+        mergeResultOptons,
+        pullRequestChangeOptons,
+        subscriptionFiltersNameForRepos,
+        subscriptionFiltersForRepos,
+        subscriptionFiltersNameForBoards,
+        subscriptionFiltersForBoards,
     },
     messages: {
         error,

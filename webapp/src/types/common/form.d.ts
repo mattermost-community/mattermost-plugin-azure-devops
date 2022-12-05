@@ -9,9 +9,10 @@ type SubscriptionModalFields = 'organization' | 'project' | 'eventType' | 'chann
 type ModalFormFieldConfig = {
     label: string
     value: string
-    type: FieldType,
+    type: FieldType
     optionsList?: LabelValuePair[]
     validations?: Partial<Record<ValidationTypes, string | number | boolean>>
+    isFieldDisabled?: boolean
 }
 
 type FormFieldNames = LinkProjectModalFields | CreateTaskModalFields | SubscriptionModalFields

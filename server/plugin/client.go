@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/pkg/errors"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 type Client interface {
@@ -149,6 +150,7 @@ func (c *client) callFormURLEncoded(url, path, method string, out interface{}, f
 	return c.Call(url, method, path, contentType, "", nil, out, formValues)
 }
 
+// publishedID is sent in the payload while calling the Azure DevOps API and it varies according to the eventType
 var publisherID = map[string]string{
 	constants.SubscriptionEventPullRequestCreated:                 constants.PublisherIDTFS,
 	constants.SubscriptionEventPullRequestUpdated:                 constants.PublisherIDTFS,
@@ -198,11 +200,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 		},
 	}
 
-	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
-	if strings.Contains(body.EventType, "release") {
-		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	}
-
+	baseURL := c.plugin.updateBaseURLForReleaseEventTypes(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, body.EventType)
 	var subscription *serializers.SubscriptionValue
 	_, statusCode, err := c.CallJSON(baseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
@@ -375,6 +373,23 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	if basePath != constants.BaseOauthURL {
 		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
+				message := constants.SessionExpiredMessage
+				if isDeleted, dErr := c.plugin.Store.DeleteUser(mattermostUserID); !isDeleted {
+					if dErr != nil {
+						c.plugin.API.LogError(constants.UnableToDisconnectUser, "Error", dErr.Error())
+					}
+					message = constants.GenericErrorMessage
+				}
+
+				c.plugin.API.PublishWebSocketEvent(
+					constants.WSEventDisconnect,
+					nil,
+					&model.WebsocketBroadcast{UserId: mattermostUserID},
+				)
+
+				if _, DMErr := c.plugin.DM(mattermostUserID, message, false); DMErr != nil {
+					c.plugin.API.LogError(constants.UnableToDMBot, "Error", DMErr.Error())
+				}
 				return nil, http.StatusInternalServerError, errRefreshingToken
 			}
 		}
@@ -413,7 +428,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	}
 	defer resp.Body.Close()
 
-	responseData, err = ioutil.ReadAll(resp.Body)
+	responseData, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}

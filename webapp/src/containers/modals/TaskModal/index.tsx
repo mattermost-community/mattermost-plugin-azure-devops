@@ -191,7 +191,7 @@ const TaskModal = () => {
                                 isDisabled={isLoading}
                             />
                         ))
-                    ) : (
+                    ) : !isLoading && (
                         <EmptyState
                             title='No Project Linked'
                             subTitle={{text: 'You can link a project by clicking the below button.'}}

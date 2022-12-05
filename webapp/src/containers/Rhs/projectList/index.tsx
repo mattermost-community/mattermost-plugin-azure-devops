@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import ProjectCard from 'components/card/project';
@@ -13,12 +13,16 @@ import {toggleIsLinkedProjectListChanged, toggleShowLinkModal} from 'reducers/li
 import usePluginApi from 'hooks/usePluginApi';
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
-import {sortProjectList} from 'utils';
+import utils, {sortProjectList} from 'utils';
 
 const ProjectList = () => {
     // State variables
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [projectToBeUnlinked, setProjectToBeUnlinked] = useState<ProjectDetails>();
+    const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
+    const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
+    const [confirmationModalDescription, setConfirmationModalDescription] = useState('');
+    const [unlinkConfirmationModalError, setUnlinkConfirmationModalError] = useState<ConfirmationModalErrorPanelProps | null>(null);
 
     // Hooks
     const dispatch = useDispatch();
@@ -40,6 +44,7 @@ const ProjectList = () => {
      */
     const handleUnlinkProject = (projectDetails: ProjectDetails) => {
         setProjectToBeUnlinked(projectDetails);
+        setConfirmationModalDescription(`Are you sure you want to unlink ${projectDetails?.projectName}?`);
         setShowConfirmationModal(true);
     };
 
@@ -47,7 +52,10 @@ const ProjectList = () => {
     const handleConfirmUnlinkProject = () => {
         makeApiRequestWithCompletionStatus(
             pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
-            projectToBeUnlinked,
+            {
+                ...projectToBeUnlinked,
+                deleteSubscriptions,
+            } as APIRequestPayload,
         );
     };
 
@@ -57,47 +65,84 @@ const ProjectList = () => {
         setShowConfirmationModal(false);
     };
 
+    // Update the modal when project unlinking fails
+    const handleActionsAfterUnlinkingProjectFailed = (err: ApiErrorResponse) => {
+        const errorMessage = utils.getErrorMessage(true, 'ConfirmationModal', err);
+        if (errorMessage === pluginConstants.messages.error.adminAccessError) {
+            setConfirmationModalDescription(pluginConstants.messages.error.adminAccessErrorForUnlinking);
+        }
+
+        setUnlinkConfirmationModalError({
+            title: errorMessage,
+            onSecondaryBtnClick: () => {
+                setShowConfirmationModal(false);
+                setUnlinkConfirmationModalError(null);
+                setShowDeleteSubscriptionsCheckbox(true);
+            },
+        });
+
+        setDeleteSubscriptions(false);
+        setShowDeleteSubscriptionsCheckbox(false);
+    };
+
     // Handle sucess/error response of API call made to unlink project
     useApiRequestCompletionState({
         serviceName: pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName,
-        payload: projectToBeUnlinked,
+        payload: {...projectToBeUnlinked, deleteSubscriptions} as APIRequestPayload,
         handleSuccess: handleActionsAfterUnlinkingProject,
+        handleError: handleActionsAfterUnlinkingProjectFailed,
     });
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => setDeleteSubscriptions(e.target.checked);
+
+    const deleteSubscriptionsCheckbox = (
+        <div className='d-flex align-item-center'>
+            <input
+                type='checkbox'
+                id='deleteSubscriptions'
+                className='margin-0'
+                onChange={handleCheckboxChange}
+            />
+            <label className='margin-left-5 margin-bottom-0 font-weight-normal'>{pluginConstants.common.deleteAllSubscriptionsMessage}</label>
+        </div>
+    );
 
     const {data, isSuccess, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getAllLinkedProjectsList.apiServiceName);
     const projectsList = data as ProjectDetails[] ?? [];
     const sortedProjectList = useMemo(() => [...projectsList].sort(sortProjectList), [projectsList]); // TODO: Look for best optimisation method here
 
     return (
-        <>
-            <p className='rhs-title margin-bottom-15'>{'Linked Projects'}</p>
+        <div className='rhs-wrapper'>
+            <p className='rhs-title padding-16'>{'Linked Projects'}</p>
             {
                 <ConfirmationModal
                     isOpen={showConfirmationModal}
                     onHide={() => setShowConfirmationModal(false)}
                     onConfirm={handleConfirmUnlinkProject}
-                    isLoading={getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, projectToBeUnlinked).isLoading}
+                    isLoading={getApiState(pluginConstants.pluginApiServiceConfigs.unlinkProject.apiServiceName, {...projectToBeUnlinked, deleteSubscriptions} as APIRequestPayload).isLoading}
                     confirmBtnText='Unlink'
-                    description={`Are you sure you want to unlink ${projectToBeUnlinked?.projectName}?`}
+                    description={confirmationModalDescription}
                     title='Confirm Project Unlink'
-                />
+                    showErrorPanel={unlinkConfirmationModalError}
+                >
+                    {showDeleteSubscriptionsCheckbox ? deleteSubscriptionsCheckbox : <></>}
+                </ConfirmationModal>
             }
             {isLoading && <LinearLoader/>}
             {
                 isSuccess && (
                     sortedProjectList.length > 0 ?
                         <>
-                            {
-                                sortedProjectList.map((item: ProjectDetails) => (
+                            <div className='rhs-wrapper__content padding-16'>
+                                {sortedProjectList.map((item: ProjectDetails) => (
                                     <ProjectCard
                                         onProjectTitleClick={handleProjectTitleClick}
                                         projectDetails={item}
                                         key={item.projectID}
                                         handleUnlinkProject={handleUnlinkProject}
                                     />
-                                ),
-                                )
-                            }
+                                ))}
+                            </div>
                             <div className='rhs-project-list-wrapper'>
                                 <button
                                     onClick={handleOpenLinkProjectModal}
@@ -116,7 +161,7 @@ const ProjectList = () => {
                             isLoading={isLoading}
                         />)
             }
-        </>
+        </div>
     );
 };
 

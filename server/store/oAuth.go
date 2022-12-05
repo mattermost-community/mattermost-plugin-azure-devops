@@ -3,7 +3,7 @@ package store
 import (
 	"github.com/pkg/errors"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type OAuthStore interface {

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-server/v5/model"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 // postTaskPreview function returns the new post containing the preview of the work item.
@@ -126,9 +127,9 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipelines",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline), // TODO: update icon file
-		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
-		Color:      constants.IconColorPipeline,
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon), // TODO: update icon file
+		Title:      fmt.Sprintf(constants.BuildDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
+		Color:      constants.IconColorPipelines,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Repository",
@@ -176,9 +177,9 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 	environments := p.getPipelineReleaseEnvironmentList(releaseDetails.Environments)
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipeline",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipeline),
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
 		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, releaseDetails.Name, releaseDetails.Link.Web.Href, releaseDetails.ReleaseDefinition.Name),
-		Color:      constants.IconColorPipeline,
+		Color:      constants.IconColorPipelines,
 		Fields: []*model.SlackAttachmentField{
 			{
 				Title: "Environments",

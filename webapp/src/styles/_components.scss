@@ -1,5 +1,5 @@
 .height-rhs {
-    height: calc(100% - #{$rhs-bottom-button-height}); // 100% is the entire height and 150px is the space occupied by the button fixed at the bottom
+    height: 100%;
 }
 
 .project-details-unlink-button {
@@ -20,9 +20,7 @@
 }
 
 .rhs-project-list-wrapper {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    margin-top: auto;
     padding: 15px 0 30px;
     width: 100%;
     background-color: var(--center-channel-bg);
@@ -35,7 +33,6 @@
 }
 
 .rhs-header-divider {
-    margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(var(--center-channel-color-rgb), 0.2);
 }
@@ -80,8 +77,9 @@
 // This class is used for the dimensions of author_icon in the Mattermost slack attachment
 .post .attachment {
     // Uniquely targetting a common img tag on this plugin to ensure these CSS properties do not conflict with the global or another CSS styling
-    img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"] {
+    img[src*="mattermost-plugin-azure-devops/static/repos-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/boards-icon.svg"], img[src*="mattermost-plugin-azure-devops/static/pipelines-icon.svg"] {
         width: 20px;
         height: 20px;
+        border-radius: 0;
     }
 }

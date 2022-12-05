@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
 
 type LinkRequestPayload struct {
@@ -16,11 +16,13 @@ type LinkRequestPayload struct {
 type Project struct {
 	ID   string      `json:"id"`
 	Name string      `json:"name"`
+	URL  string      `json:"url"`
 	Link ProjectLink `json:"_links"`
 }
 
 type ProjectLink struct {
-	Web Href `json:"web"`
+	Web         Href `json:"web"`
+	PipelineWeb Href `json:"pipeline.web"`
 }
 
 // IsLinkPayloadValid function to validate request payload.

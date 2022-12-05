@@ -213,7 +213,7 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID, command, teamID string) string {
 	var sb strings.Builder
 
-	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID)
+	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID, createdBy)
 	if filteredSubscriptionErr != nil {
 		p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
 		sb.WriteString(constants.GenericErrorMessage)
@@ -299,7 +299,7 @@ func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limi
 	return page * limit, limit
 }
 
-func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID string) ([]*serializers.SubscriptionDetails, error) {
+func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID, createdBy string) ([]*serializers.SubscriptionDetails, error) {
 	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
 	if channelErr != nil {
 		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
@@ -310,6 +310,16 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
 		return nil, err
+	}
+
+	if createdBy == constants.FilterCreatedByMe {
+		var filteredSubscriptionList1 []*serializers.SubscriptionDetails
+		for _, subscription := range subscriptionList {
+			if subscription.MattermostUserID == mattermostUserID {
+				filteredSubscriptionList1 = append(filteredSubscriptionList1, subscription)
+			}
+		}
+		return filteredSubscriptionList1, nil
 	}
 
 	var filteredSubscriptionList []*serializers.SubscriptionDetails
@@ -326,6 +336,8 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 					}
 				}
 			}
+		} else if subscription.MattermostUserID == mattermostUserID {
+			filteredSubscriptionList = append(filteredSubscriptionList, subscription)
 		}
 	}
 

@@ -2,7 +2,7 @@
 
 ## Register your OAuth application on Azure DevOps
   - Log in to [AzureDevops](https://app.vsaex.visualstudio.com).
-  - Click on the "Create new application" button in the bottom left corner.
+  - Register your app by visiting [here](https://app.vsaex.visualstudio.com/app/register).
   - Fill in details like Company name, Application name.
 
     ![image](https://user-images.githubusercontent.com/100013900/181712515-89efdb18-0f51-4194-b954-c0edb4188423.png)

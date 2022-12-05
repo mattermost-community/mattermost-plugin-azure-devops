@@ -9,9 +9,10 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
-	"github.com/Brightscout/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
 func TestClientGenerateOAuthToken(t *testing.T) {

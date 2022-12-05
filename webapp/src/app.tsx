@@ -31,7 +31,7 @@ const App = (): JSX.Element => {
     // Check if user is connected on page reload
     useEffect(() => {
         makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
-    }, []);
+    }, [isSidebarOpen]);
 
     /**
      * When a command is issued on the Mattermost to open any modal

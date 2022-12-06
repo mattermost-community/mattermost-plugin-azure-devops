@@ -82,7 +82,7 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
     },
     eventType: {
         label: 'Event type',
-        value: '',
+        value: 'workitem.created',
         type: 'dropdown',
         optionsList: boardEventTypeOptions,
         validations: {

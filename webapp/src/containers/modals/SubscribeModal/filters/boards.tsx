@@ -41,7 +41,7 @@ const BoardsFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForBoards]);
 
     useEffect(() => {
-        if (eventType) {
+        if (organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,

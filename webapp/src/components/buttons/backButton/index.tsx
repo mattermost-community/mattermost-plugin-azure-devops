@@ -12,7 +12,7 @@ const BackButton = ({onClick}: BackButtonProps) => (
     <Tooltip tooltipContent={'Back'}>
         <svg
             tabIndex={0}
-            className='link-title margin-right-8'
+            className='link-title margin-right-8 svg-icon-stroke-color'
             onKeyDown={(event) => onPressingEnterKey(event, onClick)}
             onClick={onClick}
             width='9'
@@ -23,7 +23,6 @@ const BackButton = ({onClick}: BackButtonProps) => (
         >
             <path
                 d='M8 1L1.49999 7.50001L8 14'
-                stroke='#1C58D9'
                 strokeWidth='2'
             />
         </svg>

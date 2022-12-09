@@ -268,7 +268,7 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *mod
 }
 
 func executeDefault(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	out := constants.InvalidCommand + "\n\n" + constants.HelpText
+	out := constants.InvalidCommand + constants.HelpText
 
 	return p.sendEphemeralPostForCommand(commandArgs, out)
 }

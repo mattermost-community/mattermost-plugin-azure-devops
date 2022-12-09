@@ -34,7 +34,7 @@ func TestExecuteCommand(t *testing.T) {
 		{
 			description:      "ExecuteCommand: empty command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops"},
-			ephemeralMessage: constants.InvalidCommand + "\n\n" + constants.HelpText,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description:      "ExecuteCommand: help command",
@@ -71,7 +71,7 @@ func TestExecuteCommand(t *testing.T) {
 		{
 			description:      "ExecuteCommand: invalid command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops abc"},
-			ephemeralMessage: constants.InvalidCommand + "\n\n" + constants.HelpText,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

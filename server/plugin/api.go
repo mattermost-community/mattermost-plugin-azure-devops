@@ -489,6 +489,8 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
+	// bdy, _ := ioutil.ReadAll(r.Body)
+	// fmt.Printf("\n\n\nbodyyy      %+v\n\n\n", string(bdy))
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -538,8 +540,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventWorkItemCommented:
-		reg := regexp.MustCompile(constants.WorkitemCommentedOnMarkdownRegex)
-		split := reg.Split(body.DetailedMessage.Markdown, -1)
+		reg := regexp.MustCompile(constants.WorkItemCommentedOnMarkdownRegex)
+		comment := reg.Split(body.DetailedMessage.Markdown, -1)
 
 		attachment = &model.SlackAttachment{
 			AuthorName: constants.SlackAttachmentAuthorNameBoards,
@@ -547,7 +549,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Color:      constants.IconColorBoards,
 			Pretext:    body.Message.Markdown,
 			Title:      "Comment",
-			Text:       split[len(split)-1],
+			Text:       strings.TrimSpace(comment[len(comment)-1]),
 			Footer:     body.Resource.Fields.ProjectName,
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}

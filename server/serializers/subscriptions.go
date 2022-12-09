@@ -145,14 +145,23 @@ type DetailedMessage struct {
 
 type SubscriptionNotification struct {
 	DetailedMessage DetailedMessage `json:"detailedMessage"`
-	Message         DetailedMessage `json:"Message"`
+	Message         DetailedMessage `json:"message"`
 	EventType       string          `json:"eventType"`
 	Resource        Resource        `json:"resource"`
 }
 
 type Approval struct {
-	ID       int      `json:"id"`
-	Approver Approver `json:"approver"`
+	ID                   interface{}      `json:"id"`
+	Approver             Approver         `json:"approver"`
+	Steps                []*ApprovalSteps `json:"steps"`
+	MinRequiredApprovers int              `json:"minRequiredApprovers"`
+	ExecutionOrder       string           `json:"executionOrder"`
+}
+
+type ApprovalSteps struct {
+	AssignedApprover Approver `json:"assignedApprover"`
+	Status           string   `json:"status"`
+	Order            int      `json:"order"`
 }
 
 type Approver struct {
@@ -186,9 +195,11 @@ type Resource struct {
 	Pipeline      Definition   `json:"pipeline"`
 	Run           Stage        `json:"run"`
 	Approval      Approval     `json:"approval"`
+	ProjectID     string       `json:"projectId"`
 }
 
 type Stage struct {
+	Name  string      `json:"name"`
 	Links ProjectLink `json:"_links"`
 }
 
@@ -272,17 +283,34 @@ type DeleteSubscriptionRequestPayload struct {
 	AreaPath                     string `json:"areaPath"`
 }
 
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
+type PipelineRunApprovalDetails struct {
+	ID                   string           `json:"id"`
+	Status               string           `json:"status"`
+	ApprovalSteps        []*ApprovalSteps `json:"steps"`
+	MinRequiredApprovers int              `json:"minRequiredApprovers"`
+}
+
+type PipelineRunApproveResponse struct {
+	Value []*PipelineRunResponseValue `json:"value"`
+}
+
+type PipelineRunResponseValue struct {
+	Status               string           `json:"status"`
+	MinRequiredApprovers int              `json:"minRequiredApprovers"`
+	ApprovalSteps        []*ApprovalSteps `json:"steps"`
+}
+
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {
 	var body *GetSubscriptionFilterPossibleValuesRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {
 		return nil, err
 	}
 	return body, nil
-}
-
-type PipelineApprovalDetails struct {
-	ID     int    `json:"id"`
-	Status string `json:"status"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

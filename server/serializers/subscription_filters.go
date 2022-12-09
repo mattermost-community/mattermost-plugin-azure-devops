@@ -19,6 +19,7 @@ type GitBranch struct {
 }
 
 type PipelineApproveRequest struct {
-	Status   string `json:"status"`
-	Comments string `json:"comments"`
+	Status     string `json:"status"`
+	Comments   string `json:"comments"`
+	ApprovalID string `json:"approvalId"`
 }

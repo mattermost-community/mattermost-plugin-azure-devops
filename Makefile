@@ -4,7 +4,7 @@ CURL ?= $(shell command -v curl 2> /dev/null)
 MM_DEBUG ?=
 MANIFEST_FILE ?= plugin.json
 GOPATH ?= $(shell go env GOPATH)
-GO_TEST_FLAGS ?= -race
+GO_TEST_FLAGS ?= -race -gcflags=-l
 GO_BUILD_FLAGS ?=
 MM_UTILITIES_DIR ?= ../mattermost-utilities
 DLV_DEBUG_PORT := 2346
@@ -131,6 +131,15 @@ endif
 ## Builds and bundles the plugin.
 .PHONY: dist
 dist:	server webapp bundle
+
+## Generates mock golang interfaces for testing
+.PHONY: mock
+mock:
+ifneq ($(HAS_SERVER),)
+	go install github.com/golang/mock/mockgen@v1.6.0
+	mockgen -destination=mocks/mock_store.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/store KVStore
+	mockgen -destination=mocks/mock_client.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/plugin Client
+endif
 
 ## Builds and installs the plugin to a server.
 .PHONY: deploy

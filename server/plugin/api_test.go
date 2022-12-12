@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -209,18 +210,20 @@ func TestHandleCreateTask(t *testing.T) {
 }
 
 func TestHandleLink(t *testing.T) {
+	defer monkey.UnpatchAll()
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
 	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
-		description string
-		body        string
-		err         error
-		statusCode  int
-		projectList []serializers.ProjectDetails
-		project     serializers.ProjectDetails
+		description     string
+		body            string
+		err             error
+		statusCode      int
+		projectList     []serializers.ProjectDetails
+		project         serializers.ProjectDetails
+		isProjectLinked bool
 	}{
 		{
 			description: "HandleLink: valid",
@@ -228,7 +231,6 @@ func TestHandleLink(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject"
 				}`,
-			err:        nil,
 			statusCode: http.StatusOK,
 			projectList: []serializers.ProjectDetails{
 				{
@@ -267,16 +269,40 @@ func TestHandleLink(t *testing.T) {
 			err:        errors.New("mockError"),
 			statusCode: http.StatusBadRequest,
 		},
+		{
+			description: "HandleLink: project is already linked",
+			body: `{
+				"organization": "mockOrganization",
+				"project": "mockProject"
+				}`,
+			statusCode: http.StatusOK,
+			projectList: []serializers.ProjectDetails{
+				{
+					MattermostUserID: "mockMattermostUserID",
+					ProjectName:      "mockProject",
+					OrganizationName: "mockOrganizationName",
+					ProjectID:        "mockProjectID",
+				},
+			},
+			isProjectLinked: true,
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
+				return &serializers.ProjectDetails{}, testCase.isProjectLinked
+			})
+
 			if testCase.statusCode == http.StatusOK {
+				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
+			}
+
+			if testCase.statusCode == http.StatusOK && !testCase.isProjectLinked {
 				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
 				mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 					MattermostUserID: "mockMattermostUserID",
 					ProjectName:      "Mockproject",
@@ -291,6 +317,65 @@ func TestHandleLink(t *testing.T) {
 			p.handleLink(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandleDeleteAllSubscriptions(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	mockedStore := mocks.NewMockKVStore(mockCtrl)
+	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
+	for _, testCase := range []struct {
+		description           string
+		userID                string
+		projectID             string
+		err                   error
+		statusCode            int
+		getAllSubscriptionErr error
+		subscriptionList      []*serializers.SubscriptionDetails
+		subscription          *serializers.SubscriptionDetails
+	}{
+		{
+			description: "HandleDeleteAllSubscriptions: valid",
+			userID:      "mockMattermostUserID",
+			projectID:   "mockProjectID",
+			statusCode:  http.StatusOK,
+			subscriptionList: []*serializers.SubscriptionDetails{
+				{
+					MattermostUserID: "mockMattermostUserID",
+					ProjectID:        "mockProjectID",
+					OrganizationName: "mockOrganization",
+					EventType:        "mockEventType",
+					ChannelID:        "mockChannelID",
+					SubscriptionID:   "mockSubscriptionID",
+				},
+			},
+		},
+		{
+			description:           "HandleDeleteAllSubscriptions: GetAllSubscriptions gives error",
+			userID:                "mockMattermostUserID",
+			projectID:             "mockProjectID",
+			statusCode:            http.StatusInternalServerError,
+			getAllSubscriptionErr: errors.New("mockError"),
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+
+			if testCase.statusCode == http.StatusOK || testCase.statusCode == http.StatusInternalServerError {
+				mockedStore.EXPECT().GetAllSubscriptions(testCase.userID).Return(testCase.subscriptionList, testCase.getAllSubscriptionErr)
+			}
+
+			if testCase.statusCode == http.StatusOK {
+				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
+				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+			}
+
+			statusCode, _ := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)
+			assert.Equal(t, testCase.statusCode, statusCode)
 		})
 	}
 }
@@ -1108,6 +1193,105 @@ func TestHandleGetGitRepositoryBranches(t *testing.T) {
 				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
 				require.Nil(t, err)
 				assert.Equal(t, testCase.expectedResponse, actualResponse)
+			}
+		})
+	}
+}
+
+func TestHandleGetSubscriptionFilterPossibleValues(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	for _, testCase := range []struct {
+		description                            string
+		body                                   string
+		getSubscriptionFilterPossibleValuesErr error
+		statusCode                             int
+		getGitRepositoryBranchesResponse       *serializers.SubscriptionFilterPossibleValuesResponseFromClient
+		expectedResponse                       string
+		expectedErrorResponse                  interface{}
+	}{
+		{
+			description: "HandleGetSubscriptionFilterPossibleValues: valid",
+			body: `{
+				"organization": "mockOrganization",
+				"projectId": "mockProjectID",
+				"eventType": "mockEventType",
+				"repositoryId": "mockRepositoryID",
+				"filters": ["mockFilter1", "mockFilter2"]
+				}`,
+			statusCode: http.StatusOK,
+			getGitRepositoryBranchesResponse: &serializers.SubscriptionFilterPossibleValuesResponseFromClient{
+				InputValues: []*serializers.InputValues{
+					{
+						PossibleValues: []*serializers.PossibleValues{},
+						SubscriptionFilter: serializers.SubscriptionFilter{
+							InputID: "mockInputID1",
+						},
+					},
+					{
+						PossibleValues: []*serializers.PossibleValues{},
+						SubscriptionFilter: serializers.SubscriptionFilter{
+							InputID: "mockInputID2",
+						},
+					},
+				},
+			},
+			expectedResponse: `{"mockInputID1":[],"mockInputID2":[]}`,
+		},
+		{
+			description: "HandleGetSubscriptionFilterPossibleValues: missing fields",
+			body: `{
+				"projectId": "mockProjectID",
+				"eventType": "mockEventType",
+				"repositoryId": "mockRepositoryID",
+				"filters": ["mockFilter1", "mockFilter2"]
+				}`,
+			statusCode:            http.StatusBadRequest,
+			expectedErrorResponse: map[string]interface{}{"Error": constants.OrganizationRequired},
+		},
+		{
+			description: "HandleGetSubscriptionFilterPossibleValues: Error fetching subscription filter possible values",
+			body: `{
+				"organization": "mockOrganization",
+				"projectId": "mockProjectID",
+				"eventType": "mockEventType",
+				"repositoryId": "mockRepositoryID",
+				"filters": ["mockFilter1", "mockFilter2"]
+				}`,
+			statusCode:                             http.StatusInternalServerError,
+			getSubscriptionFilterPossibleValuesErr: errors.New("failed to fetch subscription filters possible values"),
+			expectedErrorResponse:                  map[string]interface{}{"Error": "failed to fetch subscription filters possible values"},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			if testCase.statusCode == http.StatusOK || testCase.statusCode == http.StatusInternalServerError {
+				mockedClient.EXPECT().GetSubscriptionFilterPossibleValues(gomock.Any(), gomock.Any()).Return(testCase.getGitRepositoryBranchesResponse, testCase.statusCode, testCase.getSubscriptionFilterPossibleValuesErr)
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(testCase.body))
+			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
+
+			w := httptest.NewRecorder()
+			p.handleGetSubscriptionFilterPossibleValues(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+
+			if testCase.expectedErrorResponse != nil {
+				var actualResponse interface{}
+				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
+				require.Nil(t, err)
+				assert.Equal(t, testCase.expectedErrorResponse, actualResponse)
+			}
+
+			if testCase.expectedResponse != "" {
+				response, err := ioutil.ReadAll(resp.Body)
+				require.Nil(t, err)
+				assert.Contains(t, string(response), testCase.expectedResponse)
 			}
 		})
 	}

@@ -56,3 +56,26 @@ func TestPostPullRequestPreview(t *testing.T) {
 		})
 	}
 }
+
+func TestPostBuildDetailsPreview(t *testing.T) {
+	p := Plugin{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description string
+		linkData    []string
+	}{
+		{
+			description: "PostPullRequestPreview: valid",
+			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockedClient.EXPECT().GetBuildDetails(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.BuildDetails{}, http.StatusOK, nil)
+			resp, stringErr := p.PostBuildDetailsPreview(testCase.linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
+			assert.Equal(t, "", stringErr)
+			assert.NotNil(t, resp)
+		})
+	}
+}

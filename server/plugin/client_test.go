@@ -82,6 +82,7 @@ func TestCreateTask(t *testing.T) {
 			_, statusCode, err := p.Client.CreateTask(&serializers.CreateTaskRequestPayload{
 				Fields: serializers.CreateTaskFieldValue{
 					Description: "mockDescription",
+					AreaPath:    "mockAreaPath",
 				},
 			}, "mockMattermostUSerID")
 
@@ -159,7 +160,45 @@ func TestGetPullRequest(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetPullRequest("mockOrganization", "mockPullRequestID", "mockProjectName", "mockMattermostUSerID")
+			_, statusCode, err := p.Client.GetPullRequest("mockOrganization", "mockPullRequestID", "mockProjectName", "mockMattermostUserID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetBuildDetails(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetBuildDetails: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetBuildDetails: with error",
+			err:         errors.New("failed to get build details"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetBuildDetails("mockOrganization", "mockProjectName", "mockBuildID", "mockMattermostUserID")
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -380,6 +419,87 @@ func TestGetGitRepositoryBranches(t *testing.T) {
 			})
 
 			_, statusCode, err := p.Client.GetGitRepositoryBranches("mockOrganization", "mockProjectName", "mockRepository", "mockMattermostUSerID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestCheckIfUserIsProjectAdmin(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "CheckIfUserIsProjectAdmin: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "CheckIfUserIsProjectAdmin: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			statusCode, err := p.Client.CheckIfUserIsProjectAdmin("mockOrganization", "mockProjectID", "mockProjectURL", "mockMattermostUSerID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+		request     serializers.GetSubscriptionFilterPossibleValuesRequestPayload
+	}{
+		{
+			description: "GetSubscriptionFilterPossibleValues: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+			request: serializers.GetSubscriptionFilterPossibleValuesRequestPayload{
+				Filters:      []string{"mockFIlter1", "mockFilter2"},
+				EventType:    "mockEventType",
+				ProjectID:    "mockProjectID",
+				RepositoryID: "mockRepositoryID",
+			},
+		},
+		{
+			description: "GetSubscriptionFilterPossibleValues: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(&testCase.request, "mockMattermostUSerID")
 
 			if testCase.err != nil {
 				assert.Error(t, err)

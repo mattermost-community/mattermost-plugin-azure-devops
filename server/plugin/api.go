@@ -489,8 +489,6 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
-	// bdy, _ := ioutil.ReadAll(r.Body)
-	// fmt.Printf("\n\n\nbodyyy      %+v\n\n\n", string(bdy))
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())

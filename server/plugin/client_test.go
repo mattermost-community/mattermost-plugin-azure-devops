@@ -134,6 +134,43 @@ func TestGetTask(t *testing.T) {
 	}
 }
 
+func TestGetReleaseDetails(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetReleaseDetails: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetReleaseDetails: with error",
+			err:         errors.New("failed to get build details"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetReleaseDetails("mockOrganization", "mockProjectName", "mockReleaseID", "mockMattermostUserID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
 func TestGetPullRequest(t *testing.T) {
 	defer monkey.UnpatchAll()
 	mockAPI := &plugintest.API{}

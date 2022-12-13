@@ -56,3 +56,26 @@ func TestPostPullRequestPreview(t *testing.T) {
 		})
 	}
 }
+
+func TestPostReleaseDetailsPreview(t *testing.T) {
+	p := Plugin{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p.Client = mockedClient
+	for _, testCase := range []struct {
+		description string
+		linkData    []string
+	}{
+		{
+			description: "PostReleaseDetailsPreview: valid",
+			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockedClient.EXPECT().GetReleaseDetails(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.ReleaseDetails{}, http.StatusOK, nil)
+			resp, stringErr := p.PostReleaseDetailsPreview(testCase.linkData, "mockReleasePipelineLink", "mockUserID", "mockChannelID")
+			assert.Equal(t, "", stringErr)
+			assert.NotNil(t, resp)
+		})
+	}
+}

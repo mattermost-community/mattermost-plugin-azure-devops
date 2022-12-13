@@ -21,7 +21,7 @@ const (
 		"* `/azuredevops boards/repos subscription add` - Add a new Boards/Repos subscription for your linked projects.\n" +
 		"* `/azuredevops boards/repos subscription list [me or anyone] [all_channels]` - View Boards/Repos subscriptions.\n" +
 		"* `/azuredevops boards/repos subscription delete [subscription id]` - Delete a Boards/Repos subscription"
-	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
+	InvalidCommand      = "Invalid command.\n\n"
 	CommandHelp         = "help"
 	CommandConnect      = "connect"
 	CommandDisconnect   = "disconnect"
@@ -39,6 +39,8 @@ const (
 
 	// Regex to verify pull request link
 	PullRequestLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_git\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/pullrequest\/[1-9]+`
+
+	WorkItemCommentedOnMarkdownRegex = ` commented on by [a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"|,.<>\/? ]*`
 
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"

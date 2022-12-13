@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -510,12 +511,71 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 
 	var attachment *model.SlackAttachment
 	switch body.EventType {
-	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemUpdated, constants.SubscriptionEventWorkItemDeleted, constants.SubscriptionEventWorkItemCommented:
+	case constants.SubscriptionEventWorkItemCreated, constants.SubscriptionEventWorkItemDeleted:
 		attachment = &model.SlackAttachment{
 			AuthorName: constants.SlackAttachmentAuthorNameBoards,
 			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 			Color:      constants.IconColorBoards,
-			Text:       body.DetailedMessage.Markdown,
+			Pretext:    body.Message.Markdown,
+			Title:      body.Resource.Fields.Title,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Area Path",
+					Value: body.Resource.Fields.AreaPath,
+					Short: true,
+				},
+				{
+					Title: "State",
+					Value: body.Resource.Fields.State,
+					Short: true,
+				},
+				{
+					Title: "Workitem Type",
+					Value: body.Resource.Fields.WorkItemType,
+				},
+			},
+			Footer:     body.Resource.Fields.ProjectName,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventWorkItemCommented:
+		reg := regexp.MustCompile(constants.WorkItemCommentedOnMarkdownRegex)
+		comment := reg.Split(body.DetailedMessage.Markdown, -1)
+
+		attachment = &model.SlackAttachment{
+			AuthorName: constants.SlackAttachmentAuthorNameBoards,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
+			Color:      constants.IconColorBoards,
+			Pretext:    body.Message.Markdown,
+			Title:      "Comment",
+			Text:       strings.TrimSpace(comment[len(comment)-1]),
+			Footer:     body.Resource.Fields.ProjectName,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		}
+	case constants.SubscriptionEventWorkItemUpdated:
+		attachment = &model.SlackAttachment{
+			AuthorName: constants.SlackAttachmentAuthorNameBoards,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
+			Color:      constants.IconColorBoards,
+			Pretext:    body.Message.Markdown,
+			Title:      body.Resource.Revision.Fields.Title,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Area Path",
+					Value: body.Resource.Revision.Fields.AreaPath,
+					Short: true,
+				},
+				{
+					Title: "State",
+					Value: body.Resource.Revision.Fields.State,
+					Short: true,
+				},
+				{
+					Title: "Workitem Type",
+					Value: body.Resource.Revision.Fields.WorkItemType,
+				},
+			},
+			Footer:     body.Resource.Revision.Fields.ProjectName,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:
 		reviewers := p.getReviewersListString(body.Resource.Reviewers)

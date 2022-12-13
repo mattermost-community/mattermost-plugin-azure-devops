@@ -113,6 +113,15 @@ func TestExecuteCommand(t *testing.T) {
 			deleteSubscriptionStoreError: errors.New("failed to delete subscription from store"),
 		},
 		{
+			description:             "ExecuteCommand: failed to get all subscriptions while deleting a subscription",
+			isConnected:             true,
+			commandArgs:             &model.CommandArgs{Command: "/azuredevops boards subscription delete mockSubscriptionID"},
+			isListCommand:           true,
+			serviceType:             "boards",
+			getAllSubscriptionError: errors.New("failed to get all subscriptions while deleting a subscription"),
+			ephemeralMessage:        constants.GenericErrorMessage,
+		},
+		{
 			description:      "ExecuteCommand: boards list subscription command",
 			isConnected:      true,
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards subscription list me"},
@@ -196,6 +205,16 @@ func TestExecuteCommand(t *testing.T) {
 			description:      "ExecuteCommand: invalid command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops abc"},
 			ephemeralMessage: constants.InvalidCommand,
+		},
+		{
+			description: "ExecuteCommand: link command",
+			commandArgs: &model.CommandArgs{Command: "/azuredevops link"},
+			isConnected: true,
+		},
+		{
+			description:      "ExecuteCommand: link command when user is not connected",
+			commandArgs:      &model.CommandArgs{Command: "/azuredevops link"},
+			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

@@ -1170,7 +1170,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
 	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
 		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
-		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest params: ", mattermostUserID, err)
+		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest param: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}

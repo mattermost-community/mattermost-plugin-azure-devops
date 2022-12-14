@@ -41,6 +41,9 @@ const (
 	// Regex to verify pull request link
 	PullRequestLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_git\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/pullrequest\/[1-9]+`
 
+	// Regex to verify pipeline build details link
+	BuildDetailsLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_build\/results\?buildId=[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+`
+
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"
@@ -117,8 +120,9 @@ const (
 	WSEventSubscriptionDeleted = "subscription_deleted"
 
 	// Colors
-	ReposIconColor  = "#d74f27"
-	BoardsIconColor = "#53bba1"
+	IconColorRepos     = "#d74f27"
+	IconColorBoards    = "#53bba1"
+	IconColorPipelines = "#4275E4"
 
 	SubscriptionEventTypeDummy = "dummy"
 	FileNameGitBranchIcon      = "git-branch-icon.svg"
@@ -126,9 +130,6 @@ const (
 	FileNameReposIcon          = "repos-icon.svg"
 	FileNameBoardsIcon         = "boards-icon.svg"
 	FileNamePipelinesIcon      = "pipelines-icon.svg"
-	IconColorBoards            = "#53bba1"
-	IconColorRepos             = "#d74f27"
-	IconColorPipelines         = "#4b68ad"
 
 	SlackAttachmentAuthorNameRepos     = "Azure Repos"
 	SlackAttachmentAuthorNameBoards    = "Azure Boards"

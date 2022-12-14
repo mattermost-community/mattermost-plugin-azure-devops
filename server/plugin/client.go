@@ -29,6 +29,7 @@ type Client interface {
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
+	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
@@ -118,6 +119,19 @@ func (c *client) GetPullRequest(organization, pullRequestID, projectName, matter
 	}
 
 	return pullRequest, statusCode, nil
+}
+
+// Function to get the pipeline build details.
+func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error) {
+	buildDetailsURL := fmt.Sprintf(constants.GetBuildDetails, organization, projectName, buildID)
+
+	var buildDetails *serializers.BuildDetails
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
+	}
+
+	return buildDetails, statusCode, nil
 }
 
 // Function to link a project and an organization.

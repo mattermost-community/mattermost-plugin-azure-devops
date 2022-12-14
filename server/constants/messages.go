@@ -13,6 +13,7 @@ const (
 	CreatedTask           = "[%s #%d](%s) (%s) was successfully created by %s."
 	TaskTitle             = "[%s #%d: %s](%s)"
 	PullRequestTitle      = "[#%d: %s](%s)"
+	BuildDetailsTitle     = "[#%s](%s): %s"
 	AlreadyLinkedProject  = "This project is already linked."
 	NoProjectLinked       = "No project is linked, please link a project."
 

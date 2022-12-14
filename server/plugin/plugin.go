@@ -124,5 +124,11 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 		return newPost, msg
 	}
 
+	// Check if a message contains a pipeline build link.
+	if buildDetailsData, link, isValid := IsLinkPresent(post.Message, constants.BuildDetailsLinkRegex); isValid {
+		newPost, msg := p.PostBuildDetailsPreview(buildDetailsData, link, post.UserId, post.ChannelId)
+		return newPost, msg
+	}
+
 	return nil, ""
 }

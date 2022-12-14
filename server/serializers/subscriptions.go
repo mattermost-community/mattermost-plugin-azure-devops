@@ -280,6 +280,21 @@ func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (
 	return body, nil
 }
 
+type BuildDetails struct {
+	BuildNumber  string      `json:"buildNumber"`
+	SourceBranch string      `json:"sourceBranch"`
+	Repository   Repository  `json:"repository"`
+	Status       string      `json:"status"`
+	RequestedBy  RequestedBy `json:"requestedBy"`
+	Project      Project     `json:"project"`
+	Link         Link        `json:"_links"`
+	Definition   Definition  `json:"definition"`
+}
+
+type RequestedBy struct {
+	DisplayName string `json:"displayName"`
+}
+
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {
 	var body *CreateSubscriptionRequestPayload
 	if err := json.NewDecoder(data).Decode(&body); err != nil {

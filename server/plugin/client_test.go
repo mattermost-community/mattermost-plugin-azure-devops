@@ -392,6 +392,80 @@ func TestGetGitRepositoryBranches(t *testing.T) {
 	}
 }
 
+func TestUpdatePipelineRunApprovalRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "UpdatePipelineRunApprovalRequest: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "UpdatePipelineRunApprovalRequest: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.UpdatePipelineRunApprovalRequest([]*serializers.PipelineApproveRequest{}, "mockProjectID", "mockMattermostUSerID", "mockApprovalID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetRunApprovalDetails(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetRunApprovalDetails: valid",
+			err:         nil,
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetRunApprovalDetails: with error",
+			err:         errors.New("mock-error"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetRunApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUSerID", "mockApprovalID")
+
+			if testCase.err != nil {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
 func setupTestPlugin(api *plugintest.API) *Plugin {
 	p := Plugin{}
 	p.API = api

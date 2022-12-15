@@ -34,7 +34,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 	}
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Boards",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
+		AuthorIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 		Title:      fmt.Sprintf(constants.TaskTitle, task.Fields.Type, task.ID, task.Fields.Title, task.Link.HTML.Href),
 		Color:      constants.IconColorBoards,
 		Fields: []*model.SlackAttachmentField{
@@ -54,7 +54,7 @@ func (p *Plugin) PostTaskPreview(linkData []string, userID, channelID string) (*
 			},
 		},
 		Footer:     linkData[4],
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		FooterIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post, ""
@@ -83,7 +83,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 	reviewers := p.getReviewersListString(pullRequest.Reviewers)
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Repos",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
+		AuthorIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameReposIcon),
 		Title:      fmt.Sprintf(constants.PullRequestTitle, pullRequest.PullRequestID, pullRequest.Title, link),
 		Color:      constants.IconColorRepos,
 		Fields: []*model.SlackAttachmentField{
@@ -103,7 +103,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 			},
 		},
 		Footer:     linkData[6],
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		FooterIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 
@@ -127,7 +127,7 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipelines",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon), // TODO: update icon file
+		AuthorIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon), // TODO: update icon file
 		Title:      fmt.Sprintf(constants.BuildDetailsTitle, buildDetails.BuildNumber, buildDetails.Link.Web.Href, buildDetails.Definition.Name),
 		Color:      constants.IconColorPipelines,
 		Fields: []*model.SlackAttachmentField{
@@ -153,7 +153,7 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 			},
 		},
 		Footer:     project,
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		FooterIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})

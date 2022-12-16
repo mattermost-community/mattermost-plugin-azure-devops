@@ -166,6 +166,7 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 	releaseID := strings.Split(linkData[5], "&")[1][10:]
 	releaseDetails, _, err := p.Client.GetReleaseDetails(organization, project, releaseID, userID)
 	if err != nil {
+		p.API.LogDebug("Error in getting release details from Azure", "Error", err.Error())
 		return nil, ""
 	}
 
@@ -176,7 +177,7 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 
 	environments := p.getPipelineReleaseEnvironmentList(releaseDetails.Environments)
 	attachment := &model.SlackAttachment{
-		AuthorName: "Azure Pipeline",
+		AuthorName: "Azure Pipelines",
 		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
 		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, releaseDetails.Name, releaseDetails.Link.Web.Href, releaseDetails.ReleaseDefinition.Name),
 		Color:      constants.IconColorPipelines,
@@ -197,6 +198,5 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 	}
 
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
-
 	return post, ""
 }

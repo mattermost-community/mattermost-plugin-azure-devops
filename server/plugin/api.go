@@ -488,11 +488,11 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 	return reviewers
 }
 
-func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.Environments) string {
+func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.Environment) string {
 	envs := ""
-	for count, env := range environments {
+	for index, env := range environments {
 		envs += env.Name
-		if count != (len(environments) - 1) {
+		if index != (len(environments) - 1) {
 			envs += " | "
 		}
 	}

@@ -181,11 +181,6 @@ type Stage struct {
 	Links ProjectLink `json:"_links"`
 }
 
-type Environment struct {
-	Release           Release    `json:"release"`
-	ReleaseDefinition Definition `json:"releaseDefinition"`
-}
-
 type Release struct {
 	Name              string      `json:"name"`
 	CreatedBy         Reviewer    `json:"createdBy"`
@@ -288,13 +283,15 @@ type ReleaseDetails struct {
 	Name              string            `json:"name"`
 	ID                int               `json:"id"`
 	Status            string            `json:"status"`
-	Environments      []*Environments   `json:"environments"`
+	Environments      []*Environment   `json:"environments"`
 	Link              Link              `json:"_links"`
 	ReleaseDefinition ReleaseDefinition `json:"releaseDefinition"`
 }
 
-type Environments struct {
+type Environment struct {
 	Name string `json:"name"`
+	Release           Release    `json:"release"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
 }
 
 type ReleaseDefinition struct {

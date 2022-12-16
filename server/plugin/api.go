@@ -822,8 +822,8 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		// TODO
 	case constants.SubscriptionEventReleaseDeploymentEventPending:
 		artifacts := ""
-		for i := 0; i < len(body.Resource.Release.Artifacts); i++ {
-			artifacts += body.Resource.Release.Artifacts[i].Name
+		for i, artifact := range body.Resource.Release.Artifacts {
+			artifacts += artifact.Name
 			if i != len(body.Resource.Release.Artifacts)-1 {
 				artifacts += ", "
 			}
@@ -833,7 +833,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			artifacts = "No artifacts"
 		}
 
-		organization := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")[3]
+		organization := ""
+		webLinkPaths := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")
+		if len(webLinkPaths) >= 4 {
+			organization = webLinkPaths[3]
+		}
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
 			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
@@ -1252,6 +1256,7 @@ func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
+
 	filterwiseResponse := make(map[string][]*serializers.PossibleValues)
 	for _, filter := range subscriptionFilterValues.InputValues {
 		filterwiseResponse[filter.InputID] = filter.PossibleValues

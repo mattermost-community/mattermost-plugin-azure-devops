@@ -1223,35 +1223,6 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 	p.returnPostActionIntegrationResponse(w, response)
 }
 
-func (p *Plugin) UpdatePipelineReleaseApprovalPost(requestType, postID, mattermostUserID string) error {
-	post, _ := p.API.GetPost(postID)
-	slackAttachment := post.Attachments()[0]
-	slackAttachment.Actions = nil
-	slackAttachment.Fields = []*model.SlackAttachmentField{
-		slackAttachment.Fields[0],
-		slackAttachment.Fields[1],
-		{
-			Title: "Approvers",
-			Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
-		},
-	}
-
-	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
-	if _, err := p.API.UpdatePost(post); err != nil {
-		p.handlePipelineApprovalRequestUpdateError("Error in updating post", mattermostUserID, err)
-		return err
-	}
-
-	return nil
-}
-
-func (p *Plugin) handlePipelineApprovalRequestUpdateError(errorMessage, mattermostUserID string, err error) {
-	if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
-		p.API.LogError("Failed to DM", "Error", DMErr.Error())
-	}
-	p.API.LogError(errorMessage, "Error", err.Error())
-}
-
 func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(res.ToJson()); err != nil {

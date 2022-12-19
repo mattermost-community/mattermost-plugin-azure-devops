@@ -102,7 +102,7 @@ const (
 	FilterReleaseDefinitionID  = "releaseDefinitionId"
 	FilterReleaseEnvironmentID = "releaseEnvironmentId"
 
-	EventTypeRelease = "release"
+	EventOfTypeRelease = "release"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

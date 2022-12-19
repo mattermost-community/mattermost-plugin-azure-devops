@@ -269,9 +269,9 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
+		if strings.Contains(request.EventType, constants.EventOfTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
-		} else if !strings.Contains(request.EventType, constants.EventTypeRelease) {
+		} else if !strings.Contains(request.EventType, constants.EventOfTypeRelease) {
 			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
 		}
 	}
@@ -297,7 +297,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
-	if strings.Contains(request.EventType, constants.EventTypeRelease) {
+	if strings.Contains(request.EventType, constants.EventOfTypeRelease) {
 		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
 			ProjectID:           request.ProjectID,
 			ReleaseDefinitionID: request.ReleasePipelineID,
@@ -312,7 +312,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 	}
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
-	if strings.Contains(request.EventType, constants.EventTypeRelease) {
+	if strings.Contains(request.EventType, constants.EventOfTypeRelease) {
 		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	}
 

@@ -25,8 +25,6 @@ type Client interface {
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
-	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
-	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
@@ -197,6 +195,13 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			PullRequestCreatedBy:         body.PullRequestCreatedBy,
 			PullRequestReviewersContains: body.PullRequestReviewersContains,
 			NotificationType:             body.NotificationType,
+			BuildStatus:                  body.BuildStatus,
+			DefinitionName:               body.BuildPipeline,
+			ReleaseEnvironmentID:         body.StageName,
+			ReleaseDefinitionID:          body.ReleasePipeline,
+			ReleaseEnvironmentStatus:     body.ReleaseStatus,
+			ReleaseApprovalType:          body.ApprovalType,
+			ReleaseApprovalStatus:        body.ApprovalStatus,
 		},
 	}
 
@@ -251,30 +256,6 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 	return statusCode, nil
 }
 
-func (c *client) GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error) {
-	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositories, organization, projectName)
-
-	var gitRepositories *serializers.GitRepositoriesResponse
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitRepositories, nil)
-	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the git repositories for a project")
-	}
-
-	return gitRepositories, statusCode, nil
-}
-
-func (c *client) GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error) {
-	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositoryBranches, organization, projectName, repository)
-
-	var gitBranchesResponse *serializers.GitBranchesResponse
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitBranchesResponse, nil)
-	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the git repository branches for a project")
-	}
-
-	return gitBranchesResponse, statusCode, nil
-}
-
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
 
@@ -310,8 +291,8 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	if strings.Contains(request.EventType, constants.EventTypeRelease) {
 		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
-			ProjectID:       request.ProjectID,
-			ReleasePipeline: request.ReleasePipelineID,
+			ProjectID:           request.ProjectID,
+			ReleaseDefinitionID: request.ReleasePipelineID,
 		}
 	}
 

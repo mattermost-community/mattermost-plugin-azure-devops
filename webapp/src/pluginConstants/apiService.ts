@@ -45,16 +45,6 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         method: 'DELETE',
         apiServiceName: 'deleteSubscription',
     },
-    getRepositories: {
-        path: '/:organization/:project/repositories',
-        method: 'GET',
-        apiServiceName: 'getRepositories',
-    },
-    getRepositoryBranches: {
-        path: '/:organization/:project/repositories/:repository/branches',
-        method: 'GET',
-        apiServiceName: 'getRepositoryBranches',
-    },
     getSubscriptionFilters: {
         path: '/subscriptions/filters',
         method: 'POST',

@@ -317,36 +317,42 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             buildStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            buildStatusName: status === filterLabelValuePairAll.value ? '' : status,
         });
 
     const handleSetReleasePipelineFilter = (newValue: string, pipelineName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             releasePipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            releasePipelineName: pipelineName === filterLabelValuePairAll.value ? '' : pipelineName,
         });
 
     const handleSetStageNameFilter = (newValue: string, stageName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             stageName: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            stageNameValue: stageName === filterLabelValuePairAll.value ? '' : stageName,
         });
 
     const handleSetApprovalTypeFilter = (newValue: string, type?: string) =>
         setSpecificFieldValue({
             ...formFields,
             approvalType: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            approvalTypeName: type === filterLabelValuePairAll.value ? '' : type,
         });
 
     const handleSetApprovalStatusFilter = (newValue: string, status?: string) =>
         setSpecificFieldValue({
             ...formFields,
             approvalStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            approvalStatusName: status === filterLabelValuePairAll.value ? '' : status,
         });
 
     const handleSetReleaseStatusFilter = (newValue: string, status?: string) =>
         setSpecificFieldValue({
             ...formFields,
             releaseStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            releaseStatusName: status === filterLabelValuePairAll.value ? '' : status,
         });
 
     const {isLoading: isCreateSubscriptionLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createSubscription.apiServiceName, formFields as APIRequestPayload);

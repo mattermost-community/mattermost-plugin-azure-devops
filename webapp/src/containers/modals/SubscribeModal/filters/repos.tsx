@@ -87,7 +87,7 @@ const ReposFilter = ({
         } else {
             setIsFiltersError(false);
         }
-    }, [isLoading, isError, isSuccess]);
+    }, [isError, isSuccess]);
 
     const getRepositoryOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
     const getTargetBranchOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);

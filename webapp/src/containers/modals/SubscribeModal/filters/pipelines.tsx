@@ -85,7 +85,7 @@ const PipelinesFilter = ({
         }
 
         setIsFiltersError(false);
-    }, [isLoading, isError, isSuccess]);
+    }, [isError, isSuccess]);
 
     const getBuildPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.buildPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
     const getReleasePipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.releasePipelineName], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);

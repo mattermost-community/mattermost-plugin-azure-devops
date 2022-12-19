@@ -61,7 +61,7 @@ const BoardsFilter = ({
         } else {
             setIsFiltersError(false);
         }
-    }, [isLoading, isError, isSuccess]);
+    }, [isError, isSuccess]);
 
     const getAreaPathOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 

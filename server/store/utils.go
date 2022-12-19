@@ -137,8 +137,7 @@ func GetSubscriptionListMapKey() string {
 }
 
 func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus string) string {
-	// TODO: Optimize subscription key
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus)
+	return GetKeyMD5Hash(fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus))
 }
 
 // GetKeyMD5Hash can be used to create a md5 hash from a string

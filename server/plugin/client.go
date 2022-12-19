@@ -280,12 +280,16 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		if strings.Contains(request.EventType, constants.EventTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
+			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		} else if !strings.Contains(request.EventType, constants.EventTypeRelease) {
+			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		}
 	}
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
 		Subscription: &serializers.CreateSubscriptionBodyPayload{
-			PublisherID:      constants.PublisherIDTFS,
+			PublisherID:      publisherID[request.EventType],
 			ConsumerID:       constants.ConsumerID,
 			ConsumerActionID: constants.ConsumerActionID,
 			EventType:        request.EventType,
@@ -304,8 +308,20 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
+	if strings.Contains(request.EventType, constants.EventTypeRelease) {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:       request.ProjectID,
+			ReleasePipeline: request.ReleasePipelineID,
+		}
+	}
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	if strings.Contains(request.EventType, constants.EventTypeRelease) {
+		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	}
+
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	_, statusCode, err := c.CallJSON(baseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
 	}

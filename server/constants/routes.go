@@ -27,8 +27,8 @@ const (
 	GetBuildDetails                     = "%s/%s/_apis/build/builds/%s?api-version=6.0"
 	GetGitRepositories                  = "%s/%s/_apis/git/repositories?api-version=6.0"
 	GetGitRepositoryBranches            = "%s/%s/_apis/git/repositories/%s/refs?filter=heads"
-	GetSubscriptionFilterPossibleValues = "%s/_apis/hooks/inputValuesQuery?api-version=6.0"
 	GetProject                          = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 	CreateSubscription                  = "/%s/_apis/hooks/subscriptions?api-version=6.0"
 	DeleteSubscription                  = "/%s/_apis/hooks/subscriptions/%s?api-version=6.0"
+	GetSubscriptionFilterPossibleValues = "%s/_apis/hooks/inputValuesQuery?api-version=6.0"
 )

@@ -24,6 +24,7 @@ type PublisherInputsGeneric struct {
 	PushedBy                     string `json:"pushedBy,omitempty"`
 	MergeResult                  string `json:"mergeResult,omitempty"`
 	NotificationType             string `json:"notificationType,omitempty"`
+	ReleasePipeline              string `json:"releaseDefinitionId,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -71,11 +72,12 @@ type CreateSubscriptionRequestPayload struct {
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
-	Organization string   `json:"organization"`
-	ProjectID    string   `json:"projectId"`
-	EventType    string   `json:"eventType"`
-	Filters      []string `json:"filters"`
-	RepositoryID string   `json:"repositoryId"`
+	Organization      string   `json:"organization"`
+	ProjectID         string   `json:"projectId"`
+	EventType         string   `json:"eventType"`
+	Filters           []string `json:"filters"`
+	RepositoryID      string   `json:"repositoryId"`
+	ReleasePipelineID string   `json:"releasePipelineId"`
 }
 
 type SubscriptionFilter struct {

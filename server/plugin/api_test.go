@@ -718,7 +718,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return testCase.isTeamIDValid
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
 				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
 			})
 

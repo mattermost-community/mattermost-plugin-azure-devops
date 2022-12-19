@@ -202,6 +202,14 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			ReleaseEnvironmentStatus:     body.ReleaseStatus,
 			ReleaseApprovalType:          body.ApprovalType,
 			ReleaseApprovalStatus:        body.ApprovalStatus,
+			PipelineID:                   body.RunPipeline,
+			StageName:                    body.RunStageName,
+			EnvironmentName:              body.RunEnvironmentName,
+			StageNameID:                  body.RunStageNameID,
+			StageStateID:                 body.RunStageStateID,
+			StageResultID:                body.RunStageResultID,
+			RunStateID:                   body.RunStateID,
+			RunResultID:                  body.RunResultID,
 		},
 	}
 

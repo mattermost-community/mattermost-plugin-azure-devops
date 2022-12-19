@@ -32,6 +32,7 @@ type Client interface {
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
 	GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
+	OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error)
 }
 
 type client struct {
@@ -472,6 +473,11 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		return responseData, http.StatusInternalServerError, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, resp.StatusCode, fmt.Errorf("errorMessage %s", errResp.Message)
+}
+
+func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, "/api/v4/actions/dialogs/open", http.MethodPost, mattermostUserID, body, nil, nil)
+	return statusCode, err
 }
 
 func InitClient(p *Plugin) Client {

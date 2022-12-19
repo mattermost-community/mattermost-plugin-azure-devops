@@ -144,11 +144,16 @@ const (
 
 	PipelineRequestIDApproved          = "approved"
 	PipelineRequestIDRejected          = "rejected"
+	PipelineRequestNameRun             = "run"
+	PipelineRequestNameRelease         = "release"
 	PipelineRequestContextApprovalID   = "approvalId"
 	PipelineRequestContextOrganization = "organization"
 	PipelineRequestContextProjectName  = "projectName"
 	PipelineRequestContextRequestType  = "requestType"
+	PipelineRequestContextRequestName  = "requestName"
 	PipelineRequestContextProjectID    = "projectID"
+
+	DialogFieldNameComment = "comment"
 )
 
 var (

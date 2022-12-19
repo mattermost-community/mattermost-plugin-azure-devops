@@ -230,7 +230,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 {
                     subscriptionList.length ? (
                         <>
-                            <div className='rhs-wrapper__content padding-16'>
+                            <div
+                                className='rhs-wrapper__content padding-16'
+                                id='scrollableArea'
+                            >
                                 <InfiniteScroll
                                     dataLength={defaultPerPageLimit}
                                     next={handlePagination}

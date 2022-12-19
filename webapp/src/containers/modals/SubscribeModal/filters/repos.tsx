@@ -67,7 +67,7 @@ const ReposFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForRepos, selectedRepo]);
 
     useEffect(() => {
-        if (eventType) {
+        if (organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,

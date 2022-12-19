@@ -163,6 +163,20 @@ type Resource struct {
 	PullRequest   PullRequest  `json:"pullRequest"`
 	Commits       []Commit     `json:"commits"`
 	RefUpdates    []RefUpdates `json:"refUpdates"`
+	Fields        Fields       `json:"fields"`
+	Revision      Revision     `json:"revision"`
+}
+
+type Revision struct {
+	Fields Fields `json:"fields"`
+}
+
+type Fields struct {
+	ProjectName  string `json:"System.TeamProject"`
+	AreaPath     string `json:"System.AreaPath"`
+	State        string `json:"System.State"`
+	WorkItemType string `json:"System.WorkItemType"`
+	Title        string `json:"System.Title"`
 }
 
 type RefUpdates struct {

@@ -92,16 +92,17 @@ const (
 	QueryParamPerPage     = "per_page"
 
 	// Filters
-	FilterCreatedByMe            = "me"
-	FilterCreatedByAnyone        = "anyone"
-	FilterAllChannels            = "all_channels"
-	FilterAll                    = "all"
-	FilterBoards                 = "boards"
-	FilterRepos                  = "repos"
-	FilterPipelines              = "pipelines"
-	EventTypeRelease             = "release"
-	FilterIDReleaseDefinitionID  = "releaseDefinitionId"
-	FilterIDReleaseEnvironmentID = "releaseEnvironmentId"
+	FilterCreatedByMe          = "me"
+	FilterCreatedByAnyone      = "anyone"
+	FilterAllChannels          = "all_channels"
+	FilterAll                  = "all"
+	FilterBoards               = "boards"
+	FilterRepos                = "repos"
+	FilterPipelines            = "pipelines"
+	FilterReleaseDefinitionID  = "releaseDefinitionId"
+	FilterReleaseEnvironmentID = "releaseEnvironmentId"
+
+	EventTypeRelease = "release"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50

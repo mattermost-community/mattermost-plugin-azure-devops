@@ -137,8 +137,7 @@ func GetSubscriptionListMapKey() string {
 }
 
 func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus, runPipeline, runStageName, runEnvironmentName, runStageNameID, runStageStateID, runStageResultID, runStateID, runResultID string) string {
-	// TODO: Optimize subscription key
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus, runPipeline, runStageName, runEnvironmentName, runStageNameID, runStageStateID, runStageResultID, runStateID, runResultID)
+	return GetKeyMD5Hash(fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullrequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath, releasePipeline, buildPipeline, buildStatus, approvalType, approvalStatus, stageName, releaseStatus, runPipeline, runStageName, runEnvironmentName, runStageNameID, runStageStateID, runStageResultID, runStateID, runResultID))
 }
 
 // GetKeyMD5Hash can be used to create a md5 hash from a string

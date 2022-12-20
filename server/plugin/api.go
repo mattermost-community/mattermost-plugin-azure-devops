@@ -1025,11 +1025,16 @@ func (p *Plugin) handlePipelineCommentModal(w http.ResponseWriter, r *http.Reque
 		},
 	}
 
+	dialogTitle := "Confirm Approval"
+	if requestType == constants.PipelineRequestIDRejected {
+		dialogTitle = "Confirm Rejection"
+	}
+
 	requestBody := model.OpenDialogRequest{
 		TriggerId: postActionIntegrationRequest.TriggerId,
 		URL:       url,
 		Dialog: model.Dialog{
-			Title:       "Add Comment",
+			Title:       dialogTitle,
 			CallbackId:  postActionIntegrationRequest.PostId,
 			SubmitLabel: "Submit",
 			Elements:    elements,

@@ -495,6 +495,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 				subscriptionByProject[i].ReleaseStatusName+
 				subscriptionByProject[i].RunPipeline+
 				subscriptionByProject[i].RunPipelineName+
+				subscriptionByProject[i].ReleasePipelineName+
 				subscriptionByProject[i].RunStageName+
 				subscriptionByProject[i].RunEnvironmentName+
 				subscriptionByProject[i].RunStageNameID+
@@ -522,6 +523,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					subscriptionByProject[i].ReleaseStatusName+
 					subscriptionByProject[i].RunPipeline+
 					subscriptionByProject[i].RunPipelineName+
+					subscriptionByProject[i].ReleasePipelineName+
 					subscriptionByProject[i].RunStageName+
 					subscriptionByProject[i].RunEnvironmentName+
 					subscriptionByProject[i].RunStageNameID+

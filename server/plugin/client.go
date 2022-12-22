@@ -25,6 +25,10 @@ type Client interface {
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
+	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
+	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
+	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
+	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
@@ -256,6 +260,40 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 	return statusCode, nil
 }
 
+func (c *client) GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error) {
+	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositories, organization, projectName)
+
+	var gitRepositories *serializers.GitRepositoriesResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitRepositories, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the git repositories for a project")
+	}
+
+	return gitRepositories, statusCode, nil
+}
+
+func (c *client) GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error) {
+	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositoryBranches, organization, projectName, repository)
+
+	var gitBranchesResponse *serializers.GitBranchesResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitBranchesResponse, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the git repository branches for a project")
+	}
+
+	return gitBranchesResponse, statusCode, nil
+}
+
+func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
+
+	return statusCode, err
+}
+
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
 
@@ -308,6 +346,20 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 	}
 
 	return subscriptionFiltersResponse, statusCode, nil
+}
+
+func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	var pipelineApprovalDetails *serializers.PipelineApprovalDetails
+	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineApprovalDetails, statusCode, nil
 }
 
 // Wrapper to make REST API requests with "application/json-patch+json" type content

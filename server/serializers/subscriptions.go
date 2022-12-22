@@ -184,6 +184,16 @@ type SubscriptionNotification struct {
 	Resource        Resource        `json:"resource"`
 }
 
+type Approval struct {
+	ID       int      `json:"id"`
+	Approver Approver `json:"approver"`
+}
+
+type Approver struct {
+	DisplayName string `json:"displayName"`
+	ID          string `json:"id"`
+}
+
 type Resource struct {
 	PullRequestID int          `json:"pullRequestId"`
 	Reviewers     []Reviewer   `json:"reviewers"`
@@ -209,6 +219,7 @@ type Resource struct {
 	Stage         Stage        `json:"stage"`
 	Pipeline      Definition   `json:"pipeline"`
 	Run           Stage        `json:"run"`
+	Approval      Approval     `json:"approval"`
 }
 
 type Stage struct {
@@ -308,6 +319,11 @@ func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (
 		return nil, err
 	}
 	return body, nil
+}
+
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
 }
 
 type BuildDetails struct {

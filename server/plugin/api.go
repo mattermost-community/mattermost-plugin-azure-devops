@@ -50,6 +50,9 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathPipelineRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
 }
 
@@ -849,6 +852,80 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 			},
 		}
+	case constants.SubscriptionEventRunStageWaitingForApproval:
+		// TODO
+	case constants.SubscriptionEventReleaseDeploymentEventPending:
+		artifacts := ""
+		for i, artifact := range body.Resource.Release.Artifacts {
+			artifacts += artifact.Name
+			if i != len(body.Resource.Release.Artifacts)-1 {
+				artifacts += ", "
+			}
+		}
+
+		if artifacts == "" {
+			artifacts = "No artifacts"
+		}
+
+		organization := ""
+		webLinkPaths := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")
+		if len(webLinkPaths) >= 4 {
+			organization = webLinkPaths[3]
+		}
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.Name, body.Resource.Release.ReleaseDefinition.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Artifacts",
+					Value: artifacts,
+					Short: true,
+				},
+				{
+					Title: "Approver(s)",
+					Value: body.Resource.Approval.Approver.DisplayName,
+				},
+			},
+			Actions: []*model.PostAction{
+				{
+					Id:    constants.PipelineRequestIDApproved,
+					Type:  "button",
+					Name:  "Approve",
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDApproved,
+						},
+					},
+				},
+				{
+					Id:    constants.PipelineRequestIDRejected,
+					Type:  "button",
+					Name:  "Reject",
+					Style: "danger",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextProjectName:  body.Resource.Project.Name,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDRejected,
+						},
+					},
+				},
+			},
+		}
 	case constants.SubscriptionEventRunStateChanged:
 		attachment = &model.SlackAttachment{
 			Pretext:    body.Message.Markdown,
@@ -1076,6 +1153,126 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 	)
 
 	p.writeJSON(w, &userDetails)
+}
+
+func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
+
+	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
+		p.API.LogError(constants.ErrorOrganizationOrProjectQueryParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorOrganizationOrProjectQueryParam})
+		return
+	}
+
+	response, statusCode, err := p.Client.GetGitRepositories(organization, project, mattermostUserID)
+	if err != nil {
+		p.API.LogError("Error in fetching git repositories", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+
+	pathParams := mux.Vars(r)
+	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
+	project := strings.TrimSpace(pathParams[constants.PathParamProject])
+	repository := strings.TrimSpace(pathParams[constants.PathParamRepository])
+
+	if len(organization) == 0 || len(project) == 0 || len(repository) == 0 {
+		p.API.LogError(constants.ErrorRepositoryPathParam)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorRepositoryPathParam})
+		return
+	}
+
+	response, statusCode, err := p.Client.GetGitRepositoryBranches(organization, project, repository, mattermostUserID)
+	if err != nil {
+		p.API.LogError("Error in fetching git repository branches", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	// Azure DevOps returns branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
+	for _, value := range response.Value {
+		if strings.Contains(value.Name, "refs/heads/") && len(value.Name) > 11 {
+			value.Name = value.Name[11:]
+		}
+	}
+
+	p.writeJSON(w, response.Value)
+}
+
+func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	decoder := json.NewDecoder(r.Body)
+	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
+	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
+		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
+		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest param: ", mattermostUserID, err)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	requestType := postActionIntegrationRequest.Context[constants.PipelineRequestContextRequestType].(string)
+	pipelineApproveRequestPayload := &serializers.PipelineApproveRequest{
+		Status:   requestType,
+		Comments: "", // TODO: integrate comment flow
+	}
+
+	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
+	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
+	approvalID := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
+	statusCode, updatePipelineApprovalRequestErr := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
+	switch statusCode {
+	case http.StatusOK:
+		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineReleaseApprovalPost(requestType, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineReleaseApprovalPostErr)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
+			return
+		}
+	case http.StatusBadRequest:
+		pipelineApprovalDetails, statusCode, err := p.Client.GetApprovalDetails(organization, projectName, mattermostUserID, approvalID)
+		if err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
+			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+			return
+		}
+
+		if err := p.UpdatePipelineReleaseApprovalPost(pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, err)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
+
+		alreadyUpdatedInformationPost := &model.Post{
+			UserId:    p.botUserID,
+			ChannelId: postActionIntegrationRequest.ChannelId,
+			Message:   "This deployment approval pending request has already been processed.",
+		}
+		_ = p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
+
+	default:
+		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineApprovalRequestErr)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineApprovalRequestErr.Error()})
+		return
+	}
+
+	response := &model.PostActionIntegrationResponse{}
+	p.returnPostActionIntegrationResponse(w, response)
+}
+
+func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(res.ToJson()); err != nil {
+		p.API.LogWarn("Failed to write PostActionIntegrationResponse", "Error", err.Error())
+	}
 }
 
 func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter, r *http.Request) {

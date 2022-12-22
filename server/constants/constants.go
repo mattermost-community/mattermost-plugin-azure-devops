@@ -145,6 +145,13 @@ const (
 	DateTimeFormat = "Mon Jan 2 15:04:05 -0700 MST 2006"
 	DateTimeLayout = "2006-01-02T15:04:05"
 	TimeLayout     = "15:04:05"
+
+	PipelineRequestIDApproved          = "approved"
+	PipelineRequestIDRejected          = "rejected"
+	PipelineRequestContextApprovalID   = "approvalId"
+	PipelineRequestContextOrganization = "organization"
+	PipelineRequestContextProjectName  = "projectName"
+	PipelineRequestContextRequestType  = "requestType"
 )
 
 var (
@@ -161,5 +168,10 @@ var (
 		SubscriptionEventPullRequestUpdated:   true,
 		SubscriptionEventPullRequestCommented: true,
 		SubscriptionEventCodePushed:           true,
+	}
+
+	PipelineRequestUpdateEmoji = map[string]string{
+		PipelineRequestIDApproved: "&#9989;",
+		PipelineRequestIDRejected: "&#10060;",
 	}
 )

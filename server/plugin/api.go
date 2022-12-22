@@ -298,6 +298,13 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		MergeResult:                  body.MergeResult,
 		NotificationType:             body.NotificationType,
 		AreaPath:                     body.AreaPath,
+		BuildStatus:                  body.BuildStatus,
+		BuildPipeline:                body.BuildPipeline,
+		StageName:                    body.StageName,
+		ReleasePipeline:              body.ReleasePipeline,
+		ReleaseStatus:                body.ReleaseStatus,
+		ApprovalType:                 body.ApprovalType,
+		ApprovalStatus:               body.ApprovalStatus,
 	}); isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionAlreadyPresent, "Error")
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.SubscriptionAlreadyPresent})
@@ -355,6 +362,19 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		NotificationType:                 body.NotificationType,
 		NotificationTypeName:             body.NotificationTypeName,
 		AreaPath:                         body.AreaPath,
+		BuildStatus:                      body.BuildStatus,
+		BuildPipeline:                    body.BuildPipeline,
+		StageName:                        body.StageName,
+		ReleasePipeline:                  body.ReleasePipeline,
+		ReleaseStatus:                    body.ReleaseStatus,
+		ApprovalType:                     body.ApprovalType,
+		ApprovalStatus:                   body.ApprovalStatus,
+		BuildStatusName:                  body.BuildStatusName,
+		StageNameValue:                   body.StageNameValue,
+		ReleasePipelineName:              body.ReleasePipelineName,
+		ReleaseStatusName:                body.ReleaseStatusName,
+		ApprovalTypeName:                 body.ApprovalTypeName,
+		ApprovalStatusName:               body.ApprovalStatusName,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: storeErr.Error()})
@@ -438,7 +458,14 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 				subscriptionByProject[i].PushedByName+
 				subscriptionByProject[i].MergeResultName+
 				subscriptionByProject[i].NotificationTypeName+
-				subscriptionByProject[i].AreaPath <
+				subscriptionByProject[i].AreaPath+
+				subscriptionByProject[i].ReleasePipelineName+
+				subscriptionByProject[i].BuildPipeline+
+				subscriptionByProject[i].BuildStatusName+
+				subscriptionByProject[i].ApprovalStatusName+
+				subscriptionByProject[i].ApprovalTypeName+
+				subscriptionByProject[i].StageNameValue+
+				subscriptionByProject[i].ReleaseStatusName <
 				subscriptionByProject[j].ChannelName+
 					subscriptionByProject[j].EventType+
 					subscriptionByProject[j].TargetBranch+
@@ -447,7 +474,14 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					subscriptionByProject[j].PushedByName+
 					subscriptionByProject[j].MergeResultName+
 					subscriptionByProject[j].NotificationTypeName+
-					subscriptionByProject[j].AreaPath
+					subscriptionByProject[j].AreaPath+
+					subscriptionByProject[i].ReleasePipelineName+
+					subscriptionByProject[i].BuildPipeline+
+					subscriptionByProject[i].BuildStatusName+
+					subscriptionByProject[i].ApprovalStatusName+
+					subscriptionByProject[i].ApprovalTypeName+
+					subscriptionByProject[i].StageNameValue+
+					subscriptionByProject[i].ReleaseStatusName
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID)
@@ -956,6 +990,13 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 		MergeResult:                  body.MergeResult,
 		NotificationType:             body.NotificationType,
 		AreaPath:                     body.AreaPath,
+		BuildStatus:                  body.BuildStatus,
+		BuildPipeline:                body.BuildPipeline,
+		StageName:                    body.StageName,
+		ReleasePipeline:              body.ReleasePipeline,
+		ReleaseStatus:                body.ReleaseStatus,
+		ApprovalType:                 body.ApprovalType,
+		ApprovalStatus:               body.ApprovalStatus,
 	})
 	if !isSubscriptionPresent {
 		p.API.LogError(constants.SubscriptionNotFound)

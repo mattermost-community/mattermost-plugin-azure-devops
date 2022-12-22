@@ -163,6 +163,12 @@ func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializer
 	return ret0, ret1, ret2
 }
 
+// GetBuildDetails indicates an expected call of GetBuildDetails
+func (mr *MockClientMockRecorder) GetBuildDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBuildDetails", reflect.TypeOf((*MockClient)(nil).GetBuildDetails), arg0, arg1, arg2, arg3)
+}
+
 // GetPullRequest mocks base method
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()

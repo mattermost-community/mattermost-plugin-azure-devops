@@ -105,6 +105,78 @@ const serviceTypeOptions: LabelValuePair[] = [
     },
 ];
 
+export const buildStatusOptions: LabelValuePair[] = [
+    {
+        value: 'Succeded',
+        label: 'Succeded',
+    },
+    {
+        value: 'PartiallySucceded',
+        label: 'Partially Succeded',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Stopped',
+        label: 'Stopped',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseApprovalTypeOptions: LabelValuePair[] = [
+    {
+        value: '1',
+        label: 'Pre-deployment',
+    },
+    {
+        value: '2',
+        label: 'Post-deployment',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseApprovalStatusOptions: LabelValuePair[] = [
+    {
+        value: '1',
+        label: 'Approved',
+    },
+    {
+        value: '2',
+        label: 'Rejected',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseStatusOptions: LabelValuePair[] = [
+    {
+        value: '8',
+        label: 'Cancelled',
+    },
+    {
+        value: '4',
+        label: 'Succeded',
+    },
+    {
+        value: '128',
+        label: 'Partially Succeded',
+    },
+    {
+        value: '16',
+        label: 'Failed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
 export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldConfig> = {
     organization: {
         label: 'Organization name',
@@ -215,6 +287,75 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
     },
     areaPath: {
         label: 'Area Path',
+        type: 'hidden',
+        value: '',
+    },
+    buildPipeline: {
+        label: 'Build Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    buildStatus: {
+        label: 'Build Status',
+        type: 'hidden',
+        value: '',
+        optionsList: buildStatusOptions,
+    },
+    buildStatusName: {
+        label: 'Build Status',
+        type: 'hidden',
+        value: '',
+    },
+    releasePipeline: {
+        label: 'Release Pipeline Name',
+        type: 'hidden',
+        value: '',
+    },
+    releasePipelineName: {
+        label: 'Release Pipeline Name',
+        type: 'hidden',
+        value: '',
+    },
+    stageName: {
+        label: 'Stage Name',
+        type: 'hidden',
+        value: '',
+    },
+    stageNameValue: {
+        label: 'Stage Name',
+        type: 'hidden',
+        value: '',
+    },
+    approvalType: {
+        label: 'Approval Type',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseApprovalTypeOptions,
+    },
+    approvalTypeName: {
+        label: 'Approval Type',
+        type: 'hidden',
+        value: '',
+    },
+    approvalStatus: {
+        label: 'Approval Status',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseApprovalStatusOptions,
+    },
+    approvalStatusName: {
+        label: 'Approval Status',
+        type: 'hidden',
+        value: '',
+    },
+    releaseStatus: {
+        label: 'Status',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseStatusOptions,
+    },
+    releaseStatusName: {
+        label: 'Status',
         type: 'hidden',
         value: '',
     },
@@ -441,4 +582,28 @@ export const subscriptionFiltersForRepos = [
     subscriptionFiltersNameForRepos.pullrequestCreatedBy,
     subscriptionFiltersNameForRepos.pullrequestReviewersContains,
     subscriptionFiltersNameForRepos.pushedBy,
+];
+
+export const subscriptionFiltersNameForPipelines = {
+    buildPipeline: 'definitionName',
+    releasePipelineName: 'releaseDefinitionId',
+    stageName: 'releaseEnvironmentId',
+    runPipeline: 'pipelineId',
+    runStage: 'stageName',
+    runEnvironment: 'environmentName',
+    runStageId: 'stageNameId',
+    runStateId: 'stageStateId',
+    runResultId: 'stageResultId',
+};
+
+export const subscriptionFiltersForPipelines = [
+    subscriptionFiltersNameForPipelines.buildPipeline,
+    subscriptionFiltersNameForPipelines.releasePipelineName,
+    subscriptionFiltersNameForPipelines.stageName,
+    subscriptionFiltersNameForPipelines.runPipeline,
+    subscriptionFiltersNameForPipelines.runStage,
+    subscriptionFiltersNameForPipelines.runEnvironment,
+    subscriptionFiltersNameForPipelines.runStageId,
+    subscriptionFiltersNameForPipelines.runStateId,
+    subscriptionFiltersNameForPipelines.runResultId,
 ];

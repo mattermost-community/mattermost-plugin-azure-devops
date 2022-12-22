@@ -18,6 +18,7 @@ import {
     defaultSubscriptionFilters,
     filterLabelValuePairAll,
     eventTypeReposKeys,
+    eventTypePipelineKeys,
     deleteAllSubscriptionsMessage,
     StatusCodeForbidden,
     projectAlreadyLinkedMessage,
@@ -38,6 +39,12 @@ import {
     subscriptionFiltersForRepos,
     subscriptionFiltersNameForBoards,
     subscriptionFiltersForBoards,
+    subscriptionFiltersForPipelines,
+    buildStatusOptions,
+    releaseApprovalTypeOptions,
+    releaseApprovalStatusOptions,
+    releaseStatusOptions,
+    subscriptionFiltersNameForPipelines,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
@@ -61,6 +68,7 @@ export default {
         defaultSubscriptionFilters,
         filterLabelValuePairAll,
         eventTypeReposKeys,
+        eventTypePipelineKeys,
         StatusCodeForbidden,
         projectAlreadyLinkedMessage,
         projectLinkedSuccessfullyMessage,
@@ -79,6 +87,12 @@ export default {
         subscriptionFiltersForRepos,
         subscriptionFiltersNameForBoards,
         subscriptionFiltersForBoards,
+        subscriptionFiltersForPipelines,
+        buildStatusOptions,
+        releaseApprovalTypeOptions,
+        releaseApprovalStatusOptions,
+        releaseStatusOptions,
+        subscriptionFiltersNameForPipelines,
     },
     messages: {
         error,

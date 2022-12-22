@@ -280,6 +280,11 @@ func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (
 	return body, nil
 }
 
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
 type BuildDetails struct {
 	BuildNumber  string      `json:"buildNumber"`
 	SourceBranch string      `json:"sourceBranch"`

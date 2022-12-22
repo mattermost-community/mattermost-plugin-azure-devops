@@ -31,6 +31,7 @@ import {
     subscriptionModal,
     subscriptionFilterCreatedByOptions,
     subscriptionFilterServiceTypeOptions,
+    subscriptionFilterEventTypePipelinesOptions,
     subscriptionFilterEventTypeBoardsOptions,
     subscriptionFilterEventTypeReposOptions,
     mergeResultOptons,
@@ -44,6 +45,10 @@ import {
     releaseApprovalTypeOptions,
     releaseApprovalStatusOptions,
     releaseStatusOptions,
+    runStageStateIdOptions,
+    runStageResultIdOptions,
+    runStateIdOptions,
+    runResultIdOptions,
     subscriptionFiltersNameForPipelines,
 } from './form';
 import {pluginApiServiceConfigs} from './apiService';
@@ -79,6 +84,7 @@ export default {
         subscriptionModal,
         subscriptionFilterCreatedByOptions,
         subscriptionFilterServiceTypeOptions,
+        subscriptionFilterEventTypePipelinesOptions,
         subscriptionFilterEventTypeBoardsOptions,
         subscriptionFilterEventTypeReposOptions,
         mergeResultOptons,
@@ -92,7 +98,11 @@ export default {
         releaseApprovalTypeOptions,
         releaseApprovalStatusOptions,
         releaseStatusOptions,
+        runStageStateIdOptions,
+        runStageResultIdOptions,
         subscriptionFiltersNameForPipelines,
+        runStateIdOptions,
+        runResultIdOptions,
     },
     messages: {
         error,

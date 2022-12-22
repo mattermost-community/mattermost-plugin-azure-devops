@@ -31,6 +31,14 @@ type PublisherInputsGeneric struct {
 	ReleaseApprovalType          string `json:"releaseApprovalType,omitempty"`
 	ReleaseApprovalStatus        string `json:"releaseApprovalStatus,omitempty"`
 	ReleaseEnvironmentStatus     string `json:"releaseEnvironmentStatus,omitempty"`
+	PipelineID                   string `json:"pipelineId,omitempty"`
+	StageName                    string `json:"stageName,omitempty"`
+	EnvironmentName              string `json:"environmentName,omitempty"`
+	StageNameID                  string `json:"stageNameId,omitempty"`
+	StageStateID                 string `json:"stageStateId,omitempty"`
+	StageResultID                string `json:"stageResultId,omitempty"`
+	RunStateID                   string `json:"runStateId,omitempty"`
+	RunResultID                  string `json:"runResultId,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -88,6 +96,17 @@ type CreateSubscriptionRequestPayload struct {
 	ApprovalStatusName               string `json:"approvalStatusName"`
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
+	RunPipeline                      string `json:"runPipeline"`
+	RunPipelineName                  string `json:"runPipelineName"`
+	RunStageName                     string `json:"runStage"`
+	RunEnvironmentName               string `json:"runEnvironment"`
+	RunStageNameID                   string `json:"runStageId"`
+	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageStateIDName              string `json:"runStageStateIdName"`
+	RunStageResultID                 string `json:"runStageResultId"`
+	RunStateID                       string `json:"runStateId"`
+	RunStateIDName                   string `json:"runStateIdName"`
+	RunResultID                      string `json:"runResultId"`
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
@@ -97,6 +116,7 @@ type GetSubscriptionFilterPossibleValuesRequestPayload struct {
 	Filters           []string `json:"filters"`
 	RepositoryID      string   `json:"repositoryId"`
 	ReleasePipelineID string   `json:"releasePipelineId"`
+	RunPipeline       string   `json:"runPipeline"`
 }
 
 type SubscriptionFilter struct {
@@ -171,6 +191,17 @@ type SubscriptionDetails struct {
 	ApprovalStatusName               string `json:"approvalStatusName"`
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
+	RunPipeline                      string `json:"runPipeline"`
+	RunPipelineName                  string `json:"runPipelineName"`
+	RunStageName                     string `json:"runStage"`
+	RunEnvironmentName               string `json:"runEnvironment"`
+	RunStageNameID                   string `json:"runStageId"`
+	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageStateIDName              string `json:"runStageStateIdName"`
+	RunStageResultID                 string `json:"runStageResultId"`
+	RunStateID                       string `json:"runStateId"`
+	RunStateIDName                   string `json:"runStateIdName"`
+	RunResultID                      string `json:"runResultId"`
 }
 
 type DetailedMessage struct {
@@ -306,6 +337,14 @@ type DeleteSubscriptionRequestPayload struct {
 	ApprovalType                 string `json:"approvalType"`
 	ApprovalStatus               string `json:"approvalStatus"`
 	ReleaseStatus                string `json:"releaseStatus"`
+	RunPipeline                  string `json:"runPipeline"`
+	RunStageName                 string `json:"runStage"`
+	RunEnvironmentName           string `json:"runEnvironment"`
+	RunStageNameID               string `json:"runStageId"`
+	RunStageStateID              string `json:"runStageStateId"`
+	RunStageResultID             string `json:"runStageResultId"`
+	RunStateID                   string `json:"runStateId"`
+	RunResultID                  string `json:"runResultId"`
 }
 
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {

@@ -177,6 +177,90 @@ export const releaseStatusOptions: LabelValuePair[] = [
     },
 ];
 
+export const runStageStateIdOptions: LabelValuePair[] = [
+    {
+        value: 'NotStarted',
+        label: 'Not Started',
+    },
+    {
+        value: 'Waiting',
+        label: 'Waiting',
+    },
+    {
+        value: 'Running',
+        label: 'Running',
+    },
+    {
+        value: 'Completed',
+        label: 'Completed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runStageResultIdOptions: LabelValuePair[] = [
+    {
+        value: 'Cancelled',
+        label: 'Cancelled',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Rejected',
+        label: 'Rejected',
+    },
+    {
+        value: 'Skipped',
+        label: 'Skipped',
+    },
+    {
+        value: 'Succeeded',
+        label: 'Succeeded',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runStateIdOptions: LabelValuePair[] = [
+    {
+        value: 'InProgress',
+        label: 'In Progress',
+    },
+    {
+        value: 'Cancelling',
+        label: 'Cancelling',
+    },
+    {
+        value: 'Completed',
+        label: 'Completed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runResultIdOptions: LabelValuePair[] = [
+    {
+        value: 'Cancelled',
+        label: 'Cancelled',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Succeeded',
+        label: 'Succeeded',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
 export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldConfig> = {
     organization: {
         label: 'Organization name',
@@ -359,6 +443,67 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    runPipeline: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    runPipelineName: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    runStage: {
+        label: 'Stage',
+        type: 'hidden',
+        value: '',
+    },
+    runEnvironment: {
+        label: 'Environment',
+        type: 'hidden',
+        value: '',
+    },
+    runStageId: {
+        label: 'Stage',
+        type: 'hidden',
+        value: '',
+    },
+    runStageStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
+    runStageStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
+    runStageResultId: {
+        label: 'Result',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageResultIdOptions,
+    },
+    runStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runResultId: {
+        label: 'Result',
+        type: 'hidden',
+        value: '',
+        optionsList: runResultIdOptions,
+    },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
     timestamp: {
@@ -485,6 +630,10 @@ export const subscriptionFilterServiceTypeOptions = [
         label: 'Repos',
     },
     {
+        value: subscriptionFilters.serviceType.pipelines,
+        label: 'Pipelines',
+    },
+    {
         ...filterLabelValuePairAll,
     },
 ];
@@ -505,6 +654,17 @@ export const subscriptionFilterEventTypeReposOptions = () => {
     Object.keys(subscriptionFilters.eventType.repos).forEach((eventType) => options.push({
         value: eventType,
         label: subscriptionFilters.eventType.repos[eventType as EventTypeRepos],
+    }));
+
+    options.push(filterLabelValuePairAll);
+    return options;
+};
+
+export const subscriptionFilterEventTypePipelinesOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.pipelines).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.pipelines[eventType as EventTypePipelines],
     }));
 
     options.push(filterLabelValuePairAll);
@@ -592,8 +752,6 @@ export const subscriptionFiltersNameForPipelines = {
     runStage: 'stageName',
     runEnvironment: 'environmentName',
     runStageId: 'stageNameId',
-    runStateId: 'stageStateId',
-    runResultId: 'stageResultId',
 };
 
 export const subscriptionFiltersForPipelines = [
@@ -604,6 +762,4 @@ export const subscriptionFiltersForPipelines = [
     subscriptionFiltersNameForPipelines.runStage,
     subscriptionFiltersNameForPipelines.runEnvironment,
     subscriptionFiltersNameForPipelines.runStageId,
-    subscriptionFiltersNameForPipelines.runStateId,
-    subscriptionFiltersNameForPipelines.runResultId,
 ];

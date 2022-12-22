@@ -112,11 +112,62 @@ func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOAuthToken", reflect.TypeOf((*MockClient)(nil).GenerateOAuthToken), arg0)
 }
 
+// GetGitRepositories mocks base method
+func (m *MockClient) GetGitRepositories(arg0, arg1, arg2 string) (*serializers.GitRepositoriesResponse, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGitRepositories", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*serializers.GitRepositoriesResponse)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetGitRepositories indicates an expected call of GetGitRepositories
+func (mr *MockClientMockRecorder) GetGitRepositories(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositories", reflect.TypeOf((*MockClient)(nil).GetGitRepositories), arg0, arg1, arg2)
+}
+
+// GetGitRepositoryBranches mocks base method
+func (m *MockClient) GetGitRepositoryBranches(arg0, arg1, arg2, arg3 string) (*serializers.GitBranchesResponse, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGitRepositoryBranches", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.GitBranchesResponse)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetGitRepositoryBranches indicates an expected call of GetGitRepositoryBranches
+func (mr *MockClientMockRecorder) GetGitRepositoryBranches(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositoryBranches", reflect.TypeOf((*MockClient)(nil).GetGitRepositoryBranches), arg0, arg1, arg2, arg3)
+}
+
+// UpdatePipelineApprovalRequest mocks base method
+func (m *MockClient) UpdatePipelineApprovalRequest(arg0 *serializers.PipelineApproveRequest, arg1, arg2, arg3 string, arg4 int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePipelineApprovalRequest", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[1].(int)
+	ret1, _ := ret[2].(error)
+	return ret0, ret1
+}
+
 // GetBuildDetails mocks base method
 func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializers.BuildDetails, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBuildDetails", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*serializers.BuildDetails)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetReleaseDetails mocks base method
+func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializers.ReleaseDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReleaseDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.ReleaseDetails)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -133,6 +184,16 @@ func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPullRequest", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*serializers.PullRequest)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetApprovalDetails mocks base method
+func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*serializers.PipelineApprovalDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetApprovalDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.PipelineApprovalDetails)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

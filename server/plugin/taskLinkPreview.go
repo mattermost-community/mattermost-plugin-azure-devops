@@ -159,3 +159,44 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
 	return post, ""
 }
+
+func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {
+	organization := linkData[3]
+	project := linkData[4]
+	releaseID := strings.Split(linkData[5], "&")[1][10:]
+	releaseDetails, _, err := p.Client.GetReleaseDetails(organization, project, releaseID, userID)
+	if err != nil {
+		p.API.LogDebug("Error in getting release details from Azure", "Error", err.Error())
+		return nil, ""
+	}
+
+	post := &model.Post{
+		UserId:    userID,
+		ChannelId: channelID,
+	}
+
+	environments := p.getPipelineReleaseEnvironmentList(releaseDetails.Environments)
+	attachment := &model.SlackAttachment{
+		AuthorName: "Azure Pipelines",
+		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, releaseDetails.Name, releaseDetails.Link.Web.Href, releaseDetails.ReleaseDefinition.Name),
+		Color:      constants.IconColorPipelines,
+		Fields: []*model.SlackAttachmentField{
+			{
+				Title: "Environments",
+				Value: environments,
+				Short: true,
+			},
+			{
+				Title: "Status",
+				Value: releaseDetails.Status,
+				Short: true,
+			},
+		},
+		Footer:     project,
+		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})
+	return post, ""
+}

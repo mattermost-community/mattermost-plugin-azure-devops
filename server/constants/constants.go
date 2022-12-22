@@ -44,6 +44,9 @@ const (
 	// Regex to verify pipeline build details link
 	BuildDetailsLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_build\/results\?buildId=[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+`
 
+	// Regex to verify pipeline release details link
+	ReleaseDetailsLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_releaseProgress\?_a=release-pipeline-progress&releaseId=[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+`
+
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"
@@ -145,6 +148,13 @@ const (
 	DateTimeFormat = "Mon Jan 2 15:04:05 -0700 MST 2006"
 	DateTimeLayout = "2006-01-02T15:04:05"
 	TimeLayout     = "15:04:05"
+
+	PipelineRequestIDApproved          = "approved"
+	PipelineRequestIDRejected          = "rejected"
+	PipelineRequestContextApprovalID   = "approvalId"
+	PipelineRequestContextOrganization = "organization"
+	PipelineRequestContextProjectName  = "projectName"
+	PipelineRequestContextRequestType  = "requestType"
 )
 
 var (
@@ -168,5 +178,10 @@ var (
 		SubscriptionEventRunStageStateChanged:       true,
 		SubscriptionEventRunStageWaitingForApproval: true,
 		SubscriptionEventRunStateChanged:            true,
+	}
+
+	PipelineRequestUpdateEmoji = map[string]string{
+		PipelineRequestIDApproved: "&#9989;",
+		PipelineRequestIDRejected: "&#10060;",
 	}
 )

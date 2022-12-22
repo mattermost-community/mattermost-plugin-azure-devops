@@ -16,6 +16,9 @@ const (
 	PathGetSubscriptions                    = "/subscriptions/{team_id:[A-Za-z0-9]+}"
 	PathSubscriptionNotifications           = "/notification"
 	PathGetUserChannelsForTeam              = "/channels/{team_id:[A-Za-z0-9]+}"
+	PathGetGitRepositories                  = "/{organization:[A-Za-z0-9-/ ]+}/{project:[A-Za-z0-9-/ ]+}/repositories"
+	PathGetGitRepositoryBranches            = "/{organization:[A-Za-z0-9-/ ]+}/{project:[A-Za-z0-9-/ ]+}/repositories/{repository:[A-Za-z0-9-/]+}/branches"
+	PathPipelineRequest                     = "/pipeline_request"
 	PathGetSubscriptionFilterPossibleValues = "/subscriptions/filters"
 
 	// Azure API paths
@@ -23,6 +26,10 @@ const (
 	GetTask                             = "%s/%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"
 	GetPullRequest                      = "%s/%s/_apis/git/pullrequests/%s?api-version=6.0"
 	GetBuildDetails                     = "%s/%s/_apis/build/builds/%s?api-version=6.0"
+	GetReleaseDetails                   = "%s/%s/_apis/release/releases/%s?api-version=6.0"
+	GetGitRepositories                  = "%s/%s/_apis/git/repositories?api-version=6.0"
+	GetGitRepositoryBranches            = "%s/%s/_apis/git/repositories/%s/refs?filter=heads"
+	PipelineApproveRequest              = "%s/%s/_apis/release/approvals/%d?api-version=6.0"
 	GetProject                          = "/%s/_apis/projects/%s?api-version=7.1-preview.4"
 	CreateSubscription                  = "/%s/_apis/hooks/subscriptions?api-version=6.0"
 	DeleteSubscription                  = "/%s/_apis/hooks/subscriptions/%s?api-version=6.0"

@@ -209,6 +209,16 @@ type SubscriptionNotification struct {
 	Resource        Resource        `json:"resource"`
 }
 
+type Approval struct {
+	ID       int      `json:"id"`
+	Approver Approver `json:"approver"`
+}
+
+type Approver struct {
+	DisplayName string `json:"displayName"`
+	ID          string `json:"id"`
+}
+
 type Resource struct {
 	PullRequestID int          `json:"pullRequestId"`
 	Reviewers     []Reviewer   `json:"reviewers"`
@@ -234,15 +244,11 @@ type Resource struct {
 	Stage         Stage        `json:"stage"`
 	Pipeline      Definition   `json:"pipeline"`
 	Run           Stage        `json:"run"`
+	Approval      Approval     `json:"approval"`
 }
 
 type Stage struct {
 	Links ProjectLink `json:"_links"`
-}
-
-type Environment struct {
-	Release           Release    `json:"release"`
-	ReleaseDefinition Definition `json:"releaseDefinition"`
 }
 
 type Release struct {
@@ -343,6 +349,11 @@ func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (
 	return body, nil
 }
 
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
 type BuildDetails struct {
 	BuildNumber  string      `json:"buildNumber"`
 	SourceBranch string      `json:"sourceBranch"`
@@ -356,6 +367,25 @@ type BuildDetails struct {
 
 type RequestedBy struct {
 	DisplayName string `json:"displayName"`
+}
+
+type ReleaseDetails struct {
+	Name              string            `json:"name"`
+	ID                int               `json:"id"`
+	Status            string            `json:"status"`
+	Environments      []*Environment    `json:"environments"`
+	Link              Link              `json:"_links"`
+	ReleaseDefinition ReleaseDefinition `json:"releaseDefinition"`
+}
+
+type Environment struct {
+	Name              string     `json:"name"`
+	Release           Release    `json:"release"`
+	ReleaseDefinition Definition `json:"releaseDefinition"`
+}
+
+type ReleaseDefinition struct {
+	Name string `json:"name"`
 }
 
 func CreateSubscriptionRequestPayloadFromJSON(data io.Reader) (*CreateSubscriptionRequestPayload, error) {

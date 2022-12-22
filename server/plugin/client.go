@@ -30,6 +30,7 @@ type Client interface {
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
+	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
@@ -132,6 +133,21 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 	}
 
 	return buildDetails, statusCode, nil
+}
+
+// Function to get the pipeline release details.
+func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
+	releaseDetailsURL := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
+
+	var releaseDetails *serializers.ReleaseDetails
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, releaseDetailsURL, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline release details")
+	}
+
+	return releaseDetails, statusCode, nil
 }
 
 // Function to link a project and an organization.

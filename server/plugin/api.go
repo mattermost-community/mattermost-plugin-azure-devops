@@ -523,6 +523,22 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 	return reviewers
 }
 
+func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.Environment) string {
+	envs := ""
+	for index, env := range environments {
+		envs += env.Name
+		if index != (len(environments) - 1) {
+			envs += " | "
+		}
+	}
+
+	if envs == "" {
+		return "None"
+	}
+
+	return envs
+}
+
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
@@ -611,7 +627,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 
 		// Convert json string to struct
-		var comment serializers.Comment
+		var comment *serializers.Comment
 		if err := json.Unmarshal(jsonBytes, &comment); err != nil {
 			p.API.LogError(err.Error())
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})

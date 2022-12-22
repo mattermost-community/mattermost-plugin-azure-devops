@@ -44,6 +44,9 @@ const (
 	// Regex to verify pipeline build details link
 	BuildDetailsLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_build\/results\?buildId=[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+`
 
+	// Regex to verify pipeline release details link
+	ReleaseDetailsLinkRegex = `http(s)?:\/\/dev.azure.com\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*\/_releaseProgress\?_a=release-pipeline-progress&releaseId=[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+`
+
 	// Azure API Versions
 	CreateTaskAPIVersion = "7.1-preview.3"
 	TasksIDAPIVersion    = "5.1"

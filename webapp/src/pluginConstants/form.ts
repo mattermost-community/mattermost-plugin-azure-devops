@@ -448,6 +448,11 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         type: 'hidden',
         value: '',
     },
+    runPipelineName: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
     runStage: {
         label: 'Stage',
         type: 'hidden',
@@ -469,6 +474,12 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         value: '',
         optionsList: runStageStateIdOptions,
     },
+    runStageStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
     runStageResultId: {
         label: 'Result',
         type: 'hidden',
@@ -476,6 +487,12 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         optionsList: runStageResultIdOptions,
     },
     runStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runStateIdName: {
         label: 'State',
         type: 'hidden',
         value: '',
@@ -613,6 +630,10 @@ export const subscriptionFilterServiceTypeOptions = [
         label: 'Repos',
     },
     {
+        value: subscriptionFilters.serviceType.pipelines,
+        label: 'Pipelines',
+    },
+    {
         ...filterLabelValuePairAll,
     },
 ];
@@ -633,6 +654,17 @@ export const subscriptionFilterEventTypeReposOptions = () => {
     Object.keys(subscriptionFilters.eventType.repos).forEach((eventType) => options.push({
         value: eventType,
         label: subscriptionFilters.eventType.repos[eventType as EventTypeRepos],
+    }));
+
+    options.push(filterLabelValuePairAll);
+    return options;
+};
+
+export const subscriptionFilterEventTypePipelinesOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.pipelines).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.pipelines[eventType as EventTypePipelines],
     }));
 
     options.push(filterLabelValuePairAll);

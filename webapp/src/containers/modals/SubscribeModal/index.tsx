@@ -359,6 +359,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runPipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runPipelineName: pipelienName === filterLabelValuePairAll.value ? '' : pipelienName,
             runStage: newValue === filterLabelValuePairAll.value ? '' : formFields.runStage,
             runStageId: newValue === filterLabelValuePairAll.value ? '' : formFields.runStageId,
         });
@@ -385,6 +386,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStageStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runStageStateIdName: stateId === filterLabelValuePairAll.value ? '' : stateId,
             runStageResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runStageResultId,
         });
 
@@ -398,6 +400,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
+            runStateIdName: stateId === filterLabelValuePairAll.value ? '' : stateId,
             runResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runResultId,
         });
 

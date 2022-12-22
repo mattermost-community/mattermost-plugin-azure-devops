@@ -384,12 +384,15 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		ApprovalTypeName:                 body.ApprovalTypeName,
 		ApprovalStatusName:               body.ApprovalStatusName,
 		RunPipeline:                      body.RunPipeline,
+		RunPipelineName:                  body.RunPipelineName,
 		RunStageName:                     body.RunStageName,
 		RunEnvironmentName:               body.RunEnvironmentName,
 		RunStageNameID:                   body.RunStageNameID,
 		RunStageStateID:                  body.RunStageStateID,
+		RunStageStateIDName:              body.RunStageStateIDName,
 		RunStageResultID:                 body.RunStageResultID,
 		RunStateID:                       body.RunStateID,
+		RunStateIDName:                   body.RunStateIDName,
 		RunResultID:                      body.RunResultID,
 	}); storeErr != nil {
 		p.API.LogError("Error in creating a subscription", "Error", storeErr.Error())
@@ -460,6 +463,17 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 								subscriptionByProject = append(subscriptionByProject, subscription)
 							}
 						}
+					case constants.FilterPipelines:
+						switch eventType {
+						case "", constants.FilterAll:
+							if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						default:
+							if subscription.EventType == eventType {
+								subscriptionByProject = append(subscriptionByProject, subscription)
+							}
+						}
 					}
 				}
 			}
@@ -483,13 +497,16 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 				subscriptionByProject[i].StageNameValue+
 				subscriptionByProject[i].ReleaseStatusName+
 				subscriptionByProject[i].RunPipeline+
+				subscriptionByProject[i].RunPipelineName+
 				subscriptionByProject[i].ReleasePipelineName+
 				subscriptionByProject[i].RunStageName+
 				subscriptionByProject[i].RunEnvironmentName+
 				subscriptionByProject[i].RunStageNameID+
 				subscriptionByProject[i].RunStageStateID+
+				subscriptionByProject[i].RunStageStateIDName+
 				subscriptionByProject[i].RunStageResultID+
 				subscriptionByProject[i].RunStateID+
+				subscriptionByProject[i].RunStateIDName+
 				subscriptionByProject[i].RunResultID <
 				subscriptionByProject[j].ChannelName+
 					subscriptionByProject[j].EventType+
@@ -508,13 +525,16 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 					subscriptionByProject[i].StageNameValue+
 					subscriptionByProject[i].ReleaseStatusName+
 					subscriptionByProject[i].RunPipeline+
+					subscriptionByProject[i].RunPipelineName+
 					subscriptionByProject[i].ReleasePipelineName+
 					subscriptionByProject[i].RunStageName+
 					subscriptionByProject[i].RunEnvironmentName+
 					subscriptionByProject[i].RunStageNameID+
 					subscriptionByProject[i].RunStageStateID+
+					subscriptionByProject[i].RunStageStateIDName+
 					subscriptionByProject[i].RunStageResultID+
 					subscriptionByProject[i].RunStateID+
+					subscriptionByProject[i].RunStateIDName+
 					subscriptionByProject[i].RunResultID
 		})
 

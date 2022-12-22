@@ -97,12 +97,15 @@ type CreateSubscriptionRequestPayload struct {
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
 	RunPipeline                      string `json:"runPipeline"`
+	RunPipelineName                  string `json:"runPipelineName"`
 	RunStageName                     string `json:"runStage"`
 	RunEnvironmentName               string `json:"runEnvironment"`
 	RunStageNameID                   string `json:"runStageId"`
 	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageStateIDName              string `json:"runStageStateIdName"`
 	RunStageResultID                 string `json:"runStageResultId"`
 	RunStateID                       string `json:"runStateId"`
+	RunStateIDName                   string `json:"runStateIdName"`
 	RunResultID                      string `json:"runResultId"`
 }
 
@@ -189,12 +192,15 @@ type SubscriptionDetails struct {
 	ReleaseStatus                    string `json:"releaseStatus"`
 	ReleaseStatusName                string `json:"releaseStatusName"`
 	RunPipeline                      string `json:"runPipeline"`
+	RunPipelineName                  string `json:"runPipelineName"`
 	RunStageName                     string `json:"runStage"`
 	RunEnvironmentName               string `json:"runEnvironment"`
 	RunStageNameID                   string `json:"runStageId"`
 	RunStageStateID                  string `json:"runStageStateId"`
+	RunStageStateIDName              string `json:"runStageStateIdName"`
 	RunStageResultID                 string `json:"runStageResultId"`
 	RunStateID                       string `json:"runStateId"`
+	RunStateIDName                   string `json:"runStateIdName"`
 	RunResultID                      string `json:"runResultId"`
 }
 

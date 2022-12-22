@@ -24,6 +24,13 @@ type PublisherInputsGeneric struct {
 	PushedBy                     string `json:"pushedBy,omitempty"`
 	MergeResult                  string `json:"mergeResult,omitempty"`
 	NotificationType             string `json:"notificationType,omitempty"`
+	DefinitionName               string `json:"definitionName,omitempty"`
+	BuildStatus                  string `json:"buildStatus,omitempty"`
+	ReleaseDefinitionID          string `json:"releaseDefinitionId,omitempty"`
+	ReleaseEnvironmentID         string `json:"releaseEnvironmentId,omitempty"`
+	ReleaseApprovalType          string `json:"releaseApprovalType,omitempty"`
+	ReleaseApprovalStatus        string `json:"releaseApprovalStatus,omitempty"`
+	ReleaseEnvironmentStatus     string `json:"releaseEnvironmentStatus,omitempty"`
 }
 
 type ConsumerInputs struct {
@@ -68,14 +75,28 @@ type CreateSubscriptionRequestPayload struct {
 	NotificationType                 string `json:"notificationType"`
 	NotificationTypeName             string `json:"notificationTypeName"`
 	AreaPath                         string `json:"areaPath"`
+	BuildPipeline                    string `json:"buildPipeline"`
+	BuildStatus                      string `json:"buildStatus"`
+	BuildStatusName                  string `json:"buildStatusName"`
+	ReleasePipeline                  string `json:"releasePipeline"`
+	ReleasePipelineName              string `json:"releasePipelineName"`
+	StageName                        string `json:"stageName"`
+	StageNameValue                   string `json:"stageNameValue"`
+	ApprovalType                     string `json:"approvalType"`
+	ApprovalTypeName                 string `json:"approvalTypeName"`
+	ApprovalStatus                   string `json:"approvalStatus"`
+	ApprovalStatusName               string `json:"approvalStatusName"`
+	ReleaseStatus                    string `json:"releaseStatus"`
+	ReleaseStatusName                string `json:"releaseStatusName"`
 }
 
 type GetSubscriptionFilterPossibleValuesRequestPayload struct {
-	Organization string   `json:"organization"`
-	ProjectID    string   `json:"projectId"`
-	EventType    string   `json:"eventType"`
-	Filters      []string `json:"filters"`
-	RepositoryID string   `json:"repositoryId"`
+	Organization      string   `json:"organization"`
+	ProjectID         string   `json:"projectId"`
+	EventType         string   `json:"eventType"`
+	Filters           []string `json:"filters"`
+	RepositoryID      string   `json:"repositoryId"`
+	ReleasePipelineID string   `json:"releasePipelineId"`
 }
 
 type SubscriptionFilter struct {
@@ -137,6 +158,19 @@ type SubscriptionDetails struct {
 	NotificationType                 string `json:"notificationType"`
 	NotificationTypeName             string `json:"notificationTypeName"`
 	AreaPath                         string `json:"areaPath"`
+	BuildPipeline                    string `json:"buildPipeline"`
+	BuildStatus                      string `json:"buildStatus"`
+	BuildStatusName                  string `json:"buildStatusName"`
+	ReleasePipeline                  string `json:"releasePipeline"`
+	ReleasePipelineName              string `json:"releasePipelineName"`
+	StageName                        string `json:"stageName"`
+	StageNameValue                   string `json:"stageNameValue"`
+	ApprovalType                     string `json:"approvalType"`
+	ApprovalTypeName                 string `json:"approvalTypeName"`
+	ApprovalStatus                   string `json:"approvalStatus"`
+	ApprovalStatusName               string `json:"approvalStatusName"`
+	ReleaseStatus                    string `json:"releaseStatus"`
+	ReleaseStatusName                string `json:"releaseStatusName"`
 }
 
 type DetailedMessage struct {
@@ -148,6 +182,16 @@ type SubscriptionNotification struct {
 	Message         DetailedMessage `json:"Message"`
 	EventType       string          `json:"eventType"`
 	Resource        Resource        `json:"resource"`
+}
+
+type Approval struct {
+	ID       int      `json:"id"`
+	Approver Approver `json:"approver"`
+}
+
+type Approver struct {
+	DisplayName string `json:"displayName"`
+	ID          string `json:"id"`
 }
 
 type Resource struct {
@@ -175,6 +219,7 @@ type Resource struct {
 	Stage         Stage        `json:"stage"`
 	Pipeline      Definition   `json:"pipeline"`
 	Run           Stage        `json:"run"`
+	Approval      Approval     `json:"approval"`
 }
 
 type Stage struct {
@@ -254,6 +299,13 @@ type DeleteSubscriptionRequestPayload struct {
 	MergeResult                  string `json:"mergeResult"`
 	NotificationType             string `json:"notificationType"`
 	AreaPath                     string `json:"areaPath"`
+	BuildPipeline                string `json:"buildPipeline"`
+	BuildStatus                  string `json:"buildStatus"`
+	ReleasePipeline              string `json:"releasePipeline"`
+	StageName                    string `json:"stageName"`
+	ApprovalType                 string `json:"approvalType"`
+	ApprovalStatus               string `json:"approvalStatus"`
+	ReleaseStatus                string `json:"releaseStatus"`
 }
 
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {
@@ -262,6 +314,11 @@ func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (
 		return nil, err
 	}
 	return body, nil
+}
+
+type PipelineApprovalDetails struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
 }
 
 type BuildDetails struct {

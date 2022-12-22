@@ -32,17 +32,24 @@ type SubscriptionPayload = {
     notificationType: string
     notificationTypeName: string
     areaPath: string
+    buildPipeline: string
+    buildStatus: string
+    releasePipeline: string
+    stageName: string
+    approvalType: string
+    approvalStatus: string
+    releaseStatus: string
+    buildStatusName: string
+    releasePipelineName: string
+    stageNameValue: string
+    approvalTypeName: string
+    approvalStatusName: string
+    releaseStatusName: string
 }
 
 interface PaginationQueryParams {
     page: number;
     per_page: number;
-}
-
-type ReposSubscriptionFiltersRequest = {
-    organization: string
-    project: string
-    repository?: string
 }
 
 type SubscriptionFiltersPossibleValues = {
@@ -58,4 +65,5 @@ type GetSubscriptionFiltersRequest = {
     eventType: string
     filters: string[]
     repositoryId?: string
+    releasePipelineId?: string
 }

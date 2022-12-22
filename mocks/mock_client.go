@@ -144,6 +144,15 @@ func (mr *MockClientMockRecorder) GetGitRepositoryBranches(arg0, arg1, arg2, arg
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositoryBranches", reflect.TypeOf((*MockClient)(nil).GetGitRepositoryBranches), arg0, arg1, arg2, arg3)
 }
 
+// UpdatePipelineApprovalRequest mocks base method
+func (m *MockClient) UpdatePipelineApprovalRequest(arg0 *serializers.PipelineApproveRequest, arg1, arg2, arg3 string, arg4 int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePipelineApprovalRequest", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[1].(int)
+	ret1, _ := ret[2].(error)
+	return ret0, ret1
+}
+
 // GetBuildDetails mocks base method
 func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializers.BuildDetails, int, error) {
 	m.ctrl.T.Helper()
@@ -164,11 +173,27 @@ func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializ
 	return ret0, ret1, ret2
 }
 
+// GetBuildDetails indicates an expected call of GetBuildDetails
+func (mr *MockClientMockRecorder) GetBuildDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBuildDetails", reflect.TypeOf((*MockClient)(nil).GetBuildDetails), arg0, arg1, arg2, arg3)
+}
+
 // GetPullRequest mocks base method
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPullRequest", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(*serializers.PullRequest)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetApprovalDetails mocks base method
+func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*serializers.PipelineApprovalDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetApprovalDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.PipelineApprovalDetails)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

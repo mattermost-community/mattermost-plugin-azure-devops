@@ -923,7 +923,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		}
 	case constants.SubscriptionEventRunStageWaitingForApproval:
 		organization := ""
-		webLinkPaths := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")
+		webLinkPaths := strings.Split(body.Resource.Pipeline.Links.Web.Href, "/")
 		if len(webLinkPaths) >= 4 {
 			organization = webLinkPaths[3]
 		}

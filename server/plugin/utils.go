@@ -441,3 +441,15 @@ func (p *Plugin) UpdatePipelineRunApprovalPost(approvalSteps []*serializers.Appr
 
 	return nil
 }
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+		return statusCode, err
+	}
+
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
+}

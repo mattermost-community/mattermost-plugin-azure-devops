@@ -95,11 +95,11 @@ To add a new subscription for a linked project click on the project title under 
     **Note:** Only Mattermost users who are project admins or team admins on the linked Azure DevOps project can view/list subscriptions that exist in a channel where they are not a member.
 
 - Approve pipeline requests from your channel: 
-  - A user can approve pipeline requests from within the channel by subscribing to "e Release deployment approval pending" or "Run stage waiting for approval" (for YAML pipelines) event notifications.
+  - A user can approve pipeline requests from within the channel by subscribing to "Release deployment approval pending" or "Run stage waiting for approval" (for YAML pipelines) event notifications.
 
     ![image](https://user-images.githubusercontent.com/72438220/202639513-8fa58db0-bce9-46ed-864b-ebbae468a4b6.png)
 
-  - When the running of a stage or a release deployment is awaiting approval, a notification card is posted in the channel with the option to approve or reject the request. Reviewing the request's specifics in the notification, approvers can take the necessary action.
+  - While the running stage or a release deployment is awaiting approval, a notification card is posted in the channel with the option to approve or reject the request. By reviewing the request's specifics in the notification, approvers can take the necessary action.
 
     ![image](https://user-images.githubusercontent.com/72438220/202639612-1742c832-9a16-49a5-96ae-5cf6010f90d6.png)
 

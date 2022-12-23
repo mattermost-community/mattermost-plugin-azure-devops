@@ -371,3 +371,47 @@ func (p *Plugin) handlePipelineApprovalRequestUpdateError(errorMessage, mattermo
 	}
 	p.API.LogError(errorMessage, "Error", err.Error())
 }
+
+func (p *Plugin) UpdatePipelineRunApprovalPost(approvalSteps []*serializers.ApprovalStep, minRequiredApprovers int, status, postID, mattermostUserID string) error {
+	post, err := p.API.GetPost(postID)
+	if err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	slackAttachment := post.Attachments()[0]
+	numOfApprovalsReached := 0
+
+	approvers := ""
+	for _, step := range approvalSteps {
+		if step.Status != "pending" {
+			approvers += fmt.Sprintf("%s %s \n", constants.PipelineRequestUpdateEmoji[step.Status], step.AssignedApprover.DisplayName)
+			if step.Status == "approved" {
+				numOfApprovalsReached += 1
+			}
+		} else {
+			approvers += step.AssignedApprover.DisplayName + "\n"
+		}
+	}
+
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: slackAttachment.Fields[2].Title,
+			Value: approvers,
+		},
+	}
+
+	if status != "pending" || numOfApprovalsReached == minRequiredApprovers {
+		slackAttachment.Actions = nil
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}

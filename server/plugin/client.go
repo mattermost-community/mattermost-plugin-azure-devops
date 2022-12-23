@@ -28,7 +28,9 @@ type Client interface {
 	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
 	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
+	UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error)
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
+	GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error)
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
 	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
@@ -310,6 +312,18 @@ func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *se
 	return statusCode, err
 }
 
+func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error) {
+	pipelineApproveRunRequestURL := fmt.Sprintf(constants.PipelineRunApproveRequest, organization, projectID)
+
+	var pipelineRunApproveResponse *serializers.PipelineRunApproveResponse
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pipelineApproveRunRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, &pipelineRunApproveResponse, nil)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineRunApproveResponse, statusCode, nil
+}
+
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	getSubscriptionFilterValuesURL := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
 
@@ -371,6 +385,18 @@ func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID 
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	var pipelineApprovalDetails *serializers.PipelineApprovalDetails
 	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineApprovalDetails, statusCode, nil
+}
+
+func (c *client) GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error) {
+	pipelineRunApprovalDetailsURL := fmt.Sprintf(constants.PipelineRunApproveDetails, organization, projectID, approvalID)
+
+	var pipelineApprovalDetails *serializers.PipelineRunApprovalDetails
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pipelineRunApprovalDetailsURL, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
 	if err != nil {
 		return nil, statusCode, err
 	}

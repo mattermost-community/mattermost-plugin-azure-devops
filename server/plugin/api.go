@@ -52,7 +52,8 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathPipelineRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRequest))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathPipelineReleaseRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectReleaseRequest))).Methods(http.MethodPost)
+	s.HandleFunc(constants.PathPipelineRunRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRunRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
 }
 
@@ -542,7 +543,7 @@ func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.E
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
-		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
+		p.API.LogError("Error in decoding the body for listening notifications", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
@@ -869,7 +870,78 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			},
 		}
 	case constants.SubscriptionEventRunStageWaitingForApproval:
-		// TODO
+		organization := ""
+		webLinkPaths := strings.Split(body.Resource.Release.ReleaseDefinition.Links.Web.Href, "/")
+		if len(webLinkPaths) >= 4 {
+			organization = webLinkPaths[3]
+		}
+
+		approverTitle := "Approver(s)"
+		if body.Resource.Approval.ExecutionOrder == "inSequence" {
+			approverTitle = "Approver(s) in sequence"
+		} else if body.Resource.Approval.MinRequiredApprovers > 0 && len(body.Resource.Approval.Steps) > body.Resource.Approval.MinRequiredApprovers {
+			approverTitle = fmt.Sprintf("Approvers (any %d)", body.Resource.Approval.MinRequiredApprovers)
+		}
+
+		approvers := ""
+		for _, approvalStep := range body.Resource.Approval.Steps {
+			approvers += approvalStep.AssignedApprover.DisplayName + "\n"
+		}
+
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Run pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Pipeline.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: "Stage",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Stage.Name, body.Resource.Stage.Links.Web.Href),
+					Short: true,
+				},
+				{
+					Title: approverTitle,
+					Value: approvers,
+				},
+			},
+			Actions: []*model.PostAction{
+				{
+					Id:    constants.PipelineRequestIDApproved,
+					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Name:  "Approve",
+					Style: "primary",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRunRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDApproved,
+							constants.PipelineRequestContextProjectID:    body.Resource.ProjectID,
+						},
+					},
+				},
+				{
+					Id:    constants.PipelineRequestIDRejected,
+					Type:  model.POST_ACTION_TYPE_BUTTON,
+					Name:  "Reject",
+					Style: "danger",
+					Integration: &model.PostActionIntegration{
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRunRequest),
+						Context: map[string]interface{}{
+							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
+							constants.PipelineRequestContextOrganization: organization,
+							constants.PipelineRequestContextRequestType:  constants.PipelineRequestIDRejected,
+							constants.PipelineRequestContextProjectID:    body.Resource.ProjectID,
+						},
+					},
+				},
+			},
+		}
 	case constants.SubscriptionEventReleaseDeploymentEventPending:
 		artifacts := ""
 		for i, artifact := range body.Resource.Release.Artifacts {
@@ -912,11 +984,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Actions: []*model.PostAction{
 				{
 					Id:    constants.PipelineRequestIDApproved,
-					Type:  "button",
+					Type:  model.POST_ACTION_TYPE_BUTTON,
 					Name:  "Approve",
 					Style: "primary",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineReleaseRequest),
 						Context: map[string]interface{}{
 							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
 							constants.PipelineRequestContextOrganization: organization,
@@ -927,11 +999,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 				},
 				{
 					Id:    constants.PipelineRequestIDRejected,
-					Type:  "button",
+					Type:  model.POST_ACTION_TYPE_BUTTON,
 					Name:  "Reject",
 					Style: "danger",
 					Integration: &model.PostActionIntegration{
-						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineRequest),
+						URL: fmt.Sprintf("%s%s", p.GetPluginURL(), constants.PathPipelineReleaseRequest),
 						Context: map[string]interface{}{
 							constants.PipelineRequestContextApprovalID:   body.Resource.Approval.ID,
 							constants.PipelineRequestContextOrganization: organization,
@@ -941,6 +1013,22 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					},
 				},
 			},
+		}
+	case constants.SubscriptionEventReleaseDeploymentApprovalCompleted:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Release pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Release.Name, body.Resource.Release.Links.Web.Href),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventRunStateChanged:
 		attachment = &model.SlackAttachment{
@@ -955,6 +1043,22 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Short: true,
 				},
 			},
+		}
+	case constants.SubscriptionEventRunStageApprovalCompleted:
+		attachment = &model.SlackAttachment{
+			Pretext:    body.Message.Markdown,
+			AuthorName: constants.SlackAttachmentAuthorNamePipelines,
+			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+			Color:      constants.IconColorPipelines,
+			Fields: []*model.SlackAttachmentField{
+				{
+					Title: "Pipeline",
+					Value: fmt.Sprintf("[%s](%s)", body.Resource.Pipeline.Name, body.Resource.Pipeline.Links.Web.Href),
+					Short: true,
+				},
+			},
+			Footer:     body.Resource.Project.Name,
+			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	}
 
@@ -1225,7 +1329,7 @@ func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.R
 	p.writeJSON(w, response.Value)
 }
 
-func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) handlePipelineApproveOrRejectReleaseRequest(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	decoder := json.NewDecoder(r.Body)
 	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
@@ -1235,6 +1339,13 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
+
+	alreadyUpdatedInformationPost := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: postActionIntegrationRequest.ChannelId,
+		Message:   constants.PipelinesRequestBeingProcessed,
+	}
+	loaderMessagePost := p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
 
 	requestType := postActionIntegrationRequest.Context[constants.PipelineRequestContextRequestType].(string)
 	pipelineApproveRequestPayload := &serializers.PipelineApproveRequest{
@@ -1280,6 +1391,86 @@ func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *
 		return
 	}
 
+	loaderMessagePost.Message = constants.PipelinesRequestProcessed
+	_ = p.API.UpdateEphemeralPost(mattermostUserID, loaderMessagePost)
+	response := &model.PostActionIntegrationResponse{}
+	p.returnPostActionIntegrationResponse(w, response)
+}
+
+func (p *Plugin) handlePipelineApproveOrRejectRunRequest(w http.ResponseWriter, r *http.Request) {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	decoder := json.NewDecoder(r.Body)
+	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
+	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
+		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
+		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest param: ", mattermostUserID, err)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	alreadyUpdatedInformationPost := &model.Post{
+		UserId:    p.botUserID,
+		ChannelId: postActionIntegrationRequest.ChannelId,
+		Message:   constants.PipelinesRequestBeingProcessed,
+	}
+	loaderMessagePost := p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
+
+	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
+	projectID := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectID].(string)
+	approvalID := postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(string)
+	requestType := postActionIntegrationRequest.Context[constants.PipelineRequestContextRequestType].(string)
+
+	pipelineApproveRequestPayload := []*serializers.PipelineApproveRequest{
+		{
+			Status:     requestType,
+			Comments:   "", // TODO: integrate comment flow
+			ApprovalID: approvalID,
+		},
+	}
+
+	pipelineRunApproveResponse, statusCode, updatePipelineApprovalRequestErr := p.Client.UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload, organization, projectID, mattermostUserID)
+	switch statusCode {
+	case http.StatusOK:
+		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineRunApprovalPost(pipelineRunApproveResponse.Value[0].ApprovalSteps, pipelineRunApproveResponse.Value[0].MinRequiredApprovers, pipelineRunApproveResponse.Value[0].Status, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineReleaseApprovalPostErr)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
+			return
+		}
+
+	case http.StatusInternalServerError, http.StatusConflict:
+		if strings.Contains(updatePipelineApprovalRequestErr.Error(), "not permitted to complete approval") || strings.Contains(updatePipelineApprovalRequestErr.Error(), "Approval is already in completed state.") {
+			pipelineApprovalDetails, getApprovalDetailsStatusCode, getApprovalDetailsErr := p.Client.GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID)
+			if getApprovalDetailsErr != nil {
+				p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, getApprovalDetailsErr)
+				p.handleError(w, r, &serializers.Error{Code: getApprovalDetailsStatusCode, Message: getApprovalDetailsErr.Error()})
+				return
+			}
+
+			if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineRunApprovalPost(pipelineApprovalDetails.ApprovalSteps, pipelineApprovalDetails.MinRequiredApprovers, pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
+				p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, updatePipelineReleaseApprovalPostErr)
+				p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
+				return
+			}
+
+			alreadyUpdatedInformationPost := &model.Post{
+				UserId:    p.botUserID,
+				ChannelId: postActionIntegrationRequest.ChannelId,
+				Message:   "Looks like you do not have any pending approvals or have insufficient permissions for this resource.",
+			}
+			if statusCode == http.StatusConflict {
+				alreadyUpdatedInformationPost.Message = "Approval is already in completed state."
+			}
+			_ = p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
+		}
+
+	default:
+		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineApprovalRequestErr)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineApprovalRequestErr.Error()})
+		return
+	}
+
+	loaderMessagePost.Message = constants.PipelinesRequestProcessed
+	_ = p.API.UpdateEphemeralPost(mattermostUserID, loaderMessagePost)
 	response := &model.PostActionIntegrationResponse{}
 	p.returnPostActionIntegrationResponse(w, response)
 }
@@ -1313,7 +1504,6 @@ func (p *Plugin) handleGetSubscriptionFilterPossibleValues(w http.ResponseWriter
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
-
 	filterwiseResponse := make(map[string][]*serializers.PossibleValues)
 	for _, filter := range subscriptionFilterValues.InputValues {
 		filterwiseResponse[filter.InputID] = filter.PossibleValues

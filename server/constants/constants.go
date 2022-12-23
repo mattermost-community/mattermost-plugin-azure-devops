@@ -155,6 +155,7 @@ const (
 	PipelineRequestContextOrganization = "organization"
 	PipelineRequestContextProjectName  = "projectName"
 	PipelineRequestContextRequestType  = "requestType"
+	PipelineRequestContextProjectID    = "projectID"
 )
 
 var (

@@ -179,14 +179,25 @@ type DetailedMessage struct {
 
 type SubscriptionNotification struct {
 	DetailedMessage DetailedMessage `json:"detailedMessage"`
-	Message         DetailedMessage `json:"Message"`
+	Message         DetailedMessage `json:"message"`
 	EventType       string          `json:"eventType"`
 	Resource        Resource        `json:"resource"`
 }
 
 type Approval struct {
-	ID       int      `json:"id"`
-	Approver Approver `json:"approver"`
+	ID                   interface{}     `json:"id"`
+	Approver             Approver        `json:"approver"`
+	Steps                []*ApprovalStep `json:"steps"`
+	MinRequiredApprovers int             `json:"minRequiredApprovers"`
+	ExecutionOrder       string          `json:"executionOrder"`
+}
+
+type ApprovalStep struct {
+	AssignedApprover Approver `json:"assignedApprover"`
+	Status           string   `json:"status"`
+	Order            int      `json:"order"`
+	ID               int      `json:"id"`
+	Approver         Approver `json:"approver"`
 }
 
 type Approver struct {
@@ -220,9 +231,11 @@ type Resource struct {
 	Pipeline      Definition   `json:"pipeline"`
 	Run           Stage        `json:"run"`
 	Approval      Approval     `json:"approval"`
+	ProjectID     string       `json:"projectId"`
 }
 
 type Stage struct {
+	Name  string      `json:"name"`
 	Links ProjectLink `json:"_links"`
 }
 
@@ -306,6 +319,23 @@ type DeleteSubscriptionRequestPayload struct {
 	ApprovalType                 string `json:"approvalType"`
 	ApprovalStatus               string `json:"approvalStatus"`
 	ReleaseStatus                string `json:"releaseStatus"`
+}
+
+type PipelineRunApprovalDetails struct {
+	ID                   string          `json:"id"`
+	Status               string          `json:"status"`
+	ApprovalSteps        []*ApprovalStep `json:"steps"`
+	MinRequiredApprovers int             `json:"minRequiredApprovers"`
+}
+
+type PipelineRunApproveResponse struct {
+	Value []*PipelineRunResponseValue `json:"value"`
+}
+
+type PipelineRunResponseValue struct {
+	Status               string          `json:"status"`
+	MinRequiredApprovers int             `json:"minRequiredApprovers"`
+	ApprovalSteps        []*ApprovalStep `json:"steps"`
 }
 
 func GetSubscriptionFilterPossibleValuesRequestPayloadFromJSON(data io.Reader) (*GetSubscriptionFilterPossibleValuesRequestPayload, error) {

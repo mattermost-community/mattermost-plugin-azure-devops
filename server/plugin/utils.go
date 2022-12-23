@@ -413,7 +413,7 @@ func (p *Plugin) UpdatePipelineRunApprovalPost(approvalSteps []*serializers.Appr
 		if step.Status != "pending" {
 			approvers += fmt.Sprintf("%s %s \n", constants.PipelineRequestUpdateEmoji[step.Status], step.AssignedApprover.DisplayName)
 			if step.Status == "approved" {
-				numOfApprovalsReached += 1
+				numOfApprovalsReached++
 			}
 		} else {
 			approvers += step.AssignedApprover.DisplayName + "\n"

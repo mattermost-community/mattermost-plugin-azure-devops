@@ -45,6 +45,17 @@ type SubscriptionPayload = {
     approvalTypeName: string
     approvalStatusName: string
     releaseStatusName: string
+    runPipeline: string
+    runPipelineName: string
+    runStage: string
+    runEnvironment: string
+    runStageId: string
+    runStageStateId: string
+    runStageStateIdName: string
+    runStageResultId: string
+    runStateId: string
+    runStateIdName: string
+    runResultId: string
 }
 
 interface PaginationQueryParams {
@@ -66,4 +77,5 @@ type GetSubscriptionFiltersRequest = {
     filters: string[]
     repositoryId?: string
     releasePipelineId?: string
+    runPipeline?: string
 }

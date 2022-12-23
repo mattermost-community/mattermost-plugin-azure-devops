@@ -101,9 +101,11 @@ const (
 	FilterAll                  = "all"
 	FilterBoards               = "boards"
 	FilterRepos                = "repos"
-	EventTypeRelease           = "release"
+	FilterPipelines            = "pipelines"
 	FilterReleaseDefinitionID  = "releaseDefinitionId"
 	FilterReleaseEnvironmentID = "releaseEnvironmentId"
+
+	EventOfTypeRelease = "release"
 
 	DefaultPage         = 0
 	DefaultPerPageLimit = 50
@@ -172,6 +174,27 @@ var (
 		SubscriptionEventPullRequestUpdated:   true,
 		SubscriptionEventPullRequestCommented: true,
 		SubscriptionEventCodePushed:           true,
+	}
+
+	ValidSubscriptionEventsForPipelines = map[string]bool{
+		SubscriptionEventBuildCompleted:                     true,
+		SubscriptionEventReleaseAbandoned:                   true,
+		SubscriptionEventReleaseCreated:                     true,
+		SubscriptionEventReleaseDeploymentApprovalCompleted: true,
+		SubscriptionEventReleaseDeploymentEventPending:      true,
+		SubscriptionEventReleaseDeploymentCompleted:         true,
+		SubscriptionEventReleaseDeploymentStarted:           true,
+		SubscriptionEventRunStageApprovalCompleted:          true,
+		SubscriptionEventRunStageStateChanged:               true,
+		SubscriptionEventRunStageWaitingForApproval:         true,
+		SubscriptionEventRunStateChanged:                    true,
+	}
+
+	ValidSubscriptionEventsForRun = map[string]bool{
+		SubscriptionEventRunStageApprovalCompleted:  true,
+		SubscriptionEventRunStageStateChanged:       true,
+		SubscriptionEventRunStageWaitingForApproval: true,
+		SubscriptionEventRunStateChanged:            true,
 	}
 
 	PipelineRequestUpdateEmoji = map[string]string{

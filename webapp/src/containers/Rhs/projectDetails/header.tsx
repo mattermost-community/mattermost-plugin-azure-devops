@@ -16,7 +16,6 @@ import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import IconButton from 'components/buttons/iconButton';
 import SVGWrapper from 'components/svgWrapper';
 import useOutsideClick from 'hooks/useClickOutside';
-import {subscriptionFilterEventTypeReposOptions} from 'pluginConstants/form';
 import utils from 'utils';
 
 type HeaderProps = {
@@ -33,7 +32,7 @@ type HeaderProps = {
 const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShowAllSubscriptions, handleResetProjectDetails, filter, setFilter, setSubscriptionList}: HeaderProps) => {
     const {projectName} = projectDetails;
     const {defaultSubscriptionFilters, subscriptionFilters, filterLabelValuePairAll} = pluginConstants.common;
-    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionModal} = pluginConstants.form;
+    const {subscriptionFilterCreatedByOptions, subscriptionFilterServiceTypeOptions, subscriptionFilterEventTypeBoardsOptions, subscriptionFilterEventTypeReposOptions, subscriptionFilterEventTypePipelinesOptions} = pluginConstants.form;
     const [showProjectConfirmationModal, setShowProjectConfirmationModal] = useState(false);
     const [deleteSubscriptions, setDeleteSubscriptions] = useState(false);
     const [showDeleteSubscriptionsCheckbox, setShowDeleteSubscriptionsCheckbox] = useState(true);
@@ -51,6 +50,8 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
             return subscriptionFilterEventTypeBoardsOptions();
         case subscriptionFilters.serviceType.repos:
             return subscriptionFilterEventTypeReposOptions();
+        case subscriptionFilters.serviceType.pipelines:
+            return subscriptionFilterEventTypePipelinesOptions();
         default:
             return [filterLabelValuePairAll];
         }

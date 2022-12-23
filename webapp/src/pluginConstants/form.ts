@@ -107,12 +107,12 @@ const serviceTypeOptions: LabelValuePair[] = [
 
 export const buildStatusOptions: LabelValuePair[] = [
     {
-        value: 'Succeded',
-        label: 'Succeded',
+        value: 'Succeeded',
+        label: 'Succeeded',
     },
     {
-        value: 'PartiallySucceded',
-        label: 'Partially Succeded',
+        value: 'PartiallySucceeded',
+        label: 'Partially Succeeded',
     },
     {
         value: 'Failed',
@@ -162,11 +162,11 @@ export const releaseStatusOptions: LabelValuePair[] = [
     },
     {
         value: '4',
-        label: 'Succeded',
+        label: 'Succeeded',
     },
     {
         value: '128',
-        label: 'Partially Succeded',
+        label: 'Partially Succeeded',
     },
     {
         value: '16',

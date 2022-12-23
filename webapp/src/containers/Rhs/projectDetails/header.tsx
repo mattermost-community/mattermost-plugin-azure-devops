@@ -60,6 +60,8 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
     // Opens a confirmation modal to confirm unlinking a project
     const handleUnlinkProject = () => {
         setShowProjectConfirmationModal(true);
+        setShowDeleteSubscriptionsCheckbox(true);
+        setUnlinkConfirmationModalError(null);
     };
 
     // Handles unlinking a project and fetching the modified project list
@@ -76,11 +78,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
 
         setUnlinkConfirmationModalError({
             title: errorMessage,
-            onSecondaryBtnClick: () => {
-                setShowProjectConfirmationModal(false);
-                setUnlinkConfirmationModalError(null);
-                setShowDeleteSubscriptionsCheckbox(true);
-            },
+            onSecondaryBtnClick: () => setShowProjectConfirmationModal(false),
         });
 
         setDeleteSubscriptions(false);

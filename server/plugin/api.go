@@ -50,8 +50,6 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
 	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathGetGitRepositories, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositories))).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathGetGitRepositoryBranches, p.handleAuthRequired(p.checkOAuth(p.handleGetGitRepositoryBranches))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathPipelineReleaseRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectReleaseRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathPipelineRunRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRunRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathGetSubscriptionFilterPossibleValues, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptionFilterPossibleValues))).Methods(http.MethodPost)
@@ -1196,18 +1194,6 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	returnStatusOK(w)
 }
 
-func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
-	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
-		return statusCode, err
-	}
-
-	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
-		return http.StatusInternalServerError, deleteErr
-	}
-
-	return http.StatusOK, nil
-}
-
 func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
 	pathParams := mux.Vars(r)
@@ -1335,60 +1321,6 @@ func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Requ
 	)
 
 	p.writeJSON(w, &userDetails)
-}
-
-func (p *Plugin) handleGetGitRepositories(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-
-	pathParams := mux.Vars(r)
-	organization := pathParams[constants.PathParamOrganization]
-	project := pathParams[constants.PathParamProject]
-
-	if len(strings.TrimSpace(organization)) == 0 || len(strings.TrimSpace(project)) == 0 {
-		p.API.LogError(constants.ErrorOrganizationOrProjectQueryParam)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorOrganizationOrProjectQueryParam})
-		return
-	}
-
-	response, statusCode, err := p.Client.GetGitRepositories(organization, project, mattermostUserID)
-	if err != nil {
-		p.API.LogError("Error in fetching git repositories", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
-		return
-	}
-
-	p.writeJSON(w, response.Value)
-}
-
-func (p *Plugin) handleGetGitRepositoryBranches(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-
-	pathParams := mux.Vars(r)
-	organization := strings.TrimSpace(pathParams[constants.PathParamOrganization])
-	project := strings.TrimSpace(pathParams[constants.PathParamProject])
-	repository := strings.TrimSpace(pathParams[constants.PathParamRepository])
-
-	if len(organization) == 0 || len(project) == 0 || len(repository) == 0 {
-		p.API.LogError(constants.ErrorRepositoryPathParam)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ErrorRepositoryPathParam})
-		return
-	}
-
-	response, statusCode, err := p.Client.GetGitRepositoryBranches(organization, project, repository, mattermostUserID)
-	if err != nil {
-		p.API.LogError("Error in fetching git repository branches", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
-		return
-	}
-
-	// Azure DevOps returns branch name as "refs/heads/<branch-name>", but we need to use only "<branch-name>" so, remove unused part from the name
-	for _, value := range response.Value {
-		if strings.Contains(value.Name, "refs/heads/") && len(value.Name) > 11 {
-			value.Name = value.Name[11:]
-		}
-	}
-
-	p.writeJSON(w, response.Value)
 }
 
 func (p *Plugin) handlePipelineApproveOrRejectReleaseRequest(w http.ResponseWriter, r *http.Request) {

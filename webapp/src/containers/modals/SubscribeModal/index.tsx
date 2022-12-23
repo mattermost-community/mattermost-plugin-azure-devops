@@ -317,49 +317,49 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             buildStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            buildStatusName: status === filterLabelValuePairAll.value ? '' : status,
+            buildStatusName: status === filterLabelValuePairAll.label ? '' : status,
         });
 
     const handleSetReleasePipelineFilter = (newValue: string, pipelineName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             releasePipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            releasePipelineName: pipelineName === filterLabelValuePairAll.value ? '' : pipelineName,
+            releasePipelineName: pipelineName === filterLabelValuePairAll.label ? '' : pipelineName,
         });
 
     const handleSetStageNameFilter = (newValue: string, stageName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             stageName: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            stageNameValue: stageName === filterLabelValuePairAll.value ? '' : stageName,
+            stageNameValue: stageName === filterLabelValuePairAll.label ? '' : stageName,
         });
 
     const handleSetApprovalTypeFilter = (newValue: string, type?: string) =>
         setSpecificFieldValue({
             ...formFields,
             approvalType: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            approvalTypeName: type === filterLabelValuePairAll.value ? '' : type,
+            approvalTypeName: type === filterLabelValuePairAll.label ? '' : type,
         });
 
     const handleSetApprovalStatusFilter = (newValue: string, status?: string) =>
         setSpecificFieldValue({
             ...formFields,
             approvalStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            approvalStatusName: status === filterLabelValuePairAll.value ? '' : status,
+            approvalStatusName: status === filterLabelValuePairAll.label ? '' : status,
         });
 
     const handleSetReleaseStatusFilter = (newValue: string, status?: string) =>
         setSpecificFieldValue({
             ...formFields,
             releaseStatus: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            releaseStatusName: status === filterLabelValuePairAll.value ? '' : status,
+            releaseStatusName: status === filterLabelValuePairAll.label ? '' : status,
         });
 
     const handleSetRunPipelineFilter = (newValue: string, pipelienName?: string) =>
         setSpecificFieldValue({
             ...formFields,
             runPipeline: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            runPipelineName: pipelienName === filterLabelValuePairAll.value ? '' : pipelienName,
+            runPipelineName: pipelienName === filterLabelValuePairAll.label ? '' : pipelienName,
             runStage: newValue === filterLabelValuePairAll.value ? '' : formFields.runStage,
             runStageId: newValue === filterLabelValuePairAll.value ? '' : formFields.runStageId,
         });
@@ -386,7 +386,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStageStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            runStageStateIdName: stateId === filterLabelValuePairAll.value ? '' : stateId,
+            runStageStateIdName: stateId === filterLabelValuePairAll.label ? '' : stateId,
             runStageResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runStageResultId,
         });
 
@@ -400,7 +400,7 @@ const SubscribeModal = () => {
         setSpecificFieldValue({
             ...formFields,
             runStateId: newValue === filterLabelValuePairAll.value ? '' : newValue,
-            runStateIdName: stateId === filterLabelValuePairAll.value ? '' : stateId,
+            runStateIdName: stateId === filterLabelValuePairAll.label ? '' : stateId,
             runResultId: (newValue !== filterLabelValuePairAll.value && newValue !== 'Completed') ? '' : formFields.runResultId,
         });
 

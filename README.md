@@ -98,7 +98,7 @@ To add a new subscription for a linked project click on the project title under 
 
     ![image](https://user-images.githubusercontent.com/72438220/202639513-8fa58db0-bce9-46ed-864b-ebbae468a4b6.png)
 
-  - While the running stage or a release deployment is awaiting approval, a notification card is posted in the channel with the option to approve or reject the request. By reviewing the request's specifics in the notification, approvers can take the necessary action.
+  - While the running stage or a release deployment is awaiting approval, a notification is posted in the subscribed channel with the options to approve or reject the request. By reviewing the request's specifics in the notification, approvers can take the necessary action.
 
     ![image](https://user-images.githubusercontent.com/72438220/202639612-1742c832-9a16-49a5-96ae-5cf6010f90d6.png)
 

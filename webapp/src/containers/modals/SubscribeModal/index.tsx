@@ -149,6 +149,11 @@ const SubscribeModal = () => {
             serviceType: {...subscriptionModalFields.serviceType, isFieldDisabled: !formFields.project},
         });
 
+        setSpecificFieldValue({
+            ...formFields,
+            eventType: optionsList[0].value,
+        });
+
         dispatch(setServiceType(formFields.serviceType ?? ''));
     }, [formFields.serviceType, formFields.project]);
 

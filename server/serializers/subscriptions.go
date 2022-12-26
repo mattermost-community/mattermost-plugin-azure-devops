@@ -263,6 +263,8 @@ type Resource struct {
 	Run           Stage        `json:"run"`
 	Approval      Approval     `json:"approval"`
 	ProjectID     string       `json:"projectId"`
+	Fields        Fields       `json:"fields"`
+	Revision      Revision     `json:"revision"`
 }
 
 type Stage struct {
@@ -293,6 +295,18 @@ type Definition struct {
 	Name  string      `json:"name"`
 	URL   string      `json:"url"`
 	Links ProjectLink `json:"_links"`
+}
+
+type Revision struct {
+	Fields Fields `json:"fields"`
+}
+
+type Fields struct {
+	ProjectName  string `json:"System.TeamProject"`
+	AreaPath     string `json:"System.AreaPath"`
+	State        string `json:"System.State"`
+	WorkItemType string `json:"System.WorkItemType"`
+	Title        string `json:"System.Title"`
 }
 
 type RefUpdates struct {

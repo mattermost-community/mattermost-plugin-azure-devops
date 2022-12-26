@@ -187,7 +187,33 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 
 func (p *Plugin) IsSubscriptionPresent(subscriptionList []*serializers.SubscriptionDetails, subscription *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 	for _, a := range subscriptionList {
-		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType && a.Repository == subscription.Repository && a.TargetBranch == subscription.TargetBranch && a.PullRequestCreatedBy == subscription.PullRequestCreatedBy && a.PullRequestReviewersContains == subscription.PullRequestReviewersContains && a.PushedBy == subscription.PushedBy && a.MergeResult == subscription.MergeResult && a.NotificationType == subscription.NotificationType && a.AreaPath == subscription.AreaPath {
+		if a.ProjectName == subscription.ProjectName &&
+			a.OrganizationName == subscription.OrganizationName &&
+			a.ChannelID == subscription.ChannelID &&
+			a.EventType == subscription.EventType &&
+			a.Repository == subscription.Repository &&
+			a.TargetBranch == subscription.TargetBranch &&
+			a.PullRequestCreatedBy == subscription.PullRequestCreatedBy &&
+			a.PullRequestReviewersContains == subscription.PullRequestReviewersContains &&
+			a.PushedBy == subscription.PushedBy &&
+			a.MergeResult == subscription.MergeResult &&
+			a.NotificationType == subscription.NotificationType &&
+			a.AreaPath == subscription.AreaPath &&
+			a.BuildPipeline == subscription.BuildPipeline &&
+			a.BuildStatus == subscription.BuildStatus &&
+			a.StageName == subscription.StageName &&
+			a.ReleasePipeline == subscription.ReleasePipeline &&
+			a.ReleaseStatus == subscription.ReleaseStatus &&
+			a.ApprovalType == subscription.ApprovalType &&
+			a.ApprovalStatus == subscription.ApprovalStatus &&
+			a.RunPipeline == subscription.RunPipeline &&
+			a.RunStageName == subscription.RunStageName &&
+			a.RunEnvironmentName == subscription.RunEnvironmentName &&
+			a.RunStageNameID == subscription.RunStageNameID &&
+			a.RunStageStateID == subscription.RunStageStateID &&
+			a.RunStageResultID == subscription.RunStageResultID &&
+			a.RunStateID == subscription.RunStateID &&
+			a.RunResultID == subscription.RunResultID {
 			return a, true
 		}
 	}
@@ -341,4 +367,89 @@ func (p *Plugin) updateBaseURLForReleaseEventTypes(url, eventType string) string
 	}
 
 	return url
+}
+
+func (p *Plugin) UpdatePipelineReleaseApprovalPost(requestType, postID, mattermostUserID string) error {
+	post, _ := p.API.GetPost(postID)
+	slackAttachment := post.Attachments()[0]
+	slackAttachment.Actions = nil
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: "Approvers",
+			Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
+		},
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError("Error in updating post", mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Plugin) handlePipelineApprovalRequestUpdateError(errorMessage, mattermostUserID string, err error) {
+	if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+		p.API.LogError("Failed to DM", "Error", DMErr.Error())
+	}
+	p.API.LogError(errorMessage, "Error", err.Error())
+}
+
+func (p *Plugin) UpdatePipelineRunApprovalPost(approvalSteps []*serializers.ApprovalStep, minRequiredApprovers int, status, postID, mattermostUserID string) error {
+	post, err := p.API.GetPost(postID)
+	if err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	slackAttachment := post.Attachments()[0]
+	numOfApprovalsReached := 0
+
+	approvers := ""
+	for _, step := range approvalSteps {
+		if step.Status != "pending" {
+			approvers += fmt.Sprintf("%s %s \n", constants.PipelineRequestUpdateEmoji[step.Status], step.AssignedApprover.DisplayName)
+			if step.Status == "approved" {
+				numOfApprovalsReached++
+			}
+		} else {
+			approvers += step.AssignedApprover.DisplayName + "\n"
+		}
+	}
+
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: slackAttachment.Fields[2].Title,
+			Value: approvers,
+		},
+	}
+
+	if status != "pending" || numOfApprovalsReached == minRequiredApprovers {
+		slackAttachment.Actions = nil
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); err != nil {
+		return statusCode, err
+	}
+
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
 }

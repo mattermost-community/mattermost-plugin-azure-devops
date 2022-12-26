@@ -41,7 +41,7 @@ const BoardsFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForBoards]);
 
     useEffect(() => {
-        if (eventType) {
+        if (organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,
@@ -61,7 +61,7 @@ const BoardsFilter = ({
         } else {
             setIsFiltersError(false);
         }
-    }, [isLoading, isError, isSuccess]);
+    }, [isError, isSuccess]);
 
     const getAreaPathOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
 

@@ -1094,7 +1094,8 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
-			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
+			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{})
+			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
 
 			if !testCase.isPayloadInvalid {
 				mockedClient.EXPECT().UpdatePipelineApprovalRequest(gomock.Any(), "mockOrganization", "mockProjectName", "test-userID", 1234).Return(testCase.updatePipelineApprovalRequestStatus, testCase.updatePipelineReleaseApprovalRequestError)

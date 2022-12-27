@@ -46,30 +46,30 @@ func TestMessageWillBePosted(t *testing.T) {
 	}{
 		{
 			description: "MessageWillBePosted: test change post for valid link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"},
 			message:     "mockMessage",
 			isValidLink: true,
 		},
 		{
 			description: "MessageWillBePosted: test change post for valid pull request link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			message:     "mockMessage",
 			isValidLink: true,
-			link:        "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
+			link:        "https://test.com/abc/xyz/_git/xyz/pullrequest/1",
 		},
 		{
 			description: "MessageWillBePosted: test change post for valid build pipeline link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
 			message:     "mockMessage",
 			isValidLink: true,
-			link:        "https://dev.azure.com/abc/xyz/_build/results?buildId=50&view=results",
+			link:        "https://test.com/abc/xyz/_build/results?buildId=50&view=results",
 		},
 		{
 			description: "MessageWillBePosted: test change post for valid release pipeline link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
 			message:     "mockMessage",
 			isValidLink: true,
-			link:        "https://dev.azure.com/abc/xyz/_releaseProgress?_a=release-pipeline-progress&releaseId=20",
+			link:        "https://test.com/abc/xyz/_releaseProgress?_a=release-pipeline-progress&releaseId=20",
 		},
 		{
 			description: "MessageWillBePosted: invalid link",

@@ -30,16 +30,3 @@ func GetSuscriptionDetailsPayload(userID, serviceType string) []*serializers.Sub
 		},
 	}
 }
-
-func GetGitBranchesPayload() []*serializers.GitBranch {
-	return []*serializers.GitBranch{
-		{
-			ID:   "mockID-1",
-			Name: "refs/heads/mockName-1",
-		},
-		{
-			ID:   "mockID-2",
-			Name: "refs/heads/mockName-2",
-		},
-	}
-}

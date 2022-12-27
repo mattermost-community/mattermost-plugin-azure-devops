@@ -67,13 +67,13 @@ func TestPostBuildDetailsPreview(t *testing.T) {
 		linkData    []string
 	}{
 		{
-			description: "PostPullRequestPreview: valid",
+			description: "PostBuildDetailsPreview: valid",
 			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockedClient.EXPECT().GetBuildDetails(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.BuildDetails{}, http.StatusOK, nil)
-			resp, stringErr := p.PostBuildDetailsPreview(testCase.linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
+			resp, stringErr := p.PostBuildDetailsPreview(testCase.linkData, "mockBuildPipelineLink", "mockUserID", "mockChannelID")
 			assert.Equal(t, "", stringErr)
 			assert.NotNil(t, resp)
 		})

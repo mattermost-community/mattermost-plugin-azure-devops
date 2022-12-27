@@ -18,6 +18,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestExecuteCommand(t *testing.T) {
@@ -46,7 +47,7 @@ func TestExecuteCommand(t *testing.T) {
 		{
 			description:      "ExecuteCommand: empty command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops"},
-			ephemeralMessage: constants.InvalidCommand,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description:      "ExecuteCommand: help command",
@@ -84,7 +85,7 @@ func TestExecuteCommand(t *testing.T) {
 			description:      "ExecuteCommand: invalid boards command",
 			isConnected:      true,
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards wrong [title] [description]"},
-			ephemeralMessage: constants.InvalidCommand,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description:      "ExecuteCommand: boards create command",
@@ -129,7 +130,7 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: "mockSubscriptionList",
 		},
 		{
-			description:             "ExecuteCommand: failed to get all subscriptions",
+			description:             "ExecuteCommand: failed to get all the subscriptions",
 			isConnected:             true,
 			commandArgs:             &model.CommandArgs{Command: "/azuredevops boards subscription list me"},
 			isListCommand:           true,
@@ -145,7 +146,7 @@ func TestExecuteCommand(t *testing.T) {
 			description:      "ExecuteCommand: invalid repos command",
 			isConnected:      true,
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops repos wrong [title] [description]"},
-			ephemeralMessage: constants.InvalidCommand,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description: "ExecuteCommand: repos add subscription command",
@@ -177,15 +178,10 @@ func TestExecuteCommand(t *testing.T) {
 			commandArgs: &model.CommandArgs{Command: "/azuredevops pipelines subscription add"},
 		},
 		{
-			description:      "ExecuteCommand: pipelines command when user is not connected",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops pipelines wrong [title] [description]"},
-			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
-		},
-		{
 			description:      "ExecuteCommand: invalid pipelines command",
 			isConnected:      true,
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops pipelines wrong [title] [description]"},
-			ephemeralMessage: constants.InvalidCommand,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description:     "ExecuteCommand: pipelines delete subscription command",
@@ -204,7 +200,7 @@ func TestExecuteCommand(t *testing.T) {
 		{
 			description:      "ExecuteCommand: invalid command",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops abc"},
-			ephemeralMessage: constants.InvalidCommand,
+			ephemeralMessage: constants.InvalidCommand + constants.HelpText,
 		},
 		{
 			description: "ExecuteCommand: link command",
@@ -226,8 +222,8 @@ func TestExecuteCommand(t *testing.T) {
 			}).Once().Return(&model.Post{})
 
 			mockAPI.On("GetBundlePath").Return("/test-path", nil)
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
-			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return()
 
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
 				return testCase.isConnected
@@ -265,84 +261,6 @@ func TestExecuteCommand(t *testing.T) {
 			res, err := p.ExecuteCommand(&plugin.Context{}, testCase.commandArgs)
 			assert.Nil(t, err)
 			assert.NotNil(t, res)
-		})
-	}
-}
-
-func TestExecuteCommasnd(t *testing.T) {
-	monkey.UnpatchAll()
-	p := Plugin{}
-	mockAPI := &plugintest.API{}
-	mockCtrl := gomock.NewController(t)
-	mockedStore := mocks.NewMockKVStore(mockCtrl)
-	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
-	p.Client = mockedClient
-	for _, testCase := range []struct {
-		description      string
-		commandArgs      *model.CommandArgs
-		ephemeralMessage string
-		isConnected      bool
-		patchAPICalls    func()
-		expectedError    *model.AppError
-	}{
-		// {
-		// 	description: "ExecuteCommand: boards delete subscription command",
-		// 	isConnected: true,
-		// 	commandArgs: &model.CommandArgs{Command: "/azuredevops boards subscription delete subscriptionID"},
-		// },
-		{
-			description:      "ExecuteCommand: boards list subscription command",
-			isConnected:      true,
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards subscription list me"},
-			ephemeralMessage: "mockSubscriptionList",
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Run(func(args mock.Arguments) {
-				post := args.Get(1).(*model.Post)
-				assert.Equal(t, testCase.ephemeralMessage, post.Message)
-			}).Once().Return(&model.Post{})
-
-			mockAPI.On("GetBundlePath").Return("/test-path", nil)
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
-			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
-
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
-				return testCase.isConnected
-			})
-
-			monkey.Patch(azureDevopsDeleteCommand, func(_ *Plugin, _ *plugin.Context, _ *model.CommandArgs, _ string, _ ...string) (*model.CommandResponse, *model.AppError) {
-				return &model.CommandResponse{}, testCase.expectedError
-			})
-
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "ParseSubscriptionsToCommandResponse", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _, _, _ string) string {
-				return "mockSubscriptionList"
-			})
-			// monkey.Patch(azureDevopsListSubscriptionsCommand, func(_ *Plugin, _ *plugin.Context, _ *model.CommandArgs, _ string, _ ...string) (*model.CommandResponse, *model.AppError) {
-			// 	return &model.CommandResponse{}, testCase.expectedError
-			// })
-
-			mockedStore.EXPECT().GetAllSubscriptions("").Return([]*serializers.SubscriptionDetails{}, nil)
-
-			if testCase.ephemeralMessage == constants.UserDisconnected {
-				mockedStore.EXPECT().DeleteUser("mockUserID").Return(true, nil)
-			}
-
-			_, err := p.getCommand()
-			assert.NotNil(t, err)
-
-			response := p.getAutoCompleteData()
-			assert.NotNil(t, response)
-
-			res, err := p.ExecuteCommand(&plugin.Context{}, testCase.commandArgs)
-			if testCase.expectedError != nil {
-				assert.NotNil(t, err)
-			} else {
-				assert.Nil(t, err)
-				assert.NotNil(t, res)
-			}
 		})
 	}
 }

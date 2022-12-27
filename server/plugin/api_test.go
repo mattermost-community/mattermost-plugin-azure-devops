@@ -330,14 +330,14 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
 	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
-		description           string
-		userID                string
-		projectID             string
-		err                   error
-		statusCode            int
-		getAllSubscriptionErr error
-		subscriptionList      []*serializers.SubscriptionDetails
-		subscription          *serializers.SubscriptionDetails
+		description            string
+		userID                 string
+		projectID              string
+		err                    error
+		statusCode             int
+		getAllSubscriptionsErr error
+		subscriptionList       []*serializers.SubscriptionDetails
+		expectedErrorMessage   string
 	}{
 		{
 			description: "HandleDeleteAllSubscriptions: valid",
@@ -356,27 +356,53 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 			},
 		},
 		{
-			description:           "HandleDeleteAllSubscriptions: GetAllSubscriptions gives error",
-			userID:                "mockMattermostUserID",
-			projectID:             "mockProjectID",
-			statusCode:            http.StatusInternalServerError,
-			getAllSubscriptionErr: errors.New("mockError"),
+			description:            "HandleDeleteAllSubscriptions: GetAllSubscriptions gives error",
+			userID:                 "mockMattermostUserID",
+			projectID:              "mockProjectID",
+			statusCode:             http.StatusInternalServerError,
+			getAllSubscriptionsErr: errors.New("mockError"),
+			expectedErrorMessage:   "mockError",
+		},
+		{
+			description: "HandleDeleteAllSubscriptions: DeleteSubscription gives error",
+			userID:      "mockMattermostUserID",
+			projectID:   "mockProjectID",
+			statusCode:  http.StatusInternalServerError,
+			subscriptionList: []*serializers.SubscriptionDetails{
+				{
+					MattermostUserID: "mockMattermostUserID",
+					ProjectID:        "mockProjectID",
+					OrganizationName: "mockOrganization",
+					EventType:        "mockEventType",
+					ChannelID:        "mockChannelID",
+					SubscriptionID:   "mockSubscriptionID",
+				},
+			},
+			err:                  errors.New("mockError"),
+			expectedErrorMessage: "mockError",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
-			if testCase.statusCode == http.StatusOK || testCase.statusCode == http.StatusInternalServerError {
-				mockedStore.EXPECT().GetAllSubscriptions(testCase.userID).Return(testCase.subscriptionList, testCase.getAllSubscriptionErr)
+			mockedStore.EXPECT().GetAllSubscriptions(testCase.userID).Return(testCase.subscriptionList, testCase.getAllSubscriptionsErr)
+
+			if testCase.getAllSubscriptionsErr == nil {
+				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 			}
 
-			if testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
+			if testCase.getAllSubscriptionsErr == nil && testCase.err == nil {
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
 			}
 
-			statusCode, _ := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)
+			statusCode, err := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)
 			assert.Equal(t, testCase.statusCode, statusCode)
+
+			if testCase.err != nil || testCase.getAllSubscriptionsErr != nil {
+				assert.EqualError(t, err, testCase.expectedErrorMessage)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
 	}
 }
@@ -804,7 +830,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return testCase.isTeamIDValid
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
 				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
 			})
 
@@ -1217,157 +1243,6 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			p.getUserChannelsForTeam(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
-		})
-	}
-}
-
-func TestHandleGetGitRepositories(t *testing.T) {
-	defer monkey.UnpatchAll()
-	mockAPI := &plugintest.API{}
-	mockCtrl := gomock.NewController(t)
-	mockedClient := mocks.NewMockClient(mockCtrl)
-	p := setupMockPlugin(mockAPI, nil, mockedClient)
-	for _, testCase := range []struct {
-		description           string
-		organization          string
-		project               string
-		getGitRepositoriesErr error
-		statusCode            int
-	}{
-		{
-			description:  "HandleGetGitRepositories: valid",
-			organization: "mockOrganization",
-			project:      "mockProject",
-			statusCode:   http.StatusOK,
-		},
-		{
-			description:  "HandleGetGitRepositories: Invalid organization or project name",
-			organization: "mockOrganization",
-			statusCode:   http.StatusBadRequest,
-		},
-		{
-			description:           "HandleGetGitRepositories: GetGitRepositories returns error",
-			organization:          "mockOrganization",
-			project:               "mockProject",
-			getGitRepositoriesErr: errors.New("failed to get git repository branches"),
-			statusCode:            http.StatusInternalServerError,
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-
-			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().GetGitRepositories(gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.GitRepositoriesResponse{}, testCase.statusCode, testCase.getGitRepositoriesErr)
-			}
-
-			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
-
-			pathParams := map[string]string{
-				"organization": testCase.organization,
-				"project":      testCase.project,
-			}
-
-			req = mux.SetURLVars(req, pathParams)
-
-			w := httptest.NewRecorder()
-			p.handleGetGitRepositories(w, req)
-			resp := w.Result()
-			assert.Equal(t, testCase.statusCode, resp.StatusCode)
-		})
-	}
-}
-
-func TestHandleGetGitRepositoryBranches(t *testing.T) {
-	defer monkey.UnpatchAll()
-	mockAPI := &plugintest.API{}
-	mockCtrl := gomock.NewController(t)
-	mockedClient := mocks.NewMockClient(mockCtrl)
-	p := setupMockPlugin(mockAPI, nil, mockedClient)
-	for _, testCase := range []struct {
-		description                      string
-		organization                     string
-		repository                       string
-		project                          string
-		getGitRepositoryBranchesErr      error
-		statusCode                       int
-		getGitRepositoryBranchesResponse *serializers.GitBranchesResponse
-		expectedResponse                 []*serializers.GitBranch
-		expectedErrorResponse            interface{}
-	}{
-		{
-			description:  "HandleGetGitRepositoryBranches: valid",
-			organization: "mockOrganization",
-			project:      "mockProject",
-			repository:   "mockRepository",
-			statusCode:   http.StatusOK,
-			getGitRepositoryBranchesResponse: &serializers.GitBranchesResponse{
-				Value: testutils.GetGitBranchesPayload(),
-			},
-			expectedResponse: []*serializers.GitBranch{
-				{
-					ID:   "mockID-1",
-					Name: "mockName-1",
-				},
-				{
-					ID:   "mockID-2",
-					Name: "mockName-2",
-				},
-			},
-		},
-		{
-			description:           "HandleGetGitRepositoryBranches: Invalid organization, project or repository params",
-			organization:          "mockOrganization",
-			project:               "mockProject",
-			statusCode:            http.StatusBadRequest,
-			expectedErrorResponse: map[string]interface{}{"Error": constants.ErrorRepositoryPathParam},
-		},
-		{
-			description:                 "HandleGetGitRepositoryBranches: GetGitRepositoryBranches returns error",
-			organization:                "mockOrganization",
-			project:                     "mockProject",
-			repository:                  "mockRepository",
-			getGitRepositoryBranchesErr: errors.New("failed to get the git repository branches for a project"),
-			statusCode:                  http.StatusInternalServerError,
-			expectedErrorResponse:       map[string]interface{}{"Error": "failed to get the git repository branches for a project"},
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-
-			if testCase.statusCode == http.StatusInternalServerError || testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().GetGitRepositoryBranches(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.getGitRepositoryBranchesResponse, testCase.statusCode, testCase.getGitRepositoryBranchesErr)
-			}
-
-			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
-
-			pathParams := map[string]string{
-				"organization": testCase.organization,
-				"project":      testCase.project,
-				"repository":   testCase.repository,
-			}
-
-			req = mux.SetURLVars(req, pathParams)
-
-			w := httptest.NewRecorder()
-			p.handleGetGitRepositoryBranches(w, req)
-			resp := w.Result()
-			assert.Equal(t, testCase.statusCode, resp.StatusCode)
-
-			if testCase.expectedErrorResponse != nil {
-				var actualResponse interface{}
-				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
-				require.Nil(t, err)
-				assert.Equal(t, testCase.expectedErrorResponse, actualResponse)
-			}
-
-			if testCase.expectedResponse != nil {
-				var actualResponse []*serializers.GitBranch
-				err := json.NewDecoder(resp.Body).Decode(&actualResponse)
-				require.Nil(t, err)
-				assert.Equal(t, testCase.expectedResponse, actualResponse)
-			}
 		})
 	}
 }

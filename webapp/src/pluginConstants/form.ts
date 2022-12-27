@@ -105,6 +105,162 @@ const serviceTypeOptions: LabelValuePair[] = [
     },
 ];
 
+export const buildStatusOptions: LabelValuePair[] = [
+    {
+        value: 'Succeeded',
+        label: 'Succeeded',
+    },
+    {
+        value: 'PartiallySucceeded',
+        label: 'Partially Succeeded',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Stopped',
+        label: 'Stopped',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseApprovalTypeOptions: LabelValuePair[] = [
+    {
+        value: '1',
+        label: 'Pre-deployment',
+    },
+    {
+        value: '2',
+        label: 'Post-deployment',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseApprovalStatusOptions: LabelValuePair[] = [
+    {
+        value: '1',
+        label: 'Approved',
+    },
+    {
+        value: '2',
+        label: 'Rejected',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const releaseStatusOptions: LabelValuePair[] = [
+    {
+        value: '8',
+        label: 'Cancelled',
+    },
+    {
+        value: '4',
+        label: 'Succeeded',
+    },
+    {
+        value: '128',
+        label: 'Partially Succeeded',
+    },
+    {
+        value: '16',
+        label: 'Failed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runStageStateIdOptions: LabelValuePair[] = [
+    {
+        value: 'NotStarted',
+        label: 'Not Started',
+    },
+    {
+        value: 'Waiting',
+        label: 'Waiting',
+    },
+    {
+        value: 'Running',
+        label: 'Running',
+    },
+    {
+        value: 'Completed',
+        label: 'Completed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runStageResultIdOptions: LabelValuePair[] = [
+    {
+        value: 'Cancelled',
+        label: 'Cancelled',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Rejected',
+        label: 'Rejected',
+    },
+    {
+        value: 'Skipped',
+        label: 'Skipped',
+    },
+    {
+        value: 'Succeeded',
+        label: 'Succeeded',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runStateIdOptions: LabelValuePair[] = [
+    {
+        value: 'InProgress',
+        label: 'In Progress',
+    },
+    {
+        value: 'Cancelling',
+        label: 'Cancelling',
+    },
+    {
+        value: 'Completed',
+        label: 'Completed',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
+export const runResultIdOptions: LabelValuePair[] = [
+    {
+        value: 'Cancelled',
+        label: 'Cancelled',
+    },
+    {
+        value: 'Failed',
+        label: 'Failed',
+    },
+    {
+        value: 'Succeeded',
+        label: 'Succeeded',
+    },
+    {
+        ...filterLabelValuePairAll,
+    },
+];
+
 export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldConfig> = {
     organization: {
         label: 'Organization name',
@@ -133,7 +289,7 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
     },
     eventType: {
         label: 'Event type',
-        value: '',
+        value: boardEventTypeOptions[0].value,
         type: 'dropdown',
         optionsList: boardEventTypeOptions,
         validations: {
@@ -217,6 +373,136 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
         label: 'Area Path',
         type: 'hidden',
         value: '',
+    },
+    buildPipeline: {
+        label: 'Build Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    buildStatus: {
+        label: 'Build Status',
+        type: 'hidden',
+        value: '',
+        optionsList: buildStatusOptions,
+    },
+    buildStatusName: {
+        label: 'Build Status',
+        type: 'hidden',
+        value: '',
+    },
+    releasePipeline: {
+        label: 'Release Pipeline Name',
+        type: 'hidden',
+        value: '',
+    },
+    releasePipelineName: {
+        label: 'Release Pipeline Name',
+        type: 'hidden',
+        value: '',
+    },
+    stageName: {
+        label: 'Stage Name',
+        type: 'hidden',
+        value: '',
+    },
+    stageNameValue: {
+        label: 'Stage Name',
+        type: 'hidden',
+        value: '',
+    },
+    approvalType: {
+        label: 'Approval Type',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseApprovalTypeOptions,
+    },
+    approvalTypeName: {
+        label: 'Approval Type',
+        type: 'hidden',
+        value: '',
+    },
+    approvalStatus: {
+        label: 'Approval Status',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseApprovalStatusOptions,
+    },
+    approvalStatusName: {
+        label: 'Approval Status',
+        type: 'hidden',
+        value: '',
+    },
+    releaseStatus: {
+        label: 'Status',
+        type: 'hidden',
+        value: '',
+        optionsList: releaseStatusOptions,
+    },
+    releaseStatusName: {
+        label: 'Status',
+        type: 'hidden',
+        value: '',
+    },
+    runPipeline: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    runPipelineName: {
+        label: 'Pipeline',
+        type: 'hidden',
+        value: '',
+    },
+    runStage: {
+        label: 'Stage',
+        type: 'hidden',
+        value: '',
+    },
+    runEnvironment: {
+        label: 'Environment',
+        type: 'hidden',
+        value: '',
+    },
+    runStageId: {
+        label: 'Stage',
+        type: 'hidden',
+        value: '',
+    },
+    runStageStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
+    runStageStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageStateIdOptions,
+    },
+    runStageResultId: {
+        label: 'Result',
+        type: 'hidden',
+        value: '',
+        optionsList: runStageResultIdOptions,
+    },
+    runStateId: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runStateIdName: {
+        label: 'State',
+        type: 'hidden',
+        value: '',
+        optionsList: runStateIdOptions,
+    },
+    runResultId: {
+        label: 'Result',
+        type: 'hidden',
+        value: '',
+        optionsList: runResultIdOptions,
     },
 
     // add 'timestamp' field only if you don't want to use cached RTK API query
@@ -344,6 +630,10 @@ export const subscriptionFilterServiceTypeOptions = [
         label: 'Repos',
     },
     {
+        value: subscriptionFilters.serviceType.pipelines,
+        label: 'Pipelines',
+    },
+    {
         ...filterLabelValuePairAll,
     },
 ];
@@ -364,6 +654,17 @@ export const subscriptionFilterEventTypeReposOptions = () => {
     Object.keys(subscriptionFilters.eventType.repos).forEach((eventType) => options.push({
         value: eventType,
         label: subscriptionFilters.eventType.repos[eventType as EventTypeRepos],
+    }));
+
+    options.push(filterLabelValuePairAll);
+    return options;
+};
+
+export const subscriptionFilterEventTypePipelinesOptions = () => {
+    const options: LabelValuePair[] = [];
+    Object.keys(subscriptionFilters.eventType.pipelines).forEach((eventType) => options.push({
+        value: eventType,
+        label: subscriptionFilters.eventType.pipelines[eventType as EventTypePipelines],
     }));
 
     options.push(filterLabelValuePairAll);
@@ -441,4 +742,24 @@ export const subscriptionFiltersForRepos = [
     subscriptionFiltersNameForRepos.pullrequestCreatedBy,
     subscriptionFiltersNameForRepos.pullrequestReviewersContains,
     subscriptionFiltersNameForRepos.pushedBy,
+];
+
+export const subscriptionFiltersNameForPipelines = {
+    buildPipeline: 'definitionName',
+    releasePipelineName: 'releaseDefinitionId',
+    stageName: 'releaseEnvironmentId',
+    runPipeline: 'pipelineId',
+    runStage: 'stageName',
+    runEnvironment: 'environmentName',
+    runStageId: 'stageNameId',
+};
+
+export const subscriptionFiltersForPipelines = [
+    subscriptionFiltersNameForPipelines.buildPipeline,
+    subscriptionFiltersNameForPipelines.releasePipelineName,
+    subscriptionFiltersNameForPipelines.stageName,
+    subscriptionFiltersNameForPipelines.runPipeline,
+    subscriptionFiltersNameForPipelines.runStage,
+    subscriptionFiltersNameForPipelines.runEnvironment,
+    subscriptionFiltersNameForPipelines.runStageId,
 ];

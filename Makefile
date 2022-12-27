@@ -136,7 +136,7 @@ dist:	server webapp bundle
 .PHONY: mock
 mock:
 ifneq ($(HAS_SERVER),)
-	go install github.com/golang/mock/mockgen@v1.6.0
+	$(GO) install github.com/golang/mock/mockgen@v1.6.0
 	mockgen -destination=mocks/mock_store.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/store KVStore
 	mockgen -destination=mocks/mock_client.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/plugin Client
 endif

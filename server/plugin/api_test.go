@@ -962,7 +962,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 	}
 }
 
-func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
+func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 	defer monkey.UnpatchAll()
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
@@ -980,7 +980,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 		isPayloadInvalid                          bool
 	}{
 		{
-			description: "HandlePipelineApproveOrRejectRequest: valid",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: valid",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -996,7 +996,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			getApprovalDetailsStatus:            http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: approved/rejected request successfully but failed to update post",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected request successfully but failed to update post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1012,7 +1012,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1027,7 +1027,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                          http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request and update the post",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request and update the post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1043,7 +1043,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request and fetch approval details",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request and fetch approval details",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1060,7 +1060,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			getApprovalDetailsStatus:            http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: invalid payload",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: invalid payload",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1075,7 +1075,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:       http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request due to some internal server error",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request due to some internal server error",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1116,7 +1116,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
 
 			w := httptest.NewRecorder()
-			p.handlePipelineApproveOrRejectRequest(w, req)
+			p.handlePipelineApproveOrRejectReleaseRequest(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})

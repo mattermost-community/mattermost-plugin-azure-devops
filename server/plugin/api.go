@@ -1529,65 +1529,6 @@ func (p *Plugin) handlePipelineApproveOrRejectRunRequest(w http.ResponseWriter, 
 	p.returnPostActionIntegrationResponse(w, response)
 }
 
-func (p *Plugin) handlePipelineApproveOrRejectRequest(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	decoder := json.NewDecoder(r.Body)
-	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
-	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
-		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
-		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest param: ", mattermostUserID, err)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
-	}
-
-	requestType := postActionIntegrationRequest.Context[constants.PipelineRequestContextRequestType].(string)
-	pipelineApproveRequestPayload := &serializers.PipelineApproveRequest{
-		Status:   requestType,
-		Comments: "", // TODO: integrate comment flow
-	}
-
-	organization := postActionIntegrationRequest.Context[constants.PipelineRequestContextOrganization].(string)
-	projectName := postActionIntegrationRequest.Context[constants.PipelineRequestContextProjectName].(string)
-	approvalID := int(postActionIntegrationRequest.Context[constants.PipelineRequestContextApprovalID].(float64))
-	statusCode, updatePipelineApprovalRequestErr := p.Client.UpdatePipelineApprovalRequest(pipelineApproveRequestPayload, organization, projectName, mattermostUserID, approvalID)
-	switch statusCode {
-	case http.StatusOK:
-		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineReleaseApprovalPost(requestType, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineReleaseApprovalPostErr)
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
-			return
-		}
-	case http.StatusBadRequest:
-		pipelineApprovalDetails, statusCode, getApprovalDetailsErr := p.Client.GetApprovalDetails(organization, projectName, mattermostUserID, approvalID)
-		if getApprovalDetailsErr != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, getApprovalDetailsErr)
-			p.handleError(w, r, &serializers.Error{Code: statusCode, Message: getApprovalDetailsErr.Error()})
-			return
-		}
-
-		if updatePipelineReleaseApprovalPostErr := p.UpdatePipelineReleaseApprovalPost(pipelineApprovalDetails.Status, postActionIntegrationRequest.PostId, mattermostUserID); updatePipelineReleaseApprovalPostErr != nil {
-			p.handlePipelineApprovalRequestUpdateError(constants.ErrorUpdatingPipelineApprovalRequest, mattermostUserID, updatePipelineReleaseApprovalPostErr)
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineReleaseApprovalPostErr.Error()})
-			return
-		}
-
-		alreadyUpdatedInformationPost := &model.Post{
-			UserId:    p.botUserID,
-			ChannelId: postActionIntegrationRequest.ChannelId,
-			Message:   "This deployment approval pending request has already been processed.",
-		}
-		_ = p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
-
-	default:
-		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, updatePipelineApprovalRequestErr)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: updatePipelineApprovalRequestErr.Error()})
-		return
-	}
-
-	response := &model.PostActionIntegrationResponse{}
-	p.returnPostActionIntegrationResponse(w, response)
-}
-
 func (p *Plugin) returnPostActionIntegrationResponse(w http.ResponseWriter, res *model.PostActionIntegrationResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	if _, err := w.Write(res.ToJson()); err != nil {

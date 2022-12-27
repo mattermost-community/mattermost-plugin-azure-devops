@@ -284,6 +284,16 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 	return statusCode, nil
 }
 
+func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
+	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
+
+	return statusCode, err
+}
+
 func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error) {
 	pipelineApproveRunRequestURL := fmt.Sprintf(constants.PipelineRunApproveRequest, organization, projectID)
 
@@ -294,16 +304,6 @@ func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload 
 	}
 
 	return pipelineRunApproveResponse, statusCode, nil
-}
-
-func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
-	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
-
-	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
-	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	_, statusCode, err := c.CallJSON(baseURL, pipelineApproveRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
-
-	return statusCode, err
 }
 
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {

@@ -17,8 +17,8 @@ type SubscriptionCardProps = {
     subscriptionDetails: SubscriptionDetails
 }
 
-const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath}, subscriptionDetails}: SubscriptionCardProps) => {
-    const showFilter = areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName;
+const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channelType, eventType, serviceType, channelName, createdBy, targetBranch, repositoryName, pullRequestCreatedByName, pullRequestReviewersContainsName, pushedByName, mergeResultName, notificationTypeName, areaPath, releasePipelineName, buildPipeline, buildStatusName, approvalStatusName, approvalTypeName, releaseStatusName, stageNameValue, runPipelineName, runEnvironment, runStage, runStageId, runResultId, runStageResultId, runStageStateIdName, runStateIdName}, subscriptionDetails}: SubscriptionCardProps) => {
+    const showFilter = areaPath || repositoryName || targetBranch || pullRequestCreatedByName || pullRequestReviewersContainsName || pushedByName || mergeResultName || notificationTypeName || releasePipelineName || buildPipeline || buildStatusName || approvalStatusName || approvalTypeName || releaseStatusName || stageNameValue || runPipelineName || runEnvironment || runStage || runStageId || runResultId || runStageResultId || runStageStateIdName || runStateIdName;
 
     return (
         <BaseCard>
@@ -90,6 +90,20 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                                     {pushedByName && <Chip text={`Pushed by a member of group: ${pushedByName}`}/>}
                                     {mergeResultName && <Chip text={`Merge result: ${mergeResultName}`}/>}
                                     {notificationTypeName && <Chip text={`Change: ${notificationTypeName}`}/>}
+                                    {releasePipelineName && <Chip text={`Release pipeline is: ${releasePipelineName}`}/>}
+                                    {buildPipeline && <Chip text={`Build pipeline is: ${buildPipeline}`}/>}
+                                    {buildStatusName && <Chip text={`Build status is: ${buildStatusName}`}/>}
+                                    {stageNameValue && <Chip text={`Stage name is: ${stageNameValue}`}/>}
+                                    {approvalStatusName && <Chip text={`Approval status is: ${approvalStatusName}`}/>}
+                                    {approvalTypeName && <Chip text={`Approval type is: ${approvalTypeName}`}/>}
+                                    {releaseStatusName && <Chip text={`Release status is: ${releaseStatusName}`}/>}
+                                    {runPipelineName && <Chip text={`Pipeline is: ${runPipelineName}`}/>}
+                                    {runEnvironment && <Chip text={`Environment is: ${runEnvironment}`}/>}
+                                    {(runStage || runStageId) && <Chip text={`Stage is: ${runStage || runStageId}`}/>}
+                                    {runStageStateIdName && <Chip text={`Stage state is: ${runStageStateIdName}`}/>}
+                                    {runStageResultId && <Chip text={`Stage result is: ${runStageResultId}`}/>}
+                                    {runStateIdName && <Chip text={`State is: ${runStateIdName}`}/>}
+                                    {runResultId && <Chip text={`Result is: ${runResultId}`}/>}
                                 </div>
                             </div>
                         )

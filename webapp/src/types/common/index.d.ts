@@ -97,6 +97,30 @@ type SubscriptionDetails = {
     notificationType: string
     notificationTypeName: string
     areaPath: string
+    buildPipeline: string
+    buildStatus: string
+    releasePipeline: string
+    stageName: string
+    approvalType: string
+    approvalStatus: string
+    releaseStatus: string
+    buildStatusName: string
+    releasePipelineName: string
+    stageNameValue: string
+    approvalTypeName: string
+    approvalStatusName: string
+    releaseStatusName: string
+    runPipeline: string
+    runPipelineName: string
+    runStage: string
+    runEnvironment: string
+    runStageId: string
+    runStageStateId: string
+    runStageStateIdName: string
+    runStageResultId: string
+    runStateId: string
+    runStateIdName: string
+    runResultId: string
 }
 
 type WebsocketEventParams = {
@@ -113,14 +137,4 @@ type SubscriptionFilters = {
     createdBy: string,
     serviceType: string,
     eventType: string,
-}
-
-type ReposSubscriptionFiltersResponse = {
-    id: string,
-    name: string
-}
-
-type ReposSubscriptionTargetBranchFilterResponse = {
-    objectId: string,
-    name: string
 }

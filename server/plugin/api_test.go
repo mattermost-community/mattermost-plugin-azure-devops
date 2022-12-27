@@ -329,14 +329,14 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
 	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
-		description           string
-		userID                string
-		projectID             string
-		err                   error
-		statusCode            int
-		getAllSubscriptionErr error
-		subscriptionList      []*serializers.SubscriptionDetails
-		subscription          *serializers.SubscriptionDetails
+		description            string
+		userID                 string
+		projectID              string
+		err                    error
+		statusCode             int
+		getAllSubscriptionsErr error
+		subscriptionList       []*serializers.SubscriptionDetails
+		expectedErrorMessage   string
 	}{
 		{
 			description: "HandleDeleteAllSubscriptions: valid",
@@ -355,27 +355,53 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 			},
 		},
 		{
-			description:           "HandleDeleteAllSubscriptions: GetAllSubscriptions gives error",
-			userID:                "mockMattermostUserID",
-			projectID:             "mockProjectID",
-			statusCode:            http.StatusInternalServerError,
-			getAllSubscriptionErr: errors.New("mockError"),
+			description:            "HandleDeleteAllSubscriptions: GetAllSubscriptions gives error",
+			userID:                 "mockMattermostUserID",
+			projectID:              "mockProjectID",
+			statusCode:             http.StatusInternalServerError,
+			getAllSubscriptionsErr: errors.New("mockError"),
+			expectedErrorMessage:   "mockError",
+		},
+		{
+			description: "HandleDeleteAllSubscriptions: DeleteSubscription gives error",
+			userID:      "mockMattermostUserID",
+			projectID:   "mockProjectID",
+			statusCode:  http.StatusInternalServerError,
+			subscriptionList: []*serializers.SubscriptionDetails{
+				{
+					MattermostUserID: "mockMattermostUserID",
+					ProjectID:        "mockProjectID",
+					OrganizationName: "mockOrganization",
+					EventType:        "mockEventType",
+					ChannelID:        "mockChannelID",
+					SubscriptionID:   "mockSubscriptionID",
+				},
+			},
+			err:                  errors.New("mockError"),
+			expectedErrorMessage: "mockError",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
-			if testCase.statusCode == http.StatusOK || testCase.statusCode == http.StatusInternalServerError {
-				mockedStore.EXPECT().GetAllSubscriptions(testCase.userID).Return(testCase.subscriptionList, testCase.getAllSubscriptionErr)
+			mockedStore.EXPECT().GetAllSubscriptions(testCase.userID).Return(testCase.subscriptionList, testCase.getAllSubscriptionsErr)
+
+			if testCase.getAllSubscriptionsErr == nil {
+				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 			}
 
-			if testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
+			if testCase.getAllSubscriptionsErr == nil && testCase.err == nil {
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
 			}
 
-			statusCode, _ := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)
+			statusCode, err := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)
 			assert.Equal(t, testCase.statusCode, statusCode)
+
+			if testCase.err != nil || testCase.getAllSubscriptionsErr != nil {
+				assert.EqualError(t, err, testCase.expectedErrorMessage)
+			} else {
+				assert.Nil(t, err)
+			}
 		})
 	}
 }

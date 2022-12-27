@@ -178,9 +178,10 @@ func TestGetBuildDetails(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p := setupTestPlugin(mockAPI)
 	for _, testCase := range []struct {
-		description string
-		err         error
-		statusCode  int
+		description          string
+		err                  error
+		statusCode           int
+		expectedErrorMessage string
 	}{
 		{
 			description: "GetBuildDetails: valid",
@@ -188,9 +189,10 @@ func TestGetBuildDetails(t *testing.T) {
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "GetBuildDetails: with error",
-			err:         errors.New("failed to get build details"),
-			statusCode:  http.StatusInternalServerError,
+			description:          "GetBuildDetails: with error",
+			err:                  errors.New("failed to get build details"),
+			statusCode:           http.StatusInternalServerError,
+			expectedErrorMessage: "failed to get the pipeline build details: failed to get build details",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -201,7 +203,7 @@ func TestGetBuildDetails(t *testing.T) {
 			_, statusCode, err := p.Client.GetBuildDetails("mockOrganization", "mockProjectName", "mockBuildID", "mockMattermostUserID")
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.expectedErrorMessage)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -366,7 +368,6 @@ func TestCheckIfUserIsProjectAdmin(t *testing.T) {
 	}{
 		{
 			description: "CheckIfUserIsProjectAdmin: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -397,16 +398,16 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := setupTestPlugin(&plugintest.API{})
 	for _, testCase := range []struct {
-		description string
-		err         error
-		statusCode  int
-		request     serializers.GetSubscriptionFilterPossibleValuesRequestPayload
+		description          string
+		err                  error
+		statusCode           int
+		request              *serializers.GetSubscriptionFilterPossibleValuesRequestPayload
+		expectedErrorMessage string
 	}{
 		{
 			description: "GetSubscriptionFilterPossibleValues: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
-			request: serializers.GetSubscriptionFilterPossibleValuesRequestPayload{
+			request: &serializers.GetSubscriptionFilterPossibleValuesRequestPayload{
 				Filters:      []string{"mockFIlter1", "mockFilter2"},
 				EventType:    "mockEventType",
 				ProjectID:    "mockProjectID",
@@ -414,9 +415,11 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 			},
 		},
 		{
-			description: "GetSubscriptionFilterPossibleValues: with error",
-			err:         errors.New("mock-error"),
-			statusCode:  http.StatusInternalServerError,
+			description:          "GetSubscriptionFilterPossibleValues: with error",
+			err:                  errors.New("mock-error"),
+			statusCode:           http.StatusInternalServerError,
+			request:              &serializers.GetSubscriptionFilterPossibleValuesRequestPayload{},
+			expectedErrorMessage: "failed to get the subscription filter values: mock-error",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -424,10 +427,10 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(&testCase.request, "mockMattermostUSerID")
+			_, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(testCase.request, "mockMattermostUserID")
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.expectedErrorMessage)
 			} else {
 				assert.NoError(t, err)
 			}

@@ -18,6 +18,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestExecuteCommand(t *testing.T) {
@@ -129,7 +130,7 @@ func TestExecuteCommand(t *testing.T) {
 			ephemeralMessage: "mockSubscriptionList",
 		},
 		{
-			description:             "ExecuteCommand: failed to get all subscriptions",
+			description:             "ExecuteCommand: failed to get all the subscriptions",
 			isConnected:             true,
 			commandArgs:             &model.CommandArgs{Command: "/azuredevops boards subscription list me"},
 			isListCommand:           true,
@@ -177,11 +178,6 @@ func TestExecuteCommand(t *testing.T) {
 			commandArgs: &model.CommandArgs{Command: "/azuredevops pipelines subscription add"},
 		},
 		{
-			description:      "ExecuteCommand: pipelines command when user is not connected",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops pipelines wrong [title] [description]"},
-			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
-		},
-		{
 			description:      "ExecuteCommand: invalid pipelines command",
 			isConnected:      true,
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops pipelines wrong [title] [description]"},
@@ -226,8 +222,8 @@ func TestExecuteCommand(t *testing.T) {
 			}).Once().Return(&model.Post{})
 
 			mockAPI.On("GetBundlePath").Return("/test-path", nil)
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
-			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return()
 
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
 				return testCase.isConnected

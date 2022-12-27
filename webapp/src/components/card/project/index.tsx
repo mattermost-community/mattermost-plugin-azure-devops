@@ -24,6 +24,7 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                             width={16}
                             height={16}
                             viewBox='0 0 14 12'
+                            className='svg-icon-stroke-color'
                         >
                             {pluginConstants.SVGIcons.project}
                         </SVGWrapper>

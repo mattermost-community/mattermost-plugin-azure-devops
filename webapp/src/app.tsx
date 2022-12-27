@@ -57,6 +57,14 @@ const App = (): JSX.Element => {
     }, [modalId]);
 
     useEffect(() => {
+        if (!isConnected) {
+            dispatch(toggleShowLinkModal({isVisible: false, commandArgs}));
+            dispatch(toggleShowSubscribeModal({isVisible: false, commandArgs}));
+            dispatch(toggleShowTaskModal({isVisible: false, commandArgs}));
+        }
+    }, [isConnected]);
+
+    useEffect(() => {
         dispatch(resetGlobalModalState());
     }, [
         linkProjectModalVisibility,

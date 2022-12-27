@@ -3,20 +3,22 @@ package constants
 const (
 	// TODO: all these messages are to be verified from Mike at the end
 	// Generic
-	GenericErrorMessage   = "Something went wrong, please try again later"
-	SessionExpiredMessage = "Session expired. Please connect your Azure DevOps account again"
-	ConnectAccount        = "[Click here to connect your Azure DevOps account](%s%s)"
-	ConnectAccountFirst   = "Your Azure DevOps account is not connected \n%s"
-	UserConnected         = "Your Azure DevOps account is successfully connected!"
-	UserAlreadyConnected  = "Your Azure DevOps account is already connected"
-	UserDisconnected      = "Your Azure DevOps account is now disconnected"
-	CreatedTask           = "[%s #%d](%s) (%s) was successfully created by %s."
-	TaskTitle             = "[%s #%d: %s](%s)"
-	PullRequestTitle      = "[#%d: %s](%s)"
-	BuildDetailsTitle     = "[#%s](%s): %s"
-	PipelineDetailsTitle  = "[%s](%s): %s"
-	AlreadyLinkedProject  = "This project is already linked."
-	NoProjectLinked       = "No project is linked, please link a project."
+	GenericErrorMessage            = "Something went wrong, please try again later"
+	SessionExpiredMessage          = "Session expired. Please connect your Azure DevOps account again"
+	ConnectAccount                 = "[Click here to connect your Azure DevOps account](%s%s)"
+	ConnectAccountFirst            = "Your Azure DevOps account is not connected \n%s"
+	UserConnected                  = "Your Azure DevOps account is successfully connected!"
+	UserAlreadyConnected           = "Your Azure DevOps account is already connected"
+	UserDisconnected               = "Your Azure DevOps account is now disconnected"
+	CreatedTask                    = "[%s #%d](%s) (%s) was successfully created by %s."
+	TaskTitle                      = "[%s #%d: %s](%s)"
+	PullRequestTitle               = "[#%d: %s](%s)"
+	BuildDetailsTitle              = "[#%s](%s): %s"
+	PipelineDetailsTitle           = "[%s](%s): %s"
+	AlreadyLinkedProject           = "This project is already linked."
+	NoProjectLinked                = "No project is linked, please link a project."
+	PipelinesRequestBeingProcessed = "Your approval/rejection request is being processed."
+	PipelinesRequestProcessed      = "Your approval/rejection request is processed."
 
 	// Validations Errors
 	OrganizationRequired            = "organization is required"
@@ -29,6 +31,7 @@ const (
 	MMUserIDRequired                = "mattermsot user ID is required"
 	EmptyAzureDevopsAPIBaseURLError = "azure devops API base URL should not be empty"
 	EmptyAzureDevopsOAuthAppIDError = "azure devops OAuth app id should not be empty"
+
 	// #nosec G101 -- This is a false positive. The below line is not a hardcoded credential
 	EmptyAzureDevopsOAuthClientSecretError = "azure devops OAuth client secret should not be empty"
 	EmptyEncryptionSecretError             = "encryption secret should not be empty"
@@ -41,7 +44,6 @@ const (
 	Error                                      = "Error"
 	NotAuthorized                              = "Not authorized"
 	UnableToDisconnectUser                     = "Unable to disconnect user"
-	UnableToDMBot                              = "Unable to send DM to bot"
 	UnableToCheckIfAlreadyConnected            = "Unable to check if user account is already connected"
 	UnableToStoreOauthState                    = "Unable to store oAuth state for the userID %s"
 	AuthAttemptExpired                         = "Authentication attempt expired, please try again"
@@ -74,5 +76,9 @@ const (
 	AccessDenied                               = "Access Denied"
 	ErrorOrganizationOrProjectQueryParam       = "Invalid organization or project name"
 	ErrorRepositoryPathParam                   = "Invalid organization, project or repository params"
+	ErrorInvalidOrganizationOrProject          = "Invalid organization or project name"
+	ErrorUpdatingPipelineApprovalRequest       = "Failed to update pipeline approval request"
+	ErrorUpdatingNonPendingPipelineRequest     = "Approval(s) %d are not in a pending state. Only pending approval(s) can be updated"
+	UnableToDMBot                              = "Unable to send DM to bot"
 	ErrorFetchSubscriptionFilterPossibleValues = "Error in fetching subscription filter possible values"
 )

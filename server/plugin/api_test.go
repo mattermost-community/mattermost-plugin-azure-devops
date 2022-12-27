@@ -850,13 +850,12 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p := setupMockPlugin(mockAPI, nil, nil)
 	for _, testCase := range []struct {
-		description      string
-		body             string
-		channelID        string
-		isValidChannelID bool
-		err              error
-		statusCode       int
-		parseTimeError   error
+		description    string
+		body           string
+		channelID      string
+		err            error
+		statusCode     int
+		parseTimeError error
 	}{
 		{
 			description: "SubscriptionNotifications: valid",
@@ -865,23 +864,21 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
-			description:      "SubscriptionNotifications: empty body",
-			body:             `{}`,
-			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			description: "SubscriptionNotifications: empty body",
+			body:        `{}`,
+			err:         errors.New("mockError"),
+			channelID:   "mockChannelIDmockChannelID",
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: invalid channel ID",
 			body:        `{}`,
 			err:         errors.New("mockError"),
-			channelID:   "mockChannelID",
+			channelID:   "mockInvalidChannelID",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
@@ -889,10 +886,9 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"`,
-			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusBadRequest,
+			err:        errors.New("mockError"),
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusBadRequest,
 		},
 		{
 			description: "SubscriptionNotifications: without channelID",
@@ -901,8 +897,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			isValidChannelID: true,
-			statusCode:       http.StatusBadRequest,
+			statusCode: http.StatusBadRequest,
 		},
 		{
 			description: "SubscriptionNotifications: eventType pull request created",
@@ -912,9 +907,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType workItem created",
@@ -924,21 +918,24 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType  pull request commented",
 			body: `{
 				"eventType": "ms.vss-code.git-pullrequest-comment-event",
 				"detailedMessage": {
-					"markdown": "mockMarkdown"
-					}
-				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+				  "markdown": "mockMarkdown"
+				},
+				"resource": {
+				  "comment": {
+					"content": "mockContent"
+				  }
+				}
+			  }`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType code pushed",
@@ -955,9 +952,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 				  ]
 				}
 			  }`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType build completed",
@@ -967,9 +963,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType build completed - error while parsing time",
@@ -979,10 +974,9 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			parseTimeError:   errors.New("error parsing time"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusInternalServerError,
+			parseTimeError: errors.New("error parsing time"),
+			channelID:      "mockChannelIDmockChannelID",
+			statusCode:     http.StatusInternalServerError,
 		},
 		{
 			description: "SubscriptionNotifications: eventType release created",
@@ -992,9 +986,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType release abandoned",
@@ -1004,9 +997,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType release abandoned - error while parsing time",
@@ -1016,10 +1008,9 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			parseTimeError:   errors.New("error parsing time"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusInternalServerError,
+			parseTimeError: errors.New("error parsing time"),
+			channelID:      "mockChannelIDmockChannelID",
+			statusCode:     http.StatusInternalServerError,
 		},
 		{
 			description: "SubscriptionNotifications: eventType release deployment started",
@@ -1029,9 +1020,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType release deployment completed",
@@ -1044,9 +1034,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"comment": "mockComment"
 				}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType run stage state changed",
@@ -1056,9 +1045,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: eventType run state changed",
@@ -1068,18 +1056,13 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
-
-			monkey.Patch(model.IsValidId, func(string) bool {
-				return testCase.isValidChannelID
-			})
 
 			monkey.Patch(time.Parse, func(_, _ string) (time.Time, error) {
 				return time.Time{}, testCase.parseTimeError

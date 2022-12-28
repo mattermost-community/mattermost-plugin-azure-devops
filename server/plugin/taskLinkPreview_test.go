@@ -23,22 +23,25 @@ func TestPostTaskPreview(t *testing.T) {
 		description string
 		linkData    []string
 		err         error
+		statusCode  int
 	}{
 		{
 			description: "PostTaskPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"},
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "PostTaskPreview: invalid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
-			err:         errors.New("mockError"),
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"},
+			err:         errors.New("failed to post task preview"),
+			statusCode:  http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.TaskValue{}, testCase.statusCode, testCase.err)
 
-			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.TaskValue{}, http.StatusOK, testCase.err)
-			resp, msg := p.PostTaskPreview(testCase.linkData, "mockUserID", "mockChannelID")
+			resp, msg := p.PostTaskPreview(testCase.linkData, mockMattermostUserID, mockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)
@@ -58,22 +61,25 @@ func TestPostPullRequestPreview(t *testing.T) {
 		description string
 		linkData    []string
 		err         error
+		statusCode  int
 	}{
 		{
 			description: "PostPullRequestPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "PostPullRequestPreview: invalid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
-			err:         errors.New("mockError"),
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			err:         errors.New("failed to post pull request preview"),
+			statusCode:  http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.PullRequest{}, testCase.statusCode, testCase.err)
 
-			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.PullRequest{}, http.StatusOK, testCase.err)
-			resp, msg := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
+			resp, msg := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", mockMattermostUserID, mockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)
@@ -93,22 +99,25 @@ func TestPostReleaseDetailsPreview(t *testing.T) {
 		description string
 		linkData    []string
 		err         error
+		statusCode  int
 	}{
 		{
 			description: "PostReleaseDetailsPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "PostReleaseDetailsPreview: invalid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
-			err:         errors.New("mockError"),
+			linkData:    []string{"https:", "", "text.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+			err:         errors.New("failed to post release details preview"),
+			statusCode:  http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockedClient.EXPECT().GetReleaseDetails(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.ReleaseDetails{}, testCase.statusCode, testCase.err)
 
-			mockedClient.EXPECT().GetReleaseDetails(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.ReleaseDetails{}, http.StatusOK, testCase.err)
-			resp, msg := p.PostReleaseDetailsPreview(testCase.linkData, "mockReleasePipelineLink", "mockUserID", "mockChannelID")
+			resp, msg := p.PostReleaseDetailsPreview(testCase.linkData, "mockReleasePipelineLink", mockMattermostUserID, mockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)

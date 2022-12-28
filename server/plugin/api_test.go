@@ -23,6 +23,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 type panicHandler struct {
@@ -97,7 +98,7 @@ func TestHandleAuthRequired(t *testing.T) {
 			timerHandler := func(w http.ResponseWriter, r *http.Request) {}
 
 			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			res := httptest.NewRecorder()
 
@@ -128,7 +129,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: valid fields",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",
 				"fields": {
 					"title": "mockTitle",
@@ -150,7 +151,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
@@ -160,7 +161,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: missing fields",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType"
 				}`,
 			err:                errors.New("mockError"),
@@ -171,7 +172,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",
 				"fields": {
 					"title": "mockTitle",
@@ -197,7 +198,7 @@ func TestHandleCreateTask(t *testing.T) {
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleCreateTask(w, req)
@@ -225,21 +226,21 @@ func TestHandleLink(t *testing.T) {
 			description: "HandleLink: valid",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject"
+				"project": "mockProjectName"
 				}`,
 			err:        nil,
 			statusCode: http.StatusOK,
 			projectList: []serializers.ProjectDetails{
 				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
+					MattermostUserID: mockMattermostUserID,
+					ProjectName:      mockProjectName,
 					OrganizationName: "mockOrganizationName",
 					ProjectID:        "mockProjectID",
 				},
 			},
 			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
 				OrganizationName: "mockOrganizationName",
 				ProjectID:        "mockProjectID",
 			},
@@ -254,7 +255,7 @@ func TestHandleLink(t *testing.T) {
 			description: "HandleLink: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",`,
+				"project": "mockProjectName",`,
 			err:        errors.New("mockError"),
 			statusCode: http.StatusBadRequest,
 		},
@@ -275,16 +276,16 @@ func TestHandleLink(t *testing.T) {
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
 				mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
+				mockedStore.EXPECT().GetAllProjects(mockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "Mockproject",
+					MattermostUserID: mockMattermostUserID,
+					ProjectName:      "Mockprojectname",
 					OrganizationName: "mockorganization",
 				}).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/link", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleLink(w, req)
@@ -322,12 +323,12 @@ func TestHandleGetAllLinkedProjects(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
-			mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, testCase.err)
+			mockedStore.EXPECT().GetAllProjects(mockMattermostUserID).Return(testCase.projectList, testCase.err)
 
 			req := httptest.NewRequest(http.MethodGet, "/project/link", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetAllLinkedProjects(w, req)
@@ -357,23 +358,23 @@ func TestHandleUnlinkProject(t *testing.T) {
 			description: "HandleUnlinkProject: valid",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",
+				"projectName": "mockProjectName",
 				"projectID" :"mockProjectID"
 				}`,
 			err:        nil,
 			statusCode: http.StatusOK,
 			projectList: []serializers.ProjectDetails{
 				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganization",
+					MattermostUserID: mockMattermostUserID,
+					ProjectName:      mockProjectName,
+					OrganizationName: mockOrganization,
 					ProjectID:        "mockProjectID",
 				},
 			},
 			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
+				OrganizationName: mockOrganization,
 				ProjectID:        "mockProjectID",
 			},
 			expectedStatusCode: http.StatusOK,
@@ -382,7 +383,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			description: "HandleUnlinkProject: invalid body",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",`,
+				"projectName": "mockProjectName",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
@@ -400,22 +401,22 @@ func TestHandleUnlinkProject(t *testing.T) {
 			description: "HandleUnlinkProject: marshaling gives error",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",
+				"projectName": "mockProjectName",
 				"projectID" :"mockProjectID"
 				}`,
 			statusCode: http.StatusOK,
 			projectList: []serializers.ProjectDetails{
 				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganization",
+					MattermostUserID: mockMattermostUserID,
+					ProjectName:      mockProjectName,
+					OrganizationName: mockOrganization,
 					ProjectID:        "mockProjectID",
 				},
 			},
 			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
+				OrganizationName: mockOrganization,
 				ProjectID:        "mockProjectID",
 			},
 			marshalError:       errors.New("mockError"),
@@ -430,7 +431,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			})
 
 			if testCase.statusCode == http.StatusOK {
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
+				mockedStore.EXPECT().GetAllProjects(mockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().DeleteProject(&testCase.project).Return(nil)
 			}
 
@@ -439,7 +440,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			})
 
 			req := httptest.NewRequest(http.MethodPost, "/project/unlink", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleUnlinkProject(w, req)
@@ -467,7 +468,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			description: "HandleGetUserAccountDetails: valid",
 			statusCode:  http.StatusOK,
 			user: &serializers.User{
-				MattermostUserID: "mockMattermostUserID",
+				MattermostUserID: mockMattermostUserID,
 			},
 		},
 		{
@@ -485,7 +486,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			description: "HandleGetUserAccountDetails: marshaling gives error",
 			statusCode:  http.StatusInternalServerError,
 			user: &serializers.User{
-				MattermostUserID: "mockMattermostUserID",
+				MattermostUserID: mockMattermostUserID,
 			},
 			marshalError: errors.New("mockError"),
 		},
@@ -494,14 +495,14 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
 
-			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserError)
+			mockedStore.EXPECT().LoadUser(mockMattermostUserID).Return(testCase.user, testCase.loadUserError)
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/user", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetUserAccountDetails(w, req)
@@ -535,10 +536,10 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"serviceType": "mockServiceType",
-				"channelID": "mockChannelID"
+				"channelID": "mockProjectName"
 				}`,
 			statusCode:         http.StatusOK,
 			expectedStatusCode: http.StatusOK,
@@ -546,12 +547,12 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			project:            serializers.ProjectDetails{},
 			subscriptionList:   []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
+				OrganizationName: mockOrganization,
 				EventType:        "mockEventType",
 				ServiceType:      "mockServiceType",
-				ChannelID:        "mockChannelID",
+				ChannelID:        mockProjectName,
 			},
 		},
 		{
@@ -565,7 +566,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",`,
+				"project": "mockProjectName",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
@@ -583,7 +584,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
@@ -595,9 +596,9 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			project:            serializers.ProjectDetails{},
 			subscriptionList:   []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
+				OrganizationName: mockOrganization,
 				EventType:        "mockEventType",
 				ServiceType:      "mockServiceType",
 				ChannelID:        "mockChannelID",
@@ -621,13 +622,13 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{}, testCase.statusCode, testCase.err)
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
+				mockedStore.EXPECT().GetAllProjects(mockMattermostUserID).Return(testCase.projectList, nil)
+				mockedStore.EXPECT().GetAllSubscriptions(mockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().StoreSubscription(testCase.subscription).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/subscriptions", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleCreateSubscription(w, req)
@@ -661,7 +662,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description:   "HandleGetSubscriptions: project as a query param",
-			project:       "mockProject",
+			project:       mockProjectName,
 			statusCode:    http.StatusOK,
 			isTeamIDValid: true,
 		},
@@ -684,7 +685,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     "mockProject",
+			project:     mockProjectName,
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode:    http.StatusInternalServerError,
 			isTeamIDValid: true,
@@ -696,7 +697,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     "mockProject",
+			project:     mockProjectName,
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode:    http.StatusInternalServerError,
 			isTeamIDValid: true,
@@ -706,7 +707,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
 			if testCase.isTeamIDValid {
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, testCase.err)
+				mockedStore.EXPECT().GetAllSubscriptions(mockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
 			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
@@ -722,7 +723,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			})
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetSubscriptions(w, req)
@@ -751,7 +752,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
+			channelID:        mockProjectName,
 			isValidChannelID: true,
 			statusCode:       http.StatusOK,
 		},
@@ -759,7 +760,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			description:      "SubscriptionNotifications: empty body",
 			body:             `{}`,
 			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
+			channelID:        mockProjectName,
 			isValidChannelID: true,
 			statusCode:       http.StatusOK,
 		},
@@ -767,7 +768,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			description: "SubscriptionNotifications: invalid channel ID",
 			body:        `{}`,
 			err:         errors.New("mockError"),
-			channelID:   "mockChannelID",
+			channelID:   mockProjectName,
 			statusCode:  http.StatusBadRequest,
 		},
 		{
@@ -776,7 +777,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 				"detailedMessage": {
 					"markdown": "mockMarkdown"`,
 			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
+			channelID:        mockProjectName,
 			isValidChannelID: true,
 			statusCode:       http.StatusBadRequest,
 		},
@@ -828,7 +829,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			description: "HandleDeleteSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"channelID": "mockChannelID",
 				"mmUserID": "mockMattermostUserID"
@@ -836,11 +837,11 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			statusCode:       http.StatusOK,
 			subscriptionList: []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: mockMattermostUserID,
+				ProjectName:      mockProjectName,
+				OrganizationName: mockOrganization,
 				EventType:        "mockEventType",
-				ChannelID:        "mockChannelID",
+				ChannelID:        mockProjectName,
 			},
 		},
 		{
@@ -853,7 +854,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			description: "HandleDeleteSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",`,
+				"project": "mockProjectName",`,
 			err:        errors.New("mockError"),
 			statusCode: http.StatusBadRequest,
 		},
@@ -876,12 +877,12 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
+				mockedStore.EXPECT().GetAllSubscriptions(mockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, mockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleDeleteSubscriptions(w, req)
@@ -907,7 +908,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{
-					Id:   "mockChannelID",
+					Id:   mockProjectName,
 					Type: model.CHANNEL_OPEN,
 				},
 			},
@@ -932,7 +933,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{
-					Id:   "mockChannelID",
+					Id:   mockProjectName,
 					Type: model.CHANNEL_PRIVATE,
 				},
 			},

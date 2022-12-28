@@ -19,6 +19,7 @@ const (
 	mockOrganization     = "mockOrganization"
 	mockProjectName      = "mockProjectName"
 	mockMattermostUserID = "mockMattermostUserID"
+	mockChannelID        = "mockChannelID"
 )
 
 func TestClientGenerateOAuthToken(t *testing.T) {
@@ -33,7 +34,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 	}{
 		{
 			description: "GenerateOAuthToken: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -71,7 +71,6 @@ func TestCreateTask(t *testing.T) {
 	}{
 		{
 			description: "CreateTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -113,7 +112,6 @@ func TestGetTask(t *testing.T) {
 	}{
 		{
 			description: "GetTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -152,7 +150,6 @@ func TestGetReleaseDetails(t *testing.T) {
 	}{
 		{
 			description: "GetReleaseDetails: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -190,7 +187,6 @@ func TestGetPullRequest(t *testing.T) {
 	}{
 		{
 			description: "GetPullRequest: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -228,7 +224,6 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			description: "Link: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -266,7 +261,6 @@ func TestCreateSubscription(t *testing.T) {
 	}{
 		{
 			description: "CreateSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -280,7 +274,7 @@ func TestCreateSubscription(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, "mockChannelID", "mockPluginURL", mockMattermostUserID)
+			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, mockChannelID, "mockPluginURL", mockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -304,7 +298,6 @@ func TestDeleteSubscription(t *testing.T) {
 	}{
 		{
 			description: "DeleteSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{

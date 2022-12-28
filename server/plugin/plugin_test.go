@@ -93,8 +93,8 @@ func TestMessageWillBePosted(t *testing.T) {
 			})
 
 			post := &model.Post{
-				ChannelId: "mockChannelID",
-				UserId:    "mockUserID",
+				ChannelId: mockChannelID,
+				UserId:    mockMattermostUserID,
 				Message:   testCase.message,
 			}
 

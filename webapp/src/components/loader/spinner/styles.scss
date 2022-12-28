@@ -12,7 +12,7 @@
   
     circle {
       fill: none;
-      stroke: $primary-color;
+      stroke: var(--link-color);
       stroke-width: 8px;
       stroke-dasharray: 300;
       animation: outline 2s cubic-bezier(0.77, 0, 0.18, 1) infinite;

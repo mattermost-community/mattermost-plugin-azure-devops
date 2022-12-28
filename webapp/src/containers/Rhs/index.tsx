@@ -22,9 +22,7 @@ const Rhs = (): JSX.Element => {
     }
 
     return (
-        <div
-            id='scrollableArea'
-        >
+        <div>
             {!isConnected && <AccountNotLinked/>}
             {isConnected && (
                 getProjectDetailsState(state).projectID ?

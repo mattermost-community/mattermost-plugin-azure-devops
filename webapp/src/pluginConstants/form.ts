@@ -289,7 +289,7 @@ export const subscriptionModal: Record<SubscriptionModalFields, ModalFormFieldCo
     },
     eventType: {
         label: 'Event type',
-        value: '',
+        value: boardEventTypeOptions[0].value,
         type: 'dropdown',
         optionsList: boardEventTypeOptions,
         validations: {

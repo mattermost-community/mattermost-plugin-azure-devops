@@ -240,7 +240,7 @@ func (p *Plugin) getConnectAccountFirstMessage() string {
 func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serializers.SubscriptionDetails, channelID, createdBy, userID, command, teamID string) string {
 	var sb strings.Builder
 
-	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID)
+	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionsList, teamID, userID, createdBy)
 	if filteredSubscriptionErr != nil {
 		p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
 		sb.WriteString(constants.GenericErrorMessage)
@@ -327,7 +327,7 @@ func (p *Plugin) GetOffsetAndLimitFromQueryParams(r *http.Request) (offset, limi
 	return page * limit, limit
 }
 
-func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID string) ([]*serializers.SubscriptionDetails, error) {
+func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionList []*serializers.SubscriptionDetails, teamID, mattermostUserID, createdBy string) ([]*serializers.SubscriptionDetails, error) {
 	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
 	if channelErr != nil {
 		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
@@ -341,6 +341,15 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 	}
 
 	var filteredSubscriptionList []*serializers.SubscriptionDetails
+	if createdBy == constants.FilterCreatedByMe {
+		for _, subscription := range subscriptionList {
+			if subscription.MattermostUserID == mattermostUserID {
+				filteredSubscriptionList = append(filteredSubscriptionList, subscription)
+			}
+		}
+		return filteredSubscriptionList, nil
+	}
+
 	for _, subscription := range subscriptionList {
 		// For each subscription on a project check if a user is an admin or member of the MM channel to return subscriptions
 		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {
@@ -354,6 +363,8 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 					}
 				}
 			}
+		} else if subscription.MattermostUserID == mattermostUserID {
+			filteredSubscriptionList = append(filteredSubscriptionList, subscription)
 		}
 	}
 

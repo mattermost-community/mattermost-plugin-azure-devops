@@ -21,7 +21,7 @@
 
 .rhs-project-list-wrapper {
     margin-top: auto;
-    padding: 15px 0 30px;
+    padding: 12px;
     width: 100%;
     background-color: var(--center-channel-bg);
     box-shadow: 5px -1px 5px rgba(0, 0, 0, 0.1);
@@ -29,6 +29,7 @@
 
     .project-list-btn {
         width: calc(100% - 60px); // 60px is the width of padding from left and right
+        margin: 0;
     }
 }
 
@@ -45,7 +46,6 @@
 }
 
 .rhs-filter-popover {
-    top: 71px;
     width: calc(100% - 30px);
     padding: 20px;
     position: absolute;
@@ -69,7 +69,7 @@
         left: 18px;
         position: absolute;
         border: 2px solid var(--center-channel-bg);
-        background-color: $primary-color;
+        background-color: var(--link-color);
     }
 }
 

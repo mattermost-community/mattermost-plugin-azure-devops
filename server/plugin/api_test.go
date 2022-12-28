@@ -996,7 +996,7 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			getApprovalDetailsStatus:            http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected request successfully but failed to update post",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected the request successfully but failed to update post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1012,7 +1012,7 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1027,7 +1027,7 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			statusCode:                          http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request and update the post",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and update the post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1043,7 +1043,7 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request and fetch approval details",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and fetch approval details",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1075,7 +1075,7 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			statusCode:       http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject request due to some internal server error",
+			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request due to server error",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1088,12 +1088,12 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 			  }`,
 			updatePipelineApprovalRequestStatus:       http.StatusInternalServerError,
 			statusCode:                                http.StatusInternalServerError,
-			updatePipelineReleaseApprovalRequestError: errors.New("failed to update pipeline approval request"),
+			updatePipelineReleaseApprovalRequestError: errors.New("failed to update the pipeline approval request"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
 			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{})
 			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
 

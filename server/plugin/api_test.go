@@ -298,16 +298,15 @@ func TestHandleLink(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
-			}
-
-			if testCase.statusCode == http.StatusOK && !testCase.isProjectLinked {
-				mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
-				mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
-				mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "Mockproject",
-					OrganizationName: "mockorganization",
-				}).Return(nil)
+				if !testCase.isProjectLinked {
+					mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
+					mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
+					mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
+						MattermostUserID: "mockMattermostUserID",
+						ProjectName:      "Mockproject",
+						OrganizationName: "mockorganization",
+					}).Return(nil)
+				}
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/link", bytes.NewBufferString(testCase.body))
@@ -359,8 +358,8 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 			userID:                 "mockMattermostUserID",
 			projectID:              "mockProjectID",
 			statusCode:             http.StatusInternalServerError,
-			getAllSubscriptionsErr: errors.New("mockError"),
-			expectedErrorMessage:   "mockError",
+			getAllSubscriptionsErr: errors.New("error in getting subscriptions"),
+			expectedErrorMessage:   "error in getting subscriptions",
 		},
 		{
 			description: "HandleDeleteAllSubscriptions: DeleteSubscription gives error",
@@ -377,8 +376,8 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 					SubscriptionID:   "mockSubscriptionID",
 				},
 			},
-			err:                  errors.New("mockError"),
-			expectedErrorMessage: "mockError",
+			err:                  errors.New("error in deleting subscription"),
+			expectedErrorMessage: "error in deleting subscription",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -388,10 +387,9 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 
 			if testCase.getAllSubscriptionsErr == nil {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
-			}
-
-			if testCase.getAllSubscriptionsErr == nil && testCase.err == nil {
-				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+				if testCase.err == nil {
+					mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+				}
 			}
 
 			statusCode, err := p.handleDeleteAllSubscriptions(testCase.userID, testCase.projectID)

@@ -27,7 +27,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 	}{
 		{
 			description: "GenerateOAuthToken: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -65,7 +64,6 @@ func TestCreateTask(t *testing.T) {
 	}{
 		{
 			description: "CreateTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -108,7 +106,6 @@ func TestGetTask(t *testing.T) {
 	}{
 		{
 			description: "GetTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -146,7 +143,6 @@ func TestGetPullRequest(t *testing.T) {
 	}{
 		{
 			description: "GetPullRequest: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -185,7 +181,6 @@ func TestGetBuildDetails(t *testing.T) {
 	}{
 		{
 			description: "GetBuildDetails: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -224,7 +219,6 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			description: "Link: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -262,7 +256,6 @@ func TestCreateSubscription(t *testing.T) {
 	}{
 		{
 			description: "CreateSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -300,7 +293,6 @@ func TestDeleteSubscription(t *testing.T) {
 	}{
 		{
 			description: "DeleteSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -362,18 +354,20 @@ func TestCheckIfUserIsProjectAdmin(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := setupTestPlugin(&plugintest.API{})
 	for _, testCase := range []struct {
-		description string
-		err         error
-		statusCode  int
+		description   string
+		err           error
+		statusCode    int
+		expectedError string
 	}{
 		{
 			description: "CheckIfUserIsProjectAdmin: valid",
 			statusCode:  http.StatusOK,
 		},
 		{
-			description: "CheckIfUserIsProjectAdmin: with error",
-			err:         errors.New("mock-error"),
-			statusCode:  http.StatusInternalServerError,
+			description:   "CheckIfUserIsProjectAdmin: with error",
+			err:           errors.New("failed to check user permissions"),
+			statusCode:    http.StatusInternalServerError,
+			expectedError: "failed to check if user is project admin: failed to check user permissions",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -384,7 +378,7 @@ func TestCheckIfUserIsProjectAdmin(t *testing.T) {
 			statusCode, err := p.Client.CheckIfUserIsProjectAdmin("mockOrganization", "mockProjectID", "mockProjectURL", "mockMattermostUSerID")
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.expectedError)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -408,7 +402,7 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 			description: "GetSubscriptionFilterPossibleValues: valid",
 			statusCode:  http.StatusOK,
 			request: &serializers.GetSubscriptionFilterPossibleValuesRequestPayload{
-				Filters:      []string{"mockFIlter1", "mockFilter2"},
+				Filters:      []string{"mockFilter1", "mockFilter2"},
 				EventType:    "mockEventType",
 				ProjectID:    "mockProjectID",
 				RepositoryID: "mockRepositoryID",
@@ -416,10 +410,10 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 		},
 		{
 			description:          "GetSubscriptionFilterPossibleValues: with error",
-			err:                  errors.New("mock-error"),
+			err:                  errors.New("error in getting subscription filter values"),
 			statusCode:           http.StatusInternalServerError,
 			request:              &serializers.GetSubscriptionFilterPossibleValuesRequestPayload{},
-			expectedErrorMessage: "failed to get the subscription filter values: mock-error",
+			expectedErrorMessage: "failed to get the subscription filter values: error in getting subscription filter values",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

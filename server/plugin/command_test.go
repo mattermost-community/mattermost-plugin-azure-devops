@@ -23,14 +23,11 @@ import (
 
 func TestExecuteCommand(t *testing.T) {
 	monkey.UnpatchAll()
-	p := Plugin{}
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
 	mockedStore := mocks.NewMockKVStore(mockCtrl)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.API = mockAPI
-	p.Store = mockedStore
-	p.Client = mockedClient
+	p := setupMockPlugin(mockAPI, mockedStore, mockedClient)
 	for _, testCase := range []struct {
 		description                   string
 		commandArgs                   *model.CommandArgs
@@ -225,11 +222,11 @@ func TestExecuteCommand(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return()
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
 				return testCase.isConnected
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "ParseSubscriptionsToCommandResponse", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _, _, _ string) string {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "ParseSubscriptionsToCommandResponse", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _, _, _ string) string {
 				return "mockSubscriptionList"
 			})
 

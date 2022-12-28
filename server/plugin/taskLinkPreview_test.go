@@ -12,17 +12,16 @@ import (
 )
 
 func TestPostTaskPreview(t *testing.T) {
-	p := Plugin{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.Client = mockedClient
+	p := setupMockPlugin(nil, nil, mockedClient)
 	for _, testCase := range []struct {
 		description string
 		linkData    []string
 	}{
 		{
 			description: "PostTaskPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -35,17 +34,16 @@ func TestPostTaskPreview(t *testing.T) {
 }
 
 func TestPostPullRequestPreview(t *testing.T) {
-	p := Plugin{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.Client = mockedClient
+	p := setupMockPlugin(nil, nil, mockedClient)
 	for _, testCase := range []struct {
 		description string
 		linkData    []string
 	}{
 		{
 			description: "PostPullRequestPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -58,17 +56,16 @@ func TestPostPullRequestPreview(t *testing.T) {
 }
 
 func TestPostBuildDetailsPreview(t *testing.T) {
-	p := Plugin{}
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
-	p.Client = mockedClient
+	p := setupMockPlugin(nil, nil, mockedClient)
 	for _, testCase := range []struct {
 		description string
 		linkData    []string
 	}{
 		{
 			description: "PostBuildDetailsPreview: valid",
-			linkData:    []string{"https:", "", "dev.azure.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
+			linkData:    []string{"https:", "", "test.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

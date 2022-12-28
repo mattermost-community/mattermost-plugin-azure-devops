@@ -27,7 +27,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 	}{
 		{
 			description: "GenerateOAuthToken: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -65,7 +64,6 @@ func TestCreateTask(t *testing.T) {
 	}{
 		{
 			description: "CreateTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -107,7 +105,6 @@ func TestGetTask(t *testing.T) {
 	}{
 		{
 			description: "GetTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -145,7 +142,6 @@ func TestGetPullRequest(t *testing.T) {
 	}{
 		{
 			description: "GetPullRequest: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -183,7 +179,6 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			description: "Link: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -221,7 +216,6 @@ func TestCreateSubscription(t *testing.T) {
 	}{
 		{
 			description: "CreateSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -259,7 +253,6 @@ func TestDeleteSubscription(t *testing.T) {
 	}{
 		{
 			description: "DeleteSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -327,7 +320,6 @@ func TestUpdatePipelineRunApprovalRequest(t *testing.T) {
 	}{
 		{
 			description: "UpdatePipelineRunApprovalRequest: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -344,7 +336,7 @@ func TestUpdatePipelineRunApprovalRequest(t *testing.T) {
 			_, statusCode, err := p.Client.UpdatePipelineRunApprovalRequest([]*serializers.PipelineApproveRequest{}, "mockProjectID", "mockMattermostUSerID", "mockApprovalID")
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.err.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -364,7 +356,6 @@ func TestGetRunApprovalDetails(t *testing.T) {
 	}{
 		{
 			description: "GetRunApprovalDetails: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -381,7 +372,7 @@ func TestGetRunApprovalDetails(t *testing.T) {
 			_, statusCode, err := p.Client.GetRunApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUSerID", "mockApprovalID")
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.err.Error())
 			} else {
 				assert.NoError(t, err)
 			}

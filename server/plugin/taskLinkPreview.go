@@ -178,7 +178,7 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 	environments := p.getPipelineReleaseEnvironmentList(releaseDetails.Environments)
 	attachment := &model.SlackAttachment{
 		AuthorName: "Azure Pipelines",
-		AuthorIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
+		AuthorIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNamePipelinesIcon),
 		Title:      fmt.Sprintf(constants.PipelineDetailsTitle, releaseDetails.Name, releaseDetails.Link.Web.Href, releaseDetails.ReleaseDefinition.Name),
 		Color:      constants.IconColorPipelines,
 		Fields: []*model.SlackAttachmentField{
@@ -194,7 +194,7 @@ func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, chan
 			},
 		},
 		Footer:     project,
-		FooterIcon: fmt.Sprintf("%s/plugins/%s/static/%s", p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
+		FooterIcon: fmt.Sprintf(constants.PublicFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 	}
 
 	model.ParseSlackAttachment(post, []*model.SlackAttachment{attachment})

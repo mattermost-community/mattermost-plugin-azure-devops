@@ -3,7 +3,7 @@
     "name": "Mattermost Azure DevOps plugin",
     "description": "This plugin provides services of Azure DevOps such as Boards and Repos",
     "icon_path": "assets/azurebot.svg",
-    "version": "2.2.1",
+    "version": "3.0.0",
     "min_server_version": "5.37.0",
     "server": {
         "executables": {

@@ -21,7 +21,7 @@ const (
 		"* `/azuredevops boards/repos/pipelines subscription add` - Add a new Boards/Repos/Pipelines subscription for your linked projects.\n" +
 		"* `/azuredevops boards/repos/pipelines subscription list [me or anyone] [all_channels]` - View Boards/Repos/Pipelines subscriptions.\n" +
 		"* `/azuredevops boards/repos/pipelines subscription delete [subscription id]` - Delete a Boards/Repos/Pipelines subscription"
-	InvalidCommand      = "Invalid command parameters. Please use `/azuredevops help` for more information."
+	InvalidCommand      = "Invalid command.\n\n"
 	CommandHelp         = "help"
 	CommandConnect      = "connect"
 	CommandDisconnect   = "disconnect"

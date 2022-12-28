@@ -128,36 +128,20 @@ func (mr *MockClientMockRecorder) GetApprovalDetails(arg0, arg1, arg2, arg3 inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApprovalDetails", reflect.TypeOf((*MockClient)(nil).GetApprovalDetails), arg0, arg1, arg2, arg3)
 }
 
-// GetGitRepositories mocks base method
-func (m *MockClient) GetGitRepositories(arg0, arg1, arg2 string) (*serializers.GitRepositoriesResponse, int, error) {
+// GetBuildDetails mocks base method
+func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializers.BuildDetails, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGitRepositories", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*serializers.GitRepositoriesResponse)
+	ret := m.ctrl.Call(m, "GetBuildDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.BuildDetails)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// GetGitRepositories indicates an expected call of GetGitRepositories
-func (mr *MockClientMockRecorder) GetGitRepositories(arg0, arg1, arg2 interface{}) *gomock.Call {
+// GetBuildDetails indicates an expected call of GetBuildDetails
+func (mr *MockClientMockRecorder) GetBuildDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositories", reflect.TypeOf((*MockClient)(nil).GetGitRepositories), arg0, arg1, arg2)
-}
-
-// GetGitRepositoryBranches mocks base method
-func (m *MockClient) GetGitRepositoryBranches(arg0, arg1, arg2, arg3 string) (*serializers.GitBranchesResponse, int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetGitRepositoryBranches", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*serializers.GitBranchesResponse)
-	ret1, _ := ret[1].(int)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
-}
-
-// GetGitRepositoryBranches indicates an expected call of GetGitRepositoryBranches
-func (mr *MockClientMockRecorder) GetGitRepositoryBranches(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGitRepositoryBranches", reflect.TypeOf((*MockClient)(nil).GetGitRepositoryBranches), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBuildDetails", reflect.TypeOf((*MockClient)(nil).GetBuildDetails), arg0, arg1, arg2, arg3)
 }
 
 // GetPullRequest mocks base method
@@ -174,6 +158,22 @@ func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers
 func (mr *MockClientMockRecorder) GetPullRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPullRequest", reflect.TypeOf((*MockClient)(nil).GetPullRequest), arg0, arg1, arg2, arg3)
+}
+
+// GetReleaseDetails mocks base method
+func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializers.ReleaseDetails, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReleaseDetails", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*serializers.ReleaseDetails)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetReleaseDetails indicates an expected call of GetReleaseDetails
+func (mr *MockClientMockRecorder) GetReleaseDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReleaseDetails", reflect.TypeOf((*MockClient)(nil).GetReleaseDetails), arg0, arg1, arg2, arg3)
 }
 
 // GetRunApprovalDetails mocks base method

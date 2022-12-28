@@ -25,12 +25,12 @@ type Client interface {
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
-	GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error)
-	GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 	UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error)
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
 	GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error)
+	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
+	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 }
 
@@ -122,6 +122,34 @@ func (c *client) GetPullRequest(organization, pullRequestID, projectName, matter
 	return pullRequest, statusCode, nil
 }
 
+// Function to get the pipeline build details.
+func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error) {
+	buildDetailsURL := fmt.Sprintf(constants.GetBuildDetails, organization, projectName, buildID)
+
+	var buildDetails *serializers.BuildDetails
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, buildDetailsURL, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
+	}
+
+	return buildDetails, statusCode, nil
+}
+
+// Function to get the pipeline release details.
+func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
+	releaseDetailsURL := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
+
+	var releaseDetails *serializers.ReleaseDetails
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	_, statusCode, err := c.CallJSON(baseURL, releaseDetailsURL, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
+	if err != nil {
+		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline release details")
+	}
+
+	return releaseDetails, statusCode, nil
+}
+
 // Function to link a project and an organization.
 func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
 	projectURL := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
@@ -187,6 +215,21 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 			PullRequestCreatedBy:         body.PullRequestCreatedBy,
 			PullRequestReviewersContains: body.PullRequestReviewersContains,
 			NotificationType:             body.NotificationType,
+			BuildStatus:                  body.BuildStatus,
+			DefinitionName:               body.BuildPipeline,
+			ReleaseEnvironmentID:         body.StageName,
+			ReleaseDefinitionID:          body.ReleasePipeline,
+			ReleaseEnvironmentStatus:     body.ReleaseStatus,
+			ReleaseApprovalType:          body.ApprovalType,
+			ReleaseApprovalStatus:        body.ApprovalStatus,
+			PipelineID:                   body.RunPipeline,
+			StageName:                    body.RunStageName,
+			EnvironmentName:              body.RunEnvironmentName,
+			StageNameID:                  body.RunStageNameID,
+			StageStateID:                 body.RunStageStateID,
+			StageResultID:                body.RunStageResultID,
+			RunStateID:                   body.RunStateID,
+			RunResultID:                  body.RunResultID,
 		},
 	}
 
@@ -241,30 +284,6 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 	return statusCode, nil
 }
 
-func (c *client) GetGitRepositories(organization, projectName, mattermostUserID string) (*serializers.GitRepositoriesResponse, int, error) {
-	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositories, organization, projectName)
-
-	var gitRepositories *serializers.GitRepositoriesResponse
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitRepositories, nil)
-	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the git repositories for a project")
-	}
-
-	return gitRepositories, statusCode, nil
-}
-
-func (c *client) GetGitRepositoryBranches(organization, projectName, repository, mattermostUserID string) (*serializers.GitBranchesResponse, int, error) {
-	getGitRepositoriesURL := fmt.Sprintf(constants.GetGitRepositoryBranches, organization, projectName, repository)
-
-	var gitBranchesResponse *serializers.GitBranchesResponse
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getGitRepositoriesURL, http.MethodGet, mattermostUserID, nil, &gitBranchesResponse, nil)
-	if err != nil {
-		return nil, statusCode, errors.Wrap(err, "failed to get the git repository branches for a project")
-	}
-
-	return gitBranchesResponse, statusCode, nil
-}
-
 func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
 	pipelineApproveRequestURL := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
 
@@ -280,7 +299,11 @@ func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload 
 
 	var pipelineRunApproveResponse *serializers.PipelineRunApproveResponse
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pipelineApproveRunRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, &pipelineRunApproveResponse, nil)
-	return pipelineRunApproveResponse, statusCode, err
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineRunApproveResponse, statusCode, nil
 }
 
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
@@ -288,12 +311,16 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
-		subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		if strings.Contains(request.EventType, constants.EventOfTypeRelease) && (filter == constants.FilterReleaseDefinitionID || filter == constants.FilterReleaseEnvironmentID) {
+			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		} else if !strings.Contains(request.EventType, constants.EventOfTypeRelease) {
+			subscriptionFilters = append(subscriptionFilters, &serializers.SubscriptionFilter{InputID: filter})
+		}
 	}
 
 	subscriptionFiltersRequest := &serializers.GetSubscriptionFilterValuesRequestPayloadFromClient{
 		Subscription: &serializers.CreateSubscriptionBodyPayload{
-			PublisherID:      constants.PublisherIDTFS,
+			PublisherID:      publisherID[request.EventType],
 			ConsumerID:       constants.ConsumerID,
 			ConsumerActionID: constants.ConsumerActionID,
 			EventType:        request.EventType,
@@ -312,8 +339,27 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 		}
 	}
 
+	if strings.Contains(request.EventType, constants.EventOfTypeRelease) {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:           request.ProjectID,
+			ReleaseDefinitionID: request.ReleasePipelineID,
+		}
+	}
+
+	if constants.ValidSubscriptionEventsForRun[request.EventType] {
+		subscriptionFiltersRequest.Subscription.PublisherInputs = serializers.PublisherInputsGeneric{
+			ProjectID:  request.ProjectID,
+			PipelineID: request.RunPipeline,
+		}
+	}
+
+	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
+	if strings.Contains(request.EventType, constants.EventOfTypeRelease) {
+		baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
+	}
+
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	_, statusCode, err := c.CallJSON(baseURL, getSubscriptionFilterValuesURL, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
 	}

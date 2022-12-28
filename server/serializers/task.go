@@ -45,6 +45,7 @@ type TaskFieldValue struct {
 
 type Link struct {
 	HTML Href `json:"html"`
+	Web  Href `json:"web"`
 }
 
 type Href struct {

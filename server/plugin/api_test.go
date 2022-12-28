@@ -962,7 +962,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 	}
 }
 
-func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
+func TestHandlePipelineApproveOrRejectRunRequest(t *testing.T) {
 	defer monkey.UnpatchAll()
 	mockAPI := &plugintest.API{}
 	mockCtrl := gomock.NewController(t)
@@ -980,7 +980,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 		isPayloadInvalid                       bool
 	}{
 		{
-			description: "HandlePipelineApproveOrRejectRequest: valid",
+			description: "HandlePipelineApproveOrRejectRunRequest: valid",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -996,7 +996,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			getRunApprovalDetailsStatus:            http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: approved/rejected request successfully but failed to update post",
+			description: "HandlePipelineApproveOrRejectRunRequest: approved/rejected request successfully but failed to update post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1012,7 +1012,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request",
+			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1028,7 +1028,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                             http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request and update the post",
+			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request and update the post",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1045,7 +1045,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request and fetch approval details",
+			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request and fetch approval details",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1063,7 +1063,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			getRunApprovalDetailsStatus:            http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: invalid payload",
+			description: "HandlePipelineApproveOrRejectRunRequest: invalid payload",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1078,7 +1078,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 			statusCode:       http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRequest: failed to approve/reject request due to some internal server error",
+			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request due to some internal server error",
 			body: `{
 				"post_id": "mockPostID",
 				"channel_id": "mockChannelID",
@@ -1096,7 +1096,7 @@ func TestHandlePipelineApproveOrRejectRequest(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
 			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{Message: "mockMessage"})
 			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
 

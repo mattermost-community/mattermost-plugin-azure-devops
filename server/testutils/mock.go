@@ -30,3 +30,14 @@ func GetSuscriptionDetailsPayload(userID, serviceType string) []*serializers.Sub
 		},
 	}
 }
+
+func GetProjectDetailsPayload() []serializers.ProjectDetails {
+	return []serializers.ProjectDetails{
+		{
+			MattermostUserID: "mockMattermostUserID",
+			OrganizationName: "mockOrganization",
+			ProjectName:      "mockProjectName",
+			ProjectID:        "mockProjectID",
+		},
+	}
+}

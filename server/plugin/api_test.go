@@ -232,21 +232,9 @@ func TestHandleLink(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject"
 				}`,
-			statusCode: http.StatusOK,
-			projectList: []serializers.ProjectDetails{
-				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganizationName",
-					ProjectID:        "mockProjectID",
-				},
-			},
-			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganizationName",
-				ProjectID:        "mockProjectID",
-			},
+			statusCode:  http.StatusOK,
+			projectList: testutils.GetProjectDetailsPayload(),
+			project:     testutils.GetProjectDetailsPayload()[0],
 		},
 		{
 			description: "HandleLink: empty body",
@@ -276,15 +264,8 @@ func TestHandleLink(t *testing.T) {
 				"organization": "mockOrganization",
 				"project": "mockProject"
 				}`,
-			statusCode: http.StatusOK,
-			projectList: []serializers.ProjectDetails{
-				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganizationName",
-					ProjectID:        "mockProjectID",
-				},
-			},
+			statusCode:      http.StatusOK,
+			projectList:     testutils.GetProjectDetailsPayload(),
 			isProjectLinked: true,
 		},
 	} {
@@ -1292,8 +1273,8 @@ func TestHandleGetSubscriptionFilterPossibleValues(t *testing.T) {
 				"filters": ["mockFilter1", "mockFilter2"]
 				}`,
 			statusCode:                             http.StatusInternalServerError,
-			getSubscriptionFilterPossibleValuesErr: errors.New("failed to fetch subscription filters possible values"),
-			expectedErrorResponse:                  map[string]interface{}{"Error": "failed to fetch subscription filters possible values"},
+			getSubscriptionFilterPossibleValuesErr: errors.New("failed to fetch the subscription filters possible values"),
+			expectedErrorResponse:                  map[string]interface{}{"Error": "failed to fetch the subscription filters possible values"},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

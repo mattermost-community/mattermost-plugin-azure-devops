@@ -367,7 +367,7 @@ func TestCheckIfUserIsProjectAdmin(t *testing.T) {
 			description:   "CheckIfUserIsProjectAdmin: with error",
 			err:           errors.New("failed to check user permissions"),
 			statusCode:    http.StatusInternalServerError,
-			expectedError: "failed to check if user is project admin: failed to check user permissions",
+			expectedError: "failed to check if user is a project admin: failed to check user permissions",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

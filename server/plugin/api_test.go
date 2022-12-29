@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"bou.ke/monkey"
 	"github.com/golang/mock/gomock"
@@ -847,12 +848,12 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p := setupMockPlugin(mockAPI, nil, nil)
 	for _, testCase := range []struct {
-		description      string
-		body             string
-		channelID        string
-		isValidChannelID bool
-		err              error
-		statusCode       int
+		description    string
+		body           string
+		channelID      string
+		err            error
+		statusCode     int
+		parseTimeError error
 	}{
 		{
 			description: "SubscriptionNotifications: valid",
@@ -861,23 +862,21 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 		{
-			description:      "SubscriptionNotifications: empty body",
-			body:             `{}`,
-			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusOK,
+			description: "SubscriptionNotifications: empty body",
+			body:        `{}`,
+			err:         errors.New("mockError"),
+			channelID:   "mockChannelIDmockChannelID",
+			statusCode:  http.StatusOK,
 		},
 		{
 			description: "SubscriptionNotifications: invalid channel ID",
 			body:        `{}`,
 			err:         errors.New("mockError"),
-			channelID:   "mockChannelID",
+			channelID:   "mockInvalidChannelID",
 			statusCode:  http.StatusBadRequest,
 		},
 		{
@@ -885,10 +884,9 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 			body: `{
 				"detailedMessage": {
 					"markdown": "mockMarkdown"`,
-			err:              errors.New("mockError"),
-			channelID:        "mockChannelID",
-			isValidChannelID: true,
-			statusCode:       http.StatusBadRequest,
+			err:        errors.New("mockError"),
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusBadRequest,
 		},
 		{
 			description: "SubscriptionNotifications: without channelID",
@@ -897,16 +895,175 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"
 					}
 				}`,
-			isValidChannelID: true,
-			statusCode:       http.StatusBadRequest,
+			statusCode: http.StatusBadRequest,
+		},
+		{
+			description: "SubscriptionNotifications: eventType pull request created",
+			body: `{
+				"eventType": "git.pullrequest.created",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType workItem created",
+			body: `{
+				"eventType": "workitem.created",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType  pull request commented",
+			body: `{
+				"eventType": "ms.vss-code.git-pullrequest-comment-event",
+				"detailedMessage": {
+				  "markdown": "mockMarkdown"
+				},
+				"resource": {
+				  "comment": {
+					"content": "mockContent"
+				  }
+				}
+			  }`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType code pushed",
+			body: `{
+				"eventType": "git.push",
+				"detailedMessage": {
+				  "markdown": "mockMarkdown"
+				},
+				"resource": {
+				  "refUpdates": [
+					{
+					  "name": "ref/mock/mockName"
+					}
+				  ]
+				}
+			  }`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType build completed",
+			body: `{
+				"eventType": "build.complete",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType build completed - error while parsing time",
+			body: `{
+				"eventType": "build.complete",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			parseTimeError: errors.New("error parsing time"),
+			channelID:      "mockChannelIDmockChannelID",
+			statusCode:     http.StatusInternalServerError,
+		},
+		{
+			description: "SubscriptionNotifications: eventType release created",
+			body: `{
+				"eventType": "ms.vss-release.release-created-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType release abandoned",
+			body: `{
+				"eventType": "ms.vss-release.release-abandoned-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType release abandoned - error while parsing time",
+			body: `{
+				"eventType": "ms.vss-release.release-abandoned-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			parseTimeError: errors.New("error parsing time"),
+			channelID:      "mockChannelIDmockChannelID",
+			statusCode:     http.StatusInternalServerError,
+		},
+		{
+			description: "SubscriptionNotifications: eventType release deployment started",
+			body: `{
+				"eventType": "ms.vss-release.deployment-started-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType release deployment completed",
+			body: `{
+				"eventType": "ms.vss-release.deployment-completed-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					},
+				"resource": {
+					"comment": "mockComment"
+				}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType run stage state changed",
+			body: `{
+				"eventType": "ms.vss-pipelines.stage-state-changed-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "SubscriptionNotifications: eventType run state changed",
+			body: `{
+				"eventType": "ms.vss-pipelines.run-state-changed-event",
+				"detailedMessage": {
+					"markdown": "mockMarkdown"
+					}
+				}`,
+			channelID:  "mockChannelIDmockChannelID",
+			statusCode: http.StatusOK,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(&model.Post{}, nil)
 
-			monkey.Patch(model.IsValidId, func(string) bool {
-				return testCase.isValidChannelID
+			monkey.Patch(time.Parse, func(_, _ string) (time.Time, error) {
+				return time.Time{}, testCase.parseTimeError
 			})
 
 			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/notification?channelID=%s", testCase.channelID), bytes.NewBufferString(testCase.body))

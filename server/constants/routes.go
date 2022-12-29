@@ -19,7 +19,7 @@ const (
 	PathPipelineReleaseRequest              = "/pipeline-release-request"
 	PathPipelineRunRequest                  = "/pipeline-run-request"
 	PathGetSubscriptionFilterPossibleValues = "/subscriptions/filters"
-	PathPipelineCommentModal                = "/pipeline_comment_modal"
+	PathPipelineCommentModal                = "/pipeline-comment-modal"
 
 	// Azure API paths
 	CreateTask                          = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"

@@ -1198,8 +1198,8 @@ func (p *Plugin) handlePipelineCommentModal(w http.ResponseWriter, r *http.Reque
 	decoder := json.NewDecoder(r.Body)
 	postActionIntegrationRequest := &model.PostActionIntegrationRequest{}
 	if err := decoder.Decode(&postActionIntegrationRequest); err != nil {
-		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
-		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest params: ", mattermostUserID, err)
+		// TODO: prevent posting any error messages except oAuth in DM for now and use dialog for all such cases
+		p.handlePipelineApprovalRequestUpdateError("Error decoding PostActionIntegrationRequest param: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -1245,7 +1245,7 @@ func (p *Plugin) handlePipelineCommentModal(w http.ResponseWriter, r *http.Reque
 	}
 
 	if statusCode, err := p.Client.OpenDialogRequest(&requestBody, mattermostUserID); err != nil {
-		p.handlePipelineApprovalRequestUpdateError("Error opening the comment dialog: ", mattermostUserID, err)
+		p.handlePipelineApprovalRequestUpdateError("Error opening the comment dialog for user: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
 		return
 	}
@@ -1454,7 +1454,7 @@ func (p *Plugin) handlePipelineApproveOrRejectReleaseRequest(w http.ResponseWrit
 	decoder := json.NewDecoder(r.Body)
 	submitRequest := &model.SubmitDialogRequest{}
 	if err := decoder.Decode(&submitRequest); err != nil {
-		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
+		// TODO: prevent posting any error messages except oAuth in DM for now and use dialog for all such cases
 		p.handlePipelineApprovalRequestUpdateError("Error decoding SubmitDialogRequest param: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
@@ -1468,14 +1468,19 @@ func (p *Plugin) handlePipelineApproveOrRejectReleaseRequest(w http.ResponseWrit
 	loaderMessagePost := p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
 
 	values := strings.Split(submitRequest.State, "$")
-	organization := values[0]
-	projectName := values[1]
-	requestType := values[3]
-	approvalID, err := strconv.ParseFloat(values[2], 64)
-	if err != nil {
-		p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
-		return
+	var organization, projectName, requestType string
+	var err error
+	var approvalID float64
+	if len(values) == 4 {
+		organization = values[0]
+		projectName = values[1]
+		requestType = values[3]
+		approvalID, err = strconv.ParseFloat(values[2], 64)
+		if err != nil {
+			p.handlePipelineApprovalRequestUpdateError(constants.GenericErrorMessage, mattermostUserID, err)
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+			return
+		}
 	}
 
 	comments := ""
@@ -1534,7 +1539,7 @@ func (p *Plugin) handlePipelineApproveOrRejectRunRequest(w http.ResponseWriter, 
 	decoder := json.NewDecoder(r.Body)
 	submitRequest := &model.SubmitDialogRequest{}
 	if err := decoder.Decode(&submitRequest); err != nil {
-		// TODO: prevent posting any error message except oAuth in DM for now and use dialog for all such cases
+		// TODO: prevent posting any error messages except oAuth in DM for now and use dialog for all such cases
 		p.handlePipelineApprovalRequestUpdateError("Error decoding SubmitDialogRequest param: ", mattermostUserID, err)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
@@ -1548,10 +1553,13 @@ func (p *Plugin) handlePipelineApproveOrRejectRunRequest(w http.ResponseWriter, 
 	loaderMessagePost := p.API.SendEphemeralPost(mattermostUserID, alreadyUpdatedInformationPost)
 
 	values := strings.Split(submitRequest.State, "$")
-	organization := values[0]
-	projectID := values[1]
-	approvalID := values[2]
-	requestType := values[3]
+	var organization, projectID, approvalID, requestType string
+	if len(values) == 4 {
+		organization = values[0]
+		projectID = values[1]
+		approvalID = values[2]
+		requestType = values[3]
+	}
 
 	comment := ""
 	if submitRequest.Submission[constants.DialogFieldNameComment] != nil {

@@ -4,8 +4,7 @@ import {useDispatch} from 'react-redux';
 import Modal from 'components/modal';
 import EmptyState from 'components/emptyState';
 import Form from 'components/form';
-
-import pluginConstants from 'pluginConstants';
+import Dropdown from 'components/dropdown';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
@@ -15,9 +14,10 @@ import {toggleShowTaskModal} from 'reducers/taskModal';
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getCreateTaskModalState} from 'selectors';
 
-import Utils, {formLabelValuePairs} from 'utils';
-import Dropdown from 'components/dropdown';
+import pluginConstants from 'pluginConstants';
 import {boardEventTypeOptions, subscriptionFiltersForBoards, subscriptionFiltersNameForBoards} from 'pluginConstants/form';
+
+import Utils, {formLabelValuePairs} from 'utils';
 
 const TaskModal = () => {
     const {createTaskModal: createTaskModalFields} = pluginConstants.form;
@@ -96,10 +96,8 @@ const TaskModal = () => {
 
     const setSelectedDropdownOption = (field: CreateTaskModalFields, newValue: string, selectedOption?: Record<string, string>) => {
         onChangeFormField(field as CreateTaskModalFields, newValue);
-
         if (field === 'project' && selectedOption) {
-            const selectedProject = selectedOption as ProjectListLabelValuePair;
-            setSelectedProjectId(selectedProject.projectID);
+            setSelectedProjectId((selectedOption as ProjectListLabelValuePair).projectID);
         }
     };
 
@@ -243,7 +241,6 @@ const TaskModal = () => {
                                 options={getAreaPathOptions()}
                                 error={isAreaPathError}
                                 loadingOptions={isAreaPathLoading}
-                                required={true}
                                 disabled={!formFields.project || isLoading}
                             />
                         </>

@@ -27,7 +27,6 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 	}{
 		{
 			description: "GenerateOAuthToken: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -65,7 +64,6 @@ func TestCreateTask(t *testing.T) {
 	}{
 		{
 			description: "CreateTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -107,7 +105,6 @@ func TestGetTask(t *testing.T) {
 	}{
 		{
 			description: "GetTask: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -145,7 +142,6 @@ func TestGetPullRequest(t *testing.T) {
 	}{
 		{
 			description: "GetPullRequest: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -183,7 +179,6 @@ func TestLink(t *testing.T) {
 	}{
 		{
 			description: "Link: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -221,7 +216,6 @@ func TestCreateSubscription(t *testing.T) {
 	}{
 		{
 			description: "CreateSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -259,7 +253,6 @@ func TestDeleteSubscription(t *testing.T) {
 	}{
 		{
 			description: "DeleteSubscription: valid",
-			err:         nil,
 			statusCode:  http.StatusOK,
 		},
 		{
@@ -313,6 +306,78 @@ func TestCall(t *testing.T) {
 
 			_, _, err := client.Call("mockBasePath", "mockMethod", "mockPath", "mockContentType", "mockMattermostUserID", nil, nil, url.Values{})
 			assert.Error(t, err)
+		})
+	}
+}
+
+func TestUpdatePipelineApprovalRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "UpdatePipelineApprovalRequest: valid",
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "UpdatePipelineApprovalRequest: with error",
+			err:         errors.New("failed to update pipeline approval request"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			statusCode, err := p.Client.UpdatePipelineApprovalRequest(&serializers.PipelineApproveRequest{}, "mockOrganization", "mockProjectID", "mockMattermostUSerID", 1234)
+
+			if testCase.err != nil {
+				assert.EqualError(t, err, testCase.err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetApprovalDetails(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetApprovalDetails: valid",
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetApprovalDetails: with error",
+			err:         errors.New("failed to get approval details"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUSerID", 1234)
+
+			if testCase.err != nil {
+				assert.EqualError(t, err, testCase.err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
 		})
 	}
 }

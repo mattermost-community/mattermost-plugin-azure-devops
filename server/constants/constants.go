@@ -118,7 +118,7 @@ const (
 
 	GetTasksID  = "/%s/_apis/wit/wiql"
 	GetTasks    = "/%s/_apis/wit/workitems"
-	StaticFiles = "%s/plugins/%s/static/%s"
+	PublicFiles = "%s/plugins/%s/public/assets/%s"
 
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"

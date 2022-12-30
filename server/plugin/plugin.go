@@ -85,7 +85,7 @@ func (p *Plugin) initBotUser() error {
 		Username:    constants.BotUsername,
 		DisplayName: constants.BotDisplayName,
 		Description: constants.BotDescription,
-	}, plugin.ProfileImagePath(filepath.Join("assets", "azurebot.png")))
+	}, plugin.ProfileImagePath(filepath.Join("public/assets", "azurebot.png")))
 	if err != nil {
 		return errors.Wrap(err, "cannot create bot")
 	}

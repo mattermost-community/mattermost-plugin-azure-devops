@@ -52,13 +52,6 @@ func TestInitRoutes(t *testing.T) {
 	p.InitRoutes()
 }
 
-func TestHandleStaticFiles(t *testing.T) {
-	mockAPI := &plugintest.API{}
-	p := setupMockPlugin(mockAPI, nil, nil)
-	mockAPI.On("GetBundlePath").Return("/test-path", nil)
-	p.HandleStaticFiles()
-}
-
 func TestWithRecovery(t *testing.T) {
 	defer func() {
 		if x := recover(); x != nil {

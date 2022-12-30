@@ -101,7 +101,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 }
 
 func (p *Plugin) getCommand() (*model.Command, error) {
-	iconData, err := command.GetIconData(p.API, "assets/azurebot.svg")
+	iconData, err := command.GetIconData(p.API, "public/assets/azurebot.svg")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Azure DevOps icon")
 	}

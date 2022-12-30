@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
+	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 
@@ -309,6 +310,43 @@ func TestDeleteSubscription(t *testing.T) {
 
 			if testCase.err != nil {
 				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestOpenDialogRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "OpenDialogRequest: valid",
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "OpenDialogRequest: with error",
+			err:         errors.New("error in request to open comment dialog"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			statusCode, err := p.Client.OpenDialogRequest(&model.OpenDialogRequest{}, testutils.MockMattermostUserID)
+
+			if testCase.err != nil {
+				assert.EqualError(t, err, testCase.err.Error())
 			} else {
 				assert.NoError(t, err)
 			}

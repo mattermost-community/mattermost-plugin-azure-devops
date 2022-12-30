@@ -21,6 +21,9 @@ const (
 	PathGetSubscriptionFilterPossibleValues = "/subscriptions/filters"
 	PathPipelineCommentModal                = "/pipeline-comment-modal"
 
+	// Mattermost API paths
+	PathOpenCommentModal = "/api/v4/actions/dialogs/open"
+
 	// Azure API paths
 	CreateTask                          = "/%s/%s/_apis/wit/workitems/$%s?api-version=7.1-preview.3"
 	GetTask                             = "%s/%s/_apis/wit/workitems/%s?api-version=7.1-preview.3"

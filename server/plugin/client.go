@@ -300,7 +300,11 @@ func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload 
 
 	var pipelineRunApproveResponse *serializers.PipelineRunApproveResponse
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, pipelineApproveRunRequestURL, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, &pipelineRunApproveResponse, nil)
-	return pipelineRunApproveResponse, statusCode, err
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return pipelineRunApproveResponse, statusCode, nil
 }
 
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
@@ -518,7 +522,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 }
 
 func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, "/api/v4/actions/dialogs/open", http.MethodPost, mattermostUserID, body, nil, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, constants.PathOpenCommentModal, http.MethodPost, mattermostUserID, body, nil, nil)
 	return statusCode, err
 }
 

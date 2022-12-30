@@ -7,6 +7,7 @@ package mocks
 import (
 	gomock "github.com/golang/mock/gomock"
 	serializers "github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	model "github.com/mattermost/mattermost-server/v5/model"
 	url "net/url"
 	reflect "reflect"
 )
@@ -238,6 +239,21 @@ func (m *MockClient) Link(arg0 *serializers.LinkRequestPayload, arg1 string) (*s
 func (mr *MockClientMockRecorder) Link(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Link", reflect.TypeOf((*MockClient)(nil).Link), arg0, arg1)
+}
+
+// OpenDialogRequest mocks base method
+func (m *MockClient) OpenDialogRequest(arg0 *model.OpenDialogRequest, arg1 string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "OpenDialogRequest", arg0, arg1)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// OpenDialogRequest indicates an expected call of OpenDialogRequest
+func (mr *MockClientMockRecorder) OpenDialogRequest(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenDialogRequest", reflect.TypeOf((*MockClient)(nil).OpenDialogRequest), arg0, arg1)
 }
 
 // UpdatePipelineApprovalRequest mocks base method

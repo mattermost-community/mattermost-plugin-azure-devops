@@ -18,9 +18,9 @@ const (
 		"* `/azuredevops disconnect` - Disconnect your Mattermost account from your Azure DevOps account.\n" +
 		"* `/azuredevops link [projectURL]` - Link your project to a current channel.\n" +
 		"* `/azuredevops boards create [title] [description]` - Create a new task for your project.\n" +
-		"* `/azuredevops boards/repos subscription add` - Add a new Boards/Repos subscription for your linked projects.\n" +
-		"* `/azuredevops boards/repos subscription list [me or anyone] [all_channels]` - View Boards/Repos subscriptions.\n" +
-		"* `/azuredevops boards/repos subscription delete [subscription id]` - Delete a Boards/Repos subscription"
+		"* `/azuredevops boards/repos/pipelines subscription add` - Add a new Boards/Repos/Pipelines subscription for your linked projects.\n" +
+		"* `/azuredevops boards/repos/pipelines subscription list [me or anyone] [all_channels]` - View Boards/Repos/Pipelines subscriptions.\n" +
+		"* `/azuredevops boards/repos/pipelines subscription delete [subscription id]` - Delete a Boards/Repos/Pipelines subscription"
 	InvalidCommand      = "Invalid command.\n\n"
 	CommandHelp         = "help"
 	CommandConnect      = "connect"
@@ -155,11 +155,16 @@ const (
 
 	PipelineRequestIDApproved          = "approved"
 	PipelineRequestIDRejected          = "rejected"
+	PipelineRequestNameRun             = "run"
+	PipelineRequestNameRelease         = "release"
 	PipelineRequestContextApprovalID   = "approvalId"
 	PipelineRequestContextOrganization = "organization"
 	PipelineRequestContextProjectName  = "projectName"
 	PipelineRequestContextRequestType  = "requestType"
-	PipelineRequestContextProjectID    = "projectID"
+	PipelineRequestContextRequestName  = "requestName"
+	PipelineRequestContextProjectID    = "projectId"
+
+	DialogFieldNameComment = "comment"
 )
 
 var (

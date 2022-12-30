@@ -69,7 +69,7 @@ const TaskModal = () => {
         organization: formFields.organization as string,
         projectId: selectedProjectId,
         filters: subscriptionFiltersForBoards,
-        eventType: boardEventTypeOptions[0].value, // We need an eventType field for this API. Since we do not have one in create task modal we are hardcoding it.
+        eventType: boardEventTypeOptions[0].value, // We need an eventType field for this API. Since we do not have one in the create task modal so, we are hardcoding it.
     }), [formFields.organization, formFields.project, subscriptionFiltersForBoards, selectedProjectId]);
 
     useEffect(() => {

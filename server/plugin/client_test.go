@@ -434,6 +434,78 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 	}
 }
 
+func TestUpdatePipelineApprovalRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "UpdatePipelineApprovalRequest: valid",
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "UpdatePipelineApprovalRequest: with error",
+			err:         errors.New("failed to update pipeline approval request"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			statusCode, err := p.Client.UpdatePipelineApprovalRequest(&serializers.PipelineApproveRequest{}, "mockOrganization", "mockProjectID", "mockMattermostUSerID", 1234)
+
+			if testCase.err != nil {
+				assert.EqualError(t, err, testCase.err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestGetApprovalDetails(t *testing.T) {
+	defer monkey.UnpatchAll()
+	p := setupTestPlugin(&plugintest.API{})
+	for _, testCase := range []struct {
+		description string
+		err         error
+		statusCode  int
+	}{
+		{
+			description: "GetApprovalDetails: valid",
+			statusCode:  http.StatusOK,
+		},
+		{
+			description: "GetApprovalDetails: with error",
+			err:         errors.New("failed to get approval details"),
+			statusCode:  http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
+				return nil, testCase.statusCode, testCase.err
+			})
+
+			_, statusCode, err := p.Client.GetApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUSerID", 1234)
+
+			if testCase.err != nil {
+				assert.EqualError(t, err, testCase.err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
 func setupTestPlugin(api *plugintest.API) *Plugin {
 	p := Plugin{}
 	p.API = api

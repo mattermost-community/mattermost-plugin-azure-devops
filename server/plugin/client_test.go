@@ -346,7 +346,7 @@ func TestOpenDialogRequest(t *testing.T) {
 			statusCode, err := p.Client.OpenDialogRequest(&model.OpenDialogRequest{}, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
-				assert.Error(t, err)
+				assert.EqualError(t, err, testCase.err.Error())
 			} else {
 				assert.NoError(t, err)
 			}

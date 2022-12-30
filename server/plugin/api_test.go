@@ -1191,7 +1191,7 @@ func TestHandlePipelineCommentModal(t *testing.T) {
 				  "approvalId": "mockApprovalID",
 				  "requestName": "run",
 				  "organization": "mockOrganization",
-				  "projectId": "mockProjectName",
+				  "projectId": "mockProjectID",
 				  "requestType": "mockRequestType"
 				}
 			  }`,
@@ -1206,7 +1206,7 @@ func TestHandlePipelineCommentModal(t *testing.T) {
 				  "approvalId": "mockApprovalID",
 				  "requestName": "run",
 				  "organization": "mockOrganization",
-				  "projectId": "mockProjectName",
+				  "projectId": "mockProjectID",
 				  "requestType": "mockRequestType"
 				}
 			  }`,

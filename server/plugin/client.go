@@ -32,6 +32,7 @@ type Client interface {
 	GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error)
 	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
+	OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error)
 }
 
 type client struct {
@@ -518,6 +519,11 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		return responseData, http.StatusInternalServerError, errors.WithMessagef(err, "status: %s", resp.Status)
 	}
 	return responseData, resp.StatusCode, fmt.Errorf("errorMessage %s", errResp.Message)
+}
+
+func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, constants.PathOpenCommentModal, http.MethodPost, mattermostUserID, body, nil, nil)
+	return statusCode, err
 }
 
 func InitClient(p *Plugin) Client {

@@ -1,11 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import Modal from 'components/modal';
 import EmptyState from 'components/emptyState';
 import Form from 'components/form';
-
-import pluginConstants from 'pluginConstants';
+import Dropdown from 'components/dropdown';
 
 import usePluginApi from 'hooks/usePluginApi';
 import useForm from 'hooks/useForm';
@@ -15,7 +14,10 @@ import {toggleShowTaskModal} from 'reducers/taskModal';
 import {toggleShowLinkModal} from 'reducers/linkModal';
 import {getCreateTaskModalState} from 'selectors';
 
-import Utils from 'utils';
+import pluginConstants from 'pluginConstants';
+import {boardEventTypeOptions, subscriptionFiltersForBoards, subscriptionFiltersNameForBoards} from 'pluginConstants/form';
+
+import Utils, {formLabelValuePairs} from 'utils';
 
 const TaskModal = () => {
     const {createTaskModal: createTaskModalFields} = pluginConstants.form;
@@ -34,6 +36,7 @@ const TaskModal = () => {
 
     // State variables
     const {visibility, commandArgs} = getCreateTaskModalState(state);
+    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
 
     // Function to hide the modal and reset all the states
     const resetModalState = () => {
@@ -60,6 +63,42 @@ const TaskModal = () => {
             organizationList: isSuccess ? Utils.getOrganizationList(data as ProjectDetails[]) : [],
             projectList: isSuccess ? Utils.getProjectList(data as ProjectDetails[]) : [],
         };
+    };
+
+    const getAreaPathValuesRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
+        organization: formFields.organization as string,
+        projectId: selectedProjectId,
+        filters: subscriptionFiltersForBoards,
+        eventType: boardEventTypeOptions[0].value, // We need an eventType field for this API. Since we do not have one in the create task modal so, we are hardcoding it.
+    }), [formFields.organization, formFields.project, subscriptionFiltersForBoards, selectedProjectId]);
+
+    useEffect(() => {
+        makeApiRequestWithCompletionStatus(
+            pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
+            getAreaPathValuesRequest,
+        );
+    }, [getAreaPathValuesRequest]);
+
+    const {data: areaPathData, isLoading: isAreaPathLoading, isError: isAreaPathError, isSuccess: isAreaPathSuccess} = getApiState(
+        pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
+        getAreaPathValuesRequest as APIRequestPayload,
+    );
+
+    const areaPathList = areaPathData as GetSubscriptionFiltersResponse || [];
+
+    const getAreaPathOptions = useCallback(() => (isAreaPathSuccess ? ([...formLabelValuePairs('displayValue', 'value', areaPathList[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : []), [areaPathList]);
+
+    const handleSetAreaPathField = (newValue: string) =>
+        setSpecificFieldValue({
+            ...formFields,
+            areaPath: newValue,
+        });
+
+    const setSelectedDropdownOption = (field: CreateTaskModalFields, newValue: string, selectedOption?: Record<string, string>) => {
+        onChangeFormField(field as CreateTaskModalFields, newValue);
+        if (field === 'project' && selectedOption) {
+            setSelectedProjectId((selectedOption as ProjectListLabelValuePair).projectID);
+        }
     };
 
     const {
@@ -140,6 +179,7 @@ const TaskModal = () => {
             }
             if (projectList.length === 1) {
                 autoSelectedValues.project = projectList[0].value;
+                setSelectedProjectId(projectList[0].projectID);
             }
 
             if (autoSelectedValues.organization || autoSelectedValues.project) {
@@ -164,7 +204,7 @@ const TaskModal = () => {
 
     const {isLoading: isCreateTaskLoading, isError, error} = getApiState(pluginConstants.pluginApiServiceConfigs.createTask.apiServiceName, getApiPayload());
     const isAnyProjectLinked = Boolean(organizationList.length && projectList.length);
-    const isLoading = isOrganizationAndProjectListLoading || isCreateTaskLoading;
+    const isLoading = isOrganizationAndProjectListLoading || isCreateTaskLoading || isAreaPathLoading;
 
     return (
         <Modal
@@ -180,17 +220,30 @@ const TaskModal = () => {
             <>
                 {
                     isAnyProjectLinked ? (
-                        Object.keys(createTaskModalFields).map((field) => (
-                            <Form
-                                key={createTaskModalFields[field as CreateTaskModalFields].label}
-                                fieldConfig={createTaskModalFields[field as CreateTaskModalFields]}
-                                value={formFields[field as CreateTaskModalFields] ?? ''}
-                                optionsList={getDropDownOptions(field as CreateTaskModalFields)}
-                                onChange={(newValue) => onChangeFormField(field as CreateTaskModalFields, newValue)}
-                                error={errorState[field as CreateTaskModalFields]}
-                                isDisabled={isLoading}
+                        <>
+                            {
+                                Object.keys(createTaskModalFields).map((field) => (
+                                    <Form
+                                        key={createTaskModalFields[field as CreateTaskModalFields].label}
+                                        fieldConfig={createTaskModalFields[field as CreateTaskModalFields]}
+                                        value={formFields[field as CreateTaskModalFields] ?? ''}
+                                        optionsList={getDropDownOptions(field as CreateTaskModalFields)}
+                                        onChange={(newValue, _, selectedOption) => setSelectedDropdownOption(field as CreateTaskModalFields, newValue, selectedOption)}
+                                        error={errorState[field as CreateTaskModalFields]}
+                                        isDisabled={isLoading}
+                                    />
+                                ))
+                            }
+                            <Dropdown
+                                placeholder='Area Path'
+                                value={formFields.areaPath as string}
+                                onChange={handleSetAreaPathField}
+                                options={getAreaPathOptions()}
+                                error={isAreaPathError}
+                                loadingOptions={isAreaPathLoading}
+                                disabled={!formFields.project || isLoading}
                             />
-                        ))
+                        </>
                     ) : !isLoading && (
                         <EmptyState
                             title='No Project Linked'

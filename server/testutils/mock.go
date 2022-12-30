@@ -3,8 +3,14 @@ package testutils
 import (
 	"github.com/stretchr/testify/mock"
 
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+)
+
+const (
+	MockOrganization     = "mockOrganization"
+	MockProjectName      = "mockProjectName"
+	MockMattermostUserID = "mockMattermostUserID"
+	MockChannelID        = "mockChannelID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
@@ -15,16 +21,16 @@ func GetMockArgumentsWithType(typeString string, num int) []interface{} {
 	return ret
 }
 
-func GetSuscriptionDetailsPayload(userID, serviceType string) []*serializers.SubscriptionDetails {
+func GetSuscriptionDetailsPayload(userID, serviceType, eventType string) []*serializers.SubscriptionDetails {
 	return []*serializers.SubscriptionDetails{
 		{
 			ChannelID:        "mockChannelID",
 			MattermostUserID: userID,
 			ServiceType:      serviceType,
 			SubscriptionID:   "mockSubscriptionID",
-			OrganizationName: "mockOrganizationName",
+			OrganizationName: "mockOrganization",
 			ProjectName:      "mockProjectName",
-			EventType:        constants.SubscriptionEventWorkItemCreated,
+			EventType:        eventType,
 			CreatedBy:        "mockCreatedBy",
 			ChannelName:      "mockChannelName",
 		},

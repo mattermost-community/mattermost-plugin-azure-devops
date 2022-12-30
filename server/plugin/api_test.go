@@ -54,13 +54,6 @@ func TestInitRoutes(t *testing.T) {
 	p.InitRoutes()
 }
 
-func TestHandleStaticFiles(t *testing.T) {
-	mockAPI := &plugintest.API{}
-	p := setupMockPlugin(mockAPI, nil, nil)
-	mockAPI.On("GetBundlePath").Return("/test-path", nil)
-	p.HandleStaticFiles()
-}
-
 func TestWithRecovery(t *testing.T) {
 	defer func() {
 		if x := recover(); x != nil {
@@ -100,7 +93,7 @@ func TestHandleAuthRequired(t *testing.T) {
 			timerHandler := func(w http.ResponseWriter, r *http.Request) {}
 
 			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			res := httptest.NewRecorder()
 
@@ -131,7 +124,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: valid fields",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",
 				"fields": {
 					"title": "mockTitle",
@@ -153,7 +146,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
@@ -163,7 +156,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: missing fields",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType"
 				}`,
 			err:                errors.New("mockError"),
@@ -174,7 +167,7 @@ func TestHandleCreateTask(t *testing.T) {
 			description: "CreateTask: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"type": "mockType",
 				"fields": {
 					"title": "mockTitle",
@@ -200,7 +193,7 @@ func TestHandleCreateTask(t *testing.T) {
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/tasks", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleCreateTask(w, req)
@@ -292,7 +285,7 @@ func TestHandleLink(t *testing.T) {
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/link", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleLink(w, req)
@@ -414,12 +407,12 @@ func TestHandleGetAllLinkedProjects(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
-			mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, testCase.err)
+			mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, testCase.err)
 
 			req := httptest.NewRequest(http.MethodGet, "/project/link", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetAllLinkedProjects(w, req)
@@ -449,32 +442,19 @@ func TestHandleUnlinkProject(t *testing.T) {
 			description: "HandleUnlinkProject: valid",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",
+				"projectName": "mockProjectName",
 				"projectID" :"mockProjectID"
 				}`,
-			err:        nil,
-			statusCode: http.StatusOK,
-			projectList: []serializers.ProjectDetails{
-				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganization",
-					ProjectID:        "mockProjectID",
-				},
-			},
-			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-			},
+			statusCode:         http.StatusOK,
+			projectList:        testutils.GetProjectDetailsPayload(),
+			project:            testutils.GetProjectDetailsPayload()[0],
 			expectedStatusCode: http.StatusOK,
 		},
 		{
 			description: "HandleUnlinkProject: invalid body",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",`,
+				"projectName": "mockProjectName",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
@@ -492,24 +472,12 @@ func TestHandleUnlinkProject(t *testing.T) {
 			description: "HandleUnlinkProject: marshaling gives error",
 			body: `{
 				"organizationName": "mockOrganization",
-				"projectName": "mockProject",
+				"projectName": "mockProjectName",
 				"projectID" :"mockProjectID"
 				}`,
-			statusCode: http.StatusOK,
-			projectList: []serializers.ProjectDetails{
-				{
-					MattermostUserID: "mockMattermostUserID",
-					ProjectName:      "mockProject",
-					OrganizationName: "mockOrganization",
-					ProjectID:        "mockProjectID",
-				},
-			},
-			project: serializers.ProjectDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
-				ProjectID:        "mockProjectID",
-			},
+			statusCode:         http.StatusOK,
+			projectList:        testutils.GetProjectDetailsPayload(),
+			project:            testutils.GetProjectDetailsPayload()[0],
 			marshalError:       errors.New("mockError"),
 			expectedStatusCode: http.StatusInternalServerError,
 		},
@@ -522,7 +490,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			})
 
 			if testCase.statusCode == http.StatusOK {
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
+				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().DeleteProject(&testCase.project).Return(nil)
 			}
 
@@ -531,7 +499,7 @@ func TestHandleUnlinkProject(t *testing.T) {
 			})
 
 			req := httptest.NewRequest(http.MethodPost, "/project/unlink", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleUnlinkProject(w, req)
@@ -559,7 +527,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			description: "HandleGetUserAccountDetails: valid",
 			statusCode:  http.StatusOK,
 			user: &serializers.User{
-				MattermostUserID: "mockMattermostUserID",
+				MattermostUserID: testutils.MockMattermostUserID,
 			},
 		},
 		{
@@ -577,7 +545,7 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			description: "HandleGetUserAccountDetails: marshaling gives error",
 			statusCode:  http.StatusInternalServerError,
 			user: &serializers.User{
-				MattermostUserID: "mockMattermostUserID",
+				MattermostUserID: testutils.MockMattermostUserID,
 			},
 			marshalError: errors.New("mockError"),
 		},
@@ -586,14 +554,14 @@ func TestHandleGetUserAccountDetails(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return(nil)
 
-			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserError)
+			mockedStore.EXPECT().LoadUser(testutils.MockMattermostUserID).Return(testCase.user, testCase.loadUserError)
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/user", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetUserAccountDetails(w, req)
@@ -627,24 +595,18 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"serviceType": "mockServiceType",
-				"channelID": "mockChannelID"
+				"channelID": "mockChannelID",
+				"channelName": "mockChannelName"
 				}`,
 			statusCode:         http.StatusOK,
 			expectedStatusCode: http.StatusOK,
 			projectList:        []serializers.ProjectDetails{},
 			project:            serializers.ProjectDetails{},
 			subscriptionList:   []*serializers.SubscriptionDetails{},
-			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
-				EventType:        "mockEventType",
-				ServiceType:      "mockServiceType",
-				ChannelID:        "mockChannelID",
-			},
+			subscription:       testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, "mockServiceType", "mockEventType")[0],
 		},
 		{
 			description:        "HandleCreateSubscriptions: empty body",
@@ -657,7 +619,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",`,
+				"project": "mockProjectName",`,
 			err:                errors.New("mockError"),
 			statusCode:         http.StatusBadRequest,
 			expectedStatusCode: http.StatusBadRequest,
@@ -675,7 +637,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			description: "HandleCreateSubscriptions: marshaling gives error",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"serviceType": "mockServiceType",
 				"channelID": "mockChannelID"
@@ -686,20 +648,17 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			projectList:        []serializers.ProjectDetails{},
 			project:            serializers.ProjectDetails{},
 			subscriptionList:   []*serializers.SubscriptionDetails{},
-			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
-				EventType:        "mockEventType",
-				ServiceType:      "mockServiceType",
-				ChannelID:        "mockChannelID",
-			},
+			subscription:       testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, "mockServiceType", "mockEventType")[0],
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
-			mockAPI.On("GetChannel", mock.AnythingOfType("string")).Return(&model.Channel{}, nil)
-			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{}, nil)
+			mockAPI.On("GetChannel", mock.AnythingOfType("string")).Return(&model.Channel{
+				DisplayName: "mockChannelName",
+			}, nil)
+			mockAPI.On("GetUser", mock.AnythingOfType("string")).Return(&model.User{
+				FirstName: "mockCreatedBy",
+			}, nil)
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
@@ -712,14 +671,16 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			})
 
 			if testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{}, testCase.statusCode, testCase.err)
-				mockedStore.EXPECT().GetAllProjects("mockMattermostUserID").Return(testCase.projectList, nil)
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
+				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
+					ID: "mockSubscriptionID",
+				}, testCase.statusCode, testCase.err)
+				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
+				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().StoreSubscription(testCase.subscription).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/subscriptions", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleCreateSubscription(w, req)
@@ -753,7 +714,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description:   "HandleGetSubscriptions: project as a query param",
-			project:       "mockProject",
+			project:       testutils.MockProjectName,
 			statusCode:    http.StatusOK,
 			isTeamIDValid: true,
 		},
@@ -776,7 +737,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     "mockProject",
+			project:     testutils.MockProjectName,
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode:    http.StatusInternalServerError,
 			isTeamIDValid: true,
@@ -788,7 +749,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		},
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     "mockProject",
+			project:     testutils.MockProjectName,
 			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("mockError"),
 			statusCode:    http.StatusInternalServerError,
 			isTeamIDValid: true,
@@ -798,7 +759,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
 
 			if testCase.isTeamIDValid {
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, testCase.err)
+				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
 			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
@@ -814,7 +775,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 			})
 
 			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleGetSubscriptions(w, req)
@@ -1076,7 +1037,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			description: "HandleDeleteSubscriptions: valid",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",
+				"project": "mockProjectName",
 				"eventType": "mockEventType",
 				"channelID": "mockChannelID",
 				"mmUserID": "mockMattermostUserID"
@@ -1084,11 +1045,11 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			statusCode:       http.StatusOK,
 			subscriptionList: []*serializers.SubscriptionDetails{},
 			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: "mockMattermostUserID",
-				ProjectName:      "mockProject",
-				OrganizationName: "mockOrganization",
+				MattermostUserID: testutils.MockMattermostUserID,
+				ProjectName:      testutils.MockProjectName,
+				OrganizationName: testutils.MockOrganization,
 				EventType:        "mockEventType",
-				ChannelID:        "mockChannelID",
+				ChannelID:        testutils.MockProjectName,
 			},
 		},
 		{
@@ -1101,7 +1062,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 			description: "HandleDeleteSubscriptions: invalid body",
 			body: `{
 				"organization": "mockOrganization",
-				"project": "mockProject",`,
+				"project": "mockProjectName",`,
 			err:        errors.New("mockError"),
 			statusCode: http.StatusBadRequest,
 		},
@@ -1124,12 +1085,12 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
-				mockedStore.EXPECT().GetAllSubscriptions("mockMattermostUserID").Return(testCase.subscriptionList, nil)
+				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
 			p.handleDeleteSubscriptions(w, req)
@@ -1155,7 +1116,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{
-					Id:   "mockChannelID",
+					Id:   testutils.MockProjectName,
 					Type: model.CHANNEL_OPEN,
 				},
 			},
@@ -1180,7 +1141,7 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 			teamID:      "qteks46as3befxj4ec1mip5ume",
 			channels: []*model.Channel{
 				{
-					Id:   "mockChannelID",
+					Id:   testutils.MockProjectName,
 					Type: model.CHANNEL_PRIVATE,
 				},
 			},
@@ -1203,6 +1164,324 @@ func TestGetUserChannelsForTeam(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			p.getUserChannelsForTeam(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandlePipelineApproveOrRejectRunRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	validBody := `{
+		"type": "dialog_submission",
+		"callback_id": "mockCallbackID",
+		"state": "mockOrganization$mockProjectID$mockApproverID$mockRequestType",
+		"user_id": "mockUserID",
+		"channel_id": "mockChannelID",
+		"submission": {
+		  "comment": "mockComment"
+		},
+		"canceled": false
+	  }`
+	invalidBody := `{
+		"wrong":
+	  }`
+	for _, testCase := range []struct {
+		description                            string
+		statusCode                             int
+		updatePipelineRunApprovalPostError     error
+		updatePipelineRunApprovalRequestError  error
+		getRunApprovalDetailsError             error
+		updatePipelineRunApprovalRequestStatus int
+		getRunApprovalDetailsStatus            int
+		isPayloadInvalid                       bool
+	}{
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: valid",
+			updatePipelineRunApprovalRequestStatus: http.StatusOK,
+			statusCode:                             http.StatusOK,
+			getRunApprovalDetailsStatus:            http.StatusOK,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: approved/rejected the request successfully but failed to update the post",
+			updatePipelineRunApprovalRequestStatus: http.StatusOK,
+			updatePipelineRunApprovalPostError:     errors.New("approved/rejected the request successfully but failed to update post"),
+			statusCode:                             http.StatusInternalServerError,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request",
+			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
+			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
+			statusCode:                             http.StatusOK,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and update the post",
+			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
+			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
+			updatePipelineRunApprovalPostError:     errors.New("failed to approve/reject request and update the post"),
+			statusCode:                             http.StatusInternalServerError,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and fetch approval details",
+			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
+			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
+			getRunApprovalDetailsError:             errors.New("failed to approve/reject the request and fetch approval details"),
+			statusCode:                             http.StatusInternalServerError,
+			getRunApprovalDetailsStatus:            http.StatusInternalServerError,
+		},
+		{
+			description:      "HandlePipelineApproveOrRejectRunRequest: invalid payload",
+			isPayloadInvalid: true,
+			statusCode:       http.StatusInternalServerError,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request due to a server error",
+			updatePipelineRunApprovalRequestStatus: http.StatusBadRequest,
+			statusCode:                             http.StatusInternalServerError,
+			updatePipelineRunApprovalRequestError:  errors.New("failed to approve/reject the request due to some internal server error"),
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
+			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{Message: "mockMessage"})
+			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
+
+			if !testCase.isPayloadInvalid {
+				mockedClient.EXPECT().UpdatePipelineRunApprovalRequest(gomock.Any(), "mockOrganization", "mockProjectID", "test-userID").Return(&serializers.PipelineRunApproveResponse{
+					Value: []*serializers.PipelineRunResponseValue{
+						{},
+					},
+				}, testCase.updatePipelineRunApprovalRequestStatus, testCase.updatePipelineRunApprovalRequestError)
+			}
+
+			if testCase.updatePipelineRunApprovalRequestStatus == http.StatusInternalServerError {
+				mockedClient.EXPECT().GetRunApprovalDetails("mockOrganization", "mockProjectID", "test-userID", "mockApproverID").Return(&serializers.PipelineRunApprovalDetails{}, testCase.getRunApprovalDetailsStatus, testCase.getRunApprovalDetailsError)
+			}
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "UpdatePipelineRunApprovalPost", func(_ *Plugin, _ []*serializers.ApprovalStep, _ int, _, _, _ string) error {
+				return testCase.updatePipelineRunApprovalPostError
+			})
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
+				return "", nil
+			})
+
+			body := validBody
+			if testCase.isPayloadInvalid {
+				body = invalidBody
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(body))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			w := httptest.NewRecorder()
+			p.handlePipelineApproveOrRejectRunRequest(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	validBody := `{
+		"type": "dialog_submission",
+		"callback_id": "mockCallbackID",
+		"state": "mockOrganization$mockProjectName$1234$mockRequestType",
+		"user_id": "mockUserID",
+		"channel_id": "mockChannelID",
+		"submission": {
+		  "comment": "mockComment"
+		},
+		"canceled": false
+	  }`
+	invalidBody := `{
+		"wrong":
+	  }`
+	for _, testCase := range []struct {
+		description                               string
+		statusCode                                int
+		updatePipelineReleaseApprovalPostError    error
+		updatePipelineReleaseApprovalRequestError error
+		getApprovalDetailsError                   error
+		updatePipelineApprovalRequestStatus       int
+		getApprovalDetailsStatus                  int
+		isPayloadInvalid                          bool
+	}{
+		{
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: valid",
+			updatePipelineApprovalRequestStatus: http.StatusOK,
+			statusCode:                          http.StatusOK,
+			getApprovalDetailsStatus:            http.StatusOK,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected the request successfully but failed to update the post",
+			updatePipelineApprovalRequestStatus:    http.StatusOK,
+			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
+			statusCode:                             http.StatusInternalServerError,
+		},
+		{
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request",
+			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
+			statusCode:                          http.StatusOK,
+		},
+		{
+			description:                            "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and update the post",
+			updatePipelineApprovalRequestStatus:    http.StatusBadRequest,
+			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
+			statusCode:                             http.StatusInternalServerError,
+		},
+		{
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and fetch approval details",
+			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
+			getApprovalDetailsError:             errors.New("failed to get the approval details"),
+			statusCode:                          http.StatusInternalServerError,
+			getApprovalDetailsStatus:            http.StatusInternalServerError,
+		},
+		{
+			description:      "HandlePipelineApproveOrRejectReleaseRequest: invalid payload",
+			isPayloadInvalid: true,
+			statusCode:       http.StatusInternalServerError,
+		},
+		{
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request due to server error",
+			updatePipelineApprovalRequestStatus: http.StatusInternalServerError,
+			statusCode:                          http.StatusInternalServerError,
+			updatePipelineReleaseApprovalRequestError: errors.New("failed to update the pipeline approval request"),
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
+			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{})
+			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
+
+			if !testCase.isPayloadInvalid {
+				mockedClient.EXPECT().UpdatePipelineApprovalRequest(gomock.Any(), "mockOrganization", "mockProjectName", "test-userID", 1234).Return(testCase.updatePipelineApprovalRequestStatus, testCase.updatePipelineReleaseApprovalRequestError)
+			}
+
+			if testCase.updatePipelineApprovalRequestStatus == http.StatusBadRequest {
+				mockedClient.EXPECT().GetApprovalDetails("mockOrganization", "mockProjectName", "test-userID", 1234).Return(&serializers.PipelineApprovalDetails{}, testCase.getApprovalDetailsStatus, testCase.getApprovalDetailsError)
+			}
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "UpdatePipelineReleaseApprovalPost", func(_ *Plugin, _, _, _ string) error {
+				return testCase.updatePipelineReleaseApprovalPostError
+			})
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
+				return "", nil
+			})
+
+			body := validBody
+			if testCase.isPayloadInvalid {
+				body = invalidBody
+			}
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(body))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			w := httptest.NewRecorder()
+			p.handlePipelineApproveOrRejectReleaseRequest(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandlePipelineCommentModal(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	for _, testCase := range []struct {
+		description      string
+		body             string
+		statusCode       int
+		isPayloadInvalid bool
+		openModalError   error
+	}{
+		{
+			description: "HandlePipelineCommentModal: valid release approval confirmation",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": 1234,
+				  "requestName": "release",
+				  "organization": "mockOrganization",
+				  "projectName": "mockProjectName",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "HandlePipelineCommentModal: valid run approval confirmation",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": "mockApprovalID",
+				  "requestName": "run",
+				  "organization": "mockOrganization",
+				  "projectId": "mockProjectID",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "HandlePipelineCommentModal: failed to open the comment modal",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": "mockApprovalID",
+				  "requestName": "run",
+				  "organization": "mockOrganization",
+				  "projectId": "mockProjectID",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode:     http.StatusInternalServerError,
+			openModalError: errors.New("failed to open the comment modal"),
+		},
+		{
+			description: "HandlePipelineCommentModal: invalid payload",
+			body: `{
+				"wrong":
+			  }`,
+			isPayloadInvalid: true,
+			statusCode:       http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
+
+			if !testCase.isPayloadInvalid {
+				mockedClient.EXPECT().OpenDialogRequest(gomock.Any(), "test-userID").Return(testCase.statusCode, testCase.openModalError)
+			}
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
+				return "", nil
+			})
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(testCase.body))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			w := httptest.NewRecorder()
+			p.handlePipelineCommentModal(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})
@@ -1304,168 +1583,6 @@ func TestHandleGetSubscriptionFilterPossibleValues(t *testing.T) {
 				require.Nil(t, err)
 				assert.Contains(t, string(response), testCase.expectedResponse)
 			}
-		})
-	}
-}
-
-func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
-	defer monkey.UnpatchAll()
-	mockAPI := &plugintest.API{}
-	mockCtrl := gomock.NewController(t)
-	mockedClient := mocks.NewMockClient(mockCtrl)
-	p := setupMockPlugin(mockAPI, nil, mockedClient)
-	for _, testCase := range []struct {
-		description                               string
-		body                                      string
-		statusCode                                int
-		updatePipelineReleaseApprovalPostError    error
-		updatePipelineReleaseApprovalRequestError error
-		getApprovalDetailsError                   error
-		updatePipelineApprovalRequestStatus       int
-		getApprovalDetailsStatus                  int
-		isPayloadInvalid                          bool
-	}{
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: valid",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus: http.StatusOK,
-			statusCode:                          http.StatusOK,
-			getApprovalDetailsStatus:            http.StatusOK,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected the request successfully but failed to update post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus:    http.StatusOK,
-			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
-			statusCode:                             http.StatusInternalServerError,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
-			statusCode:                          http.StatusOK,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and update the post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus:    http.StatusBadRequest,
-			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
-			statusCode:                             http.StatusInternalServerError,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and fetch approval details",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
-			getApprovalDetailsError:             errors.New("failed to get approval details"),
-			statusCode:                          http.StatusInternalServerError,
-			getApprovalDetailsStatus:            http.StatusInternalServerError,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: invalid payload",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "wrong: "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			isPayloadInvalid: true,
-			statusCode:       http.StatusInternalServerError,
-		},
-		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request due to server error",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus:       http.StatusInternalServerError,
-			statusCode:                                http.StatusInternalServerError,
-			updatePipelineReleaseApprovalRequestError: errors.New("failed to update the pipeline approval request"),
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
-			mockAPI.On("SendEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(&model.Post{})
-			mockAPI.On("UpdateEphemeralPost", mock.AnythingOfType("string"), mock.AnythingOfType("*model.Post")).Return(nil)
-
-			if !testCase.isPayloadInvalid {
-				mockedClient.EXPECT().UpdatePipelineApprovalRequest(gomock.Any(), "mockOrganization", "mockProjectName", "test-userID", 1234).Return(testCase.updatePipelineApprovalRequestStatus, testCase.updatePipelineReleaseApprovalRequestError)
-			}
-
-			if testCase.updatePipelineApprovalRequestStatus == http.StatusBadRequest {
-				mockedClient.EXPECT().GetApprovalDetails("mockOrganization", "mockProjectName", "test-userID", 1234).Return(&serializers.PipelineApprovalDetails{}, testCase.getApprovalDetailsStatus, testCase.getApprovalDetailsError)
-			}
-
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "UpdatePipelineReleaseApprovalPost", func(_ *Plugin, _, _, _ string) error {
-				return testCase.updatePipelineReleaseApprovalPostError
-			})
-
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
-				return "", nil
-			})
-
-			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(testCase.body))
-			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
-
-			w := httptest.NewRecorder()
-			p.handlePipelineApproveOrRejectReleaseRequest(w, req)
-			resp := w.Result()
-			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})
 	}
 }

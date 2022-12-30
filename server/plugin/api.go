@@ -355,7 +355,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		SubscriptionID:                   subscription.ID,
 		ChannelName:                      channel.DisplayName,
 		ChannelType:                      channel.Type,
-		CreatedBy:                        createdByDisplayName,
+		CreatedBy:                        strings.TrimSpace(createdByDisplayName),
 		Repository:                       body.Repository,
 		TargetBranch:                     body.TargetBranch,
 		RepositoryName:                   body.RepositoryName,

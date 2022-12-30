@@ -162,7 +162,7 @@ const (
 	PipelineRequestContextProjectName  = "projectName"
 	PipelineRequestContextRequestType  = "requestType"
 	PipelineRequestContextRequestName  = "requestName"
-	PipelineRequestContextProjectID    = "projectID"
+	PipelineRequestContextProjectID    = "projectId"
 
 	DialogFieldNameComment = "comment"
 )

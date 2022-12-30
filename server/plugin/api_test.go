@@ -929,6 +929,17 @@ func TestHandlePipelineApproveOrRejectRunRequest(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	body := `{
+		"type": "dialog_submission",
+		"callback_id": "mockCallbackID",
+		"state": "mockOrganization$mockProjectID$mockApproverID$mockRequestType",
+		"user_id": "mockUserID",
+		"channel_id": "mockChannelID",
+		"submission": {
+		  "comment": "mockComment"
+		},
+		"canceled": false
+	  }`
 	for _, testCase := range []struct {
 		description                            string
 		body                                   string
@@ -941,82 +952,37 @@ func TestHandlePipelineApproveOrRejectRunRequest(t *testing.T) {
 		isPayloadInvalid                       bool
 	}{
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: valid",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: valid",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusOK,
 			statusCode:                             http.StatusOK,
 			getRunApprovalDetailsStatus:            http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: approved/rejected the request successfully but failed to update post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: approved/rejected the request successfully but failed to update post",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusOK,
 			updatePipelineRunApprovalPostError:     errors.New("approved/rejected the request successfully but failed to update post"),
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject request",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
 			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
 			statusCode:                             http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and update the post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and update the post",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
 			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
 			updatePipelineRunApprovalPostError:     errors.New("failed to approve/reject request and update the post"),
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and fetch approval details",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request and fetch approval details",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusInternalServerError,
 			updatePipelineRunApprovalRequestError:  errors.New("not permitted to complete approval"),
 			getRunApprovalDetailsError:             errors.New("failed to approve/reject the request and fetch approval details"),
@@ -1026,30 +992,14 @@ func TestHandlePipelineApproveOrRejectRunRequest(t *testing.T) {
 		{
 			description: "HandlePipelineApproveOrRejectRunRequest: invalid payload",
 			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-    			  "approvalId": "mockApproverID",
-    			  "wrong: "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
+				"wrong":
 			  }`,
 			isPayloadInvalid: true,
 			statusCode:       http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request due to server error",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": "mockApproverID",
-				  "organization": "mockOrganization",
-				  "projectID": "mockProjectID",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectRunRequest: failed to approve/reject the request due to server error",
+			body:                                   body,
 			updatePipelineRunApprovalRequestStatus: http.StatusBadRequest,
 			statusCode:                             http.StatusInternalServerError,
 			updatePipelineRunApprovalRequestError:  errors.New("failed to approve/reject the request due to some internal server error"),
@@ -1098,6 +1048,17 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	mockedClient := mocks.NewMockClient(mockCtrl)
 	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	body := `{
+		"type": "dialog_submission",
+		"callback_id": "mockCallbackID",
+		"state": "mockOrganization$mockProjectName$1234$mockRequestType",
+		"user_id": "mockUserID",
+		"channel_id": "mockChannelID",
+		"submission": {
+		  "comment": "mockComment"
+		},
+		"canceled": false
+	  }`
 	for _, testCase := range []struct {
 		description                               string
 		body                                      string
@@ -1110,80 +1071,35 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 		isPayloadInvalid                          bool
 	}{
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: valid",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: valid",
+			body:                                body,
 			updatePipelineApprovalRequestStatus: http.StatusOK,
 			statusCode:                          http.StatusOK,
 			getApprovalDetailsStatus:            http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected the request successfully but failed to update post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectReleaseRequest: approved/rejected the request successfully but failed to update post",
+			body:                                   body,
 			updatePipelineApprovalRequestStatus:    http.StatusOK,
 			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request",
+			body:                                body,
 			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
 			statusCode:                          http.StatusOK,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and update the post",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                            "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and update the post",
+			body:                                   body,
 			updatePipelineApprovalRequestStatus:    http.StatusBadRequest,
 			updatePipelineReleaseApprovalPostError: errors.New("failed to update post"),
 			statusCode:                             http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and fetch approval details",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request and fetch approval details",
+			body:                                body,
 			updatePipelineApprovalRequestStatus: http.StatusBadRequest,
 			getApprovalDetailsError:             errors.New("failed to get approval details"),
 			statusCode:                          http.StatusInternalServerError,
@@ -1192,32 +1108,16 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 		{
 			description: "HandlePipelineApproveOrRejectReleaseRequest: invalid payload",
 			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "wrong: "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
+				"wrong":
 			  }`,
 			isPayloadInvalid: true,
 			statusCode:       http.StatusInternalServerError,
 		},
 		{
-			description: "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request due to server error",
-			body: `{
-				"post_id": "mockPostID",
-				"channel_id": "mockChannelID",
-				"context": {
-				  "approvalId": 1234,
-				  "organization": "mockOrganization",
-				  "projectName": "mockProjectName",
-				  "requestType": "mockRequestType"
-				}
-			  }`,
-			updatePipelineApprovalRequestStatus:       http.StatusInternalServerError,
-			statusCode:                                http.StatusInternalServerError,
+			description:                         "HandlePipelineApproveOrRejectReleaseRequest: failed to approve/reject the request due to server error",
+			body:                                body,
+			updatePipelineApprovalRequestStatus: http.StatusInternalServerError,
+			statusCode:                          http.StatusInternalServerError,
 			updatePipelineReleaseApprovalRequestError: errors.New("failed to update the pipeline approval request"),
 		},
 	} {
@@ -1248,6 +1148,97 @@ func TestHandlePipelineApproveOrRejectReleaseRequest(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			p.handlePipelineApproveOrRejectReleaseRequest(w, req)
+			resp := w.Result()
+			assert.Equal(t, testCase.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func TestHandlePipelineCommentModal(t *testing.T) {
+	defer monkey.UnpatchAll()
+	mockAPI := &plugintest.API{}
+	mockCtrl := gomock.NewController(t)
+	mockedClient := mocks.NewMockClient(mockCtrl)
+	p := setupMockPlugin(mockAPI, nil, mockedClient)
+	for _, testCase := range []struct {
+		description      string
+		body             string
+		statusCode       int
+		isPayloadInvalid bool
+		openModalError   error
+	}{
+		{
+			description: "HandlePipelineCommentModal: valid release approval confirmation",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": 1234,
+				  "requestName": "release",
+				  "organization": "mockOrganization",
+				  "projectName": "mockProjectName",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "HandlePipelineCommentModal: valid run approval confirmation",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": "mockApprovalID",
+				  "requestName": "run",
+				  "organization": "mockOrganization",
+				  "projectId": "mockProjectName",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode: http.StatusOK,
+		},
+		{
+			description: "HandlePipelineCommentModal: failed to open comment modal",
+			body: `{
+				"post_id": "mockPostID",
+				"channel_id": "mockChannelID",
+				"context": {
+				  "approvalId": "mockApprovalID",
+				  "requestName": "run",
+				  "organization": "mockOrganization",
+				  "projectId": "mockProjectName",
+				  "requestType": "mockRequestType"
+				}
+			  }`,
+			statusCode:     http.StatusInternalServerError,
+			openModalError: errors.New("failed to open comment modal"),
+		},
+		{
+			description: "HandlePipelineCommentModal: invalid payload",
+			body: `{
+				"wrong":
+			  }`,
+			isPayloadInvalid: true,
+			statusCode:       http.StatusInternalServerError,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(&model.Channel{}, nil)
+
+			if !testCase.isPayloadInvalid {
+				mockedClient.EXPECT().OpenDialogRequest(gomock.Any(), "test-userID").Return(testCase.statusCode, testCase.openModalError)
+			}
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
+				return "", nil
+			})
+
+			req := httptest.NewRequest(http.MethodGet, "/mockPath", bytes.NewBufferString(testCase.body))
+			req.Header.Add(constants.HeaderMattermostUserID, "test-userID")
+
+			w := httptest.NewRecorder()
+			p.handlePipelineCommentModal(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})

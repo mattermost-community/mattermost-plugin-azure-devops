@@ -39,9 +39,9 @@ func TestPostTaskPreview(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.TaskValue{}, testCase.statusCode, testCase.err)
+			mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.TaskValue{}, testCase.statusCode, testCase.err)
 
-			resp, msg := p.PostTaskPreview(testCase.linkData, mockMattermostUserID, mockChannelID)
+			resp, msg := p.PostTaskPreview(testCase.linkData, testutils.MockMattermostUserID, testutils.MockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)
@@ -77,9 +77,9 @@ func TestPostPullRequestPreview(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.PullRequest{}, testCase.statusCode, testCase.err)
+			mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.PullRequest{}, testCase.statusCode, testCase.err)
 
-			resp, msg := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", mockMattermostUserID, mockChannelID)
+			resp, msg := p.PostPullRequestPreview(testCase.linkData, "mockPullRequestLink", testutils.MockMattermostUserID, testutils.MockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)
@@ -115,9 +115,9 @@ func TestPostReleaseDetailsPreview(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogDebug", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockedClient.EXPECT().GetReleaseDetails(gomock.Any(), gomock.Any(), gomock.Any(), mockMattermostUserID).Return(&serializers.ReleaseDetails{}, testCase.statusCode, testCase.err)
+			mockedClient.EXPECT().GetReleaseDetails(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.ReleaseDetails{}, testCase.statusCode, testCase.err)
 
-			resp, msg := p.PostReleaseDetailsPreview(testCase.linkData, "mockReleasePipelineLink", mockMattermostUserID, mockChannelID)
+			resp, msg := p.PostReleaseDetailsPreview(testCase.linkData, "mockReleasePipelineLink", testutils.MockMattermostUserID, testutils.MockChannelID)
 			assert.Equal(t, "", msg)
 			if testCase.err != nil {
 				assert.Nil(t, resp)

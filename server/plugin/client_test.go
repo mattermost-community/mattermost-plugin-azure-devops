@@ -13,13 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
-)
-
-const (
-	mockOrganization     = "mockOrganization"
-	mockProjectName      = "mockProjectName"
-	mockMattermostUserID = "mockMattermostUserID"
-	mockChannelID        = "mockChannelID"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestClientGenerateOAuthToken(t *testing.T) {
@@ -88,7 +82,7 @@ func TestCreateTask(t *testing.T) {
 				Fields: serializers.CreateTaskFieldValue{
 					Description: "mockDescription",
 				},
-			}, mockMattermostUserID)
+			}, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -125,7 +119,7 @@ func TestGetTask(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetTask(mockOrganization, "mockTaskID", mockProjectName, mockMattermostUserID)
+			_, statusCode, err := p.Client.GetTask(testutils.MockOrganization, "mockTaskID", testutils.MockProjectName, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -164,7 +158,7 @@ func TestGetReleaseDetails(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetReleaseDetails(mockOrganization, mockProjectName, "mockReleaseID", mockMattermostUserID)
+			_, statusCode, err := p.Client.GetReleaseDetails(testutils.MockOrganization, testutils.MockProjectName, "mockReleaseID", testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.expectedErrorMessage)
@@ -200,7 +194,7 @@ func TestGetPullRequest(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetPullRequest(mockOrganization, "mockPullRequestID", mockProjectName, mockMattermostUserID)
+			_, statusCode, err := p.Client.GetPullRequest(testutils.MockOrganization, "mockPullRequestID", testutils.MockProjectName, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -237,7 +231,7 @@ func TestLink(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.Link(&serializers.LinkRequestPayload{}, mockMattermostUserID)
+			_, statusCode, err := p.Client.Link(&serializers.LinkRequestPayload{}, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -274,7 +268,7 @@ func TestCreateSubscription(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, mockChannelID, "mockPluginURL", mockMattermostUserID)
+			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, testutils.MockChannelID, "mockPluginURL", testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -311,7 +305,7 @@ func TestDeleteSubscription(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			statusCode, err := p.Client.DeleteSubscription(mockOrganization, "mockSubscriptionID", mockMattermostUserID)
+			statusCode, err := p.Client.DeleteSubscription(testutils.MockOrganization, "mockSubscriptionID", testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -349,7 +343,7 @@ func TestCall(t *testing.T) {
 				httpClient: &http.Client{},
 			}
 
-			_, _, err := client.Call("mockBasePath", "mockMethod", "mockPath", "mockContentType", mockMattermostUserID, nil, nil, url.Values{})
+			_, _, err := client.Call("mockBasePath", "mockMethod", "mockPath", "mockContentType", testutils.MockMattermostUserID, nil, nil, url.Values{})
 			assert.Error(t, err)
 		})
 	}

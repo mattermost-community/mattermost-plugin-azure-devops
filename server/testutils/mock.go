@@ -6,6 +6,13 @@ import (
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 )
 
+const (
+	MockOrganization     = "mockOrganization"
+	MockProjectName      = "mockProjectName"
+	MockMattermostUserID = "mockMattermostUserID"
+	MockChannelID        = "mockChannelID"
+)
+
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
 	ret := make([]interface{}, num)
 	for i := 0; i < len(ret); i++ {

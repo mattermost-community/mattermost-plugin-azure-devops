@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestInitBotUser(t *testing.T) {
@@ -93,8 +94,8 @@ func TestMessageWillBePosted(t *testing.T) {
 			})
 
 			post := &model.Post{
-				ChannelId: mockChannelID,
-				UserId:    mockMattermostUserID,
+				ChannelId: testutils.MockChannelID,
+				UserId:    testutils.MockMattermostUserID,
 				Message:   testCase.message,
 			}
 

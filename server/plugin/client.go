@@ -269,7 +269,7 @@ func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginUR
 
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, nil, nil)
 	if err != nil {
-		return statusCode, errors.Wrap(err, "failed to create subscription")
+		return statusCode, errors.Wrap(err, "failed to check if user is a project admin")
 	}
 
 	return statusCode, nil

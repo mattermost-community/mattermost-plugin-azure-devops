@@ -233,7 +233,7 @@ const Header = ({projectDetails, showAllSubscriptions, handlePagination, setShow
                                 isDisabled={!isFilterApplied()}
                             />
                             <Button
-                                text='Hide'
+                                text='Close'
                                 onClick={() => setShowFilter(false)}
                             />
                         </div>

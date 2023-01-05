@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestInitBotUser(t *testing.T) {
@@ -46,16 +47,30 @@ func TestMessageWillBePosted(t *testing.T) {
 	}{
 		{
 			description: "MessageWillBePosted: test change post for valid link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_workitems", "edit", "1"},
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"},
 			message:     "mockMessage",
 			isValidLink: true,
 		},
 		{
-			description: "MessageWillBePosted: test change post for valid link",
-			data:        []string{"https:", "", "dev.azure.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
+			description: "MessageWillBePosted: test change post for valid pull request link",
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"},
 			message:     "mockMessage",
 			isValidLink: true,
-			link:        "https://dev.azure.com/abc/xyz/_git/xyz/pullrequest/1",
+			link:        "https://test.com/abc/xyz/_git/xyz/pullrequest/1",
+		},
+		{
+			description: "MessageWillBePosted: test change post for valid build pipeline link",
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_build", "results?buildId=50&view=results"},
+			message:     "mockMessage",
+			isValidLink: true,
+			link:        "https://test.com/abc/xyz/_build/results?buildId=50&view=results",
+		},
+		{
+			description: "MessageWillBePosted: test change post for valid release pipeline link",
+			data:        []string{"https:", "", "test.com", "abc", "xyz", "_releaseProgress?_a=release-pipeline-progress&releaseId=20"},
+			message:     "mockMessage",
+			isValidLink: true,
+			link:        "https://test.com/abc/xyz/_releaseProgress?_a=release-pipeline-progress&releaseId=20",
 		},
 		{
 			description: "MessageWillBePosted: invalid link",
@@ -71,10 +86,16 @@ func TestMessageWillBePosted(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "PostPullRequestPreview", func(_ *Plugin, _ []string, _, _, _ string) (*model.Post, string) {
 				return &model.Post{}, testCase.message
 			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "PostBuildDetailsPreview", func(_ *Plugin, _ []string, _, _, _ string) (*model.Post, string) {
+				return &model.Post{}, testCase.message
+			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "PostReleaseDetailsPreview", func(_ *Plugin, _ []string, _, _, _ string) (*model.Post, string) {
+				return &model.Post{}, testCase.message
+			})
 
 			post := &model.Post{
-				ChannelId: "mockChannelID",
-				UserId:    "mockUserID",
+				ChannelId: testutils.MockChannelID,
+				UserId:    testutils.MockMattermostUserID,
 				Message:   testCase.message,
 			}
 

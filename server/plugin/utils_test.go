@@ -720,22 +720,22 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 		{
 			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by the user",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 			createdBy:         constants.FilterCreatedByMe,
-			expectedMessage:   fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+			expectedMessage:   fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganization | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by anyone",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 
 			createdBy:       constants.FilterCreatedByAnyone,
-			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganization | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: no subscriptions created by the user is present",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID-2", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID-2", constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 			createdBy:         constants.FilterCreatedByMe,
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},

@@ -101,7 +101,7 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 }
 
 func (p *Plugin) getCommand() (*model.Command, error) {
-	iconData, err := command.GetIconData(p.API, "assets/azurebot.svg")
+	iconData, err := command.GetIconData(p.API, "public/assets/azurebot.svg")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Azure DevOps icon")
 	}
@@ -306,11 +306,6 @@ func executeDefault(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs
 // Handles executing a slash command
 func (p *Plugin) ExecuteCommand(c *plugin.Context, commandArgs *model.CommandArgs) (*model.CommandResponse, *model.AppError) {
 	args := strings.Fields(commandArgs.Command)
-
-	if len(args) == 0 || args[0] != fmt.Sprintf("/%s", constants.CommandTriggerName) {
-		commandName := args[0][1:]
-		return p.sendEphemeralPostForCommand(commandArgs, fmt.Sprintf("unknown command %s\n%s", commandName, constants.HelpText))
-	}
 
 	return azureDevopsCommandHandler.Handle(p, c, commandArgs, args[1:]...)
 }

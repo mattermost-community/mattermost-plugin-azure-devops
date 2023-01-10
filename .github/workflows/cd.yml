@@ -13,5 +13,5 @@ permissions:
 
 jobs:
   plugin-cd:
-    uses: mattermost/actions-workflows/.github/workflows/plugin-cd.yml@master
+    uses: mattermost/actions-workflows/.github/workflows/plugin-cd.yml@main
     secrets: inherit

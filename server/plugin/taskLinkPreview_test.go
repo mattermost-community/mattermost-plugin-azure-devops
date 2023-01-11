@@ -21,8 +21,8 @@ func TestPostTaskPreview(t *testing.T) {
 	linkData := []string{"https:", "", "test.com", "abc", "xyz", "_workitems", "edit", "1"}
 
 	t.Run("PostTaskPreview: valid", func(t *testing.T) {
-		mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.TaskValue{}, http.StatusOK, nil)
-		resp, err := p.PostTaskPreview(linkData, "mockUserID", "mockChannelID")
+		mockedClient.EXPECT().GetTask(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.TaskValue{}, http.StatusOK, nil)
+		resp, err := p.PostTaskPreview(linkData, testutils.MockMattermostUserID, testutils.MockChannelID)
 		assert.Equal(t, "", err)
 		assert.NotNil(t, resp)
 	})
@@ -35,8 +35,8 @@ func TestPostPullRequestPreview(t *testing.T) {
 	linkData := []string{"https:", "", "test.com", "abc", "xyz", "_git", "xyz", "pullrequest", "1"}
 
 	t.Run("PostPullRequestPreview: valid", func(t *testing.T) {
-		mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.PullRequest{}, http.StatusOK, nil)
-		resp, stringErr := p.PostPullRequestPreview(linkData, "mockPullRequestLink", "mockUserID", "mockChannelID")
+		mockedClient.EXPECT().GetPullRequest(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.PullRequest{}, http.StatusOK, nil)
+		resp, stringErr := p.PostPullRequestPreview(linkData, "mockPullRequestLink", testutils.MockMattermostUserID, testutils.MockChannelID)
 		assert.Equal(t, "", stringErr)
 		assert.NotNil(t, resp)
 	})
@@ -49,8 +49,8 @@ func TestPostBuildDetailsPreview(t *testing.T) {
 	linkData := []string{"https:", "", "test.com", "abc", "xyz", "_build", "results?buildId=50&view=results"}
 
 	t.Run("PostBuildDetailsPreview: valid", func(t *testing.T) {
-		mockedClient.EXPECT().GetBuildDetails(gomock.Any(), gomock.Any(), gomock.Any(), "mockUserID").Return(&serializers.BuildDetails{}, http.StatusOK, nil)
-		resp, stringErr := p.PostBuildDetailsPreview(linkData, "mockBuildPipelineLink", "mockUserID", "mockChannelID")
+		mockedClient.EXPECT().GetBuildDetails(gomock.Any(), gomock.Any(), gomock.Any(), testutils.MockMattermostUserID).Return(&serializers.BuildDetails{}, http.StatusOK, nil)
+		resp, stringErr := p.PostBuildDetailsPreview(linkData, "mockBuildPipelineLink", testutils.MockMattermostUserID, testutils.MockChannelID)
 		assert.Equal(t, "", stringErr)
 		assert.NotNil(t, resp)
 	})

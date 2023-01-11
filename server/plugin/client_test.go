@@ -33,7 +33,7 @@ func TestClientGenerateOAuthToken(t *testing.T) {
 		},
 		{
 			description: "GenerateOAuthToken: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error generating oAuth token"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -70,7 +70,7 @@ func TestCreateTask(t *testing.T) {
 		},
 		{
 			description: "CreateTask: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error creating the task"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -112,7 +112,7 @@ func TestGetTask(t *testing.T) {
 		},
 		{
 			description: "GetTask: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error getting the task"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -187,7 +187,7 @@ func TestGetPullRequest(t *testing.T) {
 		},
 		{
 			description: "GetPullRequest: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error getting the pull request"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -235,7 +235,7 @@ func TestGetBuildDetails(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetBuildDetails("mockOrganization", "mockProjectName", "mockBuildID", "mockMattermostUserID")
+			_, statusCode, err := p.Client.GetBuildDetails(testutils.MockOrganization, testutils.MockProjectName, "mockBuildID", testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.expectedErrorMessage)
@@ -263,7 +263,7 @@ func TestLink(t *testing.T) {
 		},
 		{
 			description: "Link: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error linking the project"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -300,7 +300,7 @@ func TestCreateSubscription(t *testing.T) {
 		},
 		{
 			description: "CreateSubscription: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error creating subscription"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -337,7 +337,7 @@ func TestDeleteSubscription(t *testing.T) {
 		},
 		{
 			description: "DeleteSubscription: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error deleting the subscription"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -346,7 +346,7 @@ func TestDeleteSubscription(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			statusCode, err := p.Client.DeleteSubscription(testutils.MockOrganization, "mockSubscriptionID", testutils.MockMattermostUserID)
+			statusCode, err := p.Client.DeleteSubscription(testutils.MockOrganization, testutils.MockSubscriptionID, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.Error(t, err)
@@ -441,7 +441,7 @@ func TestUpdatePipelineRunApprovalRequest(t *testing.T) {
 		},
 		{
 			description: "UpdatePipelineRunApprovalRequest: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error updating pipeline run approval request"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -450,7 +450,7 @@ func TestUpdatePipelineRunApprovalRequest(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.UpdatePipelineRunApprovalRequest([]*serializers.PipelineApproveRequest{}, "mockProjectID", "mockMattermostUserID", "mockApprovalID")
+			_, statusCode, err := p.Client.UpdatePipelineRunApprovalRequest([]*serializers.PipelineApproveRequest{}, testutils.MockProjectID, testutils.MockMattermostUserID, testutils.MockApproverID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.err.Error())
@@ -477,7 +477,7 @@ func TestGetRunApprovalDetails(t *testing.T) {
 		},
 		{
 			description: "GetRunApprovalDetails: with error",
-			err:         errors.New("mock-error"),
+			err:         errors.New("error getting run approval details"),
 			statusCode:  http.StatusInternalServerError,
 		},
 	} {
@@ -486,7 +486,7 @@ func TestGetRunApprovalDetails(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetRunApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUserID", "mockApprovalID")
+			_, statusCode, err := p.Client.GetRunApprovalDetails(testutils.MockOrganization, testutils.MockProjectID, testutils.MockMattermostUserID, testutils.MockApproverID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.err.Error())
@@ -522,7 +522,7 @@ func TestUpdatePipelineApprovalRequest(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			statusCode, err := p.Client.UpdatePipelineApprovalRequest(&serializers.PipelineApproveRequest{}, "mockOrganization", "mockProjectID", "mockMattermostUserID", 1234)
+			statusCode, err := p.Client.UpdatePipelineApprovalRequest(&serializers.PipelineApproveRequest{}, testutils.MockOrganization, testutils.MockProjectID, testutils.MockMattermostUserID, 1234)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.err.Error())
@@ -558,7 +558,7 @@ func TestGetApprovalDetails(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetApprovalDetails("mockOrganization", "mockProjectID", "mockMattermostUserID", 1234)
+			_, statusCode, err := p.Client.GetApprovalDetails(testutils.MockOrganization, testutils.MockProjectID, testutils.MockMattermostUserID, 1234)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.err.Error())
@@ -596,7 +596,7 @@ func TestCheckIfUserIsProjectAdmin(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			statusCode, err := p.Client.CheckIfUserIsProjectAdmin("mockOrganization", "mockProjectID", "mockProjectURL", "mockMattermostUserID")
+			statusCode, err := p.Client.CheckIfUserIsProjectAdmin(testutils.MockOrganization, testutils.MockProjectID, "mockProjectURL", testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.expectedError)
@@ -642,7 +642,7 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(testCase.request, "mockMattermostUserID")
+			_, statusCode, err := p.Client.GetSubscriptionFilterPossibleValues(testCase.request, testutils.MockMattermostUserID)
 
 			if testCase.err != nil {
 				assert.EqualError(t, err, testCase.expectedErrorMessage)

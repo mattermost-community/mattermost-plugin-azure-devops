@@ -11,6 +11,11 @@ const (
 	MockProjectName      = "mockProjectName"
 	MockMattermostUserID = "mockMattermostUserID"
 	MockChannelID        = "mockChannelID"
+	MockProjectID        = "mockProjectID"
+	MockEventType        = "mockEventType"
+	MockSubscriptionID   = "mockSubscriptionID"
+	MockServiceType      = "mockServiceType"
+	MockApproverID       = "mockApproverID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {

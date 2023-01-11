@@ -810,7 +810,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 		{
 			description: "SubscriptionNotifications: invalid channel ID",
 			body:        `{}`,
-			err:         errors.New("error invalid channel id"),
+			err:         errors.New("error invalid channel ID"),
 			channelID:   "mockInvalidChannelID",
 			statusCode:  http.StatusBadRequest,
 		},

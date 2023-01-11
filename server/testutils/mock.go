@@ -29,12 +29,12 @@ func GetMockArgumentsWithType(typeString string, num int) []interface{} {
 func GetSuscriptionDetailsPayload(userID, serviceType, eventType string) []*serializers.SubscriptionDetails {
 	return []*serializers.SubscriptionDetails{
 		{
-			ChannelID:        "mockChannelID",
+			ChannelID:        MockChannelID,
 			MattermostUserID: userID,
 			ServiceType:      serviceType,
-			SubscriptionID:   "mockSubscriptionID",
-			OrganizationName: "mockOrganization",
-			ProjectName:      "mockProjectName",
+			SubscriptionID:   MockSubscriptionID,
+			OrganizationName: MockOrganization,
+			ProjectName:      MockProjectName,
 			EventType:        eventType,
 			CreatedBy:        "mockCreatedBy",
 			ChannelName:      "mockChannelName",

@@ -672,7 +672,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
-					ID: "mockSubscriptionID",
+					ID: testutils.MockSubscriptionID,
 				}, testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
@@ -738,7 +738,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 		{
 			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
 			project:     testutils.MockProjectName,
-			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("error while getting subscriptions for accessible cheannels or project"),
+			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("error while getting subscriptions for accessible channels or projects"),
 			statusCode:    http.StatusInternalServerError,
 			isTeamIDValid: true,
 		},
@@ -1037,13 +1037,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				}`,
 			statusCode:       http.StatusOK,
 			subscriptionList: []*serializers.SubscriptionDetails{},
-			subscription: &serializers.SubscriptionDetails{
-				MattermostUserID: testutils.MockMattermostUserID,
-				ProjectName:      testutils.MockProjectName,
-				OrganizationName: testutils.MockOrganization,
-				EventType:        testutils.MockEventType,
-				ChannelID:        testutils.MockProjectName,
-			},
+			subscription:     testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType)[0],
 		},
 		{
 			description: "HandleDeleteSubscriptions: empty body",

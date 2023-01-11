@@ -231,13 +231,8 @@ func TestExecuteCommand(t *testing.T) {
 			})
 
 			if testCase.isListCommand || testCase.isDeleteCommand {
-				mockedStore.EXPECT().GetAllSubscriptions("").Return([]*serializers.SubscriptionDetails{
-					{
-						SubscriptionID:   testutils.MockSubscriptionID,
-						OrganizationName: testutils.MockOrganization,
-						ServiceType:      testCase.serviceType,
-					},
-				}, testCase.getAllSubscriptionError)
+				mockedStore.EXPECT().GetAllSubscriptions("").Return(testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testCase.serviceType, testutils.MockEventType),
+					testCase.getAllSubscriptionError)
 			}
 
 			if testCase.isDeleteCommand {

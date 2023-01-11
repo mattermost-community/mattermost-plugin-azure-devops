@@ -205,7 +205,7 @@ func TestEncrypt(t *testing.T) {
 		expectedError  string
 		newCipherError error
 		newGCMError    error
-		resdFullError  error
+		readFullError  error
 		plain          string
 		secret         string
 	}{
@@ -228,8 +228,8 @@ func TestEncrypt(t *testing.T) {
 		{
 			description:   "Encrypt: io.ReadFull give error",
 			secret:        "mockSecret",
-			expectedError: "resdFullError",
-			resdFullError: errors.New("resdFullError"),
+			expectedError: "readFullError",
+			readFullError: errors.New("readFullError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -240,7 +240,7 @@ func TestEncrypt(t *testing.T) {
 				return &mockAesgcm{}, testCase.newGCMError
 			})
 			monkey.Patch(io.ReadFull, func(_ io.Reader, _ []byte) (int, error) {
-				return 1, testCase.resdFullError
+				return 1, testCase.readFullError
 			})
 			resp, err := p.Encrypt([]byte(testCase.plain), []byte(testCase.secret))
 			if testCase.expectedError != "" {
@@ -512,39 +512,14 @@ func TestIsSubscriptionPresent(t *testing.T) {
 		subscription     *serializers.SubscriptionDetails
 	}{
 		{
-			description: "test IsSubscriptionPresent with subscription present in subscription list",
-			subscriptionList: []*serializers.SubscriptionDetails{
-				{
-					ProjectName:      testutils.MockProjectName,
-					OrganizationName: testutils.MockOrganization,
-					ChannelID:        testutils.MockChannelID,
-					EventType:        testutils.MockEventType,
-					Repository:       "mockRepository",
-					TargetBranch:     "mockTargetBranch",
-				},
-			},
-			subscription: &serializers.SubscriptionDetails{
-				ProjectName:      testutils.MockProjectName,
-				OrganizationName: testutils.MockOrganization,
-				ChannelID:        testutils.MockChannelID,
-				EventType:        testutils.MockEventType,
-				Repository:       "mockRepository",
-				TargetBranch:     "mockTargetBranch",
-			},
+			description:      "test IsSubscriptionPresent with subscription present in subscription list",
+			subscriptionList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType),
+			subscription:     testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType)[0],
 		},
 		{
-			description: "test IsSubscriptionPresent with subscription not present in subscription list",
-			subscriptionList: []*serializers.SubscriptionDetails{
-				{
-					ProjectName:      testutils.MockProjectName,
-					OrganizationName: testutils.MockOrganization,
-					ChannelID:        testutils.MockChannelID,
-					EventType:        testutils.MockEventType,
-					Repository:       "mockRepository",
-					TargetBranch:     "mockTargetBranch",
-				},
-			},
-			subscription: &serializers.SubscriptionDetails{},
+			description:      "test IsSubscriptionPresent with subscription not present in subscription list",
+			subscriptionList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType),
+			subscription:     &serializers.SubscriptionDetails{},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

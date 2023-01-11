@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -1579,7 +1578,7 @@ func TestHandleGetSubscriptionFilterPossibleValues(t *testing.T) {
 			}
 
 			if testCase.expectedResponse != "" {
-				response, err := ioutil.ReadAll(resp.Body)
+				response, err := io.ReadAll(resp.Body)
 				require.Nil(t, err)
 				assert.Contains(t, string(response), testCase.expectedResponse)
 			}

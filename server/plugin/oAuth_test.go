@@ -22,6 +22,7 @@ import (
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestOAuthConnect(t *testing.T) {
@@ -38,7 +39,7 @@ func TestOAuthConnect(t *testing.T) {
 	}{
 		{
 			description:      "OAuthConnect: valid",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			statusCode:       http.StatusFound,
 		},
 		{
@@ -48,14 +49,14 @@ func TestOAuthConnect(t *testing.T) {
 		{
 			description:      "OAuthConnect: user already connected",
 			isConnected:      true,
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			statusCode:       http.StatusBadRequest,
 		},
 		{
 			description:      "OAuthConnect: user already connected and failed to DM",
 			isConnected:      true,
 			DMErr:            &model.AppError{},
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			statusCode:       http.StatusInternalServerError,
 		},
 	} {
@@ -126,7 +127,7 @@ func TestOAuthComplete(t *testing.T) {
 			description:   "OAuthComplete: with oAuthTokenErr",
 			code:          "mockCode",
 			state:         "mock_State",
-			oAuthTokenErr: errors.New("mockError"),
+			oAuthTokenErr: errors.New("oAuthTokenErr"),
 			statusCode:    http.StatusInternalServerError,
 		},
 	} {
@@ -216,28 +217,28 @@ func TestRefreshOAuthToken(t *testing.T) {
 		{
 			description:   "RefreshOAuthToken: token is not decoded successfully",
 			user:          &serializers.User{},
-			decodeError:   errors.New("mockError"),
-			expectedError: "mockError",
+			decodeError:   errors.New("error while decoding token"),
+			expectedError: "error while decoding token",
 		},
 		{
 			description:   "RefreshOAuthToken: token is not decoded successfully and DM error occurs",
 			user:          &serializers.User{},
-			decodeError:   errors.New("mockError"),
-			DMErr:         errors.New("mockError"),
-			expectedError: "mockError",
+			decodeError:   errors.New("error decoding token"),
+			DMErr:         errors.New("error sending direct message"),
+			expectedError: "error sending direct message",
 		},
 		{
 			description:   "RefreshOAuthToken: token is not decrypted successfully",
 			user:          &serializers.User{},
-			decryptError:  errors.New("mockError"),
-			expectedError: "mockError",
+			decryptError:  errors.New("error decrypting token"),
+			expectedError: "error decrypting token",
 		},
 		{
 			description:   "RefreshOAuthToken: token is not decrypted successfully and DM error occurs",
 			user:          &serializers.User{},
-			decryptError:  errors.New("mockError"),
-			DMErr:         errors.New("mockError"),
-			expectedError: "mockError",
+			decryptError:  errors.New("error decrypting token"),
+			DMErr:         errors.New("error sending direct message"),
+			expectedError: "error sending direct message",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -266,7 +267,7 @@ func TestRefreshOAuthToken(t *testing.T) {
 				return nil
 			})
 
-			err := p.RefreshOAuthToken("mockMattermostUserID", "mockRefreshToken")
+			err := p.RefreshOAuthToken(testutils.MockMattermostUserID, "mockRefreshToken")
 			if testCase.expectedError != "" {
 				assert.NotNil(t, err)
 				return
@@ -297,8 +298,8 @@ func TestGenerateAndStoreOAuthToken(t *testing.T) {
 		},
 		{
 			description:    "GenerateAndStoreOAuthToken: storing user gives error",
-			storeUserError: errors.New("mockError"),
-			expectedError:  "mockError",
+			storeUserError: errors.New("error storing user"),
+			expectedError:  "error storing user",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -361,12 +362,12 @@ func TestIsAccessTokenExpired(t *testing.T) {
 		},
 		{
 			description:   "IsAccessTokenExpired: loading user gives error",
-			loadUserError: errors.New("mockError"),
-			expectedError: "mockError",
+			loadUserError: errors.New("error loading user"),
+			expectedError: "error loading user",
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
 			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(&serializers.User{}, testCase.loadUserError)
 
@@ -376,7 +377,7 @@ func TestIsAccessTokenExpired(t *testing.T) {
 					AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				})
 
-			isAccessTokenExpired, err := p.IsAccessTokenExpired("mockMattermostUserID")
+			isAccessTokenExpired, err := p.IsAccessTokenExpired(testutils.MockMattermostUserID)
 			if testCase.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.NotNil(t, isAccessTokenExpired)
@@ -407,15 +408,15 @@ func TestUserAlreadyConnected(t *testing.T) {
 		},
 		{
 			description:   "UserAlreadyConnected: user is not loaded successfully",
-			loadUserError: errors.New("mockError"),
+			loadUserError: errors.New("error loading user"),
 		},
 	} {
-		mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil)
+		mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 
 		mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserError)
 
 		t.Run(testCase.description, func(t *testing.T) {
-			resp := p.UserAlreadyConnected("mockMattermostUserID")
+			resp := p.UserAlreadyConnected(testutils.MockMattermostUserID)
 			assert.NotNil(t, resp)
 		})
 	}

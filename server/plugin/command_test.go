@@ -69,7 +69,7 @@ func TestExecuteCommand(t *testing.T) {
 		},
 		{
 			description:      "ExecuteCommand: disconnect command with user connected",
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops disconnect", UserId: "mockUserID"},
+			commandArgs:      &model.CommandArgs{Command: "/azuredevops disconnect", UserId: testutils.MockMattermostUserID},
 			isConnected:      true,
 			ephemeralMessage: constants.UserDisconnected,
 		},
@@ -231,13 +231,8 @@ func TestExecuteCommand(t *testing.T) {
 			})
 
 			if testCase.isListCommand || testCase.isDeleteCommand {
-				mockedStore.EXPECT().GetAllSubscriptions("").Return([]*serializers.SubscriptionDetails{
-					{
-						SubscriptionID:   "mockSubscriptionID",
-						OrganizationName: "mockOrganizationName",
-						ServiceType:      testCase.serviceType,
-					},
-				}, testCase.getAllSubscriptionError)
+				mockedStore.EXPECT().GetAllSubscriptions("").Return(testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testCase.serviceType, testutils.MockEventType),
+					testCase.getAllSubscriptionError)
 			}
 
 			if testCase.isDeleteCommand {
@@ -246,7 +241,7 @@ func TestExecuteCommand(t *testing.T) {
 			}
 
 			if testCase.ephemeralMessage == constants.UserDisconnected {
-				mockedStore.EXPECT().DeleteUser("mockUserID").Return(true, nil)
+				mockedStore.EXPECT().DeleteUser(testutils.MockMattermostUserID).Return(true, nil)
 			}
 
 			_, err := p.getCommand()

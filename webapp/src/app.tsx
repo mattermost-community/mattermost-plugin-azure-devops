@@ -30,8 +30,10 @@ const App = (): JSX.Element => {
 
     // Check if user is connected on page reload
     useEffect(() => {
-        makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
-    }, [isSidebarOpen]);
+        if (!isConnected) {
+            makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+        }
+    }, [isSidebarOpen, modalId]);
 
     /**
      * When a command is issued on the Mattermost to open any modal
@@ -51,10 +53,8 @@ const App = (): JSX.Element => {
             case 'createBoardTask':
                 dispatch(toggleShowTaskModal({isVisible: true, commandArgs}));
             }
-        } else {
-            dispatch(resetGlobalModalState());
         }
-    }, [modalId]);
+    }, [modalId, isConnected]);
 
     useEffect(() => {
         if (!isConnected) {

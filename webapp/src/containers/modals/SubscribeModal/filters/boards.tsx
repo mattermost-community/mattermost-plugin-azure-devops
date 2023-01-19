@@ -16,6 +16,7 @@ type BoardsFilterProps = {
     selectedAreaPath: string
     handleSelectAreaPath: (value: string, name?: string) => void
     setIsFiltersError: (value: boolean) => void
+    isModalOpen: boolean
 }
 
 const BoardsFilter = ({
@@ -25,6 +26,7 @@ const BoardsFilter = ({
     selectedAreaPath,
     handleSelectAreaPath,
     setIsFiltersError,
+    isModalOpen,
 }: BoardsFilterProps) => {
     const {subscriptionFiltersNameForBoards, subscriptionFiltersForBoards} = pluginConstants.form;
 
@@ -41,7 +43,7 @@ const BoardsFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForBoards]);
 
     useEffect(() => {
-        if (organization && projectId && eventType) {
+        if (isModalOpen && organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,

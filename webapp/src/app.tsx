@@ -10,6 +10,7 @@ import {toggleShowTaskModal} from 'reducers/taskModal';
 import {getGlobalModalState, getLinkModalState, getSubscribeModalState, getCreateTaskModalState, getRhsState, getWebsocketEventState} from 'selectors';
 
 import usePluginApi from 'hooks/usePluginApi';
+import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 
 // Global styles
 import 'styles/main.scss';
@@ -18,7 +19,7 @@ import 'styles/main.scss';
  * This is a central component for adding account connection validation on all the modals registered in the root component
  */
 const App = (): JSX.Element => {
-    const {state, makeApiRequest, makeApiRequestWithCompletionStatus} = usePluginApi();
+    const {state, makeApiRequestWithCompletionStatus} = usePluginApi();
     const dispatch = useDispatch();
 
     const {isConnected} = getWebsocketEventState(state);
@@ -28,12 +29,17 @@ const App = (): JSX.Element => {
     const {visibility: createTaskModalVisibility} = getCreateTaskModalState(state);
     const {visibility: subscribeModalVisibility} = getSubscribeModalState(state);
 
-    // Check if user is connected on page reload
+    // Check if user is connected
     useEffect(() => {
         if (!isConnected) {
-            makeApiRequest(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
+            makeApiRequestWithCompletionStatus(pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName);
         }
     }, [isSidebarOpen, modalId]);
+
+    useApiRequestCompletionState({
+        serviceName: pluginConstants.pluginApiServiceConfigs.getUserDetails.apiServiceName,
+        handleError: () => dispatch(resetGlobalModalState()),
+    });
 
     /**
      * When a command is issued on the Mattermost to open any modal

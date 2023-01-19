@@ -14,6 +14,7 @@ type PipelinesFilterProps = {
     projectId: string
     eventType: string
     selectedBuildPipeline: string
+    isModalOpen: boolean
     handleSelectBuildPipeline: (value: string, name?: string) => void
     setIsFiltersError: (value: boolean) => void
     selectedBuildStatus: string
@@ -51,6 +52,7 @@ const PipelinesFilter = ({
     projectId,
     eventType,
     selectedBuildPipeline,
+    isModalOpen,
     handleSelectBuildPipeline,
     setIsFiltersError,
     selectedBuildStatus,
@@ -96,7 +98,7 @@ const PipelinesFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForPipelines, selectedBuildPipeline, selectedReleasePipeline, selectedRunPipeline]);
 
     useEffect(() => {
-        if (eventType) {
+        if (isModalOpen && organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,

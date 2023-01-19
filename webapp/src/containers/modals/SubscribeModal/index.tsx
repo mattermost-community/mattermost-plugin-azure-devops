@@ -219,11 +219,18 @@ const SubscribeModal = () => {
 
     // Set organization, project and channel list values
     useEffect(() => {
+        let isCurrentChannelIdPresentInChannelList = false; // Check if the current channel ID is the ID of a public or private channel and not the ID of a DM or group channel
         if (isChannelListSuccess && !showResultPanel) {
-            setChannelOptions(channelList?.map((channel) => ({
-                label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
-                value: channel.id,
-            })));
+            setChannelOptions(channelList?.map((channel) => {
+                if (currentChannelId === channel.id) {
+                    isCurrentChannelIdPresentInChannelList = true;
+                }
+
+                return ({
+                    label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
+                    value: channel.id,
+                });
+            }));
         }
 
         // Pre-select the dropdown value in case of single option
@@ -231,7 +238,7 @@ const SubscribeModal = () => {
             const autoSelectedValues: Pick<Record<FormFieldNames, string>, 'organization' | 'project' | 'channelID'> = {
                 organization: organization ?? '',
                 project: project ?? '',
-                channelID: currentChannelId ?? '',
+                channelID: isCurrentChannelIdPresentInChannelList && currentChannelId ? currentChannelId : '',
             };
 
             if (!organization && organizationList.length === 1) {
@@ -453,6 +460,7 @@ const SubscribeModal = () => {
                                 {
                                     formFields.serviceType === pluginConstants.common.boards && formFields.eventType && Object.keys(eventTypeBoards).includes(formFields.eventType) && (
                                         <BoardsFilter
+                                            isModalOpen={visibility}
                                             organization={formFields.organization as string}
                                             projectId={selectedProjectId || projectID as string}
                                             eventType={formFields.eventType || ''}
@@ -465,6 +473,7 @@ const SubscribeModal = () => {
                                 {
                                     formFields.serviceType === pluginConstants.common.repos && formFields.eventType && Object.keys(eventTypeRepos).includes(formFields.eventType) && (
                                         <ReposFilter
+                                            isModalOpen={visibility}
                                             organization={formFields.organization as string}
                                             projectId={selectedProjectId || projectID as string}
                                             eventType={formFields.eventType || ''}
@@ -489,6 +498,7 @@ const SubscribeModal = () => {
                                 {
                                     formFields.serviceType === pluginConstants.common.pipelines && formFields.eventType && Object.keys(eventTypePipelines).includes(formFields.eventType) && (
                                         <PipelinesFilter
+                                            isModalOpen={visibility}
                                             organization={organization as string}
                                             projectId={projectID as string}
                                             eventType={formFields.eventType || ''}

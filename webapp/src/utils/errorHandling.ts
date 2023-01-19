@@ -17,13 +17,19 @@ const getErrorMessage = (
         if (errorState?.status === 403 && errorState?.data.Error.includes(pluginConstants.messages.error.accessDenied)) {
             return pluginConstants.messages.error.adminAccessError;
         }
-        return pluginConstants.messages.error.generic;
+        if (errorState?.status === 500 && errorState?.data.Error.includes(pluginConstants.messages.error.failedToGetSubscriptions)) {
+            return pluginConstants.messages.error.failedToGetSubscriptions;
+        }
+        return errorState?.data.Error ?? pluginConstants.messages.error.generic;
 
     case 'LinkProjectModal':
         if (errorState?.status === 404 || errorState?.status === 401) {
             return pluginConstants.messages.error.notAccessibleError;
         }
-        return pluginConstants.messages.error.generic;
+        if (errorState?.status === 500 && errorState?.data.Error.includes(pluginConstants.messages.error.errorExpectedForOAuthNotEnabled)) {
+            return pluginConstants.messages.error.errorMessageOAuthNotEnabled;
+        }
+        return errorState?.data.Error ?? pluginConstants.messages.error.generic;
 
     case 'ConfirmationModal':
         if (errorState?.status === 403 && errorState?.data.Error.includes(pluginConstants.messages.error.accessDenied)) {
@@ -35,7 +41,7 @@ const getErrorMessage = (
         return pluginConstants.messages.error.generic;
 
     default:
-        return pluginConstants.messages.error.generic;
+        return errorState?.data.Error ?? pluginConstants.messages.error.generic;
     }
 };
 

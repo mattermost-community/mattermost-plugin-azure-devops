@@ -14,6 +14,7 @@ type ReposFilterProps = {
     projectId: string
     eventType: string
     selectedRepo: string
+    isModalOpen: boolean
     handleSelectRepo: (value: string, name?: string) => void
     selectedTargetBranch: string
     handleSelectTargetBranch: (value: string, name?: string) => void
@@ -36,6 +37,7 @@ const ReposFilter = ({
     projectId,
     eventType,
     selectedRepo,
+    isModalOpen,
     handleSelectRepo,
     selectedTargetBranch,
     handleSelectTargetBranch,
@@ -67,7 +69,7 @@ const ReposFilter = ({
     }), [organization, projectId, eventType, subscriptionFiltersForRepos, selectedRepo]);
 
     useEffect(() => {
-        if (organization && projectId && eventType) {
+        if (isModalOpen && organization && projectId && eventType) {
             makeApiRequestWithCompletionStatus(
                 pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
                 getSubscriptionFiltersRequest,

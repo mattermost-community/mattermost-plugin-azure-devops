@@ -172,11 +172,11 @@ type Revision struct {
 }
 
 type Fields struct {
-	ProjectName  string `json:"System.TeamProject"`
-	AreaPath     string `json:"System.AreaPath"`
-	State        string `json:"System.State"`
-	WorkItemType string `json:"System.WorkItemType"`
-	Title        string `json:"System.Title"`
+	ProjectName  interface{} `json:"System.TeamProject"`
+	AreaPath     interface{} `json:"System.AreaPath"`
+	State        interface{} `json:"System.State"`
+	WorkItemType interface{} `json:"System.WorkItemType"`
+	Title        interface{} `json:"System.Title"`
 }
 
 type RefUpdates struct {

@@ -489,6 +489,13 @@ func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) st
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
+	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
+	if status, err := p.VerifyEncryptedWebhookSecret(webhookSecret); err != nil {
+		p.API.LogError(constants.ErrorUnauthorisedSubscriptionsWebhookRequest, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: status, Message: constants.ErrorUnauthorisedSubscriptionsWebhookRequest})
+		return
+	}
+
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for creating notifications", "Error", err.Error())
@@ -496,7 +503,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		return
 	}
 
-	channelID := r.URL.Query().Get("channelID")
+	channelID := r.URL.Query().Get(constants.AzureDevopsQueryParamChannelID)
 	if channelID == "" {
 		p.API.LogError(constants.ChannelIDRequired)
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelIDRequired})
@@ -517,7 +524,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 			Color:      constants.IconColorBoards,
 			Pretext:    body.Message.Markdown,
-			Title:      body.Resource.Fields.Title,
+			Title:      body.Resource.Fields.Title.(string),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Area Path",
@@ -534,7 +541,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: body.Resource.Fields.WorkItemType,
 				},
 			},
-			Footer:     body.Resource.Fields.ProjectName,
+			Footer:     body.Resource.Fields.ProjectName.(string),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventWorkItemCommented:
@@ -548,7 +555,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			Pretext:    body.Message.Markdown,
 			Title:      "Comment",
 			Text:       strings.TrimSpace(comment[len(comment)-1]),
-			Footer:     body.Resource.Fields.ProjectName,
+			Footer:     body.Resource.Fields.ProjectName.(string),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventWorkItemUpdated:
@@ -557,7 +564,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 			AuthorIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameBoardsIcon),
 			Color:      constants.IconColorBoards,
 			Pretext:    body.Message.Markdown,
-			Title:      body.Resource.Revision.Fields.Title,
+			Title:      body.Resource.Revision.Fields.Title.(string),
 			Fields: []*model.SlackAttachmentField{
 				{
 					Title: "Area Path",
@@ -574,7 +581,7 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 					Value: body.Resource.Revision.Fields.WorkItemType,
 				},
 			},
-			Footer:     body.Resource.Revision.Fields.ProjectName,
+			Footer:     body.Resource.Revision.Fields.ProjectName.(string),
 			FooterIcon: fmt.Sprintf(constants.StaticFiles, p.GetSiteURL(), constants.PluginID, constants.FileNameProjectIcon),
 		}
 	case constants.SubscriptionEventPullRequestCreated, constants.SubscriptionEventPullRequestUpdated, constants.SubscriptionEventPullRequestMerged:

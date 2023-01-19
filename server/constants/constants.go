@@ -95,6 +95,10 @@ const (
 	GetTasks    = "/%s/_apis/wit/workitems"
 	StaticFiles = "%s/plugins/%s/static/%s"
 
+	// Query params sent to Azure DevOps APIs
+	AzureDevopsQueryParamWebhookSecret = "webhookSecret"
+	AzureDevopsQueryParamChannelID     = "channelID"
+
 	PageQueryParam       = "$top"
 	APIVersionQueryParam = "api-version"
 	IDsQueryParam        = "ids"

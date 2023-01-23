@@ -30,6 +30,7 @@ const (
 	CommandRepos        = "repos"
 	CommandPipelines    = "pipelines"
 	CommandCreate       = "create"
+	CommandWorkitem     = "workitem"
 	CommandSubscription = "subscription"
 	CommandAdd          = "add"
 	CommandList         = "list"

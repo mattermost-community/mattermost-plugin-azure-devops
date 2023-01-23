@@ -138,3 +138,9 @@ type SubscriptionFilters = {
     serviceType: string,
     eventType: string,
 }
+
+type LabelIconProps = {
+    className: string // This should contain the icon's class name
+    tooltipText: string
+    extraClassName?: string // This should contain the class name that we want to add on the wrapper in addition to the icon class
+}

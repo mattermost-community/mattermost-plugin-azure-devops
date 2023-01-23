@@ -2,15 +2,16 @@ import React from 'react';
 
 import mm_constants from 'mattermost-redux/constants/general';
 
+import pluginConstants from 'pluginConstants';
+
 import BaseCard from 'components/card/base';
 import IconButton from 'components/buttons/iconButton';
 import LabelValuePair from 'components/labelValuePair';
 import SVGWrapper from 'components/svgWrapper';
-
-import pluginConstants from 'pluginConstants';
+import Chip from 'components/chip';
+import Tooltip from 'components/tooltip';
 
 import './styles.scss';
-import Chip from 'components/chip';
 
 type SubscriptionCardProps = {
     handleDeleteSubscrption: (subscriptionDetails: SubscriptionDetails) => void
@@ -32,7 +33,7 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                         >
                             {pluginConstants.common.serviceTypeIcon[serviceType].icon}
                         </SVGWrapper>
-                        <p className={`ml-1 mb-0 font-bold color-${serviceType} text-capitalize`}>{serviceType}</p>
+                        <p className='ml-1 mb-0 font-bold text-capitalize'>{serviceType}</p>
                     </div>
                     <div className='button-wrapper'>
                         <IconButton
@@ -45,37 +46,36 @@ const SubscriptionCard = ({handleDeleteSubscrption, subscriptionDetails: {channe
                 </div>
                 <div className='project-details'>
                     <LabelValuePair
-                        label={
-                            <SVGWrapper
-                                width={12}
-                                height={12}
-                                viewBox='0 0 10 10'
-                            >
-                                {pluginConstants.SVGIcons.workEvent}
-                            </SVGWrapper>
-                        }
-                        labelExtraClassName='margin-left-5'
+                        icon={{
+                            className: 'icon azure-devops-icon azure-devops-icon-event icon-event-type',
+                            tooltipText: 'Event Type',
+                        }}
                         value={pluginConstants.common.eventTypeMap[eventType as EventType] ?? ''}
                     />
                     <LabelValuePair
-                        labelIconClassName={`icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`}
+                        icon={{
+                            className: `icon ${channelType === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} icon-label`,
+                            tooltipText: `${channelType === mm_constants.PRIVATE_CHANNEL ? 'Private Channel' : 'Public Channel'}`,
+                        }}
                         value={channelName}
                     />
                     <LabelValuePair
-                        labelIconClassName={'icon icon-account-outline icon-label'}
+                        icon={{
+                            className: 'icon icon-account-outline icon-label',
+                            tooltipText: 'Created By',
+                        }}
                         value={`Subscription created by ${createdBy}`}
                     />
                     {
                         showFilter && (
                             <div className='d-flex align-item-center margin-left-5'>
                                 <div className='card-filter'>
-                                    <SVGWrapper
-                                        width={14}
-                                        height={14}
-                                        viewBox='0 0 12 12'
-                                    >
-                                        {pluginConstants.SVGIcons.cardFilter}
-                                    </SVGWrapper>
+                                    <Tooltip tooltipContent={'Filter(s)'}>
+                                        <i
+                                            className='azure-devops-icon azure-devops-icon-filter'
+                                            aria-hidden='true'
+                                        />
+                                    </Tooltip>
                                 </div>
                                 <div className='card-chip-wrapper'>
                                     {

@@ -81,7 +81,7 @@ func (p *Plugin) handleCreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	p.writeJSON(w, task)
-	message := fmt.Sprintf(constants.CreatedTask, task.Fields.Type, task.ID, task.Link.HTML.Href, task.Fields.Title, task.Fields.CreatedBy.DisplayName)
+	message := fmt.Sprintf(constants.CreatedTask, task.ID, task.Fields.Title, task.Link.HTML.Href, task.Fields.Type, task.Fields.CreatedBy.DisplayName)
 
 	// Send message to DM.
 	if _, DMErr := p.DM(mattermostUserID, message, true); DMErr != nil {

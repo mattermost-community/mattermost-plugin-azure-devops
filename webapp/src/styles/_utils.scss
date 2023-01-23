@@ -70,6 +70,14 @@
     flex-basis: initial;
 }
 
+.flex-column {
+    flex-direction: column !important;
+}
+
+.justify-content-between {
+    justify-content: space-between !important;
+}
+
 // Positions
 .top-0 {
     top: 0;

@@ -10,7 +10,7 @@ const (
 	UserConnected                  = "Your Azure DevOps account is successfully connected!"
 	UserAlreadyConnected           = "Your Azure DevOps account is already connected"
 	UserDisconnected               = "Your Azure DevOps account is now disconnected"
-	CreatedTask                    = "[%s #%d](%s) (%s) was successfully created by %s."
+	CreatedTask                    = "Work item [#%d: \"%s\"](%s) of type \"%s\" was successfully created by %s."
 	TaskTitle                      = "[%s #%d: %s](%s)"
 	PullRequestTitle               = "[#%d: %s](%s)"
 	BuildDetailsTitle              = "[#%s](%s): %s"

@@ -4,42 +4,42 @@ import {subscriptionFilters, filterLabelValuePairAll} from './common';
 export const boardEventTypeOptions: LabelValuePair[] = [
     {
         value: 'workitem.created',
-        label: 'Create',
+        label: 'Work item created',
     },
     {
         value: 'workitem.updated',
-        label: 'Update',
+        label: 'Work item updated',
     },
     {
         value: 'workitem.deleted',
-        label: 'Delete',
+        label: 'Work item deleted',
     },
     {
         value: 'workitem.commented',
-        label: 'Comment',
+        label: 'Work item commented',
     },
 ];
 
 export const repoEventTypeOptions: LabelValuePair[] = [
     {
         value: 'git.pullrequest.created',
-        label: 'Create',
+        label: 'Pull request created',
     },
     {
         value: 'git.pullrequest.updated',
-        label: 'Update',
+        label: 'Pull request updated',
     },
     {
         value: 'ms.vss-code.git-pullrequest-comment-event',
-        label: 'Comment',
+        label: 'Pull request commented',
     },
     {
         value: 'git.push',
-        label: 'Code Push',
+        label: 'Code pushed',
     },
     {
         value: 'git.pullrequest.merged',
-        label: 'Merge Attempt',
+        label: 'Pull request merge attempted',
     },
 ];
 

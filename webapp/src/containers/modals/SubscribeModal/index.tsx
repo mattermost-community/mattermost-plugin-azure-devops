@@ -227,7 +227,7 @@ const SubscribeModal = () => {
                 }
 
                 return ({
-                    label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} dropdown-option-icon`}/>{channel.display_name}</span>,
+                    label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} azd-dropdown-option-icon`}/>{channel.display_name}</span>,
                     value: channel.id,
                 });
             }));

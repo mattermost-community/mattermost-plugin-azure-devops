@@ -82,10 +82,12 @@ func (p *Plugin) getAutoCompleteData() *model.AutocompleteData {
 	subscription.AddCommand(subscriptionDelete)
 
 	boards := model.NewAutocompleteData(constants.CommandBoards, "", "Create a new work-item or add/list/delete board subscriptions")
+	workitem := model.NewAutocompleteData(constants.CommandWorkitem, "", "Create a new work-item")
 	create := model.NewAutocompleteData(constants.CommandCreate, "", "Create a new work-item")
 	create.AddTextArgument("Title", "[title]", "")
 	create.AddTextArgument("Description", "[description]", "")
-	boards.AddCommand(create)
+	workitem.AddCommand(create)
+	boards.AddCommand(workitem)
 	boards.AddCommand(subscription)
 	azureDevops.AddCommand(boards)
 
@@ -131,16 +133,13 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 
 	// Validate commands and their arguments
 	switch {
-	case len(args) >= 1 && args[0] == constants.CommandCreate:
+	case len(args) >= 1 && args[0] == constants.CommandWorkitem && args[1] == constants.CommandCreate:
 		return &model.CommandResponse{}, nil
 		// For "subscription" command there must be at least 2 arguments
 	case len(args) >= 2 && args[0] == constants.CommandSubscription:
 		switch args[1] {
 		case constants.CommandList:
-			// For "list" command there must be at least 3 arguments
-			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
-				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandBoards, args...)
-			}
+			return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandBoards, args...)
 		case constants.CommandDelete:
 			return azureDevopsDeleteCommand(p, c, commandArgs, constants.CommandBoards, args...)
 		case constants.CommandAdd:
@@ -162,10 +161,7 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 	if len(args) >= 2 && args[0] == constants.CommandSubscription {
 		switch args[1] {
 		case constants.CommandList:
-			// For "list" command there must be at least 3 arguments
-			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
-				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandRepos, args...)
-			}
+			return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandRepos, args...)
 		case constants.CommandDelete:
 			return azureDevopsDeleteCommand(p, c, commandArgs, constants.CommandRepos, args...)
 		case constants.CommandAdd:
@@ -187,10 +183,7 @@ func azureDevopsPipelinesCommand(p *Plugin, c *plugin.Context, commandArgs *mode
 	if len(args) >= 2 && args[0] == constants.CommandSubscription {
 		switch args[1] {
 		case constants.CommandList:
-			// For "list" command there must be at least 3 arguments
-			if len(args) >= 3 && (args[2] == constants.FilterCreatedByMe || args[2] == constants.FilterCreatedByAnyone) {
-				return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandPipelines, args...)
-			}
+			return azureDevopsListSubscriptionsCommand(p, c, commandArgs, constants.CommandPipelines, args...)
 		case constants.CommandDelete:
 			return azureDevopsDeleteCommand(p, c, commandArgs, constants.CommandPipelines, args...)
 		case constants.CommandAdd:
@@ -246,6 +239,12 @@ func azureDevopsDeleteCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 }
 
 func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
+	createdByArgument := constants.FilterCreatedByAnyone
+	// Check if 3rd argument is "me"
+	if len(args) >= 3 && args[2] == constants.FilterCreatedByMe {
+		createdByArgument = args[2]
+	}
+
 	// If 4th argument is present then it must be "all_channels"
 	if len(args) >= 4 && args[3] != constants.FilterAllChannels {
 		return executeDefault(p, c, commandArgs, args...)
@@ -261,7 +260,7 @@ func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandAr
 	if len(args) >= 4 && args[3] == constants.FilterAllChannels {
 		showForChannelID = ""
 	}
-	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, args[2], commandArgs.UserId, command, commandArgs.TeamId))
+	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, createdByArgument, commandArgs.UserId, command, commandArgs.TeamId))
 }
 
 func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {

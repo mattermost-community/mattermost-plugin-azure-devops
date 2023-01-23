@@ -87,7 +87,7 @@ func TestExecuteCommand(t *testing.T) {
 		{
 			description:      "ExecuteCommand: boards create command",
 			isConnected:      true,
-			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards create [title] [description]"},
+			commandArgs:      &model.CommandArgs{Command: "/azuredevops boards workitem create [title] [description]"},
 			ephemeralMessage: fmt.Sprintf(constants.ConnectAccountFirst, fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)),
 		},
 		{

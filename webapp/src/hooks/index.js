@@ -22,7 +22,7 @@ export default class Hooks {
             });
         }
 
-        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards create')) {
+        if (commandTrimmed && commandTrimmed.startsWith('/azuredevops boards workitem create')) {
             const commandArgs = getCommandArgs(commandTrimmed);
             this.store.dispatch(setGlobalModalState({modalId: 'createBoardTask', commandArgs}));
             return Promise.resolve({

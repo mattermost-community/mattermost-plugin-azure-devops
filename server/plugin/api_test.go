@@ -673,6 +673,9 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsSubscriptionPresent", func(*Plugin, []*serializers.SubscriptionDetails, *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 				return &serializers.SubscriptionDetails{}, false
 			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "CheckValidChannelForSubscription", func(*Plugin, string, string) (int, error) {
+				return 0, nil
+			})
 
 			if testCase.statusCode == http.StatusOK {
 				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{

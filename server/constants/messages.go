@@ -54,6 +54,7 @@ const (
 	ErrorFetchProjectList                        = "Error in fetching project list"
 	ErrorDecodingBody                            = "Error in decoding body"
 	ErrorCreateTask                              = "Error in creating task"
+	ErrorCreateSubscription                      = "Error in creating subscription"
 	ErrorLinkProject                             = "Error in linking the project"
 	FetchSubscriptionListError                   = "Error in fetching subscription list"
 	FetchFilteredSubscriptionListError           = "Error in fetching filtered subscription list"

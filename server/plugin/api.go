@@ -265,6 +265,20 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if statusCode, channelAccessErr := p.CheckValidChannelForSubscription(body.ChannelID, mattermostUserID); channelAccessErr != nil {
+		p.API.LogError(constants.ErrorCreateSubscription, "Error", channelAccessErr.Error())
+
+		message := channelAccessErr.Error()
+		responseStatusCode := statusCode
+		if statusCode == http.StatusNotFound {
+			message = "you are not allowed to create subscription for the provided channel"
+			responseStatusCode = http.StatusForbidden
+		}
+
+		p.handleError(w, r, &serializers.Error{Code: responseStatusCode, Message: message})
+		return
+	}
+
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())

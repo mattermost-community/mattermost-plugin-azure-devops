@@ -334,12 +334,6 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 		return nil, channelErr
 	}
 
-	projectList, err := p.Store.GetAllProjects(mattermostUserID)
-	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		return nil, err
-	}
-
 	var filteredSubscriptionList []*serializers.SubscriptionDetails
 	if createdBy == constants.FilterCreatedByMe {
 		for _, subscription := range subscriptionList {
@@ -350,21 +344,13 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 		return filteredSubscriptionList, nil
 	}
 
+	// For each subscription check if the user is a member of the MM channel where the subscription is created
 	for _, subscription := range subscriptionList {
-		// For each subscription on a project check if a user is an admin or member of the MM channel to return subscriptions
-		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {
-			if projectDetails.IsAdmin {
+		for _, channel := range channels {
+			if subscription.ChannelID == channel.Id {
 				filteredSubscriptionList = append(filteredSubscriptionList, subscription)
-			} else {
-				for _, channel := range channels {
-					if subscription.ChannelID == channel.Id {
-						filteredSubscriptionList = append(filteredSubscriptionList, subscription)
-						break
-					}
-				}
+				break
 			}
-		} else if subscription.MattermostUserID == mattermostUserID {
-			filteredSubscriptionList = append(filteredSubscriptionList, subscription)
 		}
 	}
 

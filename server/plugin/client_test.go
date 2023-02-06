@@ -571,44 +571,6 @@ func TestGetApprovalDetails(t *testing.T) {
 	}
 }
 
-func TestCheckIfUserIsProjectAdmin(t *testing.T) {
-	defer monkey.UnpatchAll()
-	p := setupTestPlugin(&plugintest.API{})
-	for _, testCase := range []struct {
-		description   string
-		err           error
-		statusCode    int
-		expectedError string
-	}{
-		{
-			description: "CheckIfUserIsProjectAdmin: valid",
-			statusCode:  http.StatusOK,
-		},
-		{
-			description:   "CheckIfUserIsProjectAdmin: with error",
-			err:           errors.New("failed to check user permissions"),
-			statusCode:    http.StatusInternalServerError,
-			expectedError: "failed to check if user is a project admin: failed to check user permissions",
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(&client{}), "Call", func(_ *client, basePath, method, path, contentType, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
-				return nil, testCase.statusCode, testCase.err
-			})
-
-			statusCode, err := p.Client.CheckIfUserIsProjectAdmin(testutils.MockOrganization, testutils.MockProjectID, "mockProjectURL", testutils.MockMattermostUserID)
-
-			if testCase.err != nil {
-				assert.EqualError(t, err, testCase.expectedError)
-			} else {
-				assert.NoError(t, err)
-			}
-
-			assert.Equal(t, testCase.statusCode, statusCode)
-		})
-	}
-}
-
 func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := setupTestPlugin(&plugintest.API{})

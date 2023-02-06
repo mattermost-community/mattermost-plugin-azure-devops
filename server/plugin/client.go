@@ -24,7 +24,6 @@ type Client interface {
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
 	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
-	CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 	UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error)
 	GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error)
@@ -248,37 +247,6 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 
 	return subscription, statusCode, nil
-}
-
-// We are passing an invalid request payload for creating a subscription to check if the user who is linking this project is an admin here or not
-// If the user is an admin then we will get a response status code 400 with a message of invalid payload
-// and if the user is not an admin we will get status code 403 with a message saying "Access Denied"
-func (c *client) CheckIfUserIsProjectAdmin(organizationName, projectID, pluginURL, mattermostUserID string) (int, error) {
-	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, organizationName)
-
-	publisherInputs := serializers.PublisherInputsGeneric{
-		ProjectID: projectID,
-	}
-
-	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?channelID=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.SubscriptionEventTypeDummy),
-	}
-
-	payload := serializers.CreateSubscriptionBodyPayload{
-		PublisherID:      constants.PublisherIDTFS,
-		EventType:        constants.SubscriptionEventTypeDummy,
-		ConsumerID:       constants.ConsumerID,
-		ConsumerActionID: constants.ConsumerActionID,
-		PublisherInputs:  publisherInputs,
-		ConsumerInputs:   consumerInputs,
-	}
-
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, subscriptionURL, http.MethodPost, mattermostUserID, payload, nil, nil)
-	if err != nil {
-		return statusCode, errors.Wrap(err, "failed to check if user is a project admin")
-	}
-
-	return statusCode, nil
 }
 
 func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error) {

@@ -123,27 +123,11 @@ func (p *Plugin) handleLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isAdmin := false
-	subscriptionStatusCode, subscriptionErr := p.Client.CheckIfUserIsProjectAdmin(body.Organization, response.ID, p.GetPluginURL(), mattermostUserID)
-	if subscriptionErr != nil {
-		switch {
-		case subscriptionStatusCode == http.StatusBadRequest && strings.Contains(subscriptionErr.Error(), fmt.Sprintf(constants.ErrorMessageForAdmin, constants.SubscriptionEventTypeDummy)):
-			isAdmin = true
-		case subscriptionStatusCode == http.StatusForbidden && strings.Contains(subscriptionErr.Error(), constants.AccessDenied):
-			isAdmin = false
-		default:
-			p.API.LogError(fmt.Sprintf(constants.ErrorCheckingProjectAdmin, body.Project), "Error", subscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: subscriptionStatusCode, Message: constants.ErrorLinkProject})
-			return
-		}
-	}
-
 	project := serializers.ProjectDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectID:        response.ID,
 		ProjectName:      cases.Title(language.Und).String(body.Project),
 		OrganizationName: strings.ToLower(body.Organization),
-		IsAdmin:          isAdmin,
 	}
 
 	if storeErr := p.Store.StoreProject(&project); storeErr != nil {
@@ -301,10 +285,11 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	}
 
 	if _, isSubscriptionPresent := p.IsSubscriptionPresent(subscriptionList, &serializers.SubscriptionDetails{
-		OrganizationName:             body.Organization,
-		ProjectName:                  body.Project,
-		ChannelID:                    body.ChannelID,
-		EventType:                    body.EventType,
+		OrganizationName: body.Organization,
+		ProjectName:      body.Project,
+		ChannelID:        body.ChannelID,
+		EventType:        body.EventType,
+		// Below all are filters that could be present on different categories of subscriptions from Boards, Repos and Pipelines
 		Repository:                   body.Repository,
 		TargetBranch:                 body.TargetBranch,
 		PullRequestCreatedBy:         body.PullRequestCreatedBy,
@@ -360,17 +345,18 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
 	}
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
-		MattermostUserID:                 mattermostUserID,
-		ProjectName:                      body.Project,
-		ProjectID:                        project.ProjectID,
-		OrganizationName:                 body.Organization,
-		EventType:                        body.EventType,
-		ServiceType:                      body.ServiceType,
-		ChannelID:                        body.ChannelID,
-		SubscriptionID:                   subscription.ID,
-		ChannelName:                      channel.DisplayName,
-		ChannelType:                      channel.Type,
-		CreatedBy:                        strings.TrimSpace(createdByDisplayName),
+		MattermostUserID: mattermostUserID,
+		ProjectName:      body.Project,
+		ProjectID:        project.ProjectID,
+		OrganizationName: body.Organization,
+		EventType:        body.EventType,
+		ServiceType:      body.ServiceType,
+		ChannelID:        body.ChannelID,
+		SubscriptionID:   subscription.ID,
+		ChannelName:      channel.DisplayName,
+		ChannelType:      channel.Type,
+		CreatedBy:        strings.TrimSpace(createdByDisplayName),
+		// Below all are filters that could be present on different categories of subscriptions from Boards, Repos and Pipelines
 		Repository:                       body.Repository,
 		TargetBranch:                     body.TargetBranch,
 		RepositoryName:                   body.RepositoryName,
@@ -495,62 +481,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		}
 
 		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].ChannelName+
-				subscriptionByProject[i].EventType+
-				subscriptionByProject[i].TargetBranch+
-				subscriptionByProject[i].PullRequestCreatedByName+
-				subscriptionByProject[i].PullRequestReviewersContainsName+
-				subscriptionByProject[i].PushedByName+
-				subscriptionByProject[i].MergeResultName+
-				subscriptionByProject[i].NotificationTypeName+
-				subscriptionByProject[i].AreaPath+
-				subscriptionByProject[i].ReleasePipelineName+
-				subscriptionByProject[i].BuildPipeline+
-				subscriptionByProject[i].BuildStatusName+
-				subscriptionByProject[i].ApprovalStatusName+
-				subscriptionByProject[i].ApprovalTypeName+
-				subscriptionByProject[i].StageNameValue+
-				subscriptionByProject[i].ReleaseStatusName+
-				subscriptionByProject[i].RunPipeline+
-				subscriptionByProject[i].RunPipelineName+
-				subscriptionByProject[i].ReleasePipelineName+
-				subscriptionByProject[i].RunStageName+
-				subscriptionByProject[i].RunEnvironmentName+
-				subscriptionByProject[i].RunStageNameID+
-				subscriptionByProject[i].RunStageStateID+
-				subscriptionByProject[i].RunStageStateIDName+
-				subscriptionByProject[i].RunStageResultID+
-				subscriptionByProject[i].RunStateID+
-				subscriptionByProject[i].RunStateIDName+
-				subscriptionByProject[i].RunResultID <
-				subscriptionByProject[j].ChannelName+
-					subscriptionByProject[j].EventType+
-					subscriptionByProject[j].TargetBranch+
-					subscriptionByProject[j].PullRequestCreatedByName+
-					subscriptionByProject[j].PullRequestReviewersContainsName+
-					subscriptionByProject[j].PushedByName+
-					subscriptionByProject[j].MergeResultName+
-					subscriptionByProject[j].NotificationTypeName+
-					subscriptionByProject[j].AreaPath+
-					subscriptionByProject[i].ReleasePipelineName+
-					subscriptionByProject[i].BuildPipeline+
-					subscriptionByProject[i].BuildStatusName+
-					subscriptionByProject[i].ApprovalStatusName+
-					subscriptionByProject[i].ApprovalTypeName+
-					subscriptionByProject[i].StageNameValue+
-					subscriptionByProject[i].ReleaseStatusName+
-					subscriptionByProject[i].RunPipeline+
-					subscriptionByProject[i].RunPipelineName+
-					subscriptionByProject[i].ReleasePipelineName+
-					subscriptionByProject[i].RunStageName+
-					subscriptionByProject[i].RunEnvironmentName+
-					subscriptionByProject[i].RunStageNameID+
-					subscriptionByProject[i].RunStageStateID+
-					subscriptionByProject[i].RunStageStateIDName+
-					subscriptionByProject[i].RunStageResultID+
-					subscriptionByProject[i].RunStateID+
-					subscriptionByProject[i].RunStateIDName+
-					subscriptionByProject[i].RunResultID
+			return subscriptionByProject[i].CreatedAt.After(subscriptionByProject[j].CreatedAt)
 		})
 
 		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID, constants.FilterCreatedByAnyone)

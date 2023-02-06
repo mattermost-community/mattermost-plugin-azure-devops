@@ -279,7 +279,6 @@ func TestHandleLink(t *testing.T) {
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				if !testCase.isProjectLinked {
 					mockedClient.EXPECT().Link(gomock.Any(), gomock.Any()).Return(&serializers.Project{}, testCase.statusCode, testCase.err)
-					mockedClient.EXPECT().CheckIfUserIsProjectAdmin(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(http.StatusOK, nil)
 					mockedStore.EXPECT().StoreProject(&serializers.ProjectDetails{
 						MattermostUserID: testutils.MockMattermostUserID,
 						ProjectName:      "Mockproject",

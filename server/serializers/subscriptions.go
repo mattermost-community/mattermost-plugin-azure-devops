@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"time"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 )
@@ -152,17 +153,19 @@ type CreateSubscriptionBodyPayload struct {
 }
 
 type SubscriptionDetails struct {
-	MattermostUserID                 string `json:"mattermostUserID"`
-	ProjectName                      string `json:"projectName"`
-	ProjectID                        string `json:"projectID"`
-	OrganizationName                 string `json:"organizationName"`
-	EventType                        string `json:"eventType"`
-	ServiceType                      string `json:"serviceType"`
-	ChannelID                        string `json:"channelID"`
-	ChannelName                      string `json:"channelName"`
-	ChannelType                      string `json:"channelType"`
-	SubscriptionID                   string `json:"subscriptionID"`
-	CreatedBy                        string `json:"createdBy"`
+	MattermostUserID string    `json:"mattermostUserID"`
+	ProjectName      string    `json:"projectName"`
+	ProjectID        string    `json:"projectID"`
+	OrganizationName string    `json:"organizationName"`
+	EventType        string    `json:"eventType"`
+	ServiceType      string    `json:"serviceType"`
+	ChannelID        string    `json:"channelID"`
+	ChannelName      string    `json:"channelName"`
+	ChannelType      string    `json:"channelType"`
+	SubscriptionID   string    `json:"subscriptionID"`
+	CreatedBy        string    `json:"createdBy"`
+	CreatedAt        time.Time `json:"createdAt"`
+	// Below all are filters that could be present on different categories of subscriptions from Boards, Repos and Pipelines
 	TargetBranch                     string `json:"targetBranch"`
 	Repository                       string `json:"repository"`
 	RepositoryName                   string `json:"repositoryName"`

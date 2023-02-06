@@ -1,8 +1,10 @@
-.button-wrapper {
-    border-radius: 4px;
-    background-color: transparent;
-    
-    i {
-        color: rgba(var(--center-channel-color-rgb), 0.56)
+.azure-devops-plugin{
+    .button-wrapper {
+        border-radius: 4px;
+        background-color: transparent;
+        
+        i {
+            color: rgba(var(--center-channel-color-rgb), 0.56)
+        }
     }
 }

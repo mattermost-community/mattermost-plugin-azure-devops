@@ -1,31 +1,33 @@
-.delete-button {
-    display: block;
-    margin-left: auto;
-    
-    i {
-        margin: 1px 0 0 2px;
+.azure-devops-plugin {
+    .delete-button {
+        display: block;
+        margin-left: auto;
+
+        i {
+            margin: 1px 0 0 2px;
+        }
     }
-}
 
-.icon-label {
-    font-size: 16px;
-}
+    .icon-label {
+        font-size: 16px;
+    }
 
-.icon-mm {
-    margin: 0 3px 0 0;
-}
+    .icon-mm {
+        margin: 0 3px 0 0;
+    }
 
-.icon-event-type {
-    font-size: 14px;
-    margin: 0 3px 0 2px;
-}
+    .icon-event-type {
+        font-size: 14px;
+        margin: 0 3px 0 2px;
+    }
 
-.card-filter {
-    align-self: flex-start;
-}
+    .card-filter {
+        align-self: flex-start;
+    }
 
-.card-chip-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
+    .card-chip-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
 }

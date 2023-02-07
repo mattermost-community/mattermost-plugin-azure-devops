@@ -3,7 +3,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import Cookies from 'js-cookie';
 
 import Constants from 'pluginConstants';
-import Utils, {addPathParamsToApiUrl} from 'utils';
+import Utils from 'utils';
 
 // Service to make plugin API requests
 const azureDevOpsPluginApi = createApi({

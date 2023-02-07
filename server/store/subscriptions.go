@@ -60,6 +60,7 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 	}
 
 	subscriptionListValue := serializers.SubscriptionDetails{
+		SubscriptionID:                   subscription.SubscriptionID,
 		MattermostUserID:                 userID,
 		ProjectName:                      subscription.ProjectName,
 		ProjectID:                        subscription.ProjectID,
@@ -67,7 +68,6 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelID:                        subscription.ChannelID,
 		EventType:                        subscription.EventType,
 		ServiceType:                      subscription.ServiceType,
-		SubscriptionID:                   subscription.SubscriptionID,
 		ChannelName:                      subscription.ChannelName,
 		ChannelType:                      subscription.ChannelType,
 		CreatedBy:                        subscription.CreatedBy,

@@ -153,6 +153,7 @@ type CreateSubscriptionBodyPayload struct {
 }
 
 type SubscriptionDetails struct {
+	SubscriptionID   string    `json:"subscriptionID"`
 	MattermostUserID string    `json:"mattermostUserID"`
 	ProjectName      string    `json:"projectName"`
 	ProjectID        string    `json:"projectID"`
@@ -162,7 +163,6 @@ type SubscriptionDetails struct {
 	ChannelID        string    `json:"channelID"`
 	ChannelName      string    `json:"channelName"`
 	ChannelType      string    `json:"channelType"`
-	SubscriptionID   string    `json:"subscriptionID"`
 	CreatedBy        string    `json:"createdBy"`
 	CreatedAt        time.Time `json:"createdAt"`
 	// Below all are filters that could be present on different categories of subscriptions from Boards, Repos and Pipelines

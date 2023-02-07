@@ -1,13 +1,11 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
 import {filterLabelValuePairAll} from 'pluginConstants/common';
 
 import Dropdown from 'components/dropdown';
 
-import usePluginApi from 'hooks/usePluginApi';
-
-import {formLabelValuePairs} from 'utils';
+import useLoadFilters from 'hooks/useLoadFilters';
 
 type PipelinesFilterProps = {
     organization: string
@@ -15,36 +13,22 @@ type PipelinesFilterProps = {
     eventType: string
     selectedBuildPipeline: string
     isModalOpen: boolean
-    handleSelectBuildPipeline: (value: string, name?: string) => void
+    handleSetFilter: HandleSetSubscriptionFilter
     setIsFiltersError: (value: boolean) => void
     selectedBuildStatus: string
-    handleSelectBuildStatus: (value: string, name?: string) => void
-    handleSelectReleasePipeline: (value: string, name?: string) => void
     selectedReleasePipeline: string
-    handleSelectStageName: (value: string, name?: string) => void
     selectedStageName: string
-    handleSelectApprovalType: (value: string, name?: string) => void
     selectedApprovalType: string
-    handleSelectApprovalStatus: (value: string, name?: string) => void
     selectedApprovalStatus: string
     selectedReleaseStatus: string
-    handleSelectReleaseStatus: (value: string, name?: string) => void
     selectedRunPipeline: string
-    handleSelectRunPipeline: (value: string, name?: string) => void
     selectedRunStage: string
-    handleSelectRunStage: (value: string, name?: string) => void
     selectedRunEnvironment: string
-    handleSelectRunEnvironment: (value: string, name?: string) => void
     selectedRunStageId: string
-    handleSelectRunStageId: (value: string, name?: string) => void
     selectedRunStageStateId: string
-    handleSelectRunStageStateId: (value: string, name?: string) => void
     selectedRunStageResultId: string
-    handleSelectRunStageResultId: (value: string, name?: string) => void
     selectedRunStateId: string
-    handleSelectRunStateId: (value: string, name?: string) => void
     selectedRunResultId: string
-    handleSelectRunResultId: (value: string, name?: string) => void
 }
 
 const PipelinesFilter = ({
@@ -53,42 +37,26 @@ const PipelinesFilter = ({
     eventType,
     selectedBuildPipeline,
     isModalOpen,
-    handleSelectBuildPipeline,
+    handleSetFilter,
     setIsFiltersError,
     selectedBuildStatus,
-    handleSelectBuildStatus,
-    handleSelectReleasePipeline,
     selectedReleasePipeline,
-    handleSelectStageName,
     selectedStageName,
     selectedApprovalType,
-    handleSelectApprovalType,
-    handleSelectApprovalStatus,
     selectedApprovalStatus,
     selectedReleaseStatus,
-    handleSelectReleaseStatus,
-    handleSelectRunPipeline,
     selectedRunPipeline,
-    handleSelectRunStage,
     selectedRunStage,
-    handleSelectRunEnvironment,
     selectedRunEnvironment,
     selectedRunStageId,
-    handleSelectRunStageId,
     selectedRunStageStateId,
-    handleSelectRunStageStateId,
     selectedRunStageResultId,
-    handleSelectRunStageResultId,
     selectedRunStateId,
-    handleSelectRunStateId,
     selectedRunResultId,
-    handleSelectRunResultId,
 }: PipelinesFilterProps) => {
     const {buildStatusOptions, releaseApprovalTypeOptions, releaseApprovalStatusOptions, releaseStatusOptions, subscriptionFiltersForPipelines, subscriptionFiltersNameForPipelines, runStageStateIdOptions, runStageResultIdOptions, runStateIdOptions, runResultIdOptions} = pluginConstants.form;
 
-    const {getApiState, makeApiRequestWithCompletionStatus} = usePluginApi();
-
-    const getSubscriptionFiltersRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
+    const getSubscriptionFiltersRequestParams = useMemo<GetSubscriptionFiltersRequest>(() => ({
         organization,
         projectId,
         filters: subscriptionFiltersForPipelines,
@@ -97,38 +65,7 @@ const PipelinesFilter = ({
         runPipeline: selectedRunPipeline,
     }), [organization, projectId, eventType, subscriptionFiltersForPipelines, selectedBuildPipeline, selectedReleasePipeline, selectedRunPipeline]);
 
-    useEffect(() => {
-        if (isModalOpen && organization && projectId && eventType) {
-            makeApiRequestWithCompletionStatus(
-                pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-                getSubscriptionFiltersRequest,
-            );
-        }
-    }, [getSubscriptionFiltersRequest]);
-
-    const {data, isLoading, isError, isSuccess} = getApiState(
-        pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-        getSubscriptionFiltersRequest as APIRequestPayload,
-    );
-
-    const filtersData = data as GetSubscriptionFiltersResponse || [];
-
-    useEffect(() => {
-        if (isError && !isSuccess) {
-            setIsFiltersError(true);
-            return;
-        }
-
-        setIsFiltersError(false);
-    }, [isError, isSuccess]);
-
-    const getBuildPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.buildPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getReleasePipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.releasePipelineName], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getStageNameOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.stageName], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getRunPipelineOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runPipeline], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getRunStageOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runStage], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getRunEnvironmentOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runEnvironment], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getRunStageIdOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForPipelines.runStageId], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const {filtersData, isError, isLoading, getFilterOptions} = useLoadFilters({isModalOpen, getSubscriptionFiltersRequestParams, setIsFiltersError});
 
     return (
         <>
@@ -139,8 +76,8 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Build Pipeline'
                                 value={selectedBuildPipeline}
-                                onChange={handleSelectBuildPipeline}
-                                options={getBuildPipelineOptions()}
+                                onChange={(newValue) => handleSetFilter('buildPipeline', newValue)}
+                                options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.buildPipeline])}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={isLoading}
@@ -150,7 +87,7 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Build Status'
                                 value={selectedBuildStatus}
-                                onChange={handleSelectBuildStatus}
+                                onChange={(newValue, label) => handleSetFilter('buildStatus', newValue, 'buildStatusName', label)}
                                 options={buildStatusOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
@@ -166,8 +103,8 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Release Pipeline Name'
                             value={selectedReleasePipeline}
-                            onChange={handleSelectReleasePipeline}
-                            options={getReleasePipelineOptions()}
+                            onChange={(newValue, label) => handleSetFilter('releasePipeline', newValue, 'releasePipelineName', label)}
+                            options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.releasePipelineName])}
                             error={isError}
                             loadingOptions={isLoading}
                             disabled={isLoading}
@@ -181,8 +118,8 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Stage Name'
                             value={selectedStageName}
-                            onChange={handleSelectStageName}
-                            options={getStageNameOptions()}
+                            onChange={(newValue, label) => handleSetFilter('stageName', newValue, 'stageNameValue', label)}
+                            options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.stageName])}
                             error={isError}
                             loadingOptions={isLoading}
                             disabled={selectedReleasePipeline === filterLabelValuePairAll.value || isLoading}
@@ -197,7 +134,7 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Approval Type'
                             value={selectedApprovalType}
-                            onChange={handleSelectApprovalType}
+                            onChange={(newValue, label) => handleSetFilter('approvalType', newValue, 'approvalTypeName', label)}
                             options={releaseApprovalTypeOptions}
                             error={isError}
                             loadingOptions={isLoading}
@@ -212,7 +149,7 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Approval Status'
                             value={selectedApprovalStatus}
-                            onChange={handleSelectApprovalStatus}
+                            onChange={(newValue, label) => handleSetFilter('approvalStatus', newValue, 'approvalStatusName', label)}
                             options={releaseApprovalStatusOptions}
                             error={isError}
                             loadingOptions={isLoading}
@@ -227,7 +164,7 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Status'
                             value={selectedReleaseStatus}
-                            onChange={handleSelectReleaseStatus}
+                            onChange={(newValue, label) => handleSetFilter('releaseStatus', newValue, 'releaseStatusName', label)}
                             options={releaseStatusOptions}
                             error={isError}
                             loadingOptions={isLoading}
@@ -242,8 +179,8 @@ const PipelinesFilter = ({
                         <Dropdown
                             placeholder='Pipeline'
                             value={selectedRunPipeline}
-                            onChange={handleSelectRunPipeline}
-                            options={getRunPipelineOptions()}
+                            onChange={(newValue, label) => handleSetFilter('runPipeline', newValue, 'runPipelineName', label)}
+                            options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.runPipeline])}
                             error={isError}
                             loadingOptions={isLoading}
                             disabled={isLoading}
@@ -258,8 +195,8 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Stage'
                                 value={selectedRunStage}
-                                onChange={handleSelectRunStage}
-                                options={getRunStageOptions()}
+                                onChange={(newValue) => handleSetFilter('runStage', newValue)}
+                                options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.runStage])}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={selectedRunPipeline === filterLabelValuePairAll.value || isLoading}
@@ -269,8 +206,8 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Environment'
                                 value={selectedRunEnvironment}
-                                onChange={handleSelectRunEnvironment}
-                                options={getRunEnvironmentOptions()}
+                                onChange={(newValue) => handleSetFilter('runEnvironment', newValue)}
+                                options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.runEnvironment])}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={isLoading}
@@ -286,8 +223,8 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Stage'
                                 value={selectedRunStageId}
-                                onChange={handleSelectRunStageId}
-                                options={getRunStageIdOptions()}
+                                onChange={(newValue) => handleSetFilter('runStageId', newValue)}
+                                options={getFilterOptions(filtersData[subscriptionFiltersNameForPipelines.runStageId])}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={selectedRunPipeline === filterLabelValuePairAll.value || isLoading}
@@ -297,7 +234,7 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='State'
                                 value={selectedRunStageStateId}
-                                onChange={handleSelectRunStageStateId}
+                                onChange={(newValue, label) => handleSetFilter('runStageStateId', newValue, 'runStageStateIdName', label)}
                                 options={runStageStateIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
@@ -308,7 +245,7 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Result'
                                 value={selectedRunStageResultId}
-                                onChange={handleSelectRunStageResultId}
+                                onChange={(newValue) => handleSetFilter('runStageResultId', newValue)}
                                 options={runStageResultIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
@@ -325,7 +262,7 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='State'
                                 value={selectedRunStateId}
-                                onChange={handleSelectRunStateId}
+                                onChange={(newValue, label) => handleSetFilter('runStateId', newValue, 'runStateIdName', label)}
                                 options={runStateIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}
@@ -336,7 +273,7 @@ const PipelinesFilter = ({
                             <Dropdown
                                 placeholder='Result'
                                 value={selectedRunResultId}
-                                onChange={handleSelectRunResultId}
+                                onChange={(newValue) => handleSetFilter('runResultId', newValue)}
                                 options={runResultIdOptions}
                                 error={isError}
                                 loadingOptions={isLoading}

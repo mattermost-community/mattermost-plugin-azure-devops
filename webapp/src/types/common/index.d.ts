@@ -144,3 +144,10 @@ type LabelIconProps = {
     tooltipText: string
     extraClassName?: string // This should contain the class name that we want to add on the wrapper in addition to the icon class
 }
+
+type HandleSetSubscriptionFilter = (
+    filterID: FormFieldNames,
+    filterIDNewValue: string,
+    filterDisplayName?: FormFieldNames,
+    filterDisplayNameNewValue?: string,
+) => void

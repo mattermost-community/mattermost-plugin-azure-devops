@@ -32,6 +32,7 @@ type Client interface {
 	GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error)
 	GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error)
 	OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error)
+	GetUserProfile(id, accessToken string) (*serializers.UserProfile, int, error)
 }
 
 type client struct {
@@ -52,6 +53,17 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 	}
 
 	return oAuthSuccessResponse, statusCode, nil
+}
+
+func (c *client) GetUserProfile(id, accessToken string) (*serializers.UserProfile, int, error) {
+	var userProfile *serializers.UserProfile
+
+	_, statusCode, err := c.makeHTTPRequestWithAccessToken(constants.BaseOauthURL, fmt.Sprintf(constants.PathUserProfile, id), http.MethodGet, accessToken, "application/json", &userProfile)
+	if err != nil {
+		return nil, statusCode, err
+	}
+
+	return userProfile, statusCode, nil
 }
 
 // Function to create task for a project.
@@ -391,21 +403,9 @@ func (c *client) CallJSON(url, path, method, mattermostUserID string, in, out in
 // Makes HTTP request to REST APIs
 func (c *client) Call(basePath, method, path, contentType string, mattermostUserID string, inBody io.Reader, out interface{}, formValues url.Values) (responseData []byte, statusCode int, err error) {
 	errContext := fmt.Sprintf("Azure DevOps: Call failed: method:%s, path:%s", method, path)
-	pathURL, err := url.Parse(path)
+	URL, err := c.parsePath(basePath, path, method)
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)
-	}
-
-	if pathURL.Scheme == "" || pathURL.Host == "" {
-		var baseURL *url.URL
-		baseURL, err = url.Parse(basePath)
-		if err != nil {
-			return nil, http.StatusInternalServerError, errors.WithMessage(err, errContext)
-		}
-		if path[0] != '/' {
-			path = "/" + path
-		}
-		path = baseURL.String() + path
 	}
 
 	// Check refresh token only for APIs other than OAuth
@@ -436,12 +436,12 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 
 	var req *http.Request
 	if formValues != nil {
-		req, err = http.NewRequest(method, path, strings.NewReader(formValues.Encode()))
+		req, err = http.NewRequest(method, URL, strings.NewReader(formValues.Encode()))
 		if err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
 	} else {
-		req, err = http.NewRequest(method, path, inBody)
+		req, err = http.NewRequest(method, URL, inBody)
 		if err != nil {
 			return nil, http.StatusInternalServerError, err
 		}
@@ -453,6 +453,36 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		}
 	}
 
+	return c.makeHTTPRequest(req, contentType, out)
+}
+
+func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, constants.PathOpenCommentModal, http.MethodPost, mattermostUserID, body, nil, nil)
+	return statusCode, err
+}
+
+func (c *client) parsePath(basePath, path, method string) (string, error) {
+	pathURL, err := url.Parse(path)
+	if err != nil {
+		return "", err
+	}
+
+	if pathURL.Scheme == "" || pathURL.Host == "" {
+		var baseURL *url.URL
+		baseURL, err = url.Parse(basePath)
+		if err != nil {
+			return "", err
+		}
+		if path[0] != '/' {
+			path = "/" + path
+		}
+		path = baseURL.String() + path
+	}
+
+	return path, nil
+}
+
+func (c *client) makeHTTPRequest(req *http.Request, contentType string, out interface{}) (responseData []byte, statusCode int, err error) {
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
 	}
@@ -495,9 +525,20 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 	return responseData, resp.StatusCode, fmt.Errorf("errorMessage %s", errResp.Message)
 }
 
-func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().MattermostSiteURL, constants.PathOpenCommentModal, http.MethodPost, mattermostUserID, body, nil, nil)
-	return statusCode, err
+func (c *client) makeHTTPRequestWithAccessToken(basePath, path, method, accessToken, contentType string, out interface{}) (responseData []byte, statusCode int, err error) {
+	URL, err := c.parsePath(basePath, path, method)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	req, err := http.NewRequest(method, URL, nil)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	req.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, accessToken))
+
+	return c.makeHTTPRequest(req, contentType, out)
 }
 
 func InitClient(p *Plugin) Client {

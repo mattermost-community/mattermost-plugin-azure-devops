@@ -7,15 +7,16 @@ import (
 )
 
 const (
-	MockOrganization     = "mockOrganization"
-	MockProjectName      = "mockProjectName"
-	MockMattermostUserID = "mockMattermostUserID"
-	MockChannelID        = "mockChannelID"
-	MockProjectID        = "mockProjectID"
-	MockEventType        = "mockEventType"
-	MockSubscriptionID   = "mockSubscriptionID"
-	MockServiceType      = "mockServiceType"
-	MockApproverID       = "mockApproverID"
+	MockOrganization      = "mockOrganization"
+	MockProjectName       = "mockProjectName"
+	MockMattermostUserID  = "mockMattermostUserID"
+	MockChannelID         = "mockChannelID"
+	MockProjectID         = "mockProjectID"
+	MockEventType         = "mockEventType"
+	MockSubscriptionID    = "mockSubscriptionID"
+	MockServiceType       = "mockServiceType"
+	MockApproverID        = "mockApproverID"
+	MockAzureDevopsUserID = "mockAzureDevopsUserID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {

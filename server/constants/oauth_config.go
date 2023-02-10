@@ -13,5 +13,8 @@ const (
 	// Paths
 	PathAuth = "/oauth2/authorize"
 	// #nosec G101 -- This is a false positive
-	PathToken = "/oauth2/token"
+	PathToken       = "/oauth2/token"
+	PathUserProfile = "/_apis/profile/profiles/%s"
+
+	CurrentAzureDevopsUserProfileID = "me"
 )

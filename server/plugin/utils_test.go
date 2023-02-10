@@ -428,6 +428,9 @@ func TestAddAuthorization(t *testing.T) {
 			description: "AddAuthorization: valid",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
+				UserProfile: serializers.UserProfile{
+					ID: testutils.MockAzureDevopsUserID,
+				},
 			},
 			token: "mockToken",
 		},
@@ -439,16 +442,21 @@ func TestAddAuthorization(t *testing.T) {
 			description: "AddAuthorization: empty user",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
+				UserProfile: serializers.UserProfile{
+					ID: testutils.MockAzureDevopsUserID,
+				},
 			},
 			parseAuthTokenErr: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
+			mockedStore.EXPECT().LoadAzureDevopsUserIDFromMattermostUser(testutils.MockMattermostUserID).Return(testutils.MockAzureDevopsUserID, nil)
+
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "ParseAuthToken", func(_ *Plugin, _ string) (string, error) {
 				return testCase.token, testCase.parseAuthTokenErr
 			})
 
-			mockedStore.EXPECT().LoadUser(testutils.MockMattermostUserID).Return(testCase.user, testCase.loadUserErr)
+			mockedStore.EXPECT().LoadAzureDevopsUserDetails(testutils.MockAzureDevopsUserID).Return(testCase.user, testCase.loadUserErr)
 
 			req := httptest.NewRequest(http.MethodGet, "/mockURL", bytes.NewBufferString(`{}`))
 			resp := p.AddAuthorization(req, testutils.MockMattermostUserID)

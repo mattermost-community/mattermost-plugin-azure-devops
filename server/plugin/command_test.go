@@ -60,7 +60,7 @@ func TestExecuteCommand(t *testing.T) {
 			description:      "ExecuteCommand: connect command with user already connected",
 			commandArgs:      &model.CommandArgs{Command: "/azuredevops connect"},
 			isConnected:      true,
-			ephemeralMessage: constants.UserAlreadyConnected,
+			ephemeralMessage: constants.MattermostUserAlreadyConnected,
 		},
 		{
 			description:      "ExecuteCommand: disconnect command with user not connected",
@@ -222,7 +222,7 @@ func TestExecuteCommand(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 			mockAPI.On("PublishWebSocketEvent", mock.AnythingOfType("string"), mock.Anything, mock.AnythingOfType("*model.WebsocketBroadcast")).Return()
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "MattermostUserAlreadyConnected", func(_ *Plugin, _ string) bool {
 				return testCase.isConnected
 			})
 

@@ -10,9 +10,10 @@ const (
 	UsersPerPage                         = 100
 
 	// KV store prefix keys
-	OAuthPrefix        = "oAuth_%s"
-	ProjectKey         = "%s_%s"
-	ProjectPrefix      = "project_list"
-	SubscriptionPrefix = "subscription_list"
-	UserIDPrefix       = "oAuth"
+	OAuthPrefix           = "oAuth_%s"
+	ProjectKey            = "%s_%s"
+	ProjectPrefix         = "project_list"
+	SubscriptionPrefix    = "subscription_list"
+	UserIDPrefix          = "oAuth"
+	AzureDevOpsUserPrefix = "azd_userID_%s"
 )

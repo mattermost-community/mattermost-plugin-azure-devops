@@ -132,6 +132,10 @@ func GetOAuthKey(mattermostUserID string) string {
 	return fmt.Sprintf(constants.OAuthPrefix, mattermostUserID)
 }
 
+func GetAzureDevopsUserKey(azureDevopsUserID string) string {
+	return fmt.Sprintf(constants.AzureDevOpsUserPrefix, azureDevopsUserID)
+}
+
 func GetSubscriptionListMapKey() string {
 	return constants.SubscriptionPrefix
 }

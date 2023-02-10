@@ -22,3 +22,9 @@ type OAuthSuccessResponse struct {
 type ConnectedResponse struct {
 	IsConnected bool `json:"connected"`
 }
+
+type UserProfile struct {
+	ID          string `json:"id"`
+	DisplayName string `json:"displayName"`
+	Email       string `json:"emailAddress"`
+}

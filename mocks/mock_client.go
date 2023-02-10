@@ -98,6 +98,22 @@ func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOAuthToken", reflect.TypeOf((*MockClient)(nil).GenerateOAuthToken), arg0)
 }
 
+// GetUserProfile mocks base method
+func (m *MockClient) GetUserProfile(arg0, arg1 string) (*serializers.UserProfile, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserProfile", arg0, arg1)
+	ret0, _ := ret[0].(*serializers.UserProfile)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetApprovalDetails indicates an expected call of GetApprovalDetails
+func (mr *MockClientMockRecorder) GetUserProfile(arg0, arg1 string) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserProfile", reflect.TypeOf((*MockClient)(nil).GetUserProfile), arg0, arg1)
+}
+
 // GetApprovalDetails mocks base method
 func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*serializers.PipelineApprovalDetails, int, error) {
 	m.ctrl.T.Helper()

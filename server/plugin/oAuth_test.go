@@ -61,7 +61,7 @@ func TestOAuthConnect(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "UserAlreadyConnected", func(_ *Plugin, _ string) bool {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "MattermostUserAlreadyConnected", func(_ *Plugin, _ string) bool {
 				return testCase.isConnected
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateOAuthConnectURL", func(_ *Plugin, _ string) string {
@@ -130,12 +130,20 @@ func TestOAuthComplete(t *testing.T) {
 			oAuthTokenErr: errors.New("oAuthTokenErr"),
 			statusCode:    http.StatusInternalServerError,
 		},
+		{
+			description:   "OAuthComplete: Azure DevOps user is already connected",
+			code:          "mockCode",
+			state:         "mock_State",
+			oAuthTokenErr: errors.New(constants.ErrorMessageAzureDevopsAccountAlreadyConnected),
+			statusCode:    http.StatusForbidden,
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateOAuthToken", func(_ *Plugin, _, _ string) error {
 				return testCase.oAuthTokenErr
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "CloseBrowserWindowWithHTTPResponse", func(_ *Plugin, _ http.ResponseWriter) {})
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
 			req := httptest.NewRequest(http.MethodGet, "/oauth/complete", bytes.NewBufferString(`{}`))
 			q := req.URL.Query()
@@ -178,7 +186,7 @@ func TestGenerateOAuthToken(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "DM", func(_ *Plugin, _, _ string, _ bool, _ ...interface{}) (string, error) {
 				return "", testCase.DMError
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values, _ bool) error {
 				return nil
 			})
 
@@ -263,7 +271,7 @@ func TestRefreshOAuthToken(t *testing.T) {
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "Decrypt", func(_ *Plugin, _, _ []byte) ([]byte, error) {
 				return nil, testCase.decryptError
 			})
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateAndStoreOAuthToken", func(_ *Plugin, _ string, _ url.Values, _ bool) error {
 				return nil
 			})
 
@@ -304,6 +312,8 @@ func TestGenerateAndStoreOAuthToken(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockedClient.EXPECT().GenerateOAuthToken(gomock.Any()).Return(&serializers.OAuthSuccessResponse{}, 200, nil)
+			mockedClient.EXPECT().GetUserProfile("me", "").Return(&serializers.UserProfile{}, 200, nil)
+			mockedStore.EXPECT().LoadAzureDevopsUserDetails("").Return(&serializers.User{}, nil)
 
 			monkey.Patch(strconv.Atoi, func(string) (int, error) {
 				return 0, nil
@@ -320,7 +330,7 @@ func TestGenerateAndStoreOAuthToken(t *testing.T) {
 			})
 
 			if testCase.storeError == nil {
-				mockedStore.EXPECT().StoreUser(&serializers.User{
+				mockedStore.EXPECT().StoreAzureDevopsUserDetailsWithMattermostUserID(&serializers.User{
 					ExpiresAt: time.Now().UTC().Add(time.Second * time.Duration(0)).Unix(),
 				}).Return(testCase.storeUserError)
 			}
@@ -331,7 +341,7 @@ func TestGenerateAndStoreOAuthToken(t *testing.T) {
 					AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				})
 
-			err := p.GenerateAndStoreOAuthToken("", nil)
+			err := p.GenerateAndStoreOAuthToken("", nil, false)
 			if testCase.expectedError != "" {
 				assert.NotNil(t, err)
 				return
@@ -368,8 +378,8 @@ func TestIsAccessTokenExpired(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-
-			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(&serializers.User{}, testCase.loadUserError)
+			mockedStore.EXPECT().LoadAzureDevopsUserIDFromMattermostUser(testutils.MockMattermostUserID).Return(testutils.MockAzureDevopsUserID, nil)
+			mockedStore.EXPECT().LoadAzureDevopsUserDetails(testutils.MockAzureDevopsUserID).Return(&serializers.User{}, nil)
 
 			p.setConfiguration(
 				&config.Configuration{
@@ -403,20 +413,21 @@ func TestUserAlreadyConnected(t *testing.T) {
 		loadUserError error
 	}{
 		{
-			description: "UserAlreadyConnected: valid",
+			description: "MattermostUserAlreadyConnected: valid",
 			user:        &serializers.User{},
 		},
 		{
-			description:   "UserAlreadyConnected: user is not loaded successfully",
+			description:   "MattermostUserAlreadyConnected: user is not loaded successfully",
 			loadUserError: errors.New("error loading user"),
 		},
 	} {
 		mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...).Return(nil)
 
-		mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserError)
+		mockedStore.EXPECT().LoadAzureDevopsUserIDFromMattermostUser(testutils.MockMattermostUserID).Return(testutils.MockAzureDevopsUserID, nil)
+		mockedStore.EXPECT().LoadAzureDevopsUserDetails(testutils.MockAzureDevopsUserID).Return(&serializers.User{}, nil)
 
 		t.Run(testCase.description, func(t *testing.T) {
-			resp := p.UserAlreadyConnected(testutils.MockMattermostUserID)
+			resp := p.MattermostUserAlreadyConnected(testutils.MockMattermostUserID)
 			assert.NotNil(t, resp)
 		})
 	}

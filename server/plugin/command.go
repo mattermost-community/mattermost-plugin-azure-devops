@@ -119,7 +119,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 }
 
 func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
 	return &model.CommandResponse{}, nil
@@ -127,7 +127,7 @@ func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs
 
 func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	// Check if the user's Azure DevOps account is connected
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
 
@@ -152,7 +152,7 @@ func azureDevopsBoardsCommand(p *Plugin, c *plugin.Context, commandArgs *model.C
 
 func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	// Check if the user's Azure DevOps account is connected
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
 
@@ -174,7 +174,7 @@ func azureDevopsReposCommand(p *Plugin, c *plugin.Context, commandArgs *model.Co
 
 func azureDevopsPipelinesCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	// Check if the user's Azure DevOps account is connected
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
 
@@ -269,15 +269,15 @@ func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.Com
 
 func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	message := fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); isConnected {
-		message = constants.UserAlreadyConnected
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); isConnected {
+		message = constants.MattermostUserAlreadyConnected
 	}
 	return p.sendEphemeralPostForCommand(commandArgs, message)
 }
 
 func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
 	message := constants.UserDisconnected
-	if isConnected := p.UserAlreadyConnected(commandArgs.UserId); !isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		message = p.getConnectAccountFirstMessage()
 	} else {
 		if isDeleted, err := p.Store.DeleteUser(commandArgs.UserId); !isDeleted {

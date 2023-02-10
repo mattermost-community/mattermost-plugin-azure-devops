@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
 
 func TestStoreUser(t *testing.T) {
@@ -27,14 +28,20 @@ func TestStoreUser(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
+			monkey.Patch(GetAzureDevopsUserKey, func(string) string {
+				return testutils.MockAzureDevopsUserID
+			})
 			monkey.Patch(GetOAuthKey, func(string) string {
 				return "mockMattermostUserID"
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "StoreJSON", func(*Store, string, interface{}) error {
 				return testCase.err
 			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "Store", func(*Store, string, []byte) error {
+				return testCase.err
+			})
 
-			err := s.StoreUser(&serializers.User{})
+			err := s.StoreAzureDevopsUserDetailsWithMattermostUserID(&serializers.User{})
 
 			if testCase.err != nil {
 				assert.NotNil(t, err)
@@ -69,7 +76,7 @@ func TestLoadUser(t *testing.T) {
 				return testCase.err
 			})
 
-			user, err := s.LoadUser("mockMattermostUserID")
+			user, err := s.LoadAzureDevopsUserDetails(testutils.MockAzureDevopsUserID)
 
 			if testCase.err != nil {
 				assert.NotNil(t, err)
@@ -99,8 +106,14 @@ func TestDeleteUser(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
+			monkey.Patch(GetAzureDevopsUserKey, func(string) string {
+				return testutils.MockAzureDevopsUserID
+			})
 			monkey.Patch(GetOAuthKey, func(string) string {
 				return "mockMattermostUserID"
+			})
+			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "LoadAzureDevopsUserIDFromMattermostUser", func(*Store, string) (string, error) {
+				return testutils.MockAzureDevopsUserID, testCase.err
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&s), "Delete", func(*Store, string) error {
 				return testCase.err

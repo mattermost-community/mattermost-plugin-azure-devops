@@ -1314,7 +1314,14 @@ func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) 
 func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-		user, err := p.Store.LoadUser(mattermostUserID)
+		azureDevopsUserID, err := p.Store.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
+		if err != nil {
+			p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
+			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: constants.GenericErrorMessage})
+			return
+		}
+
+		user, err := p.Store.LoadAzureDevopsUserDetails(azureDevopsUserID)
 		if err != nil || user.AccessToken == "" {
 			if errors.Is(err, ErrNotFound) || user.AccessToken == "" {
 				p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ConnectAccountFirst})
@@ -1378,7 +1385,14 @@ func (p *Plugin) handleError(w http.ResponseWriter, r *http.Request, error *seri
 // handleGetUserAccountDetails provides user details
 func (p *Plugin) handleGetUserAccountDetails(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	userDetails, err := p.Store.LoadUser(mattermostUserID)
+	azureDevopsUserID, err := p.Store.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorLoadingDataFromKVStore, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	userDetails, err := p.Store.LoadAzureDevopsUserDetails(azureDevopsUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorLoadingDataFromKVStore, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})

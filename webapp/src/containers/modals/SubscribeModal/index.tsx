@@ -15,6 +15,7 @@ import ResultPanel from 'components/resultPanel';
 
 import useApiRequestCompletionState from 'hooks/useApiRequestCompletionState';
 import usePluginApi from 'hooks/usePluginApi';
+import useMattermostApi from 'hooks/useMattermostApi';
 import useForm from 'hooks/useForm';
 
 import {setServiceType, toggleShowSubscribeModal} from 'reducers/subscribeModal';
@@ -47,6 +48,7 @@ const SubscribeModal = () => {
         makeApiRequestWithCompletionStatus,
         state,
     } = usePluginApi();
+    const {makeMattermostApiRequest, getMattermostApiState} = useMattermostApi();
     const {visibility, project, organization, serviceType, projectID} = getSubscribeModalState(state);
     const {currentTeamId} = useSelector((reduxState: GlobalState) => reduxState.entities.teams);
     const {currentChannelId} = useSelector((reduxState: GlobalState) => reduxState.entities.channels);
@@ -84,8 +86,8 @@ const SubscribeModal = () => {
 
     // Get channel state
     const getChannelState = () => {
-        const {isLoading, isSuccess, isError, data} = getApiState(
-            pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
+        const {isLoading, isSuccess, isError, data} = getMattermostApiState(
+            pluginConstants.mattermostApiServiceConfigs.getChannels.apiServiceName,
             {teamId: currentTeamId},
         );
         return {isLoading, isSuccess, isError, data: data as ChannelList[]};
@@ -203,8 +205,8 @@ const SubscribeModal = () => {
 
     // Make API request to fetch channel list
     useEffect(() => {
-        makeApiRequest(
-            pluginConstants.pluginApiServiceConfigs.getChannels.apiServiceName,
+        makeMattermostApiRequest(
+            pluginConstants.mattermostApiServiceConfigs.getChannels.apiServiceName,
             {teamId: currentTeamId},
         );
     }, [visibility]);
@@ -221,16 +223,24 @@ const SubscribeModal = () => {
     useEffect(() => {
         let isCurrentChannelIdPresentInChannelList = false; // Check if the current channel ID is the ID of a public or private channel and not the ID of a DM or group channel
         if (isChannelListSuccess && !showResultPanel) {
-            setChannelOptions(channelList?.map((channel) => {
-                if (currentChannelId === channel.id) {
-                    isCurrentChannelIdPresentInChannelList = true;
-                }
+            const publicAndPrivateChannelList: LabelValuePair[] = [];
 
-                return ({
-                    label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} azd-dropdown-option-icon`}/>{channel.display_name}</span>,
-                    value: channel.id,
+            if (channelList.length) {
+                channelList.forEach((channel) => {
+                    if (channel.type === mm_constants.PRIVATE_CHANNEL || channel.type === mm_constants.OPEN_CHANNEL) {
+                        if (currentChannelId === channel.id) {
+                            isCurrentChannelIdPresentInChannelList = true;
+                        }
+
+                        publicAndPrivateChannelList.push(({
+                            label: <span><i className={`icon ${channel.type === mm_constants.PRIVATE_CHANNEL ? 'icon-lock-outline' : 'icon-globe'} azd-dropdown-option-icon`}/>{channel.display_name}</span>,
+                            value: channel.id,
+                        }));
+                    }
                 });
-            }));
+            }
+
+            setChannelOptions(publicAndPrivateChannelList);
         }
 
         // Pre-select the dropdown value in case of single option

@@ -50,7 +50,6 @@ func (p *Plugin) InitRoutes() {
 	s.HandleFunc(constants.PathGetSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleGetSubscriptions))).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathSubscriptionNotifications, p.handleSubscriptionNotifications).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathSubscriptions, p.handleAuthRequired(p.checkOAuth(p.handleDeleteSubscriptions))).Methods(http.MethodDelete)
-	s.HandleFunc(constants.PathGetUserChannelsForTeam, p.handleAuthRequired(p.getUserChannelsForTeam)).Methods(http.MethodGet)
 	s.HandleFunc(constants.PathPipelineReleaseRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectReleaseRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathPipelineRunRequest, p.handleAuthRequired(p.checkOAuth(p.handlePipelineApproveOrRejectRunRequest))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathPipelineCommentModal, p.handleAuthRequired(p.checkOAuth(p.handlePipelineCommentModal))).Methods(http.MethodPost)
@@ -1269,46 +1268,6 @@ func (p *Plugin) handleDeleteSubscriptions(w http.ResponseWriter, r *http.Reques
 	}
 
 	returnStatusOK(w)
-}
-
-func (p *Plugin) getUserChannelsForTeam(w http.ResponseWriter, r *http.Request) {
-	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	pathParams := mux.Vars(r)
-	teamID := pathParams[constants.PathParamTeamID]
-	if !model.IsValidId(teamID) {
-		p.API.LogError("Invalid team id")
-		http.Error(w, "Invalid team id", http.StatusBadRequest)
-		return
-	}
-
-	channels, channelErr := p.API.GetChannelsForTeamForUser(teamID, mattermostUserID, false)
-	if channelErr != nil {
-		p.API.LogError(constants.GetChannelError, "Error", channelErr.Error())
-		http.Error(w, fmt.Sprintf("%s. Error: %s", constants.GetChannelError, channelErr.Error()), channelErr.StatusCode)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if channels == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	var requiredChannels []*model.Channel
-	for _, channel := range channels {
-		if channel.Type == model.CHANNEL_PRIVATE || channel.Type == model.CHANNEL_OPEN {
-			requiredChannels = append(requiredChannels, channel)
-		}
-	}
-	if requiredChannels == nil {
-		_, _ = w.Write([]byte("[]"))
-		return
-	}
-
-	if err := json.NewEncoder(w).Encode(requiredChannels); err != nil {
-		p.API.LogError("Error while writing response", "Error", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-	}
 }
 
 func (p *Plugin) checkOAuth(handler http.HandlerFunc) http.HandlerFunc {

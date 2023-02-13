@@ -5,6 +5,8 @@ import {
     AzureDevops,
     HeaderCSRFToken,
     MMCSRF,
+    MMAUTHTOKEN,
+    MMUSERID,
     pluginId,
     RightSidebarHeader,
     eventTypeMap,
@@ -51,13 +53,15 @@ import {
     runResultIdOptions,
     subscriptionFiltersNameForPipelines,
 } from './form';
-import {pluginApiServiceConfigs} from './apiService';
+import {pluginApiServiceConfigs, mattermostApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
 export default {
     common: {
         pluginId,
         MMCSRF,
+        MMAUTHTOKEN,
+        MMUSERID,
         HeaderCSRFToken,
         AzureDevops,
         deleteAllSubscriptionsMessage,
@@ -108,5 +112,6 @@ export default {
         error,
     },
     pluginApiServiceConfigs,
+    mattermostApiServiceConfigs,
     SVGIcons,
 };

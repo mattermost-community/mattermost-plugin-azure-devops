@@ -1,21 +1,28 @@
 type HttpMethod = 'GET' | 'POST' | 'DELETE' ;
 
-type ApiServiceName =
+type PluginApiServiceName =
     'createTask' |
     'createLink' |
     'getAllLinkedProjectsList' |
     'unlinkProject' |
     'getUserDetails' |
     'createSubscription' |
-    'getChannels' |
     'getSubscriptionList' |
     'deleteSubscription' |
     'getSubscriptionFilters'
 
+type MattermostApiServiceName = 'getChannels'
+
 type PluginApiService = {
     path: string,
     method: HttpMethod,
-    apiServiceName: ApiServiceName
+    apiServiceName: PluginApiServiceName
+}
+
+type MattermostApiService = {
+    path: (args: string[]) => string,
+    method: HttpMethod,
+    apiServiceName: MattermostApiServiceName
 }
 
 type ApiErrorResponse = {

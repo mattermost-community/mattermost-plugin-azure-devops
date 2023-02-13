@@ -14,7 +14,6 @@ import (
 
 	"bou.ke/monkey"
 	"github.com/golang/mock/gomock"
-	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
@@ -1144,76 +1143,6 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 
 			w := httptest.NewRecorder()
 			p.handleDeleteSubscriptions(w, req)
-			resp := w.Result()
-			assert.Equal(t, testCase.statusCode, resp.StatusCode)
-		})
-	}
-}
-
-func TestGetUserChannelsForTeam(t *testing.T) {
-	defer monkey.UnpatchAll()
-	mockAPI := &plugintest.API{}
-	p := setupMockPlugin(mockAPI, nil, nil)
-	for _, testCase := range []struct {
-		description string
-		teamID      string
-		channels    []*model.Channel
-		channelErr  *model.AppError
-		statusCode  int
-	}{
-		{
-			description: "GetUserChannelsForTeam: valid",
-			teamID:      "qteks46as3befxj4ec1mip5ume",
-			channels: []*model.Channel{
-				{
-					Id:   testutils.MockProjectName,
-					Type: model.CHANNEL_OPEN,
-				},
-			},
-			channelErr: nil,
-			statusCode: http.StatusOK,
-		},
-		{
-			description: "GetUserChannelsForTeam: no channels",
-			teamID:      "qteks46as3befxj4ec1mip5ume",
-			channels:    nil,
-			channelErr:  nil,
-			statusCode:  http.StatusOK,
-		},
-		{
-			description: "GetUserChannelsForTeam: invalid teamID",
-			teamID:      "invalid-teamID",
-			channelErr:  nil,
-			statusCode:  http.StatusBadRequest,
-		},
-		{
-			description: "GetUserChannelsForTeam: no required channels",
-			teamID:      "qteks46as3befxj4ec1mip5ume",
-			channels: []*model.Channel{
-				{
-					Id:   testutils.MockProjectName,
-					Type: model.CHANNEL_PRIVATE,
-				},
-			},
-			channelErr: nil,
-			statusCode: http.StatusOK,
-		},
-	} {
-		t.Run(testCase.description, func(t *testing.T) {
-			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
-			mockAPI.On("GetChannelsForTeamForUser", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("bool")).Return(testCase.channels, testCase.channelErr)
-
-			req := httptest.NewRequest(http.MethodGet, "/channels", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
-
-			pathParams := map[string]string{
-				"team_id": testCase.teamID,
-			}
-
-			req = mux.SetURLVars(req, pathParams)
-
-			w := httptest.NewRecorder()
-			p.getUserChannelsForTeam(w, req)
 			resp := w.Result()
 			assert.Equal(t, testCase.statusCode, resp.StatusCode)
 		})

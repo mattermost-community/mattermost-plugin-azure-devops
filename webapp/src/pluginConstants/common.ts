@@ -6,6 +6,8 @@ export const AzureDevops = 'Azure DevOps';
 export const RightSidebarHeader = 'Azure DevOps';
 
 export const MMCSRF = 'MMCSRF';
+export const MMAUTHTOKEN = 'MMAUTHTOKEN';
+export const MMUSERID = 'MMUSERID';
 export const HeaderCSRFToken = 'X-CSRF-Token';
 export const StatusCodeForbidden = 403;
 

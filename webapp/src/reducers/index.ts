@@ -1,6 +1,6 @@
 import {combineReducers} from 'redux';
 
-import {azureDevOpsPluginApi, mattermostServerApi} from 'services';
+import {azureDevOpsPluginApi} from 'services';
 
 import globalModalSlice from './globalModal';
 import apiRequestCompletionSlice from './apiRequest';
@@ -19,7 +19,6 @@ const reducers = combineReducers({
     projectDetailsSlice,
     websocketEventSlice,
     [azureDevOpsPluginApi.reducerPath]: azureDevOpsPluginApi.reducer,
-    [mattermostServerApi.reducerPath]: mattermostServerApi.reducer,
 });
 
 export default reducers;

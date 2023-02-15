@@ -53,7 +53,7 @@ import {
     runResultIdOptions,
     subscriptionFiltersNameForPipelines,
 } from './form';
-import {pluginApiServiceConfigs, mattermostApiServiceConfigs} from './apiService';
+import {pluginApiServiceConfigs} from './apiService';
 import {error} from './messages';
 
 export default {
@@ -112,6 +112,5 @@ export default {
         error,
     },
     pluginApiServiceConfigs,
-    mattermostApiServiceConfigs,
     SVGIcons,
 };

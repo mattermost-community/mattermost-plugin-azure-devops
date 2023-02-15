@@ -11,18 +11,10 @@ type PluginApiServiceName =
     'deleteSubscription' |
     'getSubscriptionFilters'
 
-type MattermostApiServiceName = 'getChannels'
-
 type PluginApiService = {
     path: string,
     method: HttpMethod,
     apiServiceName: PluginApiServiceName
-}
-
-type MattermostApiService = {
-    path: (args: string[]) => string,
-    method: HttpMethod,
-    apiServiceName: MattermostApiServiceName
 }
 
 type ApiErrorResponse = {

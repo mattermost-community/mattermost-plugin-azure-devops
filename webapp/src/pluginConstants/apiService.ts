@@ -46,11 +46,3 @@ export const pluginApiServiceConfigs: Record<PluginApiServiceName, PluginApiServ
         apiServiceName: 'getSubscriptionFilters',
     },
 };
-
-export const mattermostApiServiceConfigs: Record<MattermostApiServiceName, MattermostApiService> = {
-    getChannels: {
-        path: (args) => `/users/${args[0]}/teams/${args[1]}/channels`,
-        method: 'GET',
-        apiServiceName: 'getChannels',
-    },
-};

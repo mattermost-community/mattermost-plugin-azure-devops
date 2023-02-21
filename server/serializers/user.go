@@ -5,4 +5,5 @@ type User struct {
 	AccessToken      string `json:"accessToken"`
 	RefreshToken     string `json:"refreshToken"`
 	ExpiresAt        int64  `json:"expiresAt"`
+	UserProfile
 }

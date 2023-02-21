@@ -66,6 +66,5 @@ func (p *Plugin) OnActivate() error {
 	p.Store = store.NewStore(p.API)
 	p.router = p.InitAPI()
 	p.InitRoutes()
-	p.HandleStaticFiles()
 	return nil
 }

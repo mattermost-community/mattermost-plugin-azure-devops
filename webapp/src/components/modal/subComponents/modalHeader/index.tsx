@@ -11,15 +11,15 @@ type ModalHeaderProps = {
 
 const ModalHeader = ({title, showCloseIconInHeader, onHide}: ModalHeaderProps) : JSX.Element => (
     <>{(title || showCloseIconInHeader) && (
-        <RBModal.Header className='modal__header modal__header-icon'>
-            <div className='modal__title d-flex align-items-center justify-content-between'>
-                {title && <p className='modal__title'>{title}</p>}
+        <RBModal.Header className='azd-modal__header azd-modal__header-icon'>
+            <div className='azd-modal__title d-flex align-items-center justify-content-between'>
+                {title && <p className='azd-modal__title'>{title}</p>}
                 {showCloseIconInHeader && (
                     <button
                         className='style--none'
                         onClick={onHide}
                     >
-                        <i className='icon icon-close modal__close-icon'/>
+                        <i className='icon icon-close azd-modal__close-icon'/>
                     </button>
                 )}
             </div>

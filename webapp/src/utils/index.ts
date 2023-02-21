@@ -45,8 +45,8 @@ export const getProjectLinkModalArgs = (str: string): LinkPayload => {
 };
 
 export const getCreateTaskModalCommandArgs = (arr: Array<string>): CreateTaskCommandArgs => ({
-    title: arr[1] ?? '',
-    description: arr[2] ?? '',
+    title: arr[2] ?? '',
+    description: arr[3] ?? '',
 });
 
 export const onPressingEnterKey = (event: React.KeyboardEvent<HTMLSpanElement> | React.KeyboardEvent<SVGSVGElement>, func: () => void) => {

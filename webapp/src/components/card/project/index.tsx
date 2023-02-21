@@ -3,10 +3,10 @@ import React from 'react';
 import BaseCard from 'components/card/base';
 import IconButton from 'components/buttons/iconButton';
 
-import {onPressingEnterKey} from 'utils';
 import SVGWrapper from 'components/svgWrapper';
 import pluginConstants from 'pluginConstants';
 import LabelValuePair from 'components/labelValuePair';
+import Tooltip from 'components/tooltip';
 
 type ProjectCardProps = {
     onProjectTitleClick: (projectDetails: ProjectDetails) => void
@@ -20,14 +20,18 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
             <div className='project-details'>
                 <LabelValuePair
                     label={
-                        <SVGWrapper
-                            width={16}
-                            height={16}
-                            viewBox='0 0 14 12'
-                            className='svg-icon-stroke-color'
-                        >
-                            {pluginConstants.SVGIcons.project}
-                        </SVGWrapper>
+                        <Tooltip tooltipContent='Project'>
+                            <i aria-hidden='true'>
+                                <SVGWrapper
+                                    width={16}
+                                    height={16}
+                                    viewBox='0 0 14 12'
+                                    className='svg-icon-stroke-color'
+                                >
+                                    {pluginConstants.SVGIcons.project}
+                                </SVGWrapper>
+                            </i>
+                        </Tooltip>
                     }
                     onClickValue={() => onProjectTitleClick(projectDetails)}
                     value={projectName}
@@ -35,13 +39,17 @@ const ProjectCard = ({onProjectTitleClick, projectDetails: {organizationName, pr
                 />
                 <LabelValuePair
                     label={
-                        <SVGWrapper
-                            width={13}
-                            height={13}
-                            viewBox='0 0 10 10'
-                        >
-                            {pluginConstants.SVGIcons.organization}
-                        </SVGWrapper>
+                        <Tooltip tooltipContent='Organization'>
+                            <i aria-hidden='true'>
+                                <SVGWrapper
+                                    width={13}
+                                    height={13}
+                                    viewBox='0 0 10 10'
+                                >
+                                    {pluginConstants.SVGIcons.organization}
+                                </SVGWrapper>
+                            </i>
+                        </Tooltip>
                     }
                     value={organizationName}
                 />

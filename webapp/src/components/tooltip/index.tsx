@@ -18,7 +18,7 @@ const Tooltip = ({tooltipContent, children, placement = 'top'}: TooltipProps) =>
         overlay={
             <ReactTooltip
                 id='tooltip'
-                className='tooltip-wrapper'
+                className='azd-tooltip-wrapper'
                 placement={placement}
             >
                 {tooltipContent}

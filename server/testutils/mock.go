@@ -3,8 +3,20 @@ package testutils
 import (
 	"github.com/stretchr/testify/mock"
 
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
+)
+
+const (
+	MockOrganization      = "mockOrganization"
+	MockProjectName       = "mockProjectName"
+	MockMattermostUserID  = "mockMattermostUserID"
+	MockChannelID         = "mockChannelID"
+	MockProjectID         = "mockProjectID"
+	MockEventType         = "mockEventType"
+	MockSubscriptionID    = "mockSubscriptionID"
+	MockServiceType       = "mockServiceType"
+	MockApproverID        = "mockApproverID"
+	MockAzureDevopsUserID = "mockAzureDevopsUserID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
@@ -15,31 +27,29 @@ func GetMockArgumentsWithType(typeString string, num int) []interface{} {
 	return ret
 }
 
-func GetSuscriptionDetailsPayload(userID, serviceType string) []*serializers.SubscriptionDetails {
+func GetSuscriptionDetailsPayload(userID, serviceType, eventType string) []*serializers.SubscriptionDetails {
 	return []*serializers.SubscriptionDetails{
 		{
-			ChannelID:        "mockChannelID",
+			ChannelID:        MockChannelID,
 			MattermostUserID: userID,
 			ServiceType:      serviceType,
-			SubscriptionID:   "mockSubscriptionID",
-			OrganizationName: "mockOrganizationName",
-			ProjectName:      "mockProjectName",
-			EventType:        constants.SubscriptionEventWorkItemCreated,
+			SubscriptionID:   MockSubscriptionID,
+			OrganizationName: MockOrganization,
+			ProjectName:      MockProjectName,
+			EventType:        eventType,
 			CreatedBy:        "mockCreatedBy",
 			ChannelName:      "mockChannelName",
 		},
 	}
 }
 
-func GetGitBranchesPayload() []*serializers.GitBranch {
-	return []*serializers.GitBranch{
+func GetProjectDetailsPayload() []serializers.ProjectDetails {
+	return []serializers.ProjectDetails{
 		{
-			ID:   "mockID-1",
-			Name: "refs/heads/mockName-1",
-		},
-		{
-			ID:   "mockID-2",
-			Name: "refs/heads/mockName-2",
+			MattermostUserID: "mockMattermostUserID",
+			OrganizationName: "mockOrganization",
+			ProjectName:      "mockProjectName",
+			ProjectID:        "mockProjectID",
 		},
 	}
 }

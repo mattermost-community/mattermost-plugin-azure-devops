@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -58,8 +59,8 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		subscriptionList.ByMattermostUserID[userID] = make(SubscriptionListMap)
 	}
 
-	subscriptionKey := GetSubscriptionKey(userID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath)
 	subscriptionListValue := serializers.SubscriptionDetails{
+		SubscriptionID:                   subscription.SubscriptionID,
 		MattermostUserID:                 userID,
 		ProjectName:                      subscription.ProjectName,
 		ProjectID:                        subscription.ProjectID,
@@ -67,10 +68,10 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		ChannelID:                        subscription.ChannelID,
 		EventType:                        subscription.EventType,
 		ServiceType:                      subscription.ServiceType,
-		SubscriptionID:                   subscription.SubscriptionID,
 		ChannelName:                      subscription.ChannelName,
 		ChannelType:                      subscription.ChannelType,
 		CreatedBy:                        subscription.CreatedBy,
+		CreatedAt:                        time.Now().UTC(),
 		Repository:                       subscription.Repository,
 		TargetBranch:                     subscription.TargetBranch,
 		RepositoryName:                   subscription.RepositoryName,
@@ -85,8 +86,32 @@ func (subscriptionList *SubscriptionList) AddSubscription(userID string, subscri
 		NotificationType:                 subscription.NotificationType,
 		NotificationTypeName:             subscription.NotificationTypeName,
 		AreaPath:                         subscription.AreaPath,
+		BuildStatus:                      subscription.BuildStatus,
+		BuildPipeline:                    subscription.BuildPipeline,
+		StageName:                        subscription.StageName,
+		ReleasePipeline:                  subscription.ReleasePipeline,
+		ReleaseStatus:                    subscription.ReleaseStatus,
+		ApprovalType:                     subscription.ApprovalType,
+		ApprovalStatus:                   subscription.ApprovalStatus,
+		BuildStatusName:                  subscription.BuildStatusName,
+		StageNameValue:                   subscription.StageNameValue,
+		ReleasePipelineName:              subscription.ReleasePipelineName,
+		ReleaseStatusName:                subscription.ReleaseStatusName,
+		ApprovalTypeName:                 subscription.ApprovalTypeName,
+		ApprovalStatusName:               subscription.ApprovalStatusName,
+		RunPipeline:                      subscription.RunPipeline,
+		RunPipelineName:                  subscription.RunPipelineName,
+		RunStageName:                     subscription.RunStageName,
+		RunEnvironmentName:               subscription.RunEnvironmentName,
+		RunStageNameID:                   subscription.RunStageNameID,
+		RunStageStateID:                  subscription.RunStageStateID,
+		RunStageStateIDName:              subscription.RunStageStateIDName,
+		RunStageResultID:                 subscription.RunStageResultID,
+		RunStateID:                       subscription.RunStateID,
+		RunStateIDName:                   subscription.RunStateIDName,
+		RunResultID:                      subscription.RunResultID,
 	}
-	subscriptionList.ByMattermostUserID[userID][subscriptionKey] = subscriptionListValue
+	subscriptionList.ByMattermostUserID[userID][subscription.SubscriptionID] = subscriptionListValue
 }
 
 func (s *Store) GetSubscriptionList() (*SubscriptionList, error) {
@@ -133,8 +158,8 @@ func deleteSubscriptionAtomicModify(subscription *serializers.SubscriptionDetail
 	if err != nil {
 		return nil, err
 	}
-	subscriptionKey := GetSubscriptionKey(subscription.MattermostUserID, subscription.ProjectName, subscription.ChannelID, subscription.EventType, subscription.Repository, subscription.TargetBranch, subscription.PullRequestCreatedBy, subscription.PullRequestReviewersContains, subscription.PushedBy, subscription.MergeResult, subscription.NotificationType, subscription.AreaPath)
-	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscriptionKey)
+
+	subscriptionList.DeleteSubscriptionByKey(subscription.MattermostUserID, subscription.SubscriptionID)
 	modifiedBytes, marshalErr := json.Marshal(subscriptionList)
 	if marshalErr != nil {
 		return nil, marshalErr

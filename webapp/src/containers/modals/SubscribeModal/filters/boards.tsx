@@ -1,21 +1,18 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
-import {filterLabelValuePairAll} from 'pluginConstants/common';
-
 import Dropdown from 'components/dropdown';
 
-import usePluginApi from 'hooks/usePluginApi';
-
-import {formLabelValuePairs} from 'utils';
+import useLoadFilters from 'hooks/useLoadFilters';
 
 type BoardsFilterProps = {
     organization: string
     projectId: string
     eventType: string
     selectedAreaPath: string
-    handleSelectAreaPath: (value: string, name?: string) => void
+    handleSetFilter: HandleSetSubscriptionFilter
     setIsFiltersError: (value: boolean) => void
+    isModalOpen: boolean
 }
 
 const BoardsFilter = ({
@@ -23,54 +20,27 @@ const BoardsFilter = ({
     projectId,
     eventType,
     selectedAreaPath,
-    handleSelectAreaPath,
+    handleSetFilter,
     setIsFiltersError,
+    isModalOpen,
 }: BoardsFilterProps) => {
     const {subscriptionFiltersNameForBoards, subscriptionFiltersForBoards} = pluginConstants.form;
 
-    const {
-        getApiState,
-        makeApiRequestWithCompletionStatus,
-    } = usePluginApi();
-
-    const getSubscriptionFiltersRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
+    const getSubscriptionFiltersRequestParams = useMemo<GetSubscriptionFiltersRequest>(() => ({
         organization,
         projectId,
         filters: subscriptionFiltersForBoards,
         eventType,
     }), [organization, projectId, eventType, subscriptionFiltersForBoards]);
 
-    useEffect(() => {
-        if (organization && projectId && eventType) {
-            makeApiRequestWithCompletionStatus(
-                pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-                getSubscriptionFiltersRequest,
-            );
-        }
-    }, [getSubscriptionFiltersRequest]);
-
-    const {data, isLoading, isError, isSuccess} = getApiState(
-        pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-        getSubscriptionFiltersRequest as APIRequestPayload,
-    );
-    const filtersData = data as GetSubscriptionFiltersResponse || [];
-
-    useEffect(() => {
-        if (isError && !isSuccess) {
-            setIsFiltersError(true);
-        } else {
-            setIsFiltersError(false);
-        }
-    }, [isLoading, isError, isSuccess]);
-
-    const getAreaPathOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForBoards.areaPath], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const {filtersData, isError, isLoading, getFilterOptions} = useLoadFilters({isModalOpen, getSubscriptionFiltersRequestParams, setIsFiltersError});
 
     return (
         <Dropdown
             placeholder='Area Path'
             value={selectedAreaPath}
-            onChange={handleSelectAreaPath}
-            options={getAreaPathOptions()}
+            onChange={(newValue) => handleSetFilter('areaPath', newValue)}
+            options={getFilterOptions(filtersData[subscriptionFiltersNameForBoards.areaPath])}
             error={isError}
             loadingOptions={isLoading}
             disabled={isLoading}

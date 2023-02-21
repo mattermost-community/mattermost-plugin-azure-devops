@@ -132,12 +132,12 @@ func GetOAuthKey(mattermostUserID string) string {
 	return fmt.Sprintf(constants.OAuthPrefix, mattermostUserID)
 }
 
-func GetSubscriptionListMapKey() string {
-	return constants.SubscriptionPrefix
+func GetAzureDevopsUserKey(azureDevopsUserID string) string {
+	return fmt.Sprintf(constants.AzureDevOpsUserPrefix, azureDevopsUserID)
 }
 
-func GetSubscriptionKey(mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullRequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath string) string {
-	return GetKeyMD5Hash(fmt.Sprintf("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s", mattermostUserID, projectID, channelID, eventType, repository, targetBranch, pullRequestCreatedBy, pullRequestReviewersContains, pushedBy, mergeResult, notificationType, areaPath))
+func GetSubscriptionListMapKey() string {
+	return constants.SubscriptionPrefix
 }
 
 // GetKeyMD5Hash can be used to create a md5 hash from a string

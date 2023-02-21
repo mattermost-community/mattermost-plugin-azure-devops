@@ -61,8 +61,8 @@ func TestSendEphemeralPostForCommand(t *testing.T) {
 			description: "SendEphemeralPostForCommand: valid",
 			text:        "mockText",
 			args: model.CommandArgs{
-				UserId:    "mockUserId",
-				ChannelId: "mockChannelId",
+				UserId:    testutils.MockMattermostUserID,
+				ChannelId: testutils.MockChannelID,
 			},
 		},
 	} {
@@ -89,14 +89,14 @@ func TestDM(t *testing.T) {
 	}{
 		{
 			description:      "DM: valid",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			format:           "mockFormat",
 			args: model.CommandArgs{
-				UserId:    "mockUserId",
-				ChannelId: "mockChannelId",
+				UserId:    testutils.MockMattermostUserID,
+				ChannelId: testutils.MockChannelID,
 			},
 			channel: &model.Channel{
-				Id:   "mockChannelID",
+				Id:   testutils.MockChannelID,
 				Type: model.CHANNEL_OPEN,
 			},
 			channelErr: nil,
@@ -107,33 +107,33 @@ func TestDM(t *testing.T) {
 		},
 		{
 			description:      "DM: with channelErr",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			format:           "mockFormat",
 			args: model.CommandArgs{
-				UserId:    "mockUserId",
-				ChannelId: "mockChannelId",
+				UserId:    testutils.MockMattermostUserID,
+				ChannelId: testutils.MockChannelID,
 			},
 			channelErr: &model.AppError{
-				Message:       "mockMessage",
-				DetailedError: "mockDetailedError",
+				Message:       "failed to get direct channel",
+				DetailedError: "failed to get direct channel",
 			},
 		},
 		{
 			description:      "DM: with postErr",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			format:           "mockFormat",
 			args: model.CommandArgs{
-				UserId:    "mockUserId",
-				ChannelId: "mockChannelId",
+				UserId:    testutils.MockMattermostUserID,
+				ChannelId: testutils.MockChannelID,
 			},
 			channel: &model.Channel{
-				Id:   "mockChannelID",
+				Id:   testutils.MockChannelID,
 				Type: model.CHANNEL_OPEN,
 			},
 			channelErr: nil,
 			postErr: &model.AppError{
-				Message:       "mockMessage",
-				DetailedError: "mockDetailedError",
+				Message:       "failed to create post",
+				DetailedError: "failed to create post",
 			},
 		},
 	} {
@@ -141,8 +141,8 @@ func TestDM(t *testing.T) {
 			mockAPI := &plugintest.API{}
 			p.API = mockAPI
 
-			mockAPI.On("LogError", mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("string"))
-			mockAPI.On("GetDirectChannel", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(testCase.channel, testCase.channelErr)
+			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 5)...)
+			mockAPI.On("GetDirectChannel", testutils.GetMockArgumentsWithType("string", 2)...).Return(testCase.channel, testCase.channelErr)
 			mockAPI.On("CreatePost", mock.AnythingOfType("*model.Post")).Return(testCase.post, testCase.postErr)
 
 			resp, _ := p.DM(testCase.mattermostUserID, testCase.format, false, &testCase.args)
@@ -205,7 +205,7 @@ func TestEncrypt(t *testing.T) {
 		expectedError  string
 		newCipherError error
 		newGCMError    error
-		resdFullError  error
+		readFullError  error
 		plain          string
 		secret         string
 	}{
@@ -216,20 +216,20 @@ func TestEncrypt(t *testing.T) {
 		{
 			description:    "Encrypt: aes.NewCipher give error",
 			secret:         "mockSecret",
-			expectedError:  "mockError",
-			newCipherError: errors.New("mockError"),
+			expectedError:  "newCipherError",
+			newCipherError: errors.New("newCipherError"),
 		},
 		{
 			description:   "Encrypt: cipher.NewGCM give error",
 			secret:        "mockSecret",
-			expectedError: "mockError",
-			newGCMError:   errors.New("mockError"),
+			expectedError: "newGCMError",
+			newGCMError:   errors.New("newGCMError"),
 		},
 		{
 			description:   "Encrypt: io.ReadFull give error",
 			secret:        "mockSecret",
-			expectedError: "mockError",
-			resdFullError: errors.New("mockError"),
+			expectedError: "readFullError",
+			readFullError: errors.New("readFullError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -240,7 +240,7 @@ func TestEncrypt(t *testing.T) {
 				return &mockAesgcm{}, testCase.newGCMError
 			})
 			monkey.Patch(io.ReadFull, func(_ io.Reader, _ []byte) (int, error) {
-				return 1, testCase.resdFullError
+				return 1, testCase.readFullError
 			})
 			resp, err := p.Encrypt([]byte(testCase.plain), []byte(testCase.secret))
 			if testCase.expectedError != "" {
@@ -274,14 +274,14 @@ func TestDecrypt(t *testing.T) {
 		{
 			description:    "Decrypt: aes.NewCipher give error",
 			secret:         "mockSecret",
-			expectedError:  "mockError",
-			newCipherError: errors.New("mockError"),
+			expectedError:  "newCipherError",
+			newCipherError: errors.New("newCipherError"),
 		},
 		{
 			description:   "Decrypt: cipher.NewGCM give error",
 			secret:        "mockSecret",
-			expectedError: "mockError",
-			newGCMError:   errors.New("mockError"),
+			expectedError: "newGCMError",
+			newGCMError:   errors.New("newGCMError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -376,15 +376,15 @@ func TestParseAuthToken(t *testing.T) {
 		},
 		{
 			description:   "ParseAuthToken: token is not decoded successfully",
-			expectedError: "mockError",
-			decodeError:   errors.New("mockError"),
+			expectedError: "error decoding oAuth token",
+			decodeError:   errors.New("error decoding oAuth token"),
 			encodedToken:  "mockEncodedToken",
 		},
 		{
 			description:   "ParseAuthToken: token is not decrypted successfully",
-			expectedError: "mockError",
+			expectedError: "error decrypting oAuth token",
 			decodedToken:  []byte("mockDecryptedToken"),
-			decryptError:  errors.New("mockError"),
+			decryptError:  errors.New("error decrypting oAuth token"),
 			encodedToken:  "mockEncodedToken",
 		},
 	} {
@@ -428,6 +428,9 @@ func TestAddAuthorization(t *testing.T) {
 			description: "AddAuthorization: valid",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
+				UserProfile: serializers.UserProfile{
+					ID: testutils.MockAzureDevopsUserID,
+				},
 			},
 			token: "mockToken",
 		},
@@ -439,19 +442,24 @@ func TestAddAuthorization(t *testing.T) {
 			description: "AddAuthorization: empty user",
 			user: &serializers.User{
 				AccessToken: "mockAccessToken",
+				UserProfile: serializers.UserProfile{
+					ID: testutils.MockAzureDevopsUserID,
+				},
 			},
 			parseAuthTokenErr: errors.New("mockError"),
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
+			mockedStore.EXPECT().LoadAzureDevopsUserIDFromMattermostUser(testutils.MockMattermostUserID).Return(testutils.MockAzureDevopsUserID, nil)
+
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "ParseAuthToken", func(_ *Plugin, _ string) (string, error) {
 				return testCase.token, testCase.parseAuthTokenErr
 			})
 
-			mockedStore.EXPECT().LoadUser("mockMattermostUserID").Return(testCase.user, testCase.loadUserErr)
+			mockedStore.EXPECT().LoadAzureDevopsUserDetails(testutils.MockAzureDevopsUserID).Return(testCase.user, testCase.loadUserErr)
 
 			req := httptest.NewRequest(http.MethodGet, "/mockURL", bytes.NewBufferString(`{}`))
-			resp := p.AddAuthorization(req, "mockMattermostUserID")
+			resp := p.AddAuthorization(req, testutils.MockMattermostUserID)
 			if testCase.loadUserErr != nil || testCase.parseAuthTokenErr != nil {
 				assert.NotNil(t, resp)
 				return
@@ -473,21 +481,21 @@ func TestIsProjectLinked(t *testing.T) {
 			description: "IsProjectLinked: project present in project list",
 			projectList: []serializers.ProjectDetails{
 				{
-					ProjectName:      "mockProjectName",
-					OrganizationName: "mockOrganizationName",
+					ProjectName:      testutils.MockProjectName,
+					OrganizationName: testutils.MockOrganization,
 				},
 			},
 			project: serializers.ProjectDetails{
-				ProjectName:      "mockProjectName",
-				OrganizationName: "mockOrganizationName",
+				ProjectName:      testutils.MockProjectName,
+				OrganizationName: testutils.MockOrganization,
 			},
 		},
 		{
 			description: "IsProjectLinked: project not present in project list",
 			projectList: []serializers.ProjectDetails{
 				{
-					ProjectName:      "mockProjectName",
-					OrganizationName: "mockOrganizationName",
+					ProjectName:      testutils.MockProjectName,
+					OrganizationName: testutils.MockOrganization,
 				},
 			},
 		},
@@ -512,39 +520,14 @@ func TestIsSubscriptionPresent(t *testing.T) {
 		subscription     *serializers.SubscriptionDetails
 	}{
 		{
-			description: "test IsSubscriptionPresent with subscription present in subscription list",
-			subscriptionList: []*serializers.SubscriptionDetails{
-				{
-					ProjectName:      "mockProjectName",
-					OrganizationName: "mockOrganizationName",
-					ChannelID:        "mockChannelID",
-					EventType:        "mockEventType",
-					Repository:       "mockRepository",
-					TargetBranch:     "mockTargetBranch",
-				},
-			},
-			subscription: &serializers.SubscriptionDetails{
-				ProjectName:      "mockProjectName",
-				OrganizationName: "mockOrganizationName",
-				ChannelID:        "mockChannelID",
-				EventType:        "mockEventType",
-				Repository:       "mockRepository",
-				TargetBranch:     "mockTargetBranch",
-			},
+			description:      "test IsSubscriptionPresent with subscription present in subscription list",
+			subscriptionList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType),
+			subscription:     testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType)[0],
 		},
 		{
-			description: "test IsSubscriptionPresent with subscription not present in subscription list",
-			subscriptionList: []*serializers.SubscriptionDetails{
-				{
-					ProjectName:      "mockProjectName",
-					OrganizationName: "mockOrganizationName",
-					ChannelID:        "mockChannelID",
-					EventType:        "mockEventType",
-					Repository:       "mockRepository",
-					TargetBranch:     "mockTargetBranch",
-				},
-			},
-			subscription: &serializers.SubscriptionDetails{},
+			description:      "test IsSubscriptionPresent with subscription not present in subscription list",
+			subscriptionList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, testutils.MockServiceType, testutils.MockEventType),
+			subscription:     &serializers.SubscriptionDetails{},
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -571,21 +554,21 @@ func TestIsAnyProjectLinked(t *testing.T) {
 	}{
 		{
 			description:      "IsAnyProjectLinked: valid",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			projectList: []serializers.ProjectDetails{
 				{
-					ProjectName:      "mockProjectName",
-					OrganizationName: "mockOrganizationName",
+					ProjectName:      testutils.MockProjectName,
+					OrganizationName: testutils.MockOrganization,
 				},
 			},
 		},
 		{
 			description:      "IsAnyProjectLinked: empty project list",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 		},
 		{
 			description:      "IsAnyProjectLinked: error while getting project list",
-			mattermostUserID: "mockMattermostUserID",
+			mattermostUserID: testutils.MockMattermostUserID,
 			projectErr:       errors.New("mockError"),
 		},
 	} {
@@ -674,8 +657,8 @@ func TestGetOffsetAndLimitFromQueryParams(t *testing.T) {
 				defer mockAPI.AssertExpectations(t)
 			}
 
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, "mockProject", testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, "mockMattermostUserID")
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s/mockTeamID?project=%s&page=%s&per_page=%s", constants.PathGetSubscriptions, testutils.MockProjectName, testCase.queryParamPage, testCase.queryParamPerPage), bytes.NewBufferString(`{}`))
+			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			offset, limit := p.GetOffsetAndLimitFromQueryParams(req)
 
@@ -720,22 +703,22 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 		{
 			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by the user",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 			createdBy:         constants.FilterCreatedByMe,
-			expectedMessage:   fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+			expectedMessage:   fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganization | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: subscriptions created by anyone",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload(testutils.MockMattermostUserID, constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 
 			createdBy:       constants.FilterCreatedByAnyone,
-			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganizationName | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
+			expectedMessage: fmt.Sprintf("###### %s subscription(s)\n| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n| mockSubscriptionID | mockOrganization | mockProjectName | Work Item Created | mockCreatedBy | mockChannelName |\n", cases.Title(language.Und).String(constants.CommandBoards)),
 		},
 		{
 			description:       "ParseSubscriptionsToCommandResponse: no subscriptions created by the user is present",
 			command:           constants.CommandBoards,
-			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID-2", constants.CommandBoards),
+			subscriptionsList: testutils.GetSuscriptionDetailsPayload("mockUserID-2", constants.CommandBoards, constants.SubscriptionEventWorkItemCreated),
 			createdBy:         constants.FilterCreatedByMe,
 			expectedMessage:   fmt.Sprintf("No %s subscription exists", constants.CommandBoards),
 		},
@@ -747,7 +730,7 @@ func TestParseSubscriptionsToCommandResponse(t *testing.T) {
 				return testCase.subscriptionsList, testCase.err
 			})
 
-			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, "mockChannelID", testCase.createdBy, "mockUserID", testCase.command, "mockTeamID")
+			message := p.ParseSubscriptionsToCommandResponse(testCase.subscriptionsList, testutils.MockChannelID, testCase.createdBy, testutils.MockMattermostUserID, testCase.command, "mockTeamID")
 			assert.Equal(t, testCase.expectedMessage, message)
 		})
 	}

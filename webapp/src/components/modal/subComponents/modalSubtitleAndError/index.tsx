@@ -9,8 +9,8 @@ type ModalSubTitleAndErrorProps = {
 
 const ModalSubTitleAndError = ({subTitle, error}: ModalSubTitleAndErrorProps) : JSX.Element => (
     <>
-        {subTitle && <p className='modal__subtitle'>{subTitle}</p>}
-        {error && <p className='modal__error'>{error}</p>}
+        {subTitle && <p className='azd-modal__subtitle'>{subTitle}</p>}
+        {error && <p className='azd-modal__error'>{error}</p>}
     </>
 );
 

@@ -1,32 +1,25 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useMemo} from 'react';
 
 import pluginConstants from 'pluginConstants';
 import {filterLabelValuePairAll} from 'pluginConstants/common';
 
 import Dropdown from 'components/dropdown';
 
-import usePluginApi from 'hooks/usePluginApi';
-
-import {formLabelValuePairs} from 'utils';
+import useLoadFilters from 'hooks/useLoadFilters';
 
 type ReposFilterProps = {
     organization: string
     projectId: string
     eventType: string
     selectedRepo: string
-    handleSelectRepo: (value: string, name?: string) => void
+    isModalOpen: boolean
+    handleSetFilter: HandleSetSubscriptionFilter
     selectedTargetBranch: string
-    handleSelectTargetBranch: (value: string, name?: string) => void
     selectedPullRequestCreatedBy: string
-    handleSelectPullRequestCreatedBy: (value: string, name?: string) => void
     selectedPullRequestReviewersContains: string
-    handlePullRequestReviewersContains: (value: string, name?: string) => void
     selectedPushedBy: string
-    handleSelectPushedBy: (value: string, name?: string) => void
     selectedMergeResult: string
-    handleSelectMergeResult: (value: string, name?: string) => void
     selectedNotificationType: string
-    handleSelectNotificationType: (value: string, name?: string) => void
     setIsFiltersError: (value: boolean) => void
 }
 
@@ -36,29 +29,19 @@ const ReposFilter = ({
     projectId,
     eventType,
     selectedRepo,
-    handleSelectRepo,
+    isModalOpen,
+    handleSetFilter,
     selectedTargetBranch,
-    handleSelectTargetBranch,
     selectedPullRequestCreatedBy,
-    handleSelectPullRequestCreatedBy,
     selectedPullRequestReviewersContains,
-    handlePullRequestReviewersContains,
     selectedPushedBy,
-    handleSelectPushedBy,
     selectedMergeResult,
-    handleSelectMergeResult,
     selectedNotificationType,
-    handleSelectNotificationType,
     setIsFiltersError,
 }: ReposFilterProps) => {
     const {mergeResultOptons, pullRequestChangeOptons, subscriptionFiltersForRepos, subscriptionFiltersNameForRepos} = pluginConstants.form;
 
-    const {
-        getApiState,
-        makeApiRequestWithCompletionStatus,
-    } = usePluginApi();
-
-    const getSubscriptionFiltersRequest = useMemo<GetSubscriptionFiltersRequest>(() => ({
+    const getSubscriptionFiltersRequestParams = useMemo<GetSubscriptionFiltersRequest>(() => ({
         organization,
         projectId,
         filters: subscriptionFiltersForRepos,
@@ -66,34 +49,7 @@ const ReposFilter = ({
         repositoryId: selectedRepo,
     }), [organization, projectId, eventType, subscriptionFiltersForRepos, selectedRepo]);
 
-    useEffect(() => {
-        if (organization && projectId && eventType) {
-            makeApiRequestWithCompletionStatus(
-                pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-                getSubscriptionFiltersRequest,
-            );
-        }
-    }, [getSubscriptionFiltersRequest]);
-
-    const {data, isLoading, isError, isSuccess} = getApiState(
-        pluginConstants.pluginApiServiceConfigs.getSubscriptionFilters.apiServiceName,
-        getSubscriptionFiltersRequest as APIRequestPayload,
-    );
-    const filtersData = data as GetSubscriptionFiltersResponse || [];
-
-    useEffect(() => {
-        if (isError && !isSuccess) {
-            setIsFiltersError(true);
-        } else {
-            setIsFiltersError(false);
-        }
-    }, [isLoading, isError, isSuccess]);
-
-    const getRepositoryOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.repository], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getTargetBranchOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.branch], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullRequestCreatedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullRequestReviewersContainsOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
-    const getPullRequestPushedByOptions = useCallback(() => (isSuccess ? ([{...filterLabelValuePairAll}, ...formLabelValuePairs('displayValue', 'value', filtersData[subscriptionFiltersNameForRepos.pushedBy], ['[Any]'])]) : [pluginConstants.common.filterLabelValuePairAll]), [filtersData]);
+    const {filtersData, isError, isLoading, getFilterOptions} = useLoadFilters({isModalOpen, getSubscriptionFiltersRequestParams, setIsFiltersError});
 
     return (
         <>
@@ -101,8 +57,8 @@ const ReposFilter = ({
                 <Dropdown
                     placeholder='Repository'
                     value={selectedRepo}
-                    onChange={handleSelectRepo}
-                    options={getRepositoryOptions()}
+                    onChange={(newValue, label) => handleSetFilter('repository', newValue, 'repositoryName', label)}
+                    options={getFilterOptions(filtersData[subscriptionFiltersNameForRepos.repository])}
                     error={isError}
                     loadingOptions={isLoading}
                     disabled={isLoading}
@@ -112,8 +68,8 @@ const ReposFilter = ({
                 <Dropdown
                     placeholder='Target Branch'
                     value={selectedTargetBranch}
-                    onChange={handleSelectTargetBranch}
-                    options={getTargetBranchOptions()}
+                    onChange={(newValue) => handleSetFilter('targetBranch', newValue)}
+                    options={getFilterOptions(filtersData[subscriptionFiltersNameForRepos.branch])}
                     error={isError}
                     loadingOptions={isLoading}
                     disabled={selectedRepo === filterLabelValuePairAll.value || isLoading}
@@ -125,7 +81,7 @@ const ReposFilter = ({
                         <Dropdown
                             placeholder='Merge Result'
                             value={selectedMergeResult}
-                            onChange={handleSelectMergeResult}
+                            onChange={(newValue, label) => handleSetFilter('mergeResult', newValue, 'mergeResultName', label)}
                             options={mergeResultOptons}
                             error={isError}
                             loadingOptions={isLoading}
@@ -140,7 +96,7 @@ const ReposFilter = ({
                         <Dropdown
                             placeholder='Change'
                             value={selectedNotificationType}
-                            onChange={handleSelectNotificationType}
+                            onChange={(newValue, label) => handleSetFilter('notificationType', newValue, 'notificationTypeName', label)}
                             options={pullRequestChangeOptons}
                             error={isError}
                             loadingOptions={isLoading}
@@ -157,8 +113,8 @@ const ReposFilter = ({
                             <Dropdown
                                 placeholder='Requested by a member of group'
                                 value={selectedPullRequestCreatedBy}
-                                onChange={handleSelectPullRequestCreatedBy}
-                                options={getPullRequestCreatedByOptions()}
+                                onChange={(newValue, label) => handleSetFilter('pullRequestCreatedBy', newValue, 'pullRequestCreatedByName', label)}
+                                options={getFilterOptions(filtersData[subscriptionFiltersNameForRepos.pullrequestCreatedBy])}
                                 error={isError}
                                 loadingOptions={isLoading}
                                 disabled={isLoading}
@@ -167,8 +123,8 @@ const ReposFilter = ({
                         <Dropdown
                             placeholder='Reviewer includes group'
                             value={selectedPullRequestReviewersContains}
-                            onChange={handlePullRequestReviewersContains}
-                            options={getPullRequestReviewersContainsOptions()}
+                            onChange={(newValue, label) => handleSetFilter('pullRequestReviewersContains', newValue, 'pullRequestReviewersContainsName', label)}
+                            options={getFilterOptions(filtersData[subscriptionFiltersNameForRepos.pullrequestReviewersContains])}
                             error={isError}
                             loadingOptions={isLoading}
                             disabled={isLoading}
@@ -181,8 +137,8 @@ const ReposFilter = ({
                     <Dropdown
                         placeholder='Pushed by a member of group'
                         value={selectedPushedBy}
-                        onChange={handleSelectPushedBy}
-                        options={getPullRequestPushedByOptions()}
+                        onChange={(newValue, label) => handleSetFilter('pushedBy', newValue, 'pushedByName', label)}
+                        options={getFilterOptions(filtersData[subscriptionFiltersNameForRepos.pushedBy])}
                         error={isError}
                         loadingOptions={isLoading}
                         disabled={isLoading}

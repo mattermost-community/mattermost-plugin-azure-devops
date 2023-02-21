@@ -9,7 +9,7 @@ import usePluginApi from './usePluginApi';
 type Props = {
     handleSuccess?: () => void
     handleError?: (error: ApiErrorResponse) => void
-    serviceName: ApiServiceName
+    serviceName: PluginApiServiceName
     payload?: APIRequestPayload
 }
 

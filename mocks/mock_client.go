@@ -5,37 +5,38 @@
 package mocks
 
 import (
+	url "net/url"
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	serializers "github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	model "github.com/mattermost/mattermost-server/v5/model"
-	url "net/url"
-	reflect "reflect"
 )
 
-// MockClient is a mock of Client interface
+// MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
 }
 
-// MockClientMockRecorder is the mock recorder for MockClient
+// MockClientMockRecorder is the mock recorder for MockClient.
 type MockClientMockRecorder struct {
 	mock *MockClient
 }
 
-// NewMockClient creates a new mock instance
+// NewMockClient creates a new mock instance.
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	mock := &MockClient{ctrl: ctrl}
 	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// CreateSubscription mocks base method
+// CreateSubscription mocks base method.
 func (m *MockClient) CreateSubscription(arg0 *serializers.CreateSubscriptionRequestPayload, arg1 *serializers.ProjectDetails, arg2, arg3, arg4 string) (*serializers.SubscriptionValue, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateSubscription", arg0, arg1, arg2, arg3, arg4)
@@ -45,13 +46,13 @@ func (m *MockClient) CreateSubscription(arg0 *serializers.CreateSubscriptionRequ
 	return ret0, ret1, ret2
 }
 
-// CreateSubscription indicates an expected call of CreateSubscription
+// CreateSubscription indicates an expected call of CreateSubscription.
 func (mr *MockClientMockRecorder) CreateSubscription(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockClient)(nil).CreateSubscription), arg0, arg1, arg2, arg3, arg4)
 }
 
-// CreateTask mocks base method
+// CreateTask mocks base method.
 func (m *MockClient) CreateTask(arg0 *serializers.CreateTaskRequestPayload, arg1 string) (*serializers.TaskValue, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1)
@@ -61,13 +62,13 @@ func (m *MockClient) CreateTask(arg0 *serializers.CreateTaskRequestPayload, arg1
 	return ret0, ret1, ret2
 }
 
-// CreateTask indicates an expected call of CreateTask
+// CreateTask indicates an expected call of CreateTask.
 func (mr *MockClientMockRecorder) CreateTask(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockClient)(nil).CreateTask), arg0, arg1)
 }
 
-// DeleteSubscription mocks base method
+// DeleteSubscription mocks base method.
 func (m *MockClient) DeleteSubscription(arg0, arg1, arg2 string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteSubscription", arg0, arg1, arg2)
@@ -76,13 +77,13 @@ func (m *MockClient) DeleteSubscription(arg0, arg1, arg2 string) (int, error) {
 	return ret0, ret1
 }
 
-// DeleteSubscription indicates an expected call of DeleteSubscription
+// DeleteSubscription indicates an expected call of DeleteSubscription.
 func (mr *MockClientMockRecorder) DeleteSubscription(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockClient)(nil).DeleteSubscription), arg0, arg1, arg2)
 }
 
-// GenerateOAuthToken mocks base method
+// GenerateOAuthToken mocks base method.
 func (m *MockClient) GenerateOAuthToken(arg0 url.Values) (*serializers.OAuthSuccessResponse, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GenerateOAuthToken", arg0)
@@ -92,29 +93,13 @@ func (m *MockClient) GenerateOAuthToken(arg0 url.Values) (*serializers.OAuthSucc
 	return ret0, ret1, ret2
 }
 
-// GenerateOAuthToken indicates an expected call of GenerateOAuthToken
+// GenerateOAuthToken indicates an expected call of GenerateOAuthToken.
 func (mr *MockClientMockRecorder) GenerateOAuthToken(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateOAuthToken", reflect.TypeOf((*MockClient)(nil).GenerateOAuthToken), arg0)
 }
 
-// GetUserProfile mocks base method
-func (m *MockClient) GetUserProfile(arg0, arg1 string) (*serializers.UserProfile, int, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserProfile", arg0, arg1)
-	ret0, _ := ret[0].(*serializers.UserProfile)
-	ret1, _ := ret[1].(int)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
-}
-
-// GetApprovalDetails indicates an expected call of GetApprovalDetails
-func (mr *MockClientMockRecorder) GetUserProfile(arg0, arg1 string) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserProfile", reflect.TypeOf((*MockClient)(nil).GetUserProfile), arg0, arg1)
-}
-
-// GetApprovalDetails mocks base method
+// GetApprovalDetails mocks base method.
 func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*serializers.PipelineApprovalDetails, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetApprovalDetails", arg0, arg1, arg2, arg3)
@@ -124,13 +109,13 @@ func (m *MockClient) GetApprovalDetails(arg0, arg1, arg2 string, arg3 int) (*ser
 	return ret0, ret1, ret2
 }
 
-// GetApprovalDetails indicates an expected call of GetApprovalDetails
+// GetApprovalDetails indicates an expected call of GetApprovalDetails.
 func (mr *MockClientMockRecorder) GetApprovalDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetApprovalDetails", reflect.TypeOf((*MockClient)(nil).GetApprovalDetails), arg0, arg1, arg2, arg3)
 }
 
-// GetBuildDetails mocks base method
+// GetBuildDetails mocks base method.
 func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializers.BuildDetails, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBuildDetails", arg0, arg1, arg2, arg3)
@@ -140,13 +125,13 @@ func (m *MockClient) GetBuildDetails(arg0, arg1, arg2, arg3 string) (*serializer
 	return ret0, ret1, ret2
 }
 
-// GetBuildDetails indicates an expected call of GetBuildDetails
+// GetBuildDetails indicates an expected call of GetBuildDetails.
 func (mr *MockClientMockRecorder) GetBuildDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBuildDetails", reflect.TypeOf((*MockClient)(nil).GetBuildDetails), arg0, arg1, arg2, arg3)
 }
 
-// GetPullRequest mocks base method
+// GetPullRequest mocks base method.
 func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers.PullRequest, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPullRequest", arg0, arg1, arg2, arg3)
@@ -156,13 +141,13 @@ func (m *MockClient) GetPullRequest(arg0, arg1, arg2, arg3 string) (*serializers
 	return ret0, ret1, ret2
 }
 
-// GetPullRequest indicates an expected call of GetPullRequest
+// GetPullRequest indicates an expected call of GetPullRequest.
 func (mr *MockClientMockRecorder) GetPullRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPullRequest", reflect.TypeOf((*MockClient)(nil).GetPullRequest), arg0, arg1, arg2, arg3)
 }
 
-// GetReleaseDetails mocks base method
+// GetReleaseDetails mocks base method.
 func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializers.ReleaseDetails, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetReleaseDetails", arg0, arg1, arg2, arg3)
@@ -172,13 +157,13 @@ func (m *MockClient) GetReleaseDetails(arg0, arg1, arg2, arg3 string) (*serializ
 	return ret0, ret1, ret2
 }
 
-// GetReleaseDetails indicates an expected call of GetReleaseDetails
+// GetReleaseDetails indicates an expected call of GetReleaseDetails.
 func (mr *MockClientMockRecorder) GetReleaseDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReleaseDetails", reflect.TypeOf((*MockClient)(nil).GetReleaseDetails), arg0, arg1, arg2, arg3)
 }
 
-// GetRunApprovalDetails mocks base method
+// GetRunApprovalDetails mocks base method.
 func (m *MockClient) GetRunApprovalDetails(arg0, arg1, arg2, arg3 string) (*serializers.PipelineRunApprovalDetails, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRunApprovalDetails", arg0, arg1, arg2, arg3)
@@ -188,13 +173,13 @@ func (m *MockClient) GetRunApprovalDetails(arg0, arg1, arg2, arg3 string) (*seri
 	return ret0, ret1, ret2
 }
 
-// GetRunApprovalDetails indicates an expected call of GetRunApprovalDetails
+// GetRunApprovalDetails indicates an expected call of GetRunApprovalDetails.
 func (mr *MockClientMockRecorder) GetRunApprovalDetails(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRunApprovalDetails", reflect.TypeOf((*MockClient)(nil).GetRunApprovalDetails), arg0, arg1, arg2, arg3)
 }
 
-// GetSubscriptionFilterPossibleValues mocks base method
+// GetSubscriptionFilterPossibleValues mocks base method.
 func (m *MockClient) GetSubscriptionFilterPossibleValues(arg0 *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, arg1 string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionFilterPossibleValues", arg0, arg1)
@@ -204,13 +189,13 @@ func (m *MockClient) GetSubscriptionFilterPossibleValues(arg0 *serializers.GetSu
 	return ret0, ret1, ret2
 }
 
-// GetSubscriptionFilterPossibleValues indicates an expected call of GetSubscriptionFilterPossibleValues
+// GetSubscriptionFilterPossibleValues indicates an expected call of GetSubscriptionFilterPossibleValues.
 func (mr *MockClientMockRecorder) GetSubscriptionFilterPossibleValues(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionFilterPossibleValues", reflect.TypeOf((*MockClient)(nil).GetSubscriptionFilterPossibleValues), arg0, arg1)
 }
 
-// GetTask mocks base method
+// GetTask mocks base method.
 func (m *MockClient) GetTask(arg0, arg1, arg2, arg3 string) (*serializers.TaskValue, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTask", arg0, arg1, arg2, arg3)
@@ -220,13 +205,29 @@ func (m *MockClient) GetTask(arg0, arg1, arg2, arg3 string) (*serializers.TaskVa
 	return ret0, ret1, ret2
 }
 
-// GetTask indicates an expected call of GetTask
+// GetTask indicates an expected call of GetTask.
 func (mr *MockClientMockRecorder) GetTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTask", reflect.TypeOf((*MockClient)(nil).GetTask), arg0, arg1, arg2, arg3)
 }
 
-// Link mocks base method
+// GetUserProfile mocks base method.
+func (m *MockClient) GetUserProfile(arg0, arg1 string) (*serializers.UserProfile, int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserProfile", arg0, arg1)
+	ret0, _ := ret[0].(*serializers.UserProfile)
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// GetUserProfile indicates an expected call of GetUserProfile.
+func (mr *MockClientMockRecorder) GetUserProfile(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserProfile", reflect.TypeOf((*MockClient)(nil).GetUserProfile), arg0, arg1)
+}
+
+// Link mocks base method.
 func (m *MockClient) Link(arg0 *serializers.LinkRequestPayload, arg1 string) (*serializers.Project, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Link", arg0, arg1)
@@ -236,13 +237,13 @@ func (m *MockClient) Link(arg0 *serializers.LinkRequestPayload, arg1 string) (*s
 	return ret0, ret1, ret2
 }
 
-// Link indicates an expected call of Link
+// Link indicates an expected call of Link.
 func (mr *MockClientMockRecorder) Link(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Link", reflect.TypeOf((*MockClient)(nil).Link), arg0, arg1)
 }
 
-// OpenDialogRequest mocks base method
+// OpenDialogRequest mocks base method.
 func (m *MockClient) OpenDialogRequest(arg0 *model.OpenDialogRequest, arg1 string) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "OpenDialogRequest", arg0, arg1)
@@ -251,13 +252,13 @@ func (m *MockClient) OpenDialogRequest(arg0 *model.OpenDialogRequest, arg1 strin
 	return ret0, ret1
 }
 
-// OpenDialogRequest indicates an expected call of OpenDialogRequest
+// OpenDialogRequest indicates an expected call of OpenDialogRequest.
 func (mr *MockClientMockRecorder) OpenDialogRequest(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenDialogRequest", reflect.TypeOf((*MockClient)(nil).OpenDialogRequest), arg0, arg1)
 }
 
-// UpdatePipelineApprovalRequest mocks base method
+// UpdatePipelineApprovalRequest mocks base method.
 func (m *MockClient) UpdatePipelineApprovalRequest(arg0 *serializers.PipelineApproveRequest, arg1, arg2, arg3 string, arg4 int) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePipelineApprovalRequest", arg0, arg1, arg2, arg3, arg4)
@@ -266,13 +267,13 @@ func (m *MockClient) UpdatePipelineApprovalRequest(arg0 *serializers.PipelineApp
 	return ret0, ret1
 }
 
-// UpdatePipelineApprovalRequest indicates an expected call of UpdatePipelineApprovalRequest
+// UpdatePipelineApprovalRequest indicates an expected call of UpdatePipelineApprovalRequest.
 func (mr *MockClientMockRecorder) UpdatePipelineApprovalRequest(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePipelineApprovalRequest", reflect.TypeOf((*MockClient)(nil).UpdatePipelineApprovalRequest), arg0, arg1, arg2, arg3, arg4)
 }
 
-// UpdatePipelineRunApprovalRequest mocks base method
+// UpdatePipelineRunApprovalRequest mocks base method.
 func (m *MockClient) UpdatePipelineRunApprovalRequest(arg0 []*serializers.PipelineApproveRequest, arg1, arg2, arg3 string) (*serializers.PipelineRunApproveResponse, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdatePipelineRunApprovalRequest", arg0, arg1, arg2, arg3)
@@ -282,7 +283,7 @@ func (m *MockClient) UpdatePipelineRunApprovalRequest(arg0 []*serializers.Pipeli
 	return ret0, ret1, ret2
 }
 
-// UpdatePipelineRunApprovalRequest indicates an expected call of UpdatePipelineRunApprovalRequest
+// UpdatePipelineRunApprovalRequest indicates an expected call of UpdatePipelineRunApprovalRequest.
 func (mr *MockClientMockRecorder) UpdatePipelineRunApprovalRequest(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePipelineRunApprovalRequest", reflect.TypeOf((*MockClient)(nil).UpdatePipelineRunApprovalRequest), arg0, arg1, arg2, arg3)

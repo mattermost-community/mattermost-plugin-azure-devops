@@ -1,6 +1,8 @@
 package store
 
 import (
+	"sync"
+
 	"github.com/mattermost/mattermost-server/v5/model"
 	"github.com/mattermost/mattermost-server/v5/plugin"
 	"github.com/pkg/errors"
@@ -13,7 +15,7 @@ type KVStore interface {
 	UserStore
 	LinkStore
 	SubscriptionStore
-	DeleteUserTokenOnEncryptionSecretChange() error
+	DeleteUserTokenOnEncryptionSecretChange()
 }
 
 type Store struct {
@@ -68,37 +70,44 @@ func (s *Store) Delete(key string) error {
 	return nil
 }
 
-func (s *Store) DeleteUserTokenOnEncryptionSecretChange() error {
+func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 	page := 0
+	wg := new(sync.WaitGroup)
+
 	for {
 		kvList, err := s.api.KVList(page, constants.UsersPerPage)
 		if err != nil {
-			return err
-		}
-		if len(kvList) == 0 {
-			return nil
+			s.api.LogError("Failed to get the users.", "Error", err.Error())
+			return
 		}
 
-		// isUserDeleted flag is used to check the condition for increasing the page number.
-		// If a key is deleted, the keys present in the list after the deleted key fills up the index of the deleted key by taking that position.
-		// If a key is deleted we don't increase the page number, else we increase it by 1.
-		isUserDeleted := false
 		for _, key := range kvList {
-			if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
-				isUserDeleted = true
-				if err := s.Delete(key); err != nil {
-					return err
+			wg.Add(1)
+
+			go func(key string) {
+				defer wg.Done()
+
+				if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
+					if isDeleted, err := s.DeleteUser(userID); !isDeleted {
+						s.api.LogError("Failed to delete a user.", "Error", err.Error())
+						return
+					}
+					s.api.PublishWebSocketEvent(
+						constants.WSEventDisconnect,
+						nil,
+						&model.WebsocketBroadcast{UserId: userID},
+					)
 				}
-				s.api.PublishWebSocketEvent(
-					constants.WSEventDisconnect,
-					nil,
-					&model.WebsocketBroadcast{UserId: userID},
-				)
-			}
+			}(key)
 		}
 
-		if !isUserDeleted {
-			page++
+		// Wait for all goroutines to complete before continuing.
+		wg.Wait()
+
+		if len(kvList) < constants.UsersPerPage {
+			break
 		}
+
+		page++
 	}
 }

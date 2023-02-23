@@ -92,6 +92,7 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 				defer wg.Done()
 
 				if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
+					isUserDeleted = true
 					if isDeleted, err := s.DeleteUser(userID); !isDeleted {
 						s.api.LogError("Failed to delete a user.", "Error", err.Error())
 						return
@@ -108,14 +109,12 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 		// Wait for all goroutines to complete before continuing.
 		wg.Wait()
 
-		if !isUserDeleted {
-			page++
-		}
-
 		if len(kvList) < constants.UsersPerPage {
 			break
 		}
 
-		page++
+		if !isUserDeleted {
+			page++
+		}
 	}
 }

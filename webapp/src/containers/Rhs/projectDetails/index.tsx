@@ -59,7 +59,6 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         service_type: filter.serviceType,
         event_type: filter.eventType,
         team_id: currentTeamId,
-
     }), [organizationName, projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
     const {data, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);

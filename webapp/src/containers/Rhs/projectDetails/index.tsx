@@ -50,6 +50,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
 
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
+        organization: organizationName,
         project: projectName,
         channel_id: showAllSubscriptions ? '' : currentChannelId,
         page: paginationQueryParams.page,
@@ -58,7 +59,8 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         service_type: filter.serviceType,
         event_type: filter.eventType,
         team_id: currentTeamId,
-    }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
+
+    }), [organizationName, projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
     const {data, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];

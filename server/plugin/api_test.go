@@ -704,60 +704,57 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	for _, testCase := range []struct {
 		description                                          string
 		subscriptionList                                     []*serializers.SubscriptionDetails
-		project                                              string
 		err                                                  error
 		marshalError                                         error
 		GetSubscriptionsForAccessibleChannelsOrProjectsError error
 		statusCode                                           int
 		isTeamIDValid                                        bool
+		isProjectLinked                                      bool
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
 			subscriptionList: []*serializers.SubscriptionDetails{},
 			statusCode:       http.StatusOK,
 			isTeamIDValid:    true,
+			isProjectLinked:  true,
 		},
 		{
-			description:   "HandleGetSubscriptions: project as a query param",
-			project:       testutils.MockProjectName,
-			statusCode:    http.StatusOK,
-			isTeamIDValid: true,
+			description:     "HandleGetSubscriptions: error while fetching subscription list",
+			err:             errors.New("error while fetching subscription list"),
+			statusCode:      http.StatusInternalServerError,
+			isTeamIDValid:   true,
+			isProjectLinked: true,
 		},
 		{
-			description:   "HandleGetSubscriptions: error while fetching subscription list",
-			err:           errors.New("error while fetching subscription list"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
-		},
-		{
-			description:   "HandleGetSubscriptions: empty subscription list",
-			statusCode:    http.StatusOK,
-			isTeamIDValid: true,
-		},
-		{
-			description:   "HandleGetSubscriptions: marshaling gives error",
-			marshalError:  errors.New("error while marshaling"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
-		},
-		{
-			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     testutils.MockProjectName,
-			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("error while getting subscriptions for accessible channels or projects"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
+			description:     "HandleGetSubscriptions: empty subscription list",
+			statusCode:      http.StatusOK,
+			isTeamIDValid:   true,
+			isProjectLinked: true,
 		},
 		{
 			description:   "HandleGetSubscriptions: Team ID is invalid",
 			statusCode:    http.StatusBadRequest,
 			isTeamIDValid: false,
 		},
+		{
+			description:     "HandleGetSubscriptions: Project is not linked",
+			statusCode:      http.StatusBadRequest,
+			isTeamIDValid:   true,
+			isProjectLinked: false,
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
 
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
+				return &serializers.ProjectDetails{}, testCase.isProjectLinked
+			})
+
 			if testCase.isTeamIDValid {
-				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
+				if testCase.isProjectLinked {
+					mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
+				}
+				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return([]serializers.ProjectDetails{}, nil)
 			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
@@ -768,11 +765,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return testCase.isTeamIDValid
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
-				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
-			})
-
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/subscriptions/%s/%s/%s", testutils.MockTeamID, testutils.MockOrganization, testutils.MockProjectName), bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()

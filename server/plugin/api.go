@@ -413,6 +413,21 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: strings.ToLower(organization), ProjectName: cases.Title(language.Und).String(project)}); !isProjectLinked {
+		p.API.LogError(fmt.Sprintf("Project %s is not linked", project))
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: "requested project is not linked"})
+		return
+	}
+
 	var subscriptionList []*serializers.SubscriptionDetails
 	var subscriptionErr error
 	createdBy := r.URL.Query().Get(constants.QueryParamCreatedBy)
@@ -432,7 +447,6 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
 	eventType := r.URL.Query().Get(constants.QueryParamEventType)
-	project := r.URL.Query().Get(constants.QueryParamProject)
 	if project != "" {
 		subscriptionByProject := []*serializers.SubscriptionDetails{}
 		for _, subscription := range subscriptionList {
@@ -500,10 +514,8 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 
-		subscriptionList = paginatedSubscriptions
+		p.writeJSON(w, paginatedSubscriptions)
 	}
-
-	p.writeJSON(w, subscriptionList)
 }
 
 func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {

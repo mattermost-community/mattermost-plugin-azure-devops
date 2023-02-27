@@ -422,8 +422,13 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 
 	organization := pathParams[constants.PathParamOrganization]
 	project := pathParams[constants.PathParamProject]
-	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: strings.ToLower(organization), ProjectName: cases.Title(language.Und).String(project)}); !isProjectLinked {
-		p.API.LogError(fmt.Sprintf("Project %s is not linked", project))
+	organizationName := strings.ToLower(organization)
+	projectName := cases.Title(language.Und).String(project)
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{
+		OrganizationName: organizationName,
+		ProjectName:      projectName,
+	}); !isProjectLinked {
+		p.API.LogWarn(fmt.Sprintf("Project %s is not linked", project))
 		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: "requested project is not linked"})
 		return
 	}

@@ -119,16 +119,14 @@ func TestDeleteUser(t *testing.T) {
 				return testCase.err
 			})
 
-			isDeleted, err := s.DeleteUser("mockMattermostUserID")
+			err := s.DeleteUser("mockMattermostUserID")
 
 			if testCase.err != nil {
 				assert.NotNil(t, err)
-				assert.Equal(t, false, isDeleted)
 				return
 			}
 
 			assert.Nil(t, err)
-			assert.Equal(t, true, isDeleted)
 		})
 	}
 }

@@ -93,7 +93,7 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 
 				if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
 					isUserDeleted = true
-					if isDeleted, err := s.DeleteUser(userID); !isDeleted {
+					if err := s.DeleteUser(userID); err != nil {
 						s.api.LogError("Failed to delete a user.", "UserID", userID, "Error", err.Error())
 						return
 					}

@@ -73,13 +73,13 @@ func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if isConnected := p.UserAlreadyConnected(mattermostUserID); isConnected {
+	if isConnected := p.MattermostUserAlreadyConnected(mattermostUserID); isConnected {
 		p.CloseBrowserWindowWithHTTPResponse(w)
-		if _, DMErr := p.DM(mattermostUserID, constants.UserAlreadyConnected, false); DMErr != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.MattermostUserAlreadyConnected, false); DMErr != nil {
 			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: DMErr.Error()})
 			return
 		}
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.UserAlreadyConnected})
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.MattermostUserAlreadyConnected})
 		return
 	}
 
@@ -108,6 +108,12 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := p.GenerateOAuthToken(code, state); err != nil {
+		if strings.Contains(err.Error(), "already connected") {
+			p.API.LogError(constants.UnableToCompleteOAuth, "Error", constants.ErrorMessageAzureDevopsAccountAlreadyConnected)
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
+		}
+		p.API.LogError(constants.UnableToCompleteOAuth, "Error", err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -134,7 +140,7 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	if err := p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues); err != nil {
+	if err := p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues, false); err != nil {
 		return err
 	}
 
@@ -177,17 +183,41 @@ func (p *Plugin) RefreshOAuthToken(mattermostUserID, refreshToken string) error 
 		"redirect_uri":          {fmt.Sprintf("%s%s%s", p.GetSiteURL(), p.GetPluginURLPath(), constants.PathOAuthCallback)},
 	}
 
-	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues)
+	return p.GenerateAndStoreOAuthToken(mattermostUserID, oauthTokenFormValues, true)
 }
 
 // GenerateAndStoreOAuthToken generates and stores OAuth token
-func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values) error {
+func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenFormValues url.Values, isTokenRefreshRequest bool) error {
 	successResponse, _, err := p.Client.GenerateOAuthToken(oauthTokenFormValues)
 	if err != nil {
 		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
 			return DMErr
 		}
 		return errors.Wrap(err, "failed to generate oAuth token")
+	}
+
+	userProfile, _, err := p.Client.GetUserProfile(constants.CurrentAzureDevopsUserProfileID, successResponse.AccessToken)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, "failed to fetch user profile")
+	}
+
+	azureDevopsUser, err := p.Store.LoadAzureDevopsUserDetails(userProfile.ID)
+	if err != nil {
+		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
+			return DMErr
+		}
+		return errors.Wrap(err, "failed to get the user details")
+	}
+
+	if !isTokenRefreshRequest && azureDevopsUser.AccessToken != "" {
+		if _, DMErr := p.DM(mattermostUserID, fmt.Sprintf(constants.ErrorMessageAzureDevopsAccountAlreadyConnected, userProfile.Email), false); DMErr != nil {
+			return errors.Wrap(err, "failed to DM user")
+		}
+
+		return fmt.Errorf(constants.ErrorMessageAzureDevopsAccountAlreadyConnected, userProfile.Email)
 	}
 
 	encryptedAccessToken, err := p.Encrypt([]byte(successResponse.AccessToken), []byte(p.getConfiguration().EncryptionSecret))
@@ -213,9 +243,10 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 		AccessToken:      p.Encode(encryptedAccessToken),
 		RefreshToken:     p.Encode(encryptedRefreshToken),
 		ExpiresAt:        time.Now().UTC().Add(time.Second * time.Duration(tokenExpiryDurationInSeconds)).Unix(),
+		UserProfile:      *userProfile,
 	}
 
-	if err := p.Store.StoreUser(&user); err != nil {
+	if err := p.Store.StoreAzureDevopsUserDetailsWithMattermostUserID(&user); err != nil {
 		return err
 	}
 
@@ -224,7 +255,13 @@ func (p *Plugin) GenerateAndStoreOAuthToken(mattermostUserID string, oauthTokenF
 
 // IsAccessTokenExpired checks if a user's access token is expired
 func (p *Plugin) IsAccessTokenExpired(mattermostUserID string) (bool, string) {
-	user, err := p.Store.LoadUser(mattermostUserID)
+	azureDevopsUserID, err := p.Store.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
+		return false, ""
+	}
+
+	user, err := p.Store.LoadAzureDevopsUserDetails(azureDevopsUserID)
 	if err != nil {
 		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
 		return false, ""
@@ -239,9 +276,15 @@ func (p *Plugin) IsAccessTokenExpired(mattermostUserID string) (bool, string) {
 	return false, ""
 }
 
-// UserAlreadyConnected checks if a user is already connected
-func (p *Plugin) UserAlreadyConnected(mattermostUserID string) bool {
-	user, err := p.Store.LoadUser(mattermostUserID)
+// MattermostUserAlreadyConnected checks if a user is already connected
+func (p *Plugin) MattermostUserAlreadyConnected(mattermostUserID string) bool {
+	azureDevopsUserID, err := p.Store.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
+	if err != nil {
+		p.API.LogError(constants.ErrorLoadingUserData, "Error", err.Error())
+		return false
+	}
+
+	user, err := p.Store.LoadAzureDevopsUserDetails(azureDevopsUserID)
 	if err != nil {
 		p.API.LogError(constants.UnableToCheckIfAlreadyConnected, "Error", err.Error())
 		return false

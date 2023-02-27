@@ -11,7 +11,7 @@ type ModalBodyProps = {
 const ModalBody = ({children, className = ''}: ModalBodyProps) : JSX.Element => (
     <>
         {children && (
-            <RBModal.Body className={`modal__body ${className}`}>
+            <RBModal.Body className={`azd-modal__body ${className}`}>
                 {children}
             </RBModal.Body>
         )}

@@ -50,7 +50,7 @@ type ApiQueriesState = {
 }
 
 type ApiRequestCompletionState = {
-    requests: ApiServiceName[]
+    requests: PluginApiServiceName[]
 }
 
 type ProjectDetails = {

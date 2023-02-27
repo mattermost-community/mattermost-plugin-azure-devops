@@ -1,6 +1,6 @@
 import React from 'react';
 
-type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions' | 'filter' | 'boards' | 'repos' | 'cardFilter';
+type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions' | 'filter'| 'cardFilter' | 'boards' | 'repos' | 'pipelines';
 
 export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
     check: (
@@ -143,6 +143,32 @@ export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
                 strokeMiterlimit='10'
             />
 
+        </>
+    ),
+    pipelines: (
+        <>
+            <path
+                d='M8.06 4.05615H1V8.24415L3.2792 9.97855L4.8152 9.30975L8.06 4.05615Z'
+                fill='#3A56A1'
+            />
+            <path
+                d='M12.8904 9.16064V15.9998H8.45675L6.79675 13.7446L7.39115 12.5798L12.8904 9.16064Z'
+                fill='#344E9B'
+            />
+            <path
+                d='M17 0L16.98 3.5232L16.9592 7.048L16.736 6.8288L7.65761 13.4168L3.66321 9.4208L10.1368 0.3648L9.95681 0.188L13.4784 0.0936L17 0Z'
+                fill='#4B68AD'
+            />
+            <path
+                d='M1.44556 12.0352V15.4552H4.81516'
+                stroke='#9EB2DB'
+                strokeWidth='1.2'
+                strokeMiterlimit='10'
+            />
+            <path
+                d='M12.736 5.98913C13.6832 5.98913 14.4512 5.22085 14.4512 4.27313C14.4512 3.32541 13.6832 2.55713 12.736 2.55713C11.7887 2.55713 11.0208 3.32541 11.0208 4.27313C11.0208 5.22085 11.7887 5.98913 12.736 5.98913Z'
+                fill='#9EB2DB'
+            />
         </>
     ),
     organization: (

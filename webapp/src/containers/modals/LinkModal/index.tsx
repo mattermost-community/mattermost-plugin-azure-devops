@@ -35,10 +35,12 @@ const LinkModal = () => {
     const {visibility, organization, project} = getLinkModalState(state);
     const [showResultPanel, setShowResultPanel] = useState(false);
     const [resultPanelHeader, setResultPanelHeader] = useState(pluginConstants.common.projectLinkedSuccessfullyMessage);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Function to hide the modal and reset all the states.
     const resetModalState = () => {
         dispatch(toggleShowLinkModal({isVisible: false, commandArgs: []}));
+        setErrorMessage('');
         resetFormFields();
         setShowResultPanel(false);
         setResultPanelHeader(pluginConstants.common.projectLinkedSuccessfullyMessage);
@@ -71,6 +73,7 @@ const LinkModal = () => {
             setShowResultPanel(true);
             dispatch(toggleShowLinkModal({isVisible: true, commandArgs: [], isActionDone: true}));
         },
+        handleError: () => setErrorMessage(Utils.getErrorMessage(isError, 'LinkProjectModal', error as ApiErrorResponse)),
     });
 
     // Set modal field values
@@ -94,7 +97,7 @@ const LinkModal = () => {
             confirmDisabled={isLoading}
             loading={isLoading}
             showFooter={!showResultPanel}
-            error={Utils.getErrorMessage(isError, 'LinkProjectModal', error as ApiErrorResponse)}
+            error={errorMessage}
         >
             <>
                 {

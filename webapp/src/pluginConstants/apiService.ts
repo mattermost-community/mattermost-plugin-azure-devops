@@ -1,5 +1,5 @@
 // Plugin api service (RTK query) configs
-export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> = {
+export const pluginApiServiceConfigs: Record<PluginApiServiceName, PluginApiService> = {
     createTask: {
         path: '/tasks',
         method: 'POST',
@@ -25,11 +25,6 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         method: 'GET',
         apiServiceName: 'getUserDetails',
     },
-    getChannels: {
-        path: '/channels',
-        method: 'GET',
-        apiServiceName: 'getChannels',
-    },
     createSubscription: {
         path: '/subscriptions',
         method: 'POST',
@@ -44,16 +39,6 @@ export const pluginApiServiceConfigs: Record<ApiServiceName, PluginApiService> =
         path: '/subscriptions',
         method: 'DELETE',
         apiServiceName: 'deleteSubscription',
-    },
-    getRepositories: {
-        path: '/:organization/:project/repositories',
-        method: 'GET',
-        apiServiceName: 'getRepositories',
-    },
-    getRepositoryBranches: {
-        path: '/:organization/:project/repositories/:repository/branches',
-        method: 'GET',
-        apiServiceName: 'getRepositoryBranches',
     },
     getSubscriptionFilters: {
         path: '/subscriptions/filters',

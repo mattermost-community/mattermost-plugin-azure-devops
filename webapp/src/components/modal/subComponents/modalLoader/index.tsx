@@ -8,6 +8,6 @@ type ModalLoaderProps = {
     loading?: boolean;
 }
 
-const ModalLoader = ({loading}: ModalLoaderProps): JSX.Element => <div className='modal__loader-container'>{loading && <LinearLoader/>}</div>;
+const ModalLoader = ({loading}: ModalLoaderProps): JSX.Element => <div className='azd-modal__loader-container'>{loading && <LinearLoader/>}</div>;
 
 export default ModalLoader;

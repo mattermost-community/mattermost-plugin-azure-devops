@@ -163,10 +163,16 @@ func (p *Plugin) ParseAuthToken(encoded string) (string, error) {
 
 // AddAuthorization function to add authorization to a request.
 func (p *Plugin) AddAuthorization(r *http.Request, mattermostUserID string) error {
-	user, err := p.Store.LoadUser(mattermostUserID)
+	azureDevopsUserID, err := p.Store.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
 	if err != nil {
 		return err
 	}
+
+	user, err := p.Store.LoadAzureDevopsUserDetails(azureDevopsUserID)
+	if err != nil {
+		return err
+	}
+
 	token, err := p.ParseAuthToken(user.AccessToken)
 	if err != nil {
 		return err
@@ -187,7 +193,33 @@ func (p *Plugin) IsProjectLinked(projectList []serializers.ProjectDetails, proje
 
 func (p *Plugin) IsSubscriptionPresent(subscriptionList []*serializers.SubscriptionDetails, subscription *serializers.SubscriptionDetails) (*serializers.SubscriptionDetails, bool) {
 	for _, a := range subscriptionList {
-		if a.ProjectName == subscription.ProjectName && a.OrganizationName == subscription.OrganizationName && a.ChannelID == subscription.ChannelID && a.EventType == subscription.EventType && a.Repository == subscription.Repository && a.TargetBranch == subscription.TargetBranch && a.PullRequestCreatedBy == subscription.PullRequestCreatedBy && a.PullRequestReviewersContains == subscription.PullRequestReviewersContains && a.PushedBy == subscription.PushedBy && a.MergeResult == subscription.MergeResult && a.NotificationType == subscription.NotificationType && a.AreaPath == subscription.AreaPath {
+		if a.ProjectName == subscription.ProjectName &&
+			a.OrganizationName == subscription.OrganizationName &&
+			a.ChannelID == subscription.ChannelID &&
+			a.EventType == subscription.EventType &&
+			a.Repository == subscription.Repository &&
+			a.TargetBranch == subscription.TargetBranch &&
+			a.PullRequestCreatedBy == subscription.PullRequestCreatedBy &&
+			a.PullRequestReviewersContains == subscription.PullRequestReviewersContains &&
+			a.PushedBy == subscription.PushedBy &&
+			a.MergeResult == subscription.MergeResult &&
+			a.NotificationType == subscription.NotificationType &&
+			a.AreaPath == subscription.AreaPath &&
+			a.BuildPipeline == subscription.BuildPipeline &&
+			a.BuildStatus == subscription.BuildStatus &&
+			a.StageName == subscription.StageName &&
+			a.ReleasePipeline == subscription.ReleasePipeline &&
+			a.ReleaseStatus == subscription.ReleaseStatus &&
+			a.ApprovalType == subscription.ApprovalType &&
+			a.ApprovalStatus == subscription.ApprovalStatus &&
+			a.RunPipeline == subscription.RunPipeline &&
+			a.RunStageName == subscription.RunStageName &&
+			a.RunEnvironmentName == subscription.RunEnvironmentName &&
+			a.RunStageNameID == subscription.RunStageNameID &&
+			a.RunStageStateID == subscription.RunStageStateID &&
+			a.RunStageResultID == subscription.RunStageResultID &&
+			a.RunStateID == subscription.RunStateID &&
+			a.RunResultID == subscription.RunResultID {
 			return a, true
 		}
 	}
@@ -230,41 +262,42 @@ func (p *Plugin) ParseSubscriptionsToCommandResponse(subscriptionsList []*serial
 	sb.WriteString("| Subscription ID | Organization | Project | Event Type | Created By | Channel |\n")
 	sb.WriteString("| :-------------- | :----------- | :------ | :--------- | :--------- | :------ |\n")
 
+	displayEventType := map[string]string{
+		constants.SubscriptionEventWorkItemCreated:                    "Work Item Created",
+		constants.SubscriptionEventWorkItemUpdated:                    "Work Item Updated",
+		constants.SubscriptionEventWorkItemDeleted:                    "Work Item Deleted",
+		constants.SubscriptionEventWorkItemCommented:                  "Work Item Commented",
+		constants.SubscriptionEventPullRequestCreated:                 "Pull Request Created",
+		constants.SubscriptionEventPullRequestUpdated:                 "Pull Request Updated",
+		constants.SubscriptionEventPullRequestMerged:                  "Pull Request Merge Attempted",
+		constants.SubscriptionEventPullRequestCommented:               "Pull Requested Commented",
+		constants.SubscriptionEventCodePushed:                         "Code Pushed",
+		constants.SubscriptionEventBuildCompleted:                     "Build Completed",
+		constants.SubscriptionEventReleaseAbandoned:                   "Release Abandoned",
+		constants.SubscriptionEventReleaseCreated:                     "Release Created",
+		constants.SubscriptionEventReleaseDeploymentApprovalCompleted: "Release Deployment Approval Completed",
+		constants.SubscriptionEventReleaseDeploymentCompleted:         "Release Deployment Completed",
+		constants.SubscriptionEventReleaseDeploymentEventPending:      "Release Deployment Event Pending",
+		constants.SubscriptionEventReleaseDeploymentStarted:           "Release Deployment Started",
+		constants.SubscriptionEventRunStageApprovalCompleted:          "Run Stage Approval Completed",
+		constants.SubscriptionEventRunStageStateChanged:               "Run Stage State Changed",
+		constants.SubscriptionEventRunStageWaitingForApproval:         "Run Stage Waiting For Approval",
+		constants.SubscriptionEventRunStateChanged:                    "Run State Changed",
+	}
+
 	noSubscriptionFound := true
 	for _, subscription := range filteredSubscriptionList {
-		displayEventType := ""
-		switch subscription.EventType {
-		case constants.SubscriptionEventWorkItemCreated:
-			displayEventType = "Work Item Created"
-		case constants.SubscriptionEventWorkItemUpdated:
-			displayEventType = "Work Item Updated"
-		case constants.SubscriptionEventWorkItemDeleted:
-			displayEventType = "Work Item Deleted"
-		case constants.SubscriptionEventWorkItemCommented:
-			displayEventType = "Work Item Commented"
-		case constants.SubscriptionEventPullRequestCreated:
-			displayEventType = "Pull Request Created"
-		case constants.SubscriptionEventPullRequestUpdated:
-			displayEventType = "Pull Request Updated"
-		case constants.SubscriptionEventPullRequestMerged:
-			displayEventType = "Pull Request Merge Attempted"
-		case constants.SubscriptionEventPullRequestCommented:
-			displayEventType = "Pull Requested Commented"
-		case constants.SubscriptionEventCodePushed:
-			displayEventType = "Code Pushed"
-		}
-
 		if channelID == "" || subscription.ChannelID == channelID {
 			switch createdBy {
 			case constants.FilterCreatedByMe:
 				if subscription.MattermostUserID == userID && subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			case constants.FilterCreatedByAnyone:
 				if subscription.ServiceType == command {
 					noSubscriptionFound = false
-					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType, subscription.CreatedBy, subscription.ChannelName))
+					sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s | %s | %s |\n", subscription.SubscriptionID, subscription.OrganizationName, subscription.ProjectName, displayEventType[subscription.EventType], subscription.CreatedBy, subscription.ChannelName))
 				}
 			}
 		}
@@ -307,12 +340,6 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 		return nil, channelErr
 	}
 
-	projectList, err := p.Store.GetAllProjects(mattermostUserID)
-	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
-		return nil, err
-	}
-
 	var filteredSubscriptionList []*serializers.SubscriptionDetails
 	if createdBy == constants.FilterCreatedByMe {
 		for _, subscription := range subscriptionList {
@@ -323,23 +350,146 @@ func (p *Plugin) GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionLis
 		return filteredSubscriptionList, nil
 	}
 
+	// For each subscription check if the user is a member of the MM channel where the subscription is created
 	for _, subscription := range subscriptionList {
-		// For each subscription on a project check if a user is an admin or member of the MM channel to return subscriptions
-		if projectDetails, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{OrganizationName: subscription.OrganizationName, ProjectName: subscription.ProjectName}); isProjectLinked {
-			if projectDetails.IsAdmin {
+		for _, channel := range channels {
+			if subscription.ChannelID == channel.Id {
 				filteredSubscriptionList = append(filteredSubscriptionList, subscription)
-			} else {
-				for _, channel := range channels {
-					if subscription.ChannelID == channel.Id {
-						filteredSubscriptionList = append(filteredSubscriptionList, subscription)
-						break
-					}
-				}
+				break
 			}
-		} else if subscription.MattermostUserID == mattermostUserID {
-			filteredSubscriptionList = append(filteredSubscriptionList, subscription)
 		}
 	}
 
 	return filteredSubscriptionList, nil
+}
+
+// TODO: use this function at all the places where baseURL need to be updated this way
+func (p *Plugin) updateBaseURLForReleaseEventTypes(url, eventType string) string {
+	if strings.Contains(eventType, "release") {
+		url = strings.Replace(url, "://", "://vsrm.", 1)
+	}
+
+	return url
+}
+
+func (p *Plugin) UpdatePipelineReleaseApprovalPost(requestType, postID, mattermostUserID string) error {
+	post, _ := p.API.GetPost(postID)
+	slackAttachment := post.Attachments()[0]
+	slackAttachment.Actions = nil
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: "Approvers",
+			Value: fmt.Sprintf("%s %s", constants.PipelineRequestUpdateEmoji[requestType], slackAttachment.Fields[2].Value),
+		},
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError("Error in updating post", mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Plugin) handlePipelineApprovalRequestUpdateError(errorMessage, mattermostUserID string, err error) {
+	if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, true); DMErr != nil {
+		p.API.LogError("Failed to DM", "Error", DMErr.Error())
+	}
+	p.API.LogError(errorMessage, "Error", err.Error())
+}
+
+func (p *Plugin) UpdatePipelineRunApprovalPost(approvalSteps []*serializers.ApprovalStep, minRequiredApprovers int, status, postID, mattermostUserID string) error {
+	post, err := p.API.GetPost(postID)
+	if err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	slackAttachment := post.Attachments()[0]
+	numOfApprovalsReached := 0
+
+	approvers := ""
+	for _, step := range approvalSteps {
+		if step.Status != "pending" {
+			approvers += fmt.Sprintf("%s %s \n", constants.PipelineRequestUpdateEmoji[step.Status], step.AssignedApprover.DisplayName)
+			if step.Status == "approved" {
+				numOfApprovalsReached++
+			}
+		} else {
+			approvers += step.AssignedApprover.DisplayName + "\n"
+		}
+	}
+
+	slackAttachment.Fields = []*model.SlackAttachmentField{
+		slackAttachment.Fields[0],
+		slackAttachment.Fields[1],
+		{
+			Title: slackAttachment.Fields[2].Title,
+			Value: approvers,
+		},
+	}
+
+	if status != "pending" || numOfApprovalsReached == minRequiredApprovers {
+		slackAttachment.Actions = nil
+	}
+
+	model.ParseSlackAttachment(post, []*model.SlackAttachment{slackAttachment})
+	if _, err := p.API.UpdatePost(post); err != nil {
+		p.handlePipelineApprovalRequestUpdateError(fmt.Sprintf("Error in fetching post: %s", postID), mattermostUserID, err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetails, mattermostUserID string) (int, error) {
+	// On deletion, if a subscription is not found on the Azure DevOps portal then delete it from Mattermost's KV store
+	if statusCode, err := p.Client.DeleteSubscription(subscription.OrganizationName, subscription.SubscriptionID, mattermostUserID); statusCode != http.StatusNotFound && err != nil {
+		return statusCode, err
+	}
+
+	if deleteErr := p.Store.DeleteSubscription(subscription); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusOK, nil
+}
+
+func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err error) {
+	decodedWebhookSecret, err := p.Decode(received)
+	if err != nil {
+		return http.StatusInternalServerError, errors.New("failed to decode webhook secret")
+	}
+
+	decryptedWebhookSecret, err := p.Decrypt(decodedWebhookSecret, []byte(p.getConfiguration().EncryptionSecret))
+	if err != nil {
+		return http.StatusInternalServerError, errors.New("failed to decrypt webhook secret")
+	}
+
+	if p.getConfiguration().WebhookSecret != string(decryptedWebhookSecret) {
+		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
+	}
+
+	return 0, nil
+}
+
+// A user can create subscription(s) only for accessible public and private channels
+func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int, error) {
+	channel, err := p.API.GetChannel(channelID)
+	if err != nil {
+		return err.StatusCode, err
+	}
+
+	if channel.Type != model.CHANNEL_PRIVATE && channel.Type != model.CHANNEL_OPEN {
+		return http.StatusForbidden, errors.New("subscription can only be created for a public or private channel")
+	}
+
+	if _, err := p.API.GetChannelMember(channelID, userID); err != nil {
+		return err.StatusCode, err
+	}
+
+	return 0, nil
 }

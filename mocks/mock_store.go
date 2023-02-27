@@ -5,37 +5,36 @@
 package mocks
 
 import (
-	reflect "reflect"
-
+	gomock "github.com/golang/mock/gomock"
 	serializers "github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	store "github.com/mattermost/mattermost-plugin-azure-devops/server/store"
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
-// MockKVStore is a mock of KVStore interface.
+// MockKVStore is a mock of KVStore interface
 type MockKVStore struct {
 	ctrl     *gomock.Controller
 	recorder *MockKVStoreMockRecorder
 }
 
-// MockKVStoreMockRecorder is the mock recorder for MockKVStore.
+// MockKVStoreMockRecorder is the mock recorder for MockKVStore
 type MockKVStoreMockRecorder struct {
 	mock *MockKVStore
 }
 
-// NewMockKVStore creates a new mock instance.
+// NewMockKVStore creates a new mock instance
 func NewMockKVStore(ctrl *gomock.Controller) *MockKVStore {
 	mock := &MockKVStore{ctrl: ctrl}
 	mock.recorder = &MockKVStoreMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use.
+// EXPECT returns an object that allows the caller to indicate expected use
 func (m *MockKVStore) EXPECT() *MockKVStoreMockRecorder {
 	return m.recorder
 }
 
-// DeleteProject mocks base method.
+// DeleteProject mocks base method
 func (m *MockKVStore) DeleteProject(arg0 *serializers.ProjectDetails) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteProject", arg0)
@@ -43,13 +42,13 @@ func (m *MockKVStore) DeleteProject(arg0 *serializers.ProjectDetails) error {
 	return ret0
 }
 
-// DeleteProject indicates an expected call of DeleteProject.
+// DeleteProject indicates an expected call of DeleteProject
 func (mr *MockKVStoreMockRecorder) DeleteProject(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteProject", reflect.TypeOf((*MockKVStore)(nil).DeleteProject), arg0)
 }
 
-// DeleteSubscription mocks base method.
+// DeleteSubscription mocks base method
 func (m *MockKVStore) DeleteSubscription(arg0 *serializers.SubscriptionDetails) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteSubscription", arg0)
@@ -57,13 +56,13 @@ func (m *MockKVStore) DeleteSubscription(arg0 *serializers.SubscriptionDetails) 
 	return ret0
 }
 
-// DeleteSubscription indicates an expected call of DeleteSubscription.
+// DeleteSubscription indicates an expected call of DeleteSubscription
 func (mr *MockKVStoreMockRecorder) DeleteSubscription(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscription", reflect.TypeOf((*MockKVStore)(nil).DeleteSubscription), arg0)
 }
 
-// DeleteUser mocks base method.
+// DeleteUser mocks base method
 func (m *MockKVStore) DeleteUser(arg0 string) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUser", arg0)
@@ -72,13 +71,13 @@ func (m *MockKVStore) DeleteUser(arg0 string) (bool, error) {
 	return ret0, ret1
 }
 
-// DeleteUser indicates an expected call of DeleteUser.
+// DeleteUser indicates an expected call of DeleteUser
 func (mr *MockKVStoreMockRecorder) DeleteUser(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockKVStore)(nil).DeleteUser), arg0)
 }
 
-// DeleteUserTokenOnEncryptionSecretChange mocks base method.
+// DeleteUserTokenOnEncryptionSecretChange mocks base method
 func (m *MockKVStore) DeleteUserTokenOnEncryptionSecretChange() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUserTokenOnEncryptionSecretChange")
@@ -86,13 +85,13 @@ func (m *MockKVStore) DeleteUserTokenOnEncryptionSecretChange() error {
 	return ret0
 }
 
-// DeleteUserTokenOnEncryptionSecretChange indicates an expected call of DeleteUserTokenOnEncryptionSecretChange.
+// DeleteUserTokenOnEncryptionSecretChange indicates an expected call of DeleteUserTokenOnEncryptionSecretChange
 func (mr *MockKVStoreMockRecorder) DeleteUserTokenOnEncryptionSecretChange() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserTokenOnEncryptionSecretChange", reflect.TypeOf((*MockKVStore)(nil).DeleteUserTokenOnEncryptionSecretChange))
 }
 
-// GetAllProjects mocks base method.
+// GetAllProjects mocks base method
 func (m *MockKVStore) GetAllProjects(arg0 string) ([]serializers.ProjectDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllProjects", arg0)
@@ -101,13 +100,13 @@ func (m *MockKVStore) GetAllProjects(arg0 string) ([]serializers.ProjectDetails,
 	return ret0, ret1
 }
 
-// GetAllProjects indicates an expected call of GetAllProjects.
+// GetAllProjects indicates an expected call of GetAllProjects
 func (mr *MockKVStoreMockRecorder) GetAllProjects(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllProjects", reflect.TypeOf((*MockKVStore)(nil).GetAllProjects), arg0)
 }
 
-// GetAllSubscriptions mocks base method.
+// GetAllSubscriptions mocks base method
 func (m *MockKVStore) GetAllSubscriptions(arg0 string) ([]*serializers.SubscriptionDetails, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllSubscriptions", arg0)
@@ -116,13 +115,13 @@ func (m *MockKVStore) GetAllSubscriptions(arg0 string) ([]*serializers.Subscript
 	return ret0, ret1
 }
 
-// GetAllSubscriptions indicates an expected call of GetAllSubscriptions.
+// GetAllSubscriptions indicates an expected call of GetAllSubscriptions
 func (mr *MockKVStoreMockRecorder) GetAllSubscriptions(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllSubscriptions", reflect.TypeOf((*MockKVStore)(nil).GetAllSubscriptions), arg0)
 }
 
-// GetProject mocks base method.
+// GetProject mocks base method
 func (m *MockKVStore) GetProject() (*store.ProjectList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProject")
@@ -131,13 +130,13 @@ func (m *MockKVStore) GetProject() (*store.ProjectList, error) {
 	return ret0, ret1
 }
 
-// GetProject indicates an expected call of GetProject.
+// GetProject indicates an expected call of GetProject
 func (mr *MockKVStoreMockRecorder) GetProject() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProject", reflect.TypeOf((*MockKVStore)(nil).GetProject))
 }
 
-// GetSubscriptionList mocks base method.
+// GetSubscriptionList mocks base method
 func (m *MockKVStore) GetSubscriptionList() (*store.SubscriptionList, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetSubscriptionList")
@@ -146,28 +145,43 @@ func (m *MockKVStore) GetSubscriptionList() (*store.SubscriptionList, error) {
 	return ret0, ret1
 }
 
-// GetSubscriptionList indicates an expected call of GetSubscriptionList.
+// GetSubscriptionList indicates an expected call of GetSubscriptionList
 func (mr *MockKVStoreMockRecorder) GetSubscriptionList() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionList", reflect.TypeOf((*MockKVStore)(nil).GetSubscriptionList))
 }
 
-// LoadUser mocks base method.
-func (m *MockKVStore) LoadUser(arg0 string) (*serializers.User, error) {
+// LoadAzureDevopsUserIDFromMattermostUser mocks base method
+func (m *MockKVStore) LoadAzureDevopsUserIDFromMattermostUser(arg0 string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadUser", arg0)
+	ret := m.ctrl.Call(m, "LoadAzureDevopsUserIDFromMattermostUser", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoadAzureDevopsUserIDFromMattermostUser indicates an expected call of LoadAzureDevopsUserIDFromMattermostUser
+func (mr *MockKVStoreMockRecorder) LoadAzureDevopsUserIDFromMattermostUser(arg0 string) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadAzureDevopsUserIDFromMattermostUser", reflect.TypeOf((*MockKVStore)(nil).LoadAzureDevopsUserIDFromMattermostUser), arg0)
+}
+
+// LoadAzureDevopsUserDetails mocks base method
+func (m *MockKVStore) LoadAzureDevopsUserDetails(arg0 string) (*serializers.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoadAzureDevopsUserDetails", arg0)
 	ret0, _ := ret[0].(*serializers.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// LoadUser indicates an expected call of LoadUser.
-func (mr *MockKVStoreMockRecorder) LoadUser(arg0 interface{}) *gomock.Call {
+// LoadAzureDevopsUserDetails indicates an expected call of LoadAzureDevopsUserDetails
+func (mr *MockKVStoreMockRecorder) LoadAzureDevopsUserDetails(arg0 string) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadUser", reflect.TypeOf((*MockKVStore)(nil).LoadUser), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadAzureDevopsUserDetails", reflect.TypeOf((*MockKVStore)(nil).LoadAzureDevopsUserDetails), arg0)
 }
 
-// StoreOAuthState mocks base method.
+// StoreOAuthState mocks base method
 func (m *MockKVStore) StoreOAuthState(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StoreOAuthState", arg0, arg1)
@@ -175,13 +189,13 @@ func (m *MockKVStore) StoreOAuthState(arg0, arg1 string) error {
 	return ret0
 }
 
-// StoreOAuthState indicates an expected call of StoreOAuthState.
+// StoreOAuthState indicates an expected call of StoreOAuthState
 func (mr *MockKVStoreMockRecorder) StoreOAuthState(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreOAuthState", reflect.TypeOf((*MockKVStore)(nil).StoreOAuthState), arg0, arg1)
 }
 
-// StoreProject mocks base method.
+// StoreProject mocks base method
 func (m *MockKVStore) StoreProject(arg0 *serializers.ProjectDetails) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StoreProject", arg0)
@@ -189,13 +203,13 @@ func (m *MockKVStore) StoreProject(arg0 *serializers.ProjectDetails) error {
 	return ret0
 }
 
-// StoreProject indicates an expected call of StoreProject.
+// StoreProject indicates an expected call of StoreProject
 func (mr *MockKVStoreMockRecorder) StoreProject(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreProject", reflect.TypeOf((*MockKVStore)(nil).StoreProject), arg0)
 }
 
-// StoreSubscription mocks base method.
+// StoreSubscription mocks base method
 func (m *MockKVStore) StoreSubscription(arg0 *serializers.SubscriptionDetails) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StoreSubscription", arg0)
@@ -203,27 +217,27 @@ func (m *MockKVStore) StoreSubscription(arg0 *serializers.SubscriptionDetails) e
 	return ret0
 }
 
-// StoreSubscription indicates an expected call of StoreSubscription.
+// StoreSubscription indicates an expected call of StoreSubscription
 func (mr *MockKVStoreMockRecorder) StoreSubscription(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreSubscription", reflect.TypeOf((*MockKVStore)(nil).StoreSubscription), arg0)
 }
 
-// StoreUser mocks base method.
-func (m *MockKVStore) StoreUser(arg0 *serializers.User) error {
+// StoreAzureDevopsUserDetailsWithMattermostUserID mocks base method
+func (m *MockKVStore) StoreAzureDevopsUserDetailsWithMattermostUserID(arg0 *serializers.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StoreUser", arg0)
+	ret := m.ctrl.Call(m, "StoreAzureDevopsUserDetailsWithMattermostUserID", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// StoreUser indicates an expected call of StoreUser.
-func (mr *MockKVStoreMockRecorder) StoreUser(arg0 interface{}) *gomock.Call {
+// StoreAzureDevopsUserDetailsWithMattermostUserID indicates an expected call of StoreAzureDevopsUserDetailsWithMattermostUserID
+func (mr *MockKVStoreMockRecorder) StoreAzureDevopsUserDetailsWithMattermostUserID(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreUser", reflect.TypeOf((*MockKVStore)(nil).StoreUser), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreAzureDevopsUserDetailsWithMattermostUserID", reflect.TypeOf((*MockKVStore)(nil).StoreAzureDevopsUserDetailsWithMattermostUserID), arg0)
 }
 
-// VerifyOAuthState mocks base method.
+// VerifyOAuthState mocks base method
 func (m *MockKVStore) VerifyOAuthState(arg0, arg1 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "VerifyOAuthState", arg0, arg1)
@@ -231,7 +245,7 @@ func (m *MockKVStore) VerifyOAuthState(arg0, arg1 string) error {
 	return ret0
 }
 
-// VerifyOAuthState indicates an expected call of VerifyOAuthState.
+// VerifyOAuthState indicates an expected call of VerifyOAuthState
 func (mr *MockKVStoreMockRecorder) VerifyOAuthState(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyOAuthState", reflect.TypeOf((*MockKVStore)(nil).VerifyOAuthState), arg0, arg1)

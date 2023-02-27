@@ -23,6 +23,7 @@ type Configuration struct {
 	AzureDevopsOAuthAppID        string `json:"azureDevopsOAuthAppID"`
 	AzureDevopsOAuthClientSecret string `jso:"azureDevopsOAuthClientSecret"`
 	EncryptionSecret             string `json:"EncryptionSecret"`
+	WebhookSecret                string `json:"WebhookSecret"`
 	MattermostSiteURL            string
 }
 
@@ -39,6 +40,7 @@ func (c *Configuration) ProcessConfiguration() error {
 	c.AzureDevopsOAuthAppID = strings.TrimSpace(c.AzureDevopsOAuthAppID)
 	c.AzureDevopsOAuthClientSecret = strings.TrimSpace(c.AzureDevopsOAuthClientSecret)
 	c.EncryptionSecret = strings.TrimSpace(c.EncryptionSecret)
+	c.WebhookSecret = strings.TrimSpace(c.WebhookSecret)
 
 	return nil
 }
@@ -56,6 +58,9 @@ func (c *Configuration) IsValid() error {
 	}
 	if c.EncryptionSecret == "" {
 		return errors.New(constants.EmptyEncryptionSecretError)
+	}
+	if c.WebhookSecret == "" {
+		return errors.New(constants.EmptyWebhookSecretError)
 	}
 
 	return nil

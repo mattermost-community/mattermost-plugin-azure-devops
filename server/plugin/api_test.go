@@ -745,6 +745,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...)
 
 			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
 				return &serializers.ProjectDetails{}, testCase.isProjectLinked

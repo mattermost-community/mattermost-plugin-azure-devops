@@ -751,6 +751,10 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return &serializers.ProjectDetails{}, testCase.isProjectLinked
 			})
 
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
+			})
+
 			if testCase.isTeamIDValid {
 				if testCase.isProjectLinked {
 					mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)

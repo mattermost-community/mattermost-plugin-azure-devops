@@ -408,14 +408,14 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	pathParams := mux.Vars(r)
 	teamID := pathParams[constants.PathParamTeamID]
 	if !model.IsValidId(teamID) {
-		p.API.LogError("Invalid team id")
+		p.API.LogWarn("Invalid team id")
 		http.Error(w, "Invalid team id", http.StatusBadRequest)
 		return
 	}
 
 	projectList, err := p.Store.GetAllProjects(mattermostUserID)
 	if err != nil {
-		p.API.LogError(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.API.LogWarn(constants.ErrorFetchProjectList, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -443,7 +443,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions("")
 	}
 	if subscriptionErr != nil {
-		p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
+		p.API.LogWarn(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
 		return
 	}
@@ -452,75 +452,74 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
 	eventType := r.URL.Query().Get(constants.QueryParamEventType)
-	if project != "" {
-		subscriptionByProject := []*serializers.SubscriptionDetails{}
-		for _, subscription := range subscriptionList {
-			if subscription.ProjectName == project {
-				if channelID == "" || subscription.ChannelID == channelID {
-					switch serviceType {
+
+	subscriptionByProject := []*serializers.SubscriptionDetails{}
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectName == project {
+			if channelID == "" || subscription.ChannelID == channelID {
+				switch serviceType {
+				case "", constants.FilterAll:
+					subscriptionByProject = append(subscriptionByProject, subscription)
+				case constants.FilterBoards:
+					switch eventType {
 					case "", constants.FilterAll:
-						subscriptionByProject = append(subscriptionByProject, subscription)
-					case constants.FilterBoards:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+						if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
-					case constants.FilterRepos:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
-					case constants.FilterPipelines:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+					}
+				case constants.FilterRepos:
+					switch eventType {
+					case "", constants.FilterAll:
+						if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					}
+				case constants.FilterPipelines:
+					switch eventType {
+					case "", constants.FilterAll:
+						if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
 					}
 				}
 			}
 		}
-
-		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].CreatedAt.After(subscriptionByProject[j].CreatedAt)
-		})
-
-		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID, constants.FilterCreatedByAnyone)
-		if filteredSubscriptionErr != nil {
-			p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
-			return
-		}
-
-		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
-		for index, subscription := range filteredSubscriptionList {
-			if len(paginatedSubscriptions) == limit {
-				break
-			}
-			if index >= offset {
-				paginatedSubscriptions = append(paginatedSubscriptions, subscription)
-			}
-		}
-
-		p.writeJSON(w, paginatedSubscriptions)
 	}
+
+	sort.Slice(subscriptionByProject, func(i, j int) bool {
+		return subscriptionByProject[i].CreatedAt.After(subscriptionByProject[j].CreatedAt)
+	})
+
+	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID, constants.FilterCreatedByAnyone)
+	if filteredSubscriptionErr != nil {
+		p.API.LogWarn(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
+		return
+	}
+
+	paginatedSubscriptions := []*serializers.SubscriptionDetails{}
+	for index, subscription := range filteredSubscriptionList {
+		if len(paginatedSubscriptions) == limit {
+			break
+		}
+		if index >= offset {
+			paginatedSubscriptions = append(paginatedSubscriptions, subscription)
+		}
+	}
+
+	p.writeJSON(w, paginatedSubscriptions)
 }
 
 func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {

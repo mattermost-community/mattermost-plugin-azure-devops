@@ -64,12 +64,11 @@ func (mr *MockKVStoreMockRecorder) DeleteSubscription(arg0 interface{}) *gomock.
 }
 
 // DeleteUser mocks base method.
-func (m *MockKVStore) DeleteUser(arg0 string) (bool, error) {
+func (m *MockKVStore) DeleteUser(arg0 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteUser", arg0)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteUser indicates an expected call of DeleteUser.

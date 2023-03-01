@@ -77,7 +77,7 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 	for {
 		kvList, err := s.api.KVList(page, constants.UsersPerPage)
 		if err != nil {
-			s.api.LogError("Failed to get the users.", "Error", err.Error())
+			s.api.LogError("Failed to get the KVList", "Error", err.Error())
 			return
 		}
 
@@ -93,10 +93,11 @@ func (s *Store) DeleteUserTokenOnEncryptionSecretChange() {
 
 				if userID, isValidUserKey := IsValidUserKey(key); isValidUserKey {
 					isUserDeleted = true
-					if isDeleted, err := s.DeleteUser(userID); !isDeleted {
-						s.api.LogError("Failed to delete a user.", "Error", err.Error())
+					if err := s.DeleteUser(userID); err != nil {
+						s.api.LogError("Failed to delete a user.", "UserID", userID, "Error", err.Error())
 						return
 					}
+
 					s.api.PublishWebSocketEvent(
 						constants.WSEventDisconnect,
 						nil,

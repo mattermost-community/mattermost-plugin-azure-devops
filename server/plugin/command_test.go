@@ -241,7 +241,7 @@ func TestExecuteCommand(t *testing.T) {
 			}
 
 			if testCase.ephemeralMessage == constants.UserDisconnected {
-				mockedStore.EXPECT().DeleteUser(testutils.MockMattermostUserID).Return(true, nil)
+				mockedStore.EXPECT().DeleteUser(testutils.MockMattermostUserID).Return(nil)
 			}
 
 			_, err := p.getCommand()

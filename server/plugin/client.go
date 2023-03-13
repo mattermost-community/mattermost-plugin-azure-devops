@@ -497,6 +497,10 @@ func (c *client) makeHTTPRequest(req *http.Request, contentType string, out inte
 	}
 	defer resp.Body.Close()
 
+	// Limit reading the response bodies to 1 MB or 1000 KB
+	// This is ideal for the responses returned by Azure DevOps APIs used here
+	resp.Body = http.MaxBytesReader(nil, resp.Body, constants.MaxBytesSizeForReadingResponseBody)
+
 	responseData, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err

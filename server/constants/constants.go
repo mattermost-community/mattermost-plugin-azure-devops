@@ -170,6 +170,8 @@ const (
 	PipelineRequestContextProjectID    = "projectId"
 
 	DialogFieldNameComment = "comment"
+
+	MaxBytesSizeForReadingResponseBody = 1000000
 )
 
 var (

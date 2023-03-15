@@ -662,9 +662,8 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				FirstName: "mockCreatedBy",
 			}, nil)
 
-			privacySettings := model.PrivacySettings{}
 			showFullName := true
-			privacySettings.ShowFullName = &showFullName
+			privacySettings := model.PrivacySettings{ShowFullName: &showFullName}
 			mockAPI.On("GetConfig", mock.AnythingOfType("string")).Return(&model.Config{PrivacySettings: privacySettings}, nil)
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {

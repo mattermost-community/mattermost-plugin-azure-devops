@@ -342,8 +342,8 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	createdByDisplayName := user.Username
 
 	showFullName := p.API.GetConfig().PrivacySettings.ShowFullName
-	// If "PrivacySettings.ShowFullName" is true then show user's first/last name
-	// If user's first/last name doesn't exist then show username as fallback
+	// If "PrivacySettings.ShowFullName" is true then show the user's first/last name
+	// If the user's first/last name doesn't exist then show the username as fallback
 	if showFullName != nil && *showFullName && (user.FirstName != "" || user.LastName != "") {
 		createdByDisplayName = fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 	}

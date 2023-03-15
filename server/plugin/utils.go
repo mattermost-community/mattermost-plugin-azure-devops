@@ -464,12 +464,7 @@ func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err 
 		return http.StatusInternalServerError, errors.New("failed to decode webhook secret")
 	}
 
-	decryptedWebhookSecret, err := p.Decrypt(decodedWebhookSecret, []byte(p.getConfiguration().EncryptionSecret))
-	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decrypt webhook secret")
-	}
-
-	if p.getConfiguration().WebhookSecret != string(decryptedWebhookSecret) {
+	if p.getConfiguration().WebhookSecret != string(decodedWebhookSecret) {
 		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 

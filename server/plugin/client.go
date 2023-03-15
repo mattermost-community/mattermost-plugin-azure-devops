@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
+	"github.com/mrz1836/go-sanitize"
 	"github.com/pkg/errors"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
@@ -531,7 +532,8 @@ func (c *client) makeHTTPRequestWithAccessToken(basePath, path, method, accessTo
 		return nil, http.StatusInternalServerError, err
 	}
 
-	req, err := http.NewRequest(method, URL, nil)
+	sanitizedURL := sanitize.URL(URL)
+	req, err := http.NewRequest(method, sanitizedURL, nil)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}

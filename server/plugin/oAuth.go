@@ -126,9 +126,6 @@ func (p *Plugin) GenerateOAuthToken(code, state string) error {
 	mattermostUserID := strings.Split(state, "_")[1]
 
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
-			return DMErr
-		}
 		return errors.Wrap(err, "failed to verify oAuth state")
 	}
 

@@ -356,6 +356,41 @@ func TestGetPluginURL(t *testing.T) {
 	}
 }
 
+func TestSanitizeURLPath(t *testing.T) {
+	p := Plugin{}
+	for _, testCase := range []struct {
+		description  string
+		actualPath   string
+		expectedPath string
+	}{
+		{
+			description:  "SanitizeURLPath: valid",
+			actualPath:   "/dummy_org/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 1",
+			actualPath:   "/../dummy_org/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 2",
+			actualPath:   "../dummy_org/../dummy_project/..",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 3",
+			actualPath:   "../../dummy_org/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			sanitizedPath := p.SanitizeURLPath(testCase.actualPath)
+			assert.Equal(t, sanitizedPath, testCase.expectedPath)
+		})
+	}
+}
+
 func TestParseAuthToken(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := Plugin{}

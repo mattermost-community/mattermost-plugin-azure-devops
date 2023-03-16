@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 
@@ -492,4 +493,10 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 	}
 
 	return 0, nil
+}
+
+func (p *Plugin) SanitizeURLPath(URLPath string) string {
+	parsedPath := strings.ReplaceAll(URLPath, "..", "")
+
+	return path.Clean(parsedPath)
 }

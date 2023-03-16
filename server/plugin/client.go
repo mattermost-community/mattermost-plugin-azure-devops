@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -58,10 +57,9 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 
 func (c *client) GetUserProfile(id, accessToken string) (*serializers.UserProfile, int, error) {
 	userProfilePath := fmt.Sprintf(constants.PathUserProfile, id)
-	sanitizedPath := path.Clean(userProfilePath)
 
 	var userProfile *serializers.UserProfile
-	_, statusCode, err := c.makeHTTPRequestWithAccessToken(constants.BaseOauthURL, sanitizedPath, http.MethodGet, accessToken, "application/json", &userProfile)
+	_, statusCode, err := c.makeHTTPRequestWithAccessToken(constants.BaseOauthURL, userProfilePath, http.MethodGet, accessToken, "application/json", &userProfile)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -72,7 +70,6 @@ func (c *client) GetUserProfile(id, accessToken string) (*serializers.UserProfil
 // Function to create task for a project.
 func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
 	createTaskPath := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
-	sanitizedPath := path.Clean(createTaskPath)
 
 	// Create request body.
 	payload := []*serializers.CreateTaskBodyPayload{}
@@ -104,7 +101,7 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 	}
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.CallPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodPost, mattermostUserID, &payload, &task, nil)
+	_, statusCode, err := c.CallPatchJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, createTaskPath, http.MethodPost, mattermostUserID, &payload, &task, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create task")
 	}
@@ -115,10 +112,9 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 // Function to get the task.
 func (c *client) GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error) {
 	getTaskPath := fmt.Sprintf(constants.GetTask, organization, projectName, taskID)
-	sanitizedPath := path.Clean(getTaskPath)
 
 	var task *serializers.TaskValue
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &task, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getTaskPath, http.MethodGet, mattermostUserID, nil, &task, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the Task")
 	}
@@ -129,10 +125,9 @@ func (c *client) GetTask(organization, taskID, projectName, mattermostUserID str
 // Function to get the pull request.
 func (c *client) GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error) {
 	getPullRequestPath := fmt.Sprintf(constants.GetPullRequest, organization, projectName, pullRequestID)
-	sanitizedPath := path.Clean(getPullRequestPath)
 
 	var pullRequest *serializers.PullRequest
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &pullRequest, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getPullRequestPath, http.MethodGet, mattermostUserID, nil, &pullRequest, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the pull request")
 	}
@@ -143,10 +138,9 @@ func (c *client) GetPullRequest(organization, pullRequestID, projectName, matter
 // Function to get the pipeline build details.
 func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error) {
 	getBuildDetailsPath := fmt.Sprintf(constants.GetBuildDetails, organization, projectName, buildID)
-	sanitizedPath := path.Clean(getBuildDetailsPath)
 
 	var buildDetails *serializers.BuildDetails
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getBuildDetailsPath, http.MethodGet, mattermostUserID, nil, &buildDetails, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline build details")
 	}
@@ -157,12 +151,11 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 // Function to get the pipeline release details.
 func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
 	getReleaseDetailsPath := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
-	sanitizedPath := path.Clean(getReleaseDetailsPath)
 
 	var releaseDetails *serializers.ReleaseDetails
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	_, statusCode, err := c.CallJSON(baseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
+	_, statusCode, err := c.CallJSON(baseURL, getReleaseDetailsPath, http.MethodGet, mattermostUserID, nil, &releaseDetails, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the pipeline release details")
 	}
@@ -173,10 +166,9 @@ func (c *client) GetReleaseDetails(organization, projectName, releaseID, matterm
 // Function to link a project and an organization.
 func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
 	linkProjectPath := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
-	sanitizedPath := path.Clean(linkProjectPath)
 
 	var project *serializers.Project
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &project, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, linkProjectPath, http.MethodGet, mattermostUserID, nil, &project, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to link Project")
 	}
@@ -215,7 +207,6 @@ var publisherID = map[string]string{
 
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	createSubscriptionPath := fmt.Sprintf(constants.CreateSubscription, body.Organization)
-	sanitizedPath := path.Clean(createSubscriptionPath)
 
 	encryptedWebhookSecret, err := c.plugin.Encrypt([]byte(c.plugin.getConfiguration().WebhookSecret), []byte(c.plugin.getConfiguration().EncryptionSecret))
 	if err != nil {
@@ -263,7 +254,7 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 
 	baseURL := c.plugin.updateBaseURLForReleaseEventTypes(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, body.EventType)
 	var subscription *serializers.SubscriptionValue
-	_, statusCode, err := c.CallJSON(baseURL, sanitizedPath, http.MethodPost, mattermostUserID, payload, &subscription, nil)
+	_, statusCode, err := c.CallJSON(baseURL, createSubscriptionPath, http.MethodPost, mattermostUserID, payload, &subscription, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to create subscription")
 	}
@@ -273,9 +264,8 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 
 func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error) {
 	deleteSubscriptionPath := fmt.Sprintf(constants.DeleteSubscription, organization, subscriptionID)
-	sanitizedPath := path.Clean(deleteSubscriptionPath)
 
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodDelete, mattermostUserID, nil, nil, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, deleteSubscriptionPath, http.MethodDelete, mattermostUserID, nil, nil, nil)
 	if err != nil {
 		return statusCode, errors.Wrap(err, "failed to delete subscription")
 	}
@@ -285,21 +275,19 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 
 func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
 	updatePipelineApproveRequestPath := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
-	sanitizedPath := path.Clean(updatePipelineApproveRequestPath)
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
-	_, statusCode, err := c.CallJSON(baseURL, sanitizedPath, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
+	_, statusCode, err := c.CallJSON(baseURL, updatePipelineApproveRequestPath, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, nil, nil)
 
 	return statusCode, err
 }
 
 func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error) {
 	updatePipelineApproveRunRequestPath := fmt.Sprintf(constants.PipelineRunApproveRequest, organization, projectID)
-	sanitizedPath := path.Clean(updatePipelineApproveRunRequestPath)
 
 	var pipelineRunApproveResponse *serializers.PipelineRunApproveResponse
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, &pipelineRunApproveResponse, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, updatePipelineApproveRunRequestPath, http.MethodPatch, mattermostUserID, &pipelineApproveRequestPayload, &pipelineRunApproveResponse, nil)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -309,7 +297,6 @@ func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload 
 
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
 	getSubscriptionFilterValuesPath := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
-	sanitizedPath := path.Clean(getSubscriptionFilterValuesPath)
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
 	for _, filter := range request.Filters {
@@ -361,7 +348,7 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 	}
 
 	var subscriptionFiltersResponse *serializers.SubscriptionFilterPossibleValuesResponseFromClient
-	_, statusCode, err := c.CallJSON(baseURL, sanitizedPath, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
+	_, statusCode, err := c.CallJSON(baseURL, getSubscriptionFilterValuesPath, http.MethodPost, mattermostUserID, &subscriptionFiltersRequest, &subscriptionFiltersResponse, nil)
 	if err != nil {
 		return nil, statusCode, errors.Wrap(err, "failed to get the subscription filter values")
 	}
@@ -371,12 +358,11 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 
 func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error) {
 	getPipelineApprovalDetailsPath := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
-	sanitizedPath := path.Clean(getPipelineApprovalDetailsPath)
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
 	baseURL = strings.Replace(baseURL, "://", "://vsrm.", 1)
 	var pipelineApprovalDetails *serializers.PipelineApprovalDetails
-	_, statusCode, err := c.CallJSON(baseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
+	_, statusCode, err := c.CallJSON(baseURL, getPipelineApprovalDetailsPath, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -386,10 +372,9 @@ func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID 
 
 func (c *client) GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error) {
 	getPipelineRunApprovalDetailsPath := fmt.Sprintf(constants.PipelineRunApproveDetails, organization, projectID, approvalID)
-	sanitizedPath := path.Clean(getPipelineRunApprovalDetailsPath)
 
 	var pipelineApprovalDetails *serializers.PipelineRunApprovalDetails
-	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, sanitizedPath, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
+	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, getPipelineRunApprovalDetailsPath, http.MethodGet, mattermostUserID, nil, &pipelineApprovalDetails, nil)
 	if err != nil {
 		return nil, statusCode, err
 	}
@@ -479,7 +464,8 @@ func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUser
 }
 
 func (c *client) parsePath(basePath, path, method string) (string, error) {
-	pathURL, err := url.Parse(path)
+	sanitizedURLPath := c.plugin.SanitizeURLPath(path)
+	pathURL, err := url.Parse(sanitizedURLPath)
 	if err != nil {
 		return "", err
 	}

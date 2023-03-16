@@ -207,9 +207,9 @@ var publisherID = map[string]string{
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
 	subscriptionURL := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	encodedWebhookSecret := c.plugin.Encode([]byte(c.plugin.getConfiguration().WebhookSecret))
+	webhookSecret := c.plugin.removeNonBase64CharsFromPluginGeneratedValues(c.plugin.getConfiguration().WebhookSecret)
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?%s=%s&%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, channelID, constants.AzureDevopsQueryParamWebhookSecret, encodedWebhookSecret),
+		URL: fmt.Sprintf("%s%s?%s=%s&%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, channelID, constants.AzureDevopsQueryParamWebhookSecret, webhookSecret),
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{

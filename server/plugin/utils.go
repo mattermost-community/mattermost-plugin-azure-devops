@@ -459,12 +459,7 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 }
 
 func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err error) {
-	decodedWebhookSecret, err := p.Decode(received)
-	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decode webhook secret")
-	}
-
-	if p.getConfiguration().WebhookSecret != string(decodedWebhookSecret) {
+	if p.removeNonBase64CharsFromPluginGeneratedValues(p.getConfiguration().WebhookSecret) != received {
 		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
@@ -487,4 +482,10 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 	}
 
 	return 0, nil
+}
+
+// Make plugin setting's generated values URL friendly by replacing all the non-base64 characters
+// See https://mattermost.atlassian.net/browse/MM-51451
+func (p *Plugin) removeNonBase64CharsFromPluginGeneratedValues(value string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(value, "_", "/"), "-", "+")
 }

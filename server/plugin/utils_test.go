@@ -369,6 +369,11 @@ func TestSanitizeURLPath(t *testing.T) {
 			expectedPath: "/dummy_org/dummy_project",
 		},
 		{
+			description:  "SanitizeURLPath: valid with dots in project name",
+			actualPath:   "/dummy_org/dummy..1..2..3..project/dummy.project/dummy....project",
+			expectedPath: "/dummy_org/dummy..1..2..3..project/dummy.project/dummy....project",
+		},
+		{
 			description:  "SanitizeURLPath: invalid variation 1",
 			actualPath:   "/../dummy_org/dummy_project",
 			expectedPath: "/dummy_org/dummy_project",
@@ -380,7 +385,7 @@ func TestSanitizeURLPath(t *testing.T) {
 		},
 		{
 			description:  "SanitizeURLPath: invalid variation 3",
-			actualPath:   "../../dummy_org/dummy_project",
+			actualPath:   "../../dummy_org/../../dummy_project",
 			expectedPath: "/dummy_org/dummy_project",
 		},
 		{
@@ -389,8 +394,33 @@ func TestSanitizeURLPath(t *testing.T) {
 			expectedPath: "/dummy_org/dummy_project",
 		},
 		{
-			description:  "SanitizeURLPath: invalid encoded path",
+			description:  "SanitizeURLPath: invalid variation 5",
 			actualPath:   "/dummy_org/%2e%2e/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 6",
+			actualPath:   "/dummy_org/.%2e/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 7",
+			actualPath:   "/dummy_org/%2e./dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 8",
+			actualPath:   "/dummy_org/.%2e/%2e./dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 9",
+			actualPath:   "/dummy_org/.%2e%2e./dummy_project/..",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid variation 10",
+			actualPath:   "%2e%2e/dummy_org/.%2e%2e./dummy_project/.%2e.%2e/",
 			expectedPath: "/dummy_org/dummy_project",
 		},
 	} {

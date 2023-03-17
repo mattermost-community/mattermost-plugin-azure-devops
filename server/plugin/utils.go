@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -496,7 +497,12 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 }
 
 func (p *Plugin) SanitizeURLPath(urlPath string) string {
-	parsedPath := strings.ReplaceAll(strings.ReplaceAll(urlPath, "..", ""), "%2e%2e", "")
+	// replace `%2e`(encoded DOT character) with `.`
+	unescapedPath := strings.ReplaceAll(urlPath, "%2e", ".")
+	// regex to check matches like `../`, `/..`, `/.`,
+	regexToRemovePathTraversalInjections := regexp.MustCompile(`\/?(\.\.\/|\/\.)`)
+	// replace all matched pattern with `/`, extra `/` will be removed by `path.Clean` below
+	sanitizedPath := regexToRemovePathTraversalInjections.ReplaceAllString(unescapedPath, "/")
 
-	return path.Clean(parsedPath)
+	return path.Clean(sanitizedPath)
 }

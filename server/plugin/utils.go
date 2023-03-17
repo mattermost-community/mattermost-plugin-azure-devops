@@ -487,6 +487,6 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 
 // Make plugin setting's generated values URL friendly by replacing characters not supported as URL query-params
 // See https://mattermost.atlassian.net/browse/MM-51451
-func (p *Plugin) removeNonBase64CharsFromPluginGeneratedValues(value string) string {
+func (p *Plugin) escapeQueryParamString(value string) string {
 	return url.QueryEscape(value)
 }

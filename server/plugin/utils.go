@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
@@ -483,10 +482,4 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 	}
 
 	return 0, nil
-}
-
-// Make plugin setting's generated values URL friendly by replacing characters not supported as URL query-params
-// See https://mattermost.atlassian.net/browse/MM-51451
-func (p *Plugin) escapeQueryParamString(value string) string {
-	return url.QueryEscape(value)
 }

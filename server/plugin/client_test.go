@@ -640,7 +640,10 @@ func TestMakeHTTPRequest(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				// Send response to be tested
 				respBody := testutils.GenerateStringOfSize(testCase.maxBytesSizeForClientResponseBody)
-				rw.Write([]byte(respBody))
+				_, err := rw.Write([]byte(respBody))
+				if err != nil {
+					http.Error(rw, err.Error(), http.StatusInternalServerError)
+				}
 			}))
 			// Close the server when test finishes
 			defer server.Close()

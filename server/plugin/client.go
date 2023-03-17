@@ -453,7 +453,7 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		}
 	}
 
-	return c.makeHTTPRequest(req, contentType, out)
+	return c.MakeHTTPRequest(req, contentType, out)
 }
 
 func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUserID string) (int, error) {
@@ -482,7 +482,7 @@ func (c *client) parsePath(basePath, path, method string) (string, error) {
 	return path, nil
 }
 
-func (c *client) makeHTTPRequest(req *http.Request, contentType string, out interface{}) (responseData []byte, statusCode int, err error) {
+func (c *client) MakeHTTPRequest(req *http.Request, contentType string, out interface{}) (responseData []byte, statusCode int, err error) {
 	if contentType != "" {
 		req.Header.Add("Content-Type", contentType)
 	}
@@ -542,7 +542,7 @@ func (c *client) makeHTTPRequestWithAccessToken(basePath, path, method, accessTo
 
 	req.Header.Add(constants.Authorization, fmt.Sprintf("%s %s", constants.Bearer, accessToken))
 
-	return c.makeHTTPRequest(req, contentType, out)
+	return c.MakeHTTPRequest(req, contentType, out)
 }
 
 func InitClient(p *Plugin) Client {

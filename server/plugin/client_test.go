@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"github.com/mattermost/mattermost-server/v5/plugin/plugintest"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
 )
@@ -613,6 +615,50 @@ func TestGetSubscriptionFilterPossibleValues(t *testing.T) {
 			}
 
 			assert.Equal(t, testCase.statusCode, statusCode)
+		})
+	}
+}
+
+func TestMakeHTTPRequest(t *testing.T) {
+	mockAPI := &plugintest.API{}
+	p := setupTestPlugin(mockAPI)
+	for _, testCase := range []struct {
+		description                       string
+		maxBytesSizeForClientResponseBody int
+	}{
+		{
+			description:                       "MakeHTTPRequest: valid",
+			maxBytesSizeForClientResponseBody: constants.MaxBytesSizeForReadingResponseBody,
+		},
+		{
+			description:                       "MakeHTTPRequest: large response body",
+			maxBytesSizeForClientResponseBody: 10000000,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			// Start a local HTTP server
+			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				// Send response to be tested
+				respBody := testutils.GenerateStringOfSize(testCase.maxBytesSizeForClientResponseBody)
+				rw.Write([]byte(respBody))
+			}))
+			// Close the server when test finishes
+			defer server.Close()
+
+			client := &client{
+				plugin:     p,
+				httpClient: server.Client(),
+			}
+
+			req := httptest.NewRequest(http.MethodGet, server.URL, nil)
+			req.RequestURI = ""
+			_, _, err := client.MakeHTTPRequest(req, "", nil)
+
+			if testCase.maxBytesSizeForClientResponseBody > constants.MaxBytesSizeForReadingResponseBody {
+				assert.Errorf(t, err, "http: request body too large")
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

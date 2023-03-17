@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -458,8 +459,8 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 	return http.StatusOK, nil
 }
 
-func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err error) {
-	if p.removeNonBase64CharsFromPluginGeneratedValues(p.getConfiguration().WebhookSecret) != received {
+func (p *Plugin) VerifyWebhookSecret(received string) (status int, err error) {
+	if p.getConfiguration().WebhookSecret != received {
 		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
@@ -484,8 +485,8 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 	return 0, nil
 }
 
-// Make plugin setting's generated values URL friendly by replacing all the non-base64 characters
+// Make plugin setting's generated values URL friendly by replacing characters not supported as URL query-params
 // See https://mattermost.atlassian.net/browse/MM-51451
 func (p *Plugin) removeNonBase64CharsFromPluginGeneratedValues(value string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(value, "_", "/"), "-", "+")
+	return url.QueryEscape(value)
 }

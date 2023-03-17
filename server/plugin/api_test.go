@@ -1059,7 +1059,7 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 				return time.Time{}, testCase.parseTimeError
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifyEncryptedWebhookSecret", func(_ *Plugin, _ string) (int, error) {
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifyWebhookSecret", func(_ *Plugin, _ string) (int, error) {
 				return testCase.statusCode, testCase.err
 			})
 

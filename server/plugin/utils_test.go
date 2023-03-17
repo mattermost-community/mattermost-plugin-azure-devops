@@ -383,6 +383,16 @@ func TestSanitizeURLPath(t *testing.T) {
 			actualPath:   "../../dummy_org/dummy_project",
 			expectedPath: "/dummy_org/dummy_project",
 		},
+		{
+			description:  "SanitizeURLPath: invalid variation 4",
+			actualPath:   "/dummy_org/../dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
+		{
+			description:  "SanitizeURLPath: invalid encoded path",
+			actualPath:   "/dummy_org/%2e%2e/dummy_project",
+			expectedPath: "/dummy_org/dummy_project",
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			sanitizedPath := p.SanitizeURLPath(testCase.actualPath)

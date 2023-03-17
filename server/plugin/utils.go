@@ -496,7 +496,7 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 }
 
 func (p *Plugin) SanitizeURLPath(urlPath string) string {
-	parsedPath := strings.ReplaceAll(urlPath, "..", "")
+	parsedPath := strings.ReplaceAll(strings.ReplaceAll(urlPath, "..", ""), "%2e%2e", "")
 
 	return path.Clean(parsedPath)
 }

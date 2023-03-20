@@ -632,7 +632,7 @@ func TestMakeHTTPRequest(t *testing.T) {
 		},
 		{
 			description:                       "MakeHTTPRequest: large response body",
-			maxBytesSizeForClientResponseBody: 10000000,
+			maxBytesSizeForClientResponseBody: constants.MaxBytesSizeForReadingResponseBody + 1,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -640,8 +640,7 @@ func TestMakeHTTPRequest(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				// Send response to be tested
 				respBody := testutils.GenerateStringOfSize(testCase.maxBytesSizeForClientResponseBody)
-				_, err := rw.Write([]byte(respBody))
-				if err != nil {
+				if _, err := rw.Write([]byte(respBody)); err != nil {
 					http.Error(rw, err.Error(), http.StatusInternalServerError)
 				}
 			}))

@@ -59,5 +59,6 @@ func GenerateStringOfSize(sizeInByte int) string {
 	for i := range bytes {
 		bytes[i] = 'a'
 	}
+
 	return string(bytes)
 }

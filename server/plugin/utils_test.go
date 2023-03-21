@@ -359,74 +359,54 @@ func TestGetPluginURL(t *testing.T) {
 func TestSanitizeURLPath(t *testing.T) {
 	p := Plugin{}
 	for _, testCase := range []struct {
-		description  string
-		actualPath   string
-		expectedPath string
+		description           string
+		organization          string
+		project               string
+		otherPathInput        string
+		isAnyPathInputInvalid bool
 	}{
 		{
-			description:  "SanitizeURLPath: valid",
-			actualPath:   "/dummy_org/dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
+			description:    "SanitizeURLPaths: valid organization, project and otherInputs",
+			organization:   "dummyOrg",
+			project:        "dummy_project",
+			otherPathInput: "dummy_path",
 		},
 		{
-			description:  "SanitizeURLPath: valid with dots in project name",
-			actualPath:   "/dummy_org/dummy..1..2..3..project/dummy.project/dummy....project",
-			expectedPath: "/dummy_org/dummy..1..2..3..project/dummy.project/dummy....project",
+			description:           "SanitizeURLPaths: invalid organization",
+			organization:          "dummy_org",
+			project:               "",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
 		},
 		{
-			description:  "SanitizeURLPath: invalid variation 1",
-			actualPath:   "/../dummy_org/dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
+			description:           "SanitizeURLPaths: invalid project",
+			organization:          "",
+			project:               "../dummy_project",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
 		},
 		{
-			description:  "SanitizeURLPath: invalid variation 2",
-			actualPath:   "../dummy_org/../dummy_project/..",
-			expectedPath: "/dummy_org/dummy_project",
+			description:           "SanitizeURLPaths: invalid otherInputs",
+			organization:          "",
+			project:               "",
+			otherPathInput:        "dummy_path/../",
+			isAnyPathInputInvalid: true,
 		},
 		{
-			description:  "SanitizeURLPath: invalid variation 3",
-			actualPath:   "../../dummy_org/../../dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 4",
-			actualPath:   "/dummy_org/../dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 5",
-			actualPath:   "/dummy_org/%2e%2e/dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 6",
-			actualPath:   "/dummy_org/.%2e/dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 7",
-			actualPath:   "/dummy_org/%2e./dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 8",
-			actualPath:   "/dummy_org/.%2e/%2e./dummy_project",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 9",
-			actualPath:   "/dummy_org/.%2e%2e./dummy_project/..",
-			expectedPath: "/dummy_org/dummy_project",
-		},
-		{
-			description:  "SanitizeURLPath: invalid variation 10",
-			actualPath:   "%2e%2e/dummy_org/.%2e%2e./dummy_project/.%2e.%2e/",
-			expectedPath: "/dummy_org/dummy_project",
+			description:           "SanitizeURLPaths: invalid otherInputs with escaped chars",
+			organization:          "",
+			project:               "",
+			otherPathInput:        "dummy_path%2f%2e.",
+			isAnyPathInputInvalid: true,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			sanitizedPath := p.SanitizeURLPath(testCase.actualPath)
-			assert.Equal(t, sanitizedPath, testCase.expectedPath)
+			_, err := p.SanitizeURLPaths(testCase.organization, testCase.project, testCase.otherPathInput)
+			if testCase.isAnyPathInputInvalid {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

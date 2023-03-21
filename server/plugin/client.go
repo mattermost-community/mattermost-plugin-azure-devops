@@ -56,6 +56,9 @@ func (c *client) GenerateOAuthToken(encodedFormValues url.Values) (*serializers.
 }
 
 func (c *client) GetUserProfile(id, accessToken string) (*serializers.UserProfile, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths("", "", id); err != nil {
+		return nil, statusCode, err
+	}
 	userProfilePath := fmt.Sprintf(constants.PathUserProfile, id)
 
 	var userProfile *serializers.UserProfile
@@ -69,6 +72,9 @@ func (c *client) GetUserProfile(id, accessToken string) (*serializers.UserProfil
 
 // Function to create task for a project.
 func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermostUserID string) (*serializers.TaskValue, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(body.Organization, body.Project, body.Type); err != nil {
+		return nil, statusCode, err
+	}
 	createTaskPath := fmt.Sprintf(constants.CreateTask, body.Organization, body.Project, body.Type)
 
 	// Create request body.
@@ -111,6 +117,9 @@ func (c *client) CreateTask(body *serializers.CreateTaskRequestPayload, mattermo
 
 // Function to get the task.
 func (c *client) GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, taskID); err != nil {
+		return nil, statusCode, err
+	}
 	getTaskPath := fmt.Sprintf(constants.GetTask, organization, projectName, taskID)
 
 	var task *serializers.TaskValue
@@ -124,6 +133,9 @@ func (c *client) GetTask(organization, taskID, projectName, mattermostUserID str
 
 // Function to get the pull request.
 func (c *client) GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, pullRequestID); err != nil {
+		return nil, statusCode, err
+	}
 	getPullRequestPath := fmt.Sprintf(constants.GetPullRequest, organization, projectName, pullRequestID)
 
 	var pullRequest *serializers.PullRequest
@@ -137,6 +149,9 @@ func (c *client) GetPullRequest(organization, pullRequestID, projectName, matter
 
 // Function to get the pipeline build details.
 func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostUserID string) (*serializers.BuildDetails, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, buildID); err != nil {
+		return nil, statusCode, err
+	}
 	getBuildDetailsPath := fmt.Sprintf(constants.GetBuildDetails, organization, projectName, buildID)
 
 	var buildDetails *serializers.BuildDetails
@@ -150,6 +165,9 @@ func (c *client) GetBuildDetails(organization, projectName, buildID, mattermostU
 
 // Function to get the pipeline release details.
 func (c *client) GetReleaseDetails(organization, projectName, releaseID, mattermostUserID string) (*serializers.ReleaseDetails, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, releaseID); err != nil {
+		return nil, statusCode, err
+	}
 	getReleaseDetailsPath := fmt.Sprintf(constants.GetReleaseDetails, organization, projectName, releaseID)
 
 	var releaseDetails *serializers.ReleaseDetails
@@ -165,6 +183,9 @@ func (c *client) GetReleaseDetails(organization, projectName, releaseID, matterm
 
 // Function to link a project and an organization.
 func (c *client) Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(body.Organization, body.Project, ""); err != nil {
+		return nil, statusCode, err
+	}
 	linkProjectPath := fmt.Sprintf(constants.GetProject, body.Organization, body.Project)
 
 	var project *serializers.Project
@@ -206,6 +227,9 @@ var publisherID = map[string]string{
 }
 
 func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(body.Organization, "", ""); err != nil {
+		return nil, statusCode, err
+	}
 	createSubscriptionPath := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
 	encryptedWebhookSecret, err := c.plugin.Encrypt([]byte(c.plugin.getConfiguration().WebhookSecret), []byte(c.plugin.getConfiguration().EncryptionSecret))
@@ -263,6 +287,9 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 }
 
 func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, "", subscriptionID); err != nil {
+		return statusCode, err
+	}
 	deleteSubscriptionPath := fmt.Sprintf(constants.DeleteSubscription, organization, subscriptionID)
 
 	_, statusCode, err := c.CallJSON(c.plugin.getConfiguration().AzureDevopsAPIBaseURL, deleteSubscriptionPath, http.MethodDelete, mattermostUserID, nil, nil, nil)
@@ -274,6 +301,9 @@ func (c *client) DeleteSubscription(organization, subscriptionID, mattermostUser
 }
 
 func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, ""); err != nil {
+		return statusCode, err
+	}
 	updatePipelineApproveRequestPath := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
@@ -296,6 +326,9 @@ func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload 
 }
 
 func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSubscriptionFilterPossibleValuesRequestPayload, mattermostUserID string) (*serializers.SubscriptionFilterPossibleValuesResponseFromClient, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(request.Organization, "", ""); err != nil {
+		return nil, statusCode, err
+	}
 	getSubscriptionFilterValuesPath := fmt.Sprintf(constants.GetSubscriptionFilterPossibleValues, request.Organization)
 
 	var subscriptionFilters []*serializers.SubscriptionFilter
@@ -357,6 +390,9 @@ func (c *client) GetSubscriptionFilterPossibleValues(request *serializers.GetSub
 }
 
 func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID string, approvalID int) (*serializers.PipelineApprovalDetails, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectName, ""); err != nil {
+		return nil, statusCode, err
+	}
 	getPipelineApprovalDetailsPath := fmt.Sprintf(constants.PipelineApproveRequest, organization, projectName, approvalID)
 
 	baseURL := c.plugin.getConfiguration().AzureDevopsAPIBaseURL
@@ -371,6 +407,9 @@ func (c *client) GetApprovalDetails(organization, projectName, mattermostUserID 
 }
 
 func (c *client) GetRunApprovalDetails(organization, projectID, mattermostUserID, approvalID string) (*serializers.PipelineRunApprovalDetails, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectID, approvalID); err != nil {
+		return nil, statusCode, err
+	}
 	getPipelineRunApprovalDetailsPath := fmt.Sprintf(constants.PipelineRunApproveDetails, organization, projectID, approvalID)
 
 	var pipelineApprovalDetails *serializers.PipelineRunApprovalDetails
@@ -464,8 +503,7 @@ func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUser
 }
 
 func (c *client) parsePath(basePath, path, method string) (string, error) {
-	sanitizedURLPath := c.plugin.SanitizeURLPath(path)
-	pathURL, err := url.Parse(sanitizedURLPath)
+	pathURL, err := url.Parse(path)
 	if err != nil {
 		return "", err
 	}

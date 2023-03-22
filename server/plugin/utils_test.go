@@ -386,6 +386,13 @@ func TestSanitizeURLPath(t *testing.T) {
 			isAnyPathInputInvalid: true,
 		},
 		{
+			description:           "SanitizeURLPaths: invalid project with escaped chars",
+			organization:          "",
+			project:               "%5c..%5c..dummy_project",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
+		},
+		{
 			description:           "SanitizeURLPaths: invalid otherInputs",
 			organization:          "",
 			project:               "",

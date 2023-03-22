@@ -525,7 +525,7 @@ func (p *Plugin) SanitizeURLPaths(organization, project, otherPathInput string) 
 
 	if unescapedProject != "" {
 		// regex to check invalid project name
-		regexToCheckInvalidProjectName := `^[\._]|[\._]$|[@#$%&*+={}:;"'\[\],/?<>~]`
+		regexToCheckInvalidProjectName := `^[\._]|[\._]$|[|\\@#$%&*+={}:;"'\[\],/?<>~]`
 		invalidProject, err := regexp.MatchString(regexToCheckInvalidProjectName, unescapedProject)
 		if invalidProject {
 			return http.StatusBadRequest, errors.New("invalid project")
@@ -537,7 +537,7 @@ func (p *Plugin) SanitizeURLPaths(organization, project, otherPathInput string) 
 
 	if unescapedPathInput != "" {
 		// regex to check any other invalid path input
-		regexToCheckPathInput := `[./]`
+		regexToCheckPathInput := `[./\\]`
 		invalidPathInput, err := regexp.MatchString(regexToCheckPathInput, unescapedPathInput)
 		if invalidPathInput {
 			return http.StatusBadRequest, errors.New("invalid path inputs")

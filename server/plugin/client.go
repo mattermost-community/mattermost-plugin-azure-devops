@@ -314,6 +314,9 @@ func (c *client) UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *se
 }
 
 func (c *client) UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error) {
+	if statusCode, err := c.plugin.SanitizeURLPaths(organization, projectID, ""); err != nil {
+		return nil, statusCode, err
+	}
 	updatePipelineApproveRunRequestPath := fmt.Sprintf(constants.PipelineRunApproveRequest, organization, projectID)
 
 	var pipelineRunApproveResponse *serializers.PipelineRunApproveResponse

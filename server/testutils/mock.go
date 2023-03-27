@@ -53,3 +53,12 @@ func GetProjectDetailsPayload() []serializers.ProjectDetails {
 		},
 	}
 }
+
+func GenerateStringOfSize(sizeInByte int) string {
+	bytes := make([]byte, sizeInByte)
+	for i := range bytes {
+		bytes[i] = 'a'
+	}
+
+	return string(bytes)
+}

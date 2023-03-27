@@ -38,8 +38,8 @@ func (p *Plugin) InitRoutes() {
 	s := p.router.PathPrefix(constants.APIPrefix).Subrouter()
 
 	// OAuth
-	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthConnect, p.handleAuthRequired(p.OAuthConnect)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthCallback, p.handleAuthRequired(p.OAuthComplete)).Methods(http.MethodGet)
 	// Plugin APIs
 	s.HandleFunc(constants.PathCreateTasks, p.handleAuthRequired(p.checkOAuth(p.handleCreateTask))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathLinkProject, p.handleAuthRequired(p.checkOAuth(p.handleLink))).Methods(http.MethodPost)

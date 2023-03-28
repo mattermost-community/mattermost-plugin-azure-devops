@@ -21,7 +21,7 @@ import (
 type Configuration struct {
 	AzureDevopsAPIBaseURL        string `json:"azureDevopsAPIBaseURL"`
 	AzureDevopsOAuthAppID        string `json:"azureDevopsOAuthAppID"`
-	AzureDevopsOAuthClientSecret string `jso:"azureDevopsOAuthClientSecret"`
+	AzureDevopsOAuthClientSecret string `json:"azureDevopsOAuthClientSecret"`
 	EncryptionSecret             string `json:"EncryptionSecret"`
 	WebhookSecret                string `json:"WebhookSecret"`
 	MattermostSiteURL            string

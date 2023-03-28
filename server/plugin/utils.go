@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -489,6 +491,60 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 
 	if _, err := p.API.GetChannelMember(channelID, userID); err != nil {
 		return err.StatusCode, err
+	}
+
+	return 0, nil
+}
+
+func (p *Plugin) SanitizeURLPaths(organization, project, otherPathInput string) (int, error) {
+	// replace escaped characters like `.`, `/`, etc
+	unescapedOrganization, err := url.PathUnescape(organization)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	unescapedProject, err := url.PathUnescape(project)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	unescapedPathInput, err := url.PathUnescape(otherPathInput)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	if unescapedOrganization != "" {
+		// regex to check valid organization name
+		regexToCheckOrganizationName := `^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]$`
+		validOrganization, err := regexp.MatchString(regexToCheckOrganizationName, unescapedOrganization)
+		if !validOrganization {
+			return http.StatusBadRequest, errors.New("invalid organization")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+	}
+
+	if unescapedProject != "" {
+		// regex to check invalid project name
+		regexToCheckInvalidProjectName := `^[\._]|[\._]$|[|\\@#$%&*+={}:;"'\[\],/?<>~]`
+		invalidProject, err := regexp.MatchString(regexToCheckInvalidProjectName, unescapedProject)
+		if invalidProject {
+			return http.StatusBadRequest, errors.New("invalid project")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+	}
+
+	if unescapedPathInput != "" {
+		// regex to check any other invalid path input
+		regexToCheckPathInput := `[./\\]`
+		invalidPathInput, err := regexp.MatchString(regexToCheckPathInput, unescapedPathInput)
+		if invalidPathInput {
+			return http.StatusBadRequest, errors.New("invalid path inputs")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
 	}
 
 	return 0, nil

@@ -460,18 +460,8 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 	return http.StatusOK, nil
 }
 
-func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err error) {
-	decodedWebhookSecret, err := p.Decode(received)
-	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decode webhook secret")
-	}
-
-	decryptedWebhookSecret, err := p.Decrypt(decodedWebhookSecret, []byte(p.getConfiguration().EncryptionSecret))
-	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decrypt webhook secret")
-	}
-
-	if p.getConfiguration().WebhookSecret != string(decryptedWebhookSecret) {
+func (p *Plugin) VerifyWebhookSecret(received string) (status int, err error) {
+	if p.getConfiguration().WebhookSecret != received {
 		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 

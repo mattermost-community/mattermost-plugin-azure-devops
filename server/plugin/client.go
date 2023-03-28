@@ -232,14 +232,9 @@ func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestP
 	}
 	createSubscriptionPath := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	encryptedWebhookSecret, err := c.plugin.Encrypt([]byte(c.plugin.getConfiguration().WebhookSecret), []byte(c.plugin.getConfiguration().EncryptionSecret))
-	if err != nil {
-		return nil, http.StatusInternalServerError, errors.Wrap(err, "failed to encrypt webhook secret")
-	}
-	encodedWebhookSecret := c.plugin.Encode(encryptedWebhookSecret)
-
+	webhookSecret := url.QueryEscape(c.plugin.getConfiguration().WebhookSecret)
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?%s=%s&%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, channelID, constants.AzureDevopsQueryParamWebhookSecret, encodedWebhookSecret),
+		URL: fmt.Sprintf("%s%s?%s=%s&%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, channelID, constants.AzureDevopsQueryParamWebhookSecret, webhookSecret),
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{

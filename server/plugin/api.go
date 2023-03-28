@@ -545,7 +545,7 @@ func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.E
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
-	if status, err := p.VerifyEncryptedWebhookSecret(webhookSecret); err != nil {
+	if status, err := p.VerifyWebhookSecret(webhookSecret); err != nil {
 		p.API.LogError(constants.ErrorUnauthorisedSubscriptionsWebhookRequest, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: status, Message: constants.ErrorUnauthorisedSubscriptionsWebhookRequest})
 		return

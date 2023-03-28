@@ -38,8 +38,8 @@ func (p *Plugin) InitRoutes() {
 	s := p.router.PathPrefix(constants.APIPrefix).Subrouter()
 
 	// OAuth
-	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthConnect, p.handleAuthRequired(p.OAuthConnect)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthCallback, p.handleAuthRequired(p.OAuthComplete)).Methods(http.MethodGet)
 	// Plugin APIs
 	s.HandleFunc(constants.PathCreateTasks, p.handleAuthRequired(p.checkOAuth(p.handleCreateTask))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathLinkProject, p.handleAuthRequired(p.checkOAuth(p.handleLink))).Methods(http.MethodPost)
@@ -339,10 +339,15 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	createdByDisplayName := fmt.Sprintf("%s %s", user.FirstName, user.LastName)
-	if len(strings.TrimSpace(createdByDisplayName)) == 0 {
-		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
+	createdByDisplayName := user.Username
+
+	showFullName := p.API.GetConfig().PrivacySettings.ShowFullName
+	// If "PrivacySettings.ShowFullName" is true then show the user's first/last name
+	// If the user's first/last name doesn't exist then show the username as fallback
+	if showFullName != nil && *showFullName && (user.FirstName != "" || user.LastName != "") {
+		createdByDisplayName = fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 	}
+
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,

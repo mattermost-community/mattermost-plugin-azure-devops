@@ -13,7 +13,7 @@ const (
 	PathCreateTasks                         = "/tasks"
 	PathLinkProject                         = "/link"
 	PathSubscriptions                       = "/subscriptions"
-	PathGetSubscriptions                    = "/subscriptions/{team_id:[A-Za-z0-9]+}"
+	PathGetSubscriptions                    = "/subscriptions/{team_id:[A-Za-z0-9]+}/{organization:[A-Za-z0-9-]+}/{project:.+}"
 	PathSubscriptionNotifications           = "/notification"
 	PathPipelineReleaseRequest              = "/pipeline-release-request"
 	PathPipelineRunRequest                  = "/pipeline-run-request"

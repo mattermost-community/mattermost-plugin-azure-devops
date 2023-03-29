@@ -17,6 +17,7 @@ const (
 	MockServiceType       = "mockServiceType"
 	MockApproverID        = "mockApproverID"
 	MockAzureDevopsUserID = "mockAzureDevopsUserID"
+	MockTeamID            = "mockTeamID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {

@@ -64,6 +64,7 @@ type FetchChannelParams = {
 }
 
 interface FetchSubscriptionList extends PaginationQueryParams {
+    organization: string;
     project: string;
     channel_id: string;
     created_by: string;

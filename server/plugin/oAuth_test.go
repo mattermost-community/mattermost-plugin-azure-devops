@@ -3,6 +3,7 @@ package plugin
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -31,33 +32,25 @@ func TestOAuthConnect(t *testing.T) {
 	mockAPI := &plugintest.API{}
 	p.API = mockAPI
 	for _, testCase := range []struct {
-		description      string
-		isConnected      bool
-		mattermostUserID string
-		DMErr            error
-		statusCode       int
+		description string
+		isConnected bool
+		DMErr       error
+		statusCode  int
 	}{
 		{
-			description:      "OAuthConnect: valid",
-			mattermostUserID: testutils.MockMattermostUserID,
-			statusCode:       http.StatusFound,
+			description: "OAuthConnect: valid",
+			statusCode:  http.StatusFound,
 		},
 		{
-			description: "OAuthConnect: without mattermostUserID",
-			statusCode:  http.StatusUnauthorized,
+			description: "OAuthConnect: user already connected",
+			isConnected: true,
+			statusCode:  http.StatusBadRequest,
 		},
 		{
-			description:      "OAuthConnect: user already connected",
-			isConnected:      true,
-			mattermostUserID: testutils.MockMattermostUserID,
-			statusCode:       http.StatusBadRequest,
-		},
-		{
-			description:      "OAuthConnect: user already connected and failed to DM",
-			isConnected:      true,
-			DMErr:            &model.AppError{},
-			mattermostUserID: testutils.MockMattermostUserID,
-			statusCode:       http.StatusInternalServerError,
+			description: "OAuthConnect: user already connected and failed to DM",
+			isConnected: true,
+			DMErr:       &model.AppError{},
+			statusCode:  http.StatusInternalServerError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -73,7 +66,6 @@ func TestOAuthConnect(t *testing.T) {
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/oauth/connect", bytes.NewBufferString(`{}`))
-			req.Header.Add(constants.HeaderMattermostUserID, testCase.mattermostUserID)
 
 			res := httptest.NewRecorder()
 
@@ -139,7 +131,7 @@ func TestOAuthComplete(t *testing.T) {
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
-			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateOAuthToken", func(_ *Plugin, _, _ string) error {
+			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "GenerateOAuthToken", func(_ *Plugin, _, _, _ string) error {
 				return testCase.oAuthTokenErr
 			})
 			monkey.PatchInstanceMethod(reflect.TypeOf(&p), "CloseBrowserWindowWithHTTPResponse", func(_ *Plugin, _ http.ResponseWriter) {})
@@ -170,6 +162,7 @@ func TestGenerateOAuthToken(t *testing.T) {
 		description      string
 		code             string
 		state            string
+		mmuserID         string
 		verifyOAuthError error
 		expectedError    string
 		DMError          error
@@ -177,7 +170,8 @@ func TestGenerateOAuthToken(t *testing.T) {
 		{
 			description: "GenerateOAuthToken: valid",
 			code:        "mockCode",
-			state:       "mock_state",
+			state:       fmt.Sprintf("mockState_%s", testutils.MockMattermostUserID),
+			mmuserID:    testutils.MockMattermostUserID,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
@@ -191,10 +185,10 @@ func TestGenerateOAuthToken(t *testing.T) {
 			})
 
 			if testCase.expectedError == "" {
-				mockedStore.EXPECT().VerifyOAuthState("state", testCase.state).Return(testCase.verifyOAuthError)
+				mockedStore.EXPECT().VerifyOAuthState(testCase.mmuserID, testCase.state).Return(testCase.verifyOAuthError)
 			}
 
-			err := p.GenerateOAuthToken(testCase.code, testCase.state)
+			err := p.GenerateOAuthToken(testCase.code, testCase.state, testCase.mmuserID)
 			if testCase.expectedError != "" {
 				assert.NotNil(t, err)
 				return

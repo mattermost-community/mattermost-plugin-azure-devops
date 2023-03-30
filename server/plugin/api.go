@@ -38,8 +38,8 @@ func (p *Plugin) InitRoutes() {
 	s := p.router.PathPrefix(constants.APIPrefix).Subrouter()
 
 	// OAuth
-	s.HandleFunc(constants.PathOAuthConnect, p.OAuthConnect).Methods(http.MethodGet)
-	s.HandleFunc(constants.PathOAuthCallback, p.OAuthComplete).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthConnect, p.handleAuthRequired(p.OAuthConnect)).Methods(http.MethodGet)
+	s.HandleFunc(constants.PathOAuthCallback, p.handleAuthRequired(p.OAuthComplete)).Methods(http.MethodGet)
 	// Plugin APIs
 	s.HandleFunc(constants.PathCreateTasks, p.handleAuthRequired(p.checkOAuth(p.handleCreateTask))).Methods(http.MethodPost)
 	s.HandleFunc(constants.PathLinkProject, p.handleAuthRequired(p.checkOAuth(p.handleLink))).Methods(http.MethodPost)
@@ -339,10 +339,15 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	createdByDisplayName := fmt.Sprintf("%s %s", user.FirstName, user.LastName)
-	if len(strings.TrimSpace(createdByDisplayName)) == 0 {
-		createdByDisplayName = user.Username // If user's first/last name doesn't exist then show username as fallback
+	createdByDisplayName := user.Username
+
+	showFullName := p.API.GetConfig().PrivacySettings.ShowFullName
+	// If "PrivacySettings.ShowFullName" is true then show the user's first/last name
+	// If the user's first/last name doesn't exist then show the username as fallback
+	if showFullName != nil && *showFullName && (user.FirstName != "" || user.LastName != "") {
+		createdByDisplayName = fmt.Sprintf("%s %s", user.FirstName, user.LastName)
 	}
+
 	if storeErr := p.Store.StoreSubscription(&serializers.SubscriptionDetails{
 		MattermostUserID: mattermostUserID,
 		ProjectName:      body.Project,
@@ -408,8 +413,28 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	pathParams := mux.Vars(r)
 	teamID := pathParams[constants.PathParamTeamID]
 	if !model.IsValidId(teamID) {
-		p.API.LogError("Invalid team id")
+		p.API.LogWarn("Invalid team id")
 		http.Error(w, "Invalid team id", http.StatusBadRequest)
+		return
+	}
+
+	projectList, err := p.Store.GetAllProjects(mattermostUserID)
+	if err != nil {
+		p.API.LogWarn(constants.ErrorFetchProjectList, "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	organization := pathParams[constants.PathParamOrganization]
+	project := pathParams[constants.PathParamProject]
+	organizationName := strings.ToLower(organization)
+	projectName := cases.Title(language.Und).String(project)
+	if _, isProjectLinked := p.IsProjectLinked(projectList, serializers.ProjectDetails{
+		OrganizationName: organizationName,
+		ProjectName:      projectName,
+	}); !isProjectLinked {
+		p.API.LogWarn(fmt.Sprintf("Project %s is not linked", project))
+		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: "requested project is not linked"})
 		return
 	}
 
@@ -423,7 +448,7 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 		subscriptionList, subscriptionErr = p.Store.GetAllSubscriptions("")
 	}
 	if subscriptionErr != nil {
-		p.API.LogError(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
+		p.API.LogWarn(constants.FetchSubscriptionListError, "Error", subscriptionErr.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: subscriptionErr.Error()})
 		return
 	}
@@ -432,78 +457,74 @@ func (p *Plugin) handleGetSubscriptions(w http.ResponseWriter, r *http.Request) 
 	channelID := r.URL.Query().Get(constants.QueryParamChannelID)
 	serviceType := r.URL.Query().Get(constants.QueryParamServiceType)
 	eventType := r.URL.Query().Get(constants.QueryParamEventType)
-	project := r.URL.Query().Get(constants.QueryParamProject)
-	if project != "" {
-		subscriptionByProject := []*serializers.SubscriptionDetails{}
-		for _, subscription := range subscriptionList {
-			if subscription.ProjectName == project {
-				if channelID == "" || subscription.ChannelID == channelID {
-					switch serviceType {
+
+	subscriptionByProject := []*serializers.SubscriptionDetails{}
+	for _, subscription := range subscriptionList {
+		if subscription.ProjectName == project {
+			if channelID == "" || subscription.ChannelID == channelID {
+				switch serviceType {
+				case "", constants.FilterAll:
+					subscriptionByProject = append(subscriptionByProject, subscription)
+				case constants.FilterBoards:
+					switch eventType {
 					case "", constants.FilterAll:
-						subscriptionByProject = append(subscriptionByProject, subscription)
-					case constants.FilterBoards:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+						if constants.ValidSubscriptionEventsForBoards[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
-					case constants.FilterRepos:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
-					case constants.FilterPipelines:
-						switch eventType {
-						case "", constants.FilterAll:
-							if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
-						default:
-							if subscription.EventType == eventType {
-								subscriptionByProject = append(subscriptionByProject, subscription)
-							}
+					}
+				case constants.FilterRepos:
+					switch eventType {
+					case "", constants.FilterAll:
+						if constants.ValidSubscriptionEventsForRepos[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					}
+				case constants.FilterPipelines:
+					switch eventType {
+					case "", constants.FilterAll:
+						if constants.ValidSubscriptionEventsForPipelines[subscription.EventType] {
+							subscriptionByProject = append(subscriptionByProject, subscription)
+						}
+					default:
+						if subscription.EventType == eventType {
+							subscriptionByProject = append(subscriptionByProject, subscription)
 						}
 					}
 				}
 			}
 		}
-
-		sort.Slice(subscriptionByProject, func(i, j int) bool {
-			return subscriptionByProject[i].CreatedAt.After(subscriptionByProject[j].CreatedAt)
-		})
-
-		filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID, constants.FilterCreatedByAnyone)
-		if filteredSubscriptionErr != nil {
-			p.API.LogError(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
-			p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
-			return
-		}
-
-		paginatedSubscriptions := []*serializers.SubscriptionDetails{}
-		for index, subscription := range filteredSubscriptionList {
-			if len(paginatedSubscriptions) == limit {
-				break
-			}
-			if index >= offset {
-				paginatedSubscriptions = append(paginatedSubscriptions, subscription)
-			}
-		}
-
-		subscriptionList = paginatedSubscriptions
 	}
 
-	p.writeJSON(w, subscriptionList)
+	sort.Slice(subscriptionByProject, func(i, j int) bool {
+		return subscriptionByProject[i].CreatedAt.After(subscriptionByProject[j].CreatedAt)
+	})
+
+	filteredSubscriptionList, filteredSubscriptionErr := p.GetSubscriptionsForAccessibleChannelsOrProjects(subscriptionByProject, teamID, mattermostUserID, constants.FilterCreatedByAnyone)
+	if filteredSubscriptionErr != nil {
+		p.API.LogWarn(constants.FetchFilteredSubscriptionListError, "Error", filteredSubscriptionErr.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: filteredSubscriptionErr.Error()})
+		return
+	}
+
+	paginatedSubscriptions := []*serializers.SubscriptionDetails{}
+	for index, subscription := range filteredSubscriptionList {
+		if len(paginatedSubscriptions) == limit {
+			break
+		}
+		if index >= offset {
+			paginatedSubscriptions = append(paginatedSubscriptions, subscription)
+		}
+	}
+
+	p.writeJSON(w, paginatedSubscriptions)
 }
 
 func (p *Plugin) getReviewersListString(reviewersList []serializers.Reviewer) string {
@@ -540,7 +561,7 @@ func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.E
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
 	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
-	if status, err := p.VerifyEncryptedWebhookSecret(webhookSecret); err != nil {
+	if status, err := p.VerifyWebhookSecret(webhookSecret); err != nil {
 		p.API.LogError(constants.ErrorUnauthorisedSubscriptionsWebhookRequest, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: status, Message: constants.ErrorUnauthorisedSubscriptionsWebhookRequest})
 		return

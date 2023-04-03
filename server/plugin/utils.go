@@ -475,11 +475,12 @@ func (p *Plugin) VerifySubscriptionWebhookSecretAndGetChannelID(subscriptionID, 
 	}
 
 	webhookSecret := *subscriptionWebhookSecret
-	if webhookSecret[uniqueWebhookSecret] == "" {
+	channelID, ok := webhookSecret[uniqueWebhookSecret]
+	if !ok {
 		return "", http.StatusUnauthorized, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
-	return webhookSecret[uniqueWebhookSecret], http.StatusOK, nil
+	return channelID, http.StatusOK, nil
 }
 
 // A user can create subscription(s) only for accessible public and private channels

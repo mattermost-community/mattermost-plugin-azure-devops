@@ -328,7 +328,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := p.Store.StoreSubscriptionChannelID(subscription.ID, uniqueWebhookSecret, body.ChannelID); err != nil {
-		p.API.LogError("Error storing channel id for subscription", "Error", err.Error())
+		p.API.LogError("Error storing channel ID for subscription", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
@@ -576,6 +576,12 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 	}
 
 	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
+	if webhookSecret == "" {
+		p.API.LogError(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
+		p.handleError(w, r, &serializers.Error{Code: http.StatusUnauthorized, Message: constants.ErrorUnauthorisedSubscriptionsWebhookRequest})
+		return
+	}
+
 	channelID, status, err := p.VerifySubscriptionWebhookSecretAndGetChannelID(body.SubscriptionID, webhookSecret)
 	if err != nil {
 		p.API.LogError("Unable to verify webhook secret for subscription", "Error", err.Error())

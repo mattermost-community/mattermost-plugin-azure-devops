@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/mattermost/mattermost-server/v5/model"
 	"golang.org/x/text/cases"
@@ -318,10 +319,17 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	subscription, statusCode, err := p.Client.CreateSubscription(body, project, body.ChannelID, p.GetPluginURL(), mattermostUserID)
+	uniqueWebhookSecret := uuid.New().String()
+	subscription, statusCode, err := p.Client.CreateSubscription(body, project, body.ChannelID, p.GetPluginURL(), mattermostUserID, uniqueWebhookSecret)
 	if err != nil {
 		p.API.LogError(constants.CreateSubscriptionError, "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: statusCode, Message: err.Error()})
+		return
+	}
+
+	if err := p.Store.StoreSubscriptionChannelID(subscription.ID, uniqueWebhookSecret, body.ChannelID); err != nil {
+		p.API.LogError("Error storing channel id for subscription", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
@@ -560,13 +568,6 @@ func (p *Plugin) getPipelineReleaseEnvironmentList(environments []*serializers.E
 }
 
 func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.Request) {
-	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
-	if status, err := p.VerifyWebhookSecret(webhookSecret); err != nil {
-		p.API.LogError(constants.ErrorUnauthorisedSubscriptionsWebhookRequest, "Error", err.Error())
-		p.handleError(w, r, &serializers.Error{Code: status, Message: constants.ErrorUnauthorisedSubscriptionsWebhookRequest})
-		return
-	}
-
 	body, err := serializers.SubscriptionNotificationFromJSON(r.Body)
 	if err != nil {
 		p.API.LogError("Error in decoding the body for listening notifications", "Error", err.Error())
@@ -574,16 +575,11 @@ func (p *Plugin) handleSubscriptionNotifications(w http.ResponseWriter, r *http.
 		return
 	}
 
-	channelID := r.URL.Query().Get(constants.AzureDevopsQueryParamChannelID)
-	if channelID == "" {
-		p.API.LogError(constants.ChannelIDRequired)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.ChannelIDRequired})
-		return
-	}
-
-	if !model.IsValidId(channelID) {
-		p.API.LogError(constants.InvalidChannelID)
-		p.handleError(w, r, &serializers.Error{Code: http.StatusBadRequest, Message: constants.InvalidChannelID})
+	webhookSecret := r.URL.Query().Get(constants.AzureDevopsQueryParamWebhookSecret)
+	channelID, status, err := p.VerifySubscriptionWebhookSecretAndGetChannelID(body.SubscriptionID, webhookSecret)
+	if err != nil {
+		p.API.LogError("Unable to verify webhook secret for subscription", "Error", err.Error())
+		p.handleError(w, r, &serializers.Error{Code: status, Message: err.Error()})
 		return
 	}
 

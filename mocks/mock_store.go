@@ -250,3 +250,46 @@ func (mr *MockKVStoreMockRecorder) VerifyOAuthState(arg0, arg1 interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyOAuthState", reflect.TypeOf((*MockKVStore)(nil).VerifyOAuthState), arg0, arg1)
 }
+
+// StoreSubscriptionChannelID mocks base method
+func (m *MockKVStore) StoreSubscriptionChannelID(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreSubscriptionChannelID", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StoreSubscriptionChannelID indicates an expected call of StoreSubscriptionChannelID
+func (mr *MockKVStoreMockRecorder) StoreSubscriptionChannelID(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreSubscriptionChannelID", reflect.TypeOf((*MockKVStore)(nil).StoreSubscriptionChannelID), arg0, arg1, arg2)
+}
+
+// GetSubscriptionChannelID mocks base method
+func (m *MockKVStore) GetSubscriptionChannelID(arg0 string) (*store.SubscriptionWebhookSecretAndChannelMap, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionChannelID", arg0)
+	ret0, _ := ret[0].(*store.SubscriptionWebhookSecretAndChannelMap)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionChannelID indicates an expected call of GetSubscriptionChannelID
+func (mr *MockKVStoreMockRecorder) GetSubscriptionChannelID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionChannelID", reflect.TypeOf((*MockKVStore)(nil).GetSubscriptionChannelID), arg0)
+}
+
+// DeleteSubscriptionChannelID mocks base method
+func (m *MockKVStore) DeleteSubscriptionChannelID(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSubscriptionChannelID", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSubscriptionChannelID indicates an expected call of DeleteSubscriptionChannelID
+func (mr *MockKVStoreMockRecorder) DeleteSubscriptionChannelID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscriptionChannelID", reflect.TypeOf((*MockKVStore)(nil).DeleteSubscriptionChannelID), arg0)
+}

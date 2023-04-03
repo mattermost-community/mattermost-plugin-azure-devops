@@ -15,9 +15,14 @@ type SubscriptionStore interface {
 	GetSubscriptionList() (*SubscriptionList, error)
 	GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error)
 	DeleteSubscription(subscription *serializers.SubscriptionDetails) error
+	StoreSubscriptionChannelID(subscriptionID, webhookSecret, channelID string) error
+	GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error)
+	DeleteSubscriptionChannelID(subscriptionID string) error
 }
 
 type SubscriptionListMap map[string]serializers.SubscriptionDetails
+
+type SubscriptionWebhookSecretAndChannelMap map[string]string
 
 type SubscriptionList struct {
 	ByMattermostUserID map[string]SubscriptionListMap
@@ -197,4 +202,33 @@ func SubscriptionListFromJSON(bytes []byte) (*SubscriptionList, error) {
 		subscriptionList = NewSubscriptionList()
 	}
 	return subscriptionList, nil
+}
+
+func (s *Store) StoreSubscriptionChannelID(subscriptionID, webhookSecret, channelID string) error {
+	if err := s.StoreJSON(subscriptionID, SubscriptionWebhookSecretAndChannelMap{
+		webhookSecret: channelID,
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error) {
+	var storedWebhookSecret SubscriptionWebhookSecretAndChannelMap
+	err := s.LoadJSON(subscriptionID, &storedWebhookSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &storedWebhookSecret, nil
+}
+
+func (s *Store) DeleteSubscriptionChannelID(subscriptionID string) error {
+	err := s.Delete(subscriptionID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

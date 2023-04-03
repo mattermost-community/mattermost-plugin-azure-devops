@@ -22,7 +22,6 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
-				WebhookSecret:                "mockWebhookSecret",
 			},
 		},
 		{
@@ -32,7 +31,6 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
-				WebhookSecret:                "mockWebhookSecret",
 			},
 			errMsg: constants.EmptyAzureDevopsAPIBaseURLError,
 		},
@@ -43,7 +41,6 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthAppID:        "",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
-				WebhookSecret:                "mockWebhookSecret",
 			},
 			errMsg: constants.EmptyAzureDevopsOAuthAppIDError,
 		},
@@ -54,7 +51,6 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "",
 				EncryptionSecret:             "mockEncryptionSecret",
-				WebhookSecret:                "mockWebhookSecret",
 			},
 			errMsg: constants.EmptyAzureDevopsOAuthClientSecretError,
 		},
@@ -65,20 +61,8 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "",
-				WebhookSecret:                "mockWebhookSecret",
 			},
 			errMsg: constants.EmptyEncryptionSecretError,
-		},
-		{
-			description: "configuration: empty WebhookSecret",
-			config: &Configuration{
-				AzureDevopsAPIBaseURL:        "mockAzureDevopsAPIBaseURL",
-				AzureDevopsOAuthAppID:        "mockAzureDevopsOAuthAppID",
-				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
-				EncryptionSecret:             "mockEncryptionSecret",
-				WebhookSecret:                "",
-			},
-			errMsg: constants.EmptyWebhookSecretError,
 		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {

@@ -211,6 +211,7 @@ type DetailedMessage struct {
 }
 
 type SubscriptionNotification struct {
+	SubscriptionID  string          `json:"subscriptionID"`
 	DetailedMessage DetailedMessage `json:"detailedMessage"`
 	Message         DetailedMessage `json:"message"`
 	EventType       string          `json:"eventType"`

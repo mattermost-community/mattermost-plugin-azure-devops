@@ -216,8 +216,7 @@ func (s *Store) StoreSubscriptionChannelID(subscriptionID, webhookSecret, channe
 
 func (s *Store) GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error) {
 	var storedWebhookSecret SubscriptionWebhookSecretAndChannelMap
-	err := s.LoadJSON(subscriptionID, &storedWebhookSecret)
-	if err != nil {
+	if err := s.LoadJSON(subscriptionID, &storedWebhookSecret); err != nil {
 		return nil, err
 	}
 
@@ -225,8 +224,7 @@ func (s *Store) GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWe
 }
 
 func (s *Store) DeleteSubscriptionChannelID(subscriptionID string) error {
-	err := s.Delete(subscriptionID)
-	if err != nil {
+	if err := s.Delete(subscriptionID); err != nil {
 		return err
 	}
 

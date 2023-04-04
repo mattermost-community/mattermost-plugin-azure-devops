@@ -31,6 +31,11 @@ ifneq ($(wildcard build/custom.mk),)
 	include build/custom.mk
 endif
 
+## Propagates plugin manifest information into the server/ and webapp/ folders as required.
+.PHONY: apply
+apply:
+	./build/bin/manifest apply
+
 ## Checks the code style, tests, builds and bundles the plugin.
 .PHONY: all
 all: check-style test dist
@@ -131,6 +136,15 @@ endif
 ## Builds and bundles the plugin.
 .PHONY: dist
 dist:	server webapp bundle
+
+## Generates mock golang interfaces for testing
+.PHONY: mock
+mock:
+ifneq ($(HAS_SERVER),)
+	$(GO) install github.com/golang/mock/mockgen@v1.6.0
+	mockgen -destination=mocks/mock_store.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/store KVStore
+	mockgen -destination=mocks/mock_client.go -package=mocks github.com/mattermost/mattermost-plugin-azure-devops/server/plugin Client
+endif
 
 ## Builds and installs the plugin to a server.
 .PHONY: deploy

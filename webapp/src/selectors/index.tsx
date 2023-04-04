@@ -1,36 +1,21 @@
+export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => state.views.rhs;
+
 // TODO: create constants for string literals to prevent changing hard coded string values at multiple places in case of modifications
-export const getProjectDetailsState = (state: ReduxState): ProjectDetails => {
-    return state['plugins-mattermost-plugin-azure-devops'].projectDetailsSlice;
-};
+// Plugin state
+const getPluginState = (state: ReduxState) => state['plugins-mattermost-plugin-azure-devops'];
 
-export const getRhsState = (state: ReduxState): {isSidebarOpen: boolean} => {
-    return state.views.rhs;
-};
+export const getProjectDetailsState = (state: ReduxState): ProjectDetails => getPluginState(state).projectDetailsSlice;
 
-export const getGlobalModalState = (state: ReduxState): GlobalModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].globalModalSlice;
-};
+export const getGlobalModalState = (state: ReduxState): GlobalModalState => getPluginState(state).globalModalSlice;
 
-export const getLinkModalState = (state: ReduxState): LinkProjectModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].linkProjectModalSlice;
-};
+export const getLinkModalState = (state: ReduxState): LinkProjectModalState => getPluginState(state).linkProjectModalSlice;
 
-export const getCreateTaskModalState = (state: ReduxState): CreateTaskModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].createTaskModalSlice;
-};
+export const getCreateTaskModalState = (state: ReduxState): CreateTaskModalState => getPluginState(state).createTaskModalSlice;
 
-export const getSubscribeModalState = (state: ReduxState): SubscribeModalState => {
-    return state['plugins-mattermost-plugin-azure-devops'].subscriptionModalSlice;
-};
+export const getSubscribeModalState = (state: ReduxState): SubscribeModalState => getPluginState(state).subscriptionModalSlice;
 
-export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompletionState => {
-    return state['plugins-mattermost-plugin-azure-devops'].apiRequestCompletionSlice;
-};
+export const getApiRequestCompletionState = (state: ReduxState): ApiRequestCompletionState => getPluginState(state).apiRequestCompletionSlice;
 
-export const getApiQueriesState = (state: ReduxState): ApiQueriesState => {
-    return state['plugins-mattermost-plugin-azure-devops'].azureDevOpsPluginApi?.queries;
-};
+export const getApiQueriesState = (state: ReduxState): ApiQueriesState => getPluginState(state).azureDevOpsPluginApi?.queries;
 
-export const getWebsocketEventState = (state: ReduxState): WebsocketEventState => {
-    return state['plugins-mattermost-plugin-azure-devops'].websocketEventSlice;
-};
+export const getWebsocketEventState = (state: ReduxState): WebsocketEventState => getPluginState(state).websocketEventSlice;

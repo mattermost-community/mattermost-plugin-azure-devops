@@ -31,7 +31,7 @@ const Modal = ({show, onHide, showCloseIconInHeader = true, children, title, sub
         show={show}
         onHide={onHide}
         centered={true}
-        className={`modal ${className}`}
+        className={`azure-devops-plugin modal ${className}`}
     >
         <ModalHeader
             title={title}

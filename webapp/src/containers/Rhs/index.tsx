@@ -22,9 +22,7 @@ const Rhs = (): JSX.Element => {
     }
 
     return (
-        <div
-            id='scrollableArea'
-        >
+        <div className='azure-devops-plugin'>
             {!isConnected && <AccountNotLinked/>}
             {isConnected && (
                 getProjectDetailsState(state).projectID ?

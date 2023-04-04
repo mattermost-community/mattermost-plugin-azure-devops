@@ -3,8 +3,9 @@
 */
 // TODO: create enums for these types
 type EventTypeBoards = 'workitem.created' | 'workitem.updated' | 'workitem.deleted' | 'workitem.commented'
-type EventTypeRepos = 'git.pullrequest.created' | 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
-type EventType = EventTypeBoards | EventTypeRepos
+type EventTypeRepos = 'git.pullrequest.created'| 'git.pullrequest.updated' | 'ms.vss-code.git-pullrequest-comment-event' | 'git.push' | 'git.pullrequest.merged'
+type EventTypePipelines = 'build.complete' | 'ms.vss-release.release-abandoned-event' | 'ms.vss-release.release-created-event' | 'ms.vss-release.deployment-approval-completed-event' | 'ms.vss-release.deployment-approval-pending-event' | 'ms.vss-release.deployment-completed-event' | 'ms.vss-release.deployment-started-event' | 'ms.vss-pipelinechecks-events.approval-completed' | 'ms.vss-pipelines.stage-state-changed-event' | 'ms.vss-pipelinechecks-events.approval-pending' | 'ms.vss-pipelines.run-state-changed-event'
+type EventType = EventTypeBoards | EventTypeRepos | EventTypePipelines
 type ModalId = 'linkProject' | 'createBoardTask' | 'subscribeProject' | null
 
 type TabData = {
@@ -63,6 +64,7 @@ type FetchChannelParams = {
 }
 
 interface FetchSubscriptionList extends PaginationQueryParams {
+    organization: string;
     project: string;
     channel_id: string;
     created_by: string;
@@ -96,6 +98,30 @@ type SubscriptionDetails = {
     notificationType: string
     notificationTypeName: string
     areaPath: string
+    buildPipeline: string
+    buildStatus: string
+    releasePipeline: string
+    stageName: string
+    approvalType: string
+    approvalStatus: string
+    releaseStatus: string
+    buildStatusName: string
+    releasePipelineName: string
+    stageNameValue: string
+    approvalTypeName: string
+    approvalStatusName: string
+    releaseStatusName: string
+    runPipeline: string
+    runPipelineName: string
+    runStage: string
+    runEnvironment: string
+    runStageId: string
+    runStageStateId: string
+    runStageStateIdName: string
+    runStageResultId: string
+    runStateId: string
+    runStateIdName: string
+    runResultId: string
 }
 
 type WebsocketEventParams = {
@@ -114,12 +140,15 @@ type SubscriptionFilters = {
     eventType: string,
 }
 
-type ReposSubscriptionFiltersResponse = {
-    id: string,
-    name: string
+type LabelIconProps = {
+    className: string // This should contain the icon's class name
+    tooltipText: string
+    extraClassName?: string // This should contain the class name that we want to add on the wrapper in addition to the icon class
 }
 
-type ReposSubscriptionTargetBranchFilterResponse = {
-    objectId: string,
-    name: string
-}
+type HandleSetSubscriptionFilter = (
+    filterID: FormFieldNames,
+    filterIDNewValue: string,
+    filterDisplayName?: FormFieldNames,
+    filterDisplayNameNewValue?: string,
+) => void

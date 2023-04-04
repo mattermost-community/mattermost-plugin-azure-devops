@@ -10,17 +10,20 @@ type LabelValuePairProps = {
     onClickValue?: () => void
     label?: string | JSX.Element;
     value: string
-    labelIconClassName?: string
+    icon?: LabelIconProps
     labelExtraClassName?: string
 }
 
-const LabelValuePair = ({label, labelIconClassName, labelExtraClassName, value, onClickValue}: LabelValuePairProps) => (
+const LabelValuePair = ({label, icon, value, labelExtraClassName, onClickValue}: LabelValuePairProps) => (
     <p className='margin-bottom-10 d-flex align-item-center'>
         {
-            labelIconClassName && (
-                <i
-                    className={`${labelIconClassName} ${labelExtraClassName} icon-mm`}
-                />
+                icon?.className && (
+                <Tooltip tooltipContent={icon?.tooltipText}>
+                    <i
+                        className={`${icon?.className} ${icon?.extraClassName} icon-mm`}
+                        aria-hidden='true'
+                    />
+                </Tooltip>
             )
         }
         {

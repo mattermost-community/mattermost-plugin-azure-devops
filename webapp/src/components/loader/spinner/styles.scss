@@ -1,42 +1,44 @@
 @import '../../../styles/variables';
 
-.spinner-wrapper {
-  width: 100%;
-  height: 120px;
+.azure-devops-plugin {
+  .spinner-wrapper {
+    width: 100%;
+    height: 120px;
 
-  .spinner {
-    width: 40px;
-    height: 40px;
-    max-width: 10rem;
-    animation: rotate 3.6s linear infinite;
-  
-    circle {
-      fill: none;
-      stroke: $primary-color;
-      stroke-width: 8px;
-      stroke-dasharray: 300;
-      animation: outline 2s cubic-bezier(0.77, 0, 0.18, 1) infinite;
+    .spinner {
+      width: 40px;
+      height: 40px;
+      max-width: 10rem;
+      animation: rotate 3.6s linear infinite;
+    
+      circle {
+        fill: none;
+        stroke: var(--link-color);
+        stroke-width: 8px;
+        stroke-dasharray: 300;
+        animation: outline 2s cubic-bezier(0.77, 0, 0.18, 1) infinite;
+      }  
     }  
-  }  
-}
+  }
 
-@keyframes outline {
-	0% {
-		stroke-dashoffset: 0;
-	}
-	50% {
-		stroke-dashoffset: 300;
-	}
-	100% {
-		stroke-dashoffset: 600;
-	}
-}
+  @keyframes outline {
+  	0% {
+  		stroke-dashoffset: 0;
+  	}
+  	50% {
+  		stroke-dashoffset: 300;
+  	}
+  	100% {
+  		stroke-dashoffset: 600;
+  	}
+  }
 
-@keyframes rotate {
-	from {
-		transform: rotate(0turn);
-	}
-	to {
-		transform: rotate(-1turn);
-	}
+  @keyframes rotate {
+  	from {
+  		transform: rotate(0turn);
+  	}
+  	to {
+  		transform: rotate(-1turn);
+  	}
+  }
 }

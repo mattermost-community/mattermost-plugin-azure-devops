@@ -23,7 +23,6 @@ func TestIsValid(t *testing.T) {
 				AzureDevopsOAuthClientSecret: "mockAzureDevopsOAuthClientSecret",
 				EncryptionSecret:             "mockEncryptionSecret",
 			},
-			errMsg: "",
 		},
 		{
 			description: "configuration: empty AzureDevopsAPIBaseURL",

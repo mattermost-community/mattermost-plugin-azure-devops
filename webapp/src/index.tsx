@@ -27,16 +27,23 @@ import manifest from './manifest';
 export default class Plugin {
     public async initialize(registry: PluginRegistry, store: Store<GlobalState, Action<Record<string, unknown>>>) {
         registry.registerReducer(reducer);
+
         registry.registerRootComponent(App);
         registry.registerRootComponent(TaskModal);
         registry.registerRootComponent(LinkModal);
         registry.registerRootComponent(SubscribeModal);
+
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_connect`, handleConnect(store));
+
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_disconnect`, handleDisconnect(store));
+
         registry.registerWebSocketEventHandler(`custom_${Constants.common.pluginId}_subscription_deleted`, handleSubscriptionDeleted(store));
+
         const {showRHSPlugin} = registry.registerRightHandSidebarComponent(Rhs, Constants.common.RightSidebarHeader);
+
         const hooks = new Hooks(store);
         registry.registerSlashCommandWillBePostedHook(hooks.slashCommandWillBePostedHook);
+
         registry.registerChannelHeaderButtonAction(<ChannelHeaderButton/>, () => store.dispatch(showRHSPlugin), null, Constants.common.AzureDevops);
     }
 }

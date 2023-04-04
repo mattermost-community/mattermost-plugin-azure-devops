@@ -1,6 +1,6 @@
 import React from 'react';
 
-type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions' | 'filter' | 'boards' | 'repos' | 'cardFilter';
+type SvgIconNames = 'check' | 'workEvent' | 'project' | 'organization' | 'azure' | 'folder' | 'subscriptions' | 'filter'| 'cardFilter' | 'boards' | 'repos' | 'pipelines';
 
 export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
     check: (
@@ -34,13 +34,11 @@ export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
         <>
             <path
                 d='M1 6.21209V10.1334C1 10.5451 1.33373 10.8788 1.7454 10.8788H10.4365C10.8482 10.8788 11.1819 10.5451 11.1819 10.1334V6.21209M1 6.21209V3.56351C1 3.15184 1.33373 2.81812 1.7454 2.81812H4.16828C4.31544 2.81812 4.45931 2.86167 4.58176 2.9433L6.1153 3.96567C6.23774 4.0473 6.38161 4.09085 6.52877 4.09085H10.4365C10.8482 4.09085 11.1819 4.42458 11.1819 4.83625V6.21209M1 6.21209H11.1819'
-                stroke='#1C58D9'
                 strokeLinecap='round'
                 strokeLinejoin='round'
             />
             <path
                 d='M3.12109 1H5.13997C5.48334 1 5.81903 1.10164 6.10474 1.29211L7.13752 1.98063C7.42322 2.1711 7.75892 2.27274 8.10229 2.27274H11.2607C12.2213 2.27274 13 3.05143 13 4.012V8.21219'
-                stroke='#1C58D9'
                 strokeLinecap='round'
                 strokeLinejoin='round'
             />
@@ -145,6 +143,32 @@ export const SVGIcons: Record<SvgIconNames, JSX.Element> = {
                 strokeMiterlimit='10'
             />
 
+        </>
+    ),
+    pipelines: (
+        <>
+            <path
+                d='M8.06 4.05615H1V8.24415L3.2792 9.97855L4.8152 9.30975L8.06 4.05615Z'
+                fill='#3A56A1'
+            />
+            <path
+                d='M12.8904 9.16064V15.9998H8.45675L6.79675 13.7446L7.39115 12.5798L12.8904 9.16064Z'
+                fill='#344E9B'
+            />
+            <path
+                d='M17 0L16.98 3.5232L16.9592 7.048L16.736 6.8288L7.65761 13.4168L3.66321 9.4208L10.1368 0.3648L9.95681 0.188L13.4784 0.0936L17 0Z'
+                fill='#4B68AD'
+            />
+            <path
+                d='M1.44556 12.0352V15.4552H4.81516'
+                stroke='#9EB2DB'
+                strokeWidth='1.2'
+                strokeMiterlimit='10'
+            />
+            <path
+                d='M12.736 5.98913C13.6832 5.98913 14.4512 5.22085 14.4512 4.27313C14.4512 3.32541 13.6832 2.55713 12.736 2.55713C11.7887 2.55713 11.0208 3.32541 11.0208 4.27313C11.0208 5.22085 11.7887 5.98913 12.736 5.98913Z'
+                fill='#9EB2DB'
+            />
         </>
     ),
     organization: (

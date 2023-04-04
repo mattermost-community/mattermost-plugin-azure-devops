@@ -1,6 +1,8 @@
-.chip {
-    padding: 2px 4px;
-    display: inline-block;
-    margin: 0 0 8px 8px;
-    max-width: calc(100% - 30px); // consider 30px padding of the container from left and right 
+.azure-devops-plugin {
+    .chip {
+        padding: 2px 4px;
+        display: inline-block;
+        margin: 0 0 8px 8px;
+        max-width: calc(100% - 30px); // consider 30px padding of the container from left and right 
+    }
 }

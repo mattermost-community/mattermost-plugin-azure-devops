@@ -50,6 +50,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
     const {makeApiRequestWithCompletionStatus, getApiState, state} = usePluginApi();
 
     const subscriptionListApiParams = useMemo<FetchSubscriptionList>(() => ({
+        organization: organizationName,
         project: projectName,
         channel_id: showAllSubscriptions ? '' : currentChannelId,
         page: paginationQueryParams.page,
@@ -58,7 +59,7 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
         service_type: filter.serviceType,
         event_type: filter.eventType,
         team_id: currentTeamId,
-    }), [projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
+    }), [organizationName, projectName, currentChannelId, currentTeamId, showAllSubscriptions, paginationQueryParams, filter]);
 
     const {data, isLoading} = getApiState(pluginConstants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName, subscriptionListApiParams);
     const subscriptionListReturnedByApi = data as SubscriptionDetails[] || [];
@@ -110,6 +111,30 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
             notificationType: subscriptionDetails.notificationType,
             notificationTypeName: subscriptionDetails.notificationTypeName,
             areaPath: subscriptionDetails.areaPath,
+            buildPipeline: subscriptionDetails.buildPipeline,
+            releasePipeline: subscriptionDetails.releasePipeline,
+            buildStatus: subscriptionDetails.buildStatus,
+            approvalStatus: subscriptionDetails.approvalStatus,
+            approvalType: subscriptionDetails.approvalType,
+            stageName: subscriptionDetails.stageName,
+            releaseStatus: subscriptionDetails.releaseStatus,
+            releasePipelineName: subscriptionDetails.releasePipelineName,
+            buildStatusName: subscriptionDetails.buildStatusName,
+            approvalStatusName: subscriptionDetails.approvalStatusName,
+            approvalTypeName: subscriptionDetails.approvalTypeName,
+            stageNameValue: subscriptionDetails.stageNameValue,
+            releaseStatusName: subscriptionDetails.releaseStatusName,
+            runPipeline: subscriptionDetails.runPipeline,
+            runPipelineName: subscriptionDetails.runPipelineName,
+            runStage: subscriptionDetails.runStage,
+            runEnvironment: subscriptionDetails.runEnvironment,
+            runStageId: subscriptionDetails.runStageId,
+            runStageStateId: subscriptionDetails.runStageStateId,
+            runStageStateIdName: subscriptionDetails.runStageStateIdName,
+            runStageResultId: subscriptionDetails.runStageResultId,
+            runStateId: subscriptionDetails.runStateId,
+            runStateIdName: subscriptionDetails.runStateIdName,
+            runResultId: subscriptionDetails.runResultId,
         });
         setDeleteConfirmationModalError(null);
         setShowSubscriptionConfirmationModal(true);
@@ -230,7 +255,10 @@ const ProjectDetails = memo((projectDetails: ProjectDetails) => {
                 {
                     subscriptionList.length ? (
                         <>
-                            <div className='rhs-wrapper__content padding-16'>
+                            <div
+                                className='rhs-wrapper__content padding-16'
+                                id='scrollableArea'
+                            >
                                 <InfiniteScroll
                                     dataLength={defaultPerPageLimit}
                                     next={handlePagination}

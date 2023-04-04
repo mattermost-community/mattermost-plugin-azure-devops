@@ -85,7 +85,7 @@ func (p *Plugin) initBotUser() error {
 		Username:    constants.BotUsername,
 		DisplayName: constants.BotDisplayName,
 		Description: constants.BotDescription,
-	}, plugin.ProfileImagePath(filepath.Join("assets", "azurebot.png")))
+	}, plugin.ProfileImagePath(filepath.Join("public/assets", "azurebot.png")))
 	if err != nil {
 		return errors.Wrap(err, "cannot create bot")
 	}
@@ -121,6 +121,18 @@ func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*mode
 	// Check if a message contains a pull request link.
 	if pullRequestData, link, isValid := IsLinkPresent(post.Message, constants.PullRequestLinkRegex); isValid {
 		newPost, msg := p.PostPullRequestPreview(pullRequestData, link, post.UserId, post.ChannelId)
+		return newPost, msg
+	}
+
+	// Check if a message contains a pipeline build link.
+	if buildDetailsData, link, isValid := IsLinkPresent(post.Message, constants.BuildDetailsLinkRegex); isValid {
+		newPost, msg := p.PostBuildDetailsPreview(buildDetailsData, link, post.UserId, post.ChannelId)
+		return newPost, msg
+	}
+
+	// Check if a message contains a pipeline release link.
+	if releaseDetailsData, link, isValid := IsLinkPresent(post.Message, constants.ReleaseDetailsLinkRegex); isValid {
+		newPost, msg := p.PostReleaseDetailsPreview(releaseDetailsData, link, post.UserId, post.ChannelId)
 		return newPost, msg
 	}
 

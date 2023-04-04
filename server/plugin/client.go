@@ -22,7 +22,7 @@ type Client interface {
 	GetTask(organization, taskID, projectName, mattermostUserID string) (*serializers.TaskValue, int, error)
 	GetPullRequest(organization, pullRequestID, projectName, mattermostUserID string) (*serializers.PullRequest, int, error)
 	Link(body *serializers.LinkRequestPayload, mattermostUserID string) (*serializers.Project, int, error)
-	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error)
+	CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID, uuid string) (*serializers.SubscriptionValue, int, error)
 	DeleteSubscription(organization, subscriptionID, mattermostUserID string) (int, error)
 	UpdatePipelineApprovalRequest(pipelineApproveRequestPayload *serializers.PipelineApproveRequest, organization, projectName, mattermostUserID string, approvalID int) (int, error)
 	UpdatePipelineRunApprovalRequest(pipelineApproveRequestPayload []*serializers.PipelineApproveRequest, organization, projectID, mattermostUserID string) (*serializers.PipelineRunApproveResponse, int, error)
@@ -226,15 +226,16 @@ var publisherID = map[string]string{
 	constants.SubscriptionEventRunStateChanged:                    constants.PublisherIDPipelines,
 }
 
-func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID string) (*serializers.SubscriptionValue, int, error) {
+func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID, uuid string) (*serializers.SubscriptionValue, int, error) {
 	if statusCode, err := c.plugin.SanitizeURLPaths(body.Organization, "", ""); err != nil {
 		return nil, statusCode, err
 	}
 	createSubscriptionPath := fmt.Sprintf(constants.CreateSubscription, body.Organization)
 
-	webhookSecret := url.QueryEscape(c.plugin.getConfiguration().WebhookSecret)
+	uniqueWebhookSecret := url.QueryEscape(uuid)
+
 	consumerInputs := serializers.ConsumerInputs{
-		URL: fmt.Sprintf("%s%s?%s=%s&%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, channelID, constants.AzureDevopsQueryParamWebhookSecret, webhookSecret),
+		URL: fmt.Sprintf("%s%s?%s=%s", strings.TrimRight(pluginURL, "/"), constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamWebhookSecret, uniqueWebhookSecret),
 	}
 
 	payload := serializers.CreateSubscriptionBodyPayload{

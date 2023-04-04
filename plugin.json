@@ -5,7 +5,6 @@
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-azure-devops",
     "support_url": "https://github.com/mattermost/mattermost-plugin-azure-devops/issues",
     "release_notes_url": "https://github.com/mattermost/mattermost-plugin-azure-devops/releases/tag/v2.2.2",
-    "description": "This plugin provides services of Azure DevOps such as Boards and Repos",
     "icon_path": "assets/azurebot.svg",
     "version": "2.2.2",
     "min_server_version": "5.37.3",

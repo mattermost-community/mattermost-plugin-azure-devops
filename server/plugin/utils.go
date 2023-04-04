@@ -457,7 +457,7 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 		return http.StatusInternalServerError, deleteErr
 	}
 
-	if deleteErr := p.Store.DeleteSubscriptionChannelID(subscription.SubscriptionID); deleteErr != nil {
+	if deleteErr := p.Store.DeleteSubscriptionAndChannelIDMap(subscription.SubscriptionID); deleteErr != nil {
 		return http.StatusInternalServerError, deleteErr
 	}
 
@@ -465,17 +465,17 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 }
 
 func (p *Plugin) VerifySubscriptionWebhookSecretAndGetChannelID(subscriptionID, uniqueWebhookSecret string) (string, int, error) {
-	subscriptionWebhookSecret, err := p.Store.GetSubscriptionChannelID(subscriptionID)
+	subscriptionWebhookSecretAndChannelIDMap, err := p.Store.GetSubscriptionAndChannelIDMap(subscriptionID)
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
 
-	if subscriptionWebhookSecret == nil {
+	if subscriptionWebhookSecretAndChannelIDMap == nil {
 		return "", http.StatusUnauthorized, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
-	webhookSecret := *subscriptionWebhookSecret
-	channelID, ok := webhookSecret[uniqueWebhookSecret]
+	webhookSecretAndChannelIDMap := *subscriptionWebhookSecretAndChannelIDMap
+	channelID, ok := webhookSecretAndChannelIDMap[uniqueWebhookSecret]
 	if !ok {
 		return "", http.StatusUnauthorized, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}

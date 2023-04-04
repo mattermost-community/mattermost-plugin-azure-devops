@@ -15,9 +15,9 @@ type SubscriptionStore interface {
 	GetSubscriptionList() (*SubscriptionList, error)
 	GetAllSubscriptions(userID string) ([]*serializers.SubscriptionDetails, error)
 	DeleteSubscription(subscription *serializers.SubscriptionDetails) error
-	StoreSubscriptionChannelID(subscriptionID, webhookSecret, channelID string) error
-	GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error)
-	DeleteSubscriptionChannelID(subscriptionID string) error
+	StoreSubscriptionAndChannelIDMap(subscriptionID, webhookSecret, channelID string) error
+	GetSubscriptionAndChannelIDMap(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error)
+	DeleteSubscriptionAndChannelIDMap(subscriptionID string) error
 }
 
 type SubscriptionListMap map[string]serializers.SubscriptionDetails
@@ -204,7 +204,7 @@ func SubscriptionListFromJSON(bytes []byte) (*SubscriptionList, error) {
 	return subscriptionList, nil
 }
 
-func (s *Store) StoreSubscriptionChannelID(subscriptionID, webhookSecret, channelID string) error {
+func (s *Store) StoreSubscriptionAndChannelIDMap(subscriptionID, webhookSecret, channelID string) error {
 	if err := s.StoreJSON(subscriptionID, SubscriptionWebhookSecretAndChannelMap{
 		webhookSecret: channelID,
 	}); err != nil {
@@ -214,7 +214,7 @@ func (s *Store) StoreSubscriptionChannelID(subscriptionID, webhookSecret, channe
 	return nil
 }
 
-func (s *Store) GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error) {
+func (s *Store) GetSubscriptionAndChannelIDMap(subscriptionID string) (*SubscriptionWebhookSecretAndChannelMap, error) {
 	var storedWebhookSecret SubscriptionWebhookSecretAndChannelMap
 	if err := s.LoadJSON(subscriptionID, &storedWebhookSecret); err != nil {
 		return nil, err
@@ -223,7 +223,7 @@ func (s *Store) GetSubscriptionChannelID(subscriptionID string) (*SubscriptionWe
 	return &storedWebhookSecret, nil
 }
 
-func (s *Store) DeleteSubscriptionChannelID(subscriptionID string) error {
+func (s *Store) DeleteSubscriptionAndChannelIDMap(subscriptionID string) error {
 	if err := s.Delete(subscriptionID); err != nil {
 		return err
 	}

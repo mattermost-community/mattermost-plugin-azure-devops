@@ -327,7 +327,7 @@ func (p *Plugin) handleCreateSubscription(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := p.Store.StoreSubscriptionChannelID(subscription.ID, uniqueWebhookSecret, body.ChannelID); err != nil {
+	if err := p.Store.StoreSubscriptionAndChannelIDMap(subscription.ID, uniqueWebhookSecret, body.ChannelID); err != nil {
 		p.API.LogError("Error storing channel ID for subscription", "Error", err.Error())
 		p.handleError(w, r, &serializers.Error{Code: http.StatusInternalServerError, Message: err.Error()})
 		return

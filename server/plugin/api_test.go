@@ -361,7 +361,7 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				if testCase.err == nil {
 					mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
-					mockedStore.EXPECT().DeleteSubscriptionChannelID(gomock.Any()).Return(nil)
+					mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 				}
 			}
 
@@ -682,7 +682,7 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().StoreSubscription(testCase.subscription).Return(nil)
-				mockedStore.EXPECT().StoreSubscriptionChannelID(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+				mockedStore.EXPECT().StoreSubscriptionAndChannelIDMap(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/subscriptions", bytes.NewBufferString(testCase.body))
@@ -1124,7 +1124,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
-				mockedStore.EXPECT().DeleteSubscriptionChannelID(gomock.Any()).Return(nil)
+				mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))

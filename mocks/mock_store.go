@@ -250,3 +250,46 @@ func (mr *MockKVStoreMockRecorder) VerifyOAuthState(arg0, arg1 interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyOAuthState", reflect.TypeOf((*MockKVStore)(nil).VerifyOAuthState), arg0, arg1)
 }
+
+// StoreSubscriptionAndChannelIDMap mocks base method
+func (m *MockKVStore) StoreSubscriptionAndChannelIDMap(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StoreSubscriptionAndChannelIDMap", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// StoreSubscriptionAndChannelIDMap indicates an expected call of StoreSubscriptionAndChannelIDMap
+func (mr *MockKVStoreMockRecorder) StoreSubscriptionAndChannelIDMap(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StoreSubscriptionAndChannelIDMap", reflect.TypeOf((*MockKVStore)(nil).StoreSubscriptionAndChannelIDMap), arg0, arg1, arg2)
+}
+
+// GetSubscriptionAndChannelIDMap mocks base method
+func (m *MockKVStore) GetSubscriptionAndChannelIDMap(arg0 string) (*store.SubscriptionWebhookSecretAndChannelMap, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscriptionAndChannelIDMap", arg0)
+	ret0, _ := ret[0].(*store.SubscriptionWebhookSecretAndChannelMap)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscriptionAndChannelIDMap indicates an expected call of GetSubscriptionAndChannelIDMap
+func (mr *MockKVStoreMockRecorder) GetSubscriptionAndChannelIDMap(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionAndChannelIDMap", reflect.TypeOf((*MockKVStore)(nil).GetSubscriptionAndChannelIDMap), arg0)
+}
+
+// DeleteSubscriptionAndChannelIDMap mocks base method
+func (m *MockKVStore) DeleteSubscriptionAndChannelIDMap(arg0 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSubscriptionAndChannelIDMap", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSubscriptionAndChannelIDMap indicates an expected call of DeleteSubscriptionAndChannelIDMap
+func (mr *MockKVStoreMockRecorder) DeleteSubscriptionAndChannelIDMap(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSubscriptionAndChannelIDMap", reflect.TypeOf((*MockKVStore)(nil).DeleteSubscriptionAndChannelIDMap), arg0)
+}

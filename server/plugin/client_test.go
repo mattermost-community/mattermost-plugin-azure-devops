@@ -311,7 +311,7 @@ func TestCreateSubscription(t *testing.T) {
 				return nil, testCase.statusCode, testCase.err
 			})
 
-			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, testutils.MockChannelID, "mockPluginURL", testutils.MockMattermostUserID)
+			_, statusCode, err := p.Client.CreateSubscription(&serializers.CreateSubscriptionRequestPayload{}, &serializers.ProjectDetails{}, testutils.MockChannelID, "mockPluginURL", testutils.MockMattermostUserID, "mockUUID")
 
 			if testCase.err != nil {
 				assert.Error(t, err)

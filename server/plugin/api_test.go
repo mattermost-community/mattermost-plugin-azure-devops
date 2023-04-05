@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
@@ -40,10 +39,6 @@ func setupMockPlugin(api *plugintest.API, store *mocks.MockKVStore, client *mock
 	if store != nil {
 		p.Store = store
 	}
-
-	p.setConfiguration(&config.Configuration{
-		WebhookSecret: "mockWebhookSecret",
-	})
 
 	if client != nil {
 		p.Client = client
@@ -366,6 +361,7 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				if testCase.err == nil {
 					mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+					mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 				}
 			}
 
@@ -680,12 +676,13 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			})
 
 			if testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
+				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
 					ID: testutils.MockSubscriptionID,
 				}, testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().StoreSubscription(testCase.subscription).Return(nil)
+				mockedStore.EXPECT().StoreSubscriptionAndChannelIDMap(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/subscriptions", bytes.NewBufferString(testCase.body))
@@ -835,17 +832,6 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"`,
 			err:              errors.New("error invalid body"),
 			channelID:        "mockChannelIDmockChannelID",
-			statusCode:       http.StatusBadRequest,
-			isValidChannelID: true,
-			webhookSecret:    "mockWebhookSecret",
-		},
-		{
-			description: "SubscriptionNotifications: without channelID",
-			body: `{
-				"detailedMessage": {
-					"markdown": "mockMarkdown"
-					}
-				}`,
 			statusCode:       http.StatusBadRequest,
 			isValidChannelID: true,
 			webhookSecret:    "mockWebhookSecret",
@@ -1061,8 +1047,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 				return time.Time{}, testCase.parseTimeError
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifyWebhookSecret", func(_ *Plugin, _ string) (int, error) {
-				return testCase.statusCode, testCase.err
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifySubscriptionWebhookSecretAndGetChannelID", func(_ *Plugin, _, _ string) (string, int, error) {
+				return testCase.channelID, testCase.statusCode, testCase.err
 			})
 
 			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("%s?%s=%s&%s=%s", constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, testCase.channelID, constants.AzureDevopsQueryParamWebhookSecret, testCase.webhookSecret), bytes.NewBufferString(testCase.body))
@@ -1138,6 +1124,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+				mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))

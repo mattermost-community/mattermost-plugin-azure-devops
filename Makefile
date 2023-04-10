@@ -31,11 +31,6 @@ ifneq ($(wildcard build/custom.mk),)
 	include build/custom.mk
 endif
 
-## Propagates plugin manifest information into the server/ and webapp/ folders as required.
-.PHONY: apply
-apply:
-	./build/bin/manifest apply
-
 ## Checks the code style, tests, builds and bundles the plugin.
 .PHONY: all
 all: check-style test dist

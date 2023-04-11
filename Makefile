@@ -22,7 +22,6 @@ default: all
 
 # Verify environment, and define PLUGIN_ID, PLUGIN_VERSION, HAS_SERVER and HAS_WEBAPP as needed.
 include build/setup.mk
-include build/legacy.mk
 
 BUNDLE_NAME ?= $(PLUGIN_ID)-$(PLUGIN_VERSION).tar.gz
 
@@ -30,6 +29,11 @@ BUNDLE_NAME ?= $(PLUGIN_ID)-$(PLUGIN_VERSION).tar.gz
 ifneq ($(wildcard build/custom.mk),)
 	include build/custom.mk
 endif
+
+## Propagates plugin manifest information into the server/ and webapp/ folders as required.
+.PHONY: apply
+apply:
+	./build/bin/manifest apply
 
 ## Checks the code style, tests, builds and bundles the plugin.
 .PHONY: all

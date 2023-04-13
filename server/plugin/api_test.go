@@ -21,7 +21,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/mattermost/mattermost-plugin-azure-devops/mocks"
-	"github.com/mattermost/mattermost-plugin-azure-devops/server/config"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/constants"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/serializers"
 	"github.com/mattermost/mattermost-plugin-azure-devops/server/testutils"
@@ -40,10 +39,6 @@ func setupMockPlugin(api *plugintest.API, store *mocks.MockKVStore, client *mock
 	if store != nil {
 		p.Store = store
 	}
-
-	p.setConfiguration(&config.Configuration{
-		WebhookSecret: "mockWebhookSecret",
-	})
 
 	if client != nil {
 		p.Client = client
@@ -366,6 +361,7 @@ func TestHandleDeleteAllSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				if testCase.err == nil {
 					mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+					mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 				}
 			}
 
@@ -662,6 +658,10 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 				FirstName: "mockCreatedBy",
 			}, nil)
 
+			showFullName := true
+			privacySettings := model.PrivacySettings{ShowFullName: &showFullName}
+			mockAPI.On("GetConfig", mock.AnythingOfType("string")).Return(&model.Config{PrivacySettings: privacySettings}, nil)
+
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
 				return []byte{}, testCase.marshalError
 			})
@@ -676,12 +676,13 @@ func TestHandleCreateSubscriptions(t *testing.T) {
 			})
 
 			if testCase.statusCode == http.StatusOK {
-				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
+				mockedClient.EXPECT().CreateSubscription(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(&serializers.SubscriptionValue{
 					ID: testutils.MockSubscriptionID,
 				}, testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().StoreSubscription(testCase.subscription).Return(nil)
+				mockedStore.EXPECT().StoreSubscriptionAndChannelIDMap(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodPost, "/subscriptions", bytes.NewBufferString(testCase.body))
@@ -704,60 +705,62 @@ func TestHandleGetSubscriptions(t *testing.T) {
 	for _, testCase := range []struct {
 		description                                          string
 		subscriptionList                                     []*serializers.SubscriptionDetails
-		project                                              string
 		err                                                  error
 		marshalError                                         error
 		GetSubscriptionsForAccessibleChannelsOrProjectsError error
 		statusCode                                           int
 		isTeamIDValid                                        bool
+		isProjectLinked                                      bool
 	}{
 		{
 			description:      "HandleGetSubscriptions: valid",
 			subscriptionList: []*serializers.SubscriptionDetails{},
 			statusCode:       http.StatusOK,
 			isTeamIDValid:    true,
+			isProjectLinked:  true,
 		},
 		{
-			description:   "HandleGetSubscriptions: project as a query param",
-			project:       testutils.MockProjectName,
-			statusCode:    http.StatusOK,
-			isTeamIDValid: true,
+			description:     "HandleGetSubscriptions: error while fetching subscription list",
+			err:             errors.New("error while fetching subscription list"),
+			statusCode:      http.StatusInternalServerError,
+			isTeamIDValid:   true,
+			isProjectLinked: true,
 		},
 		{
-			description:   "HandleGetSubscriptions: error while fetching subscription list",
-			err:           errors.New("error while fetching subscription list"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
-		},
-		{
-			description:   "HandleGetSubscriptions: empty subscription list",
-			statusCode:    http.StatusOK,
-			isTeamIDValid: true,
-		},
-		{
-			description:   "HandleGetSubscriptions: marshaling gives error",
-			marshalError:  errors.New("error while marshaling"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
-		},
-		{
-			description: "HandleGetSubscriptions: GetSubscriptionsForAccessibleChannelsOrProjects gives error",
-			project:     testutils.MockProjectName,
-			GetSubscriptionsForAccessibleChannelsOrProjectsError: errors.New("error while getting subscriptions for accessible channels or projects"),
-			statusCode:    http.StatusInternalServerError,
-			isTeamIDValid: true,
+			description:     "HandleGetSubscriptions: empty subscription list",
+			statusCode:      http.StatusOK,
+			isTeamIDValid:   true,
+			isProjectLinked: true,
 		},
 		{
 			description:   "HandleGetSubscriptions: Team ID is invalid",
 			statusCode:    http.StatusBadRequest,
 			isTeamIDValid: false,
 		},
+		{
+			description:     "HandleGetSubscriptions: Project is not linked",
+			statusCode:      http.StatusBadRequest,
+			isTeamIDValid:   true,
+			isProjectLinked: false,
+		},
 	} {
 		t.Run(testCase.description, func(t *testing.T) {
 			mockAPI.On("LogError", testutils.GetMockArgumentsWithType("string", 3)...)
+			mockAPI.On("LogWarn", testutils.GetMockArgumentsWithType("string", 3)...)
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "IsProjectLinked", func(*Plugin, []serializers.ProjectDetails, serializers.ProjectDetails) (*serializers.ProjectDetails, bool) {
+				return &serializers.ProjectDetails{}, testCase.isProjectLinked
+			})
+
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
+				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
+			})
 
 			if testCase.isTeamIDValid {
-				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
+				if testCase.isProjectLinked {
+					mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, testCase.err)
+				}
+				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return([]serializers.ProjectDetails{}, nil)
 			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {
@@ -768,11 +771,7 @@ func TestHandleGetSubscriptions(t *testing.T) {
 				return testCase.isTeamIDValid
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "GetSubscriptionsForAccessibleChannelsOrProjects", func(_ *Plugin, _ []*serializers.SubscriptionDetails, _, _, _ string) ([]*serializers.SubscriptionDetails, error) {
-				return nil, testCase.GetSubscriptionsForAccessibleChannelsOrProjectsError
-			})
-
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?project=%s", "/subscriptions", testCase.project), bytes.NewBufferString(`{}`))
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/subscriptions/%s/%s/%s", testutils.MockTeamID, testutils.MockOrganization, testutils.MockProjectName), bytes.NewBufferString(`{}`))
 			req.Header.Add(constants.HeaderMattermostUserID, testutils.MockMattermostUserID)
 
 			w := httptest.NewRecorder()
@@ -833,17 +832,6 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 					"markdown": "mockMarkdown"`,
 			err:              errors.New("error invalid body"),
 			channelID:        "mockChannelIDmockChannelID",
-			statusCode:       http.StatusBadRequest,
-			isValidChannelID: true,
-			webhookSecret:    "mockWebhookSecret",
-		},
-		{
-			description: "SubscriptionNotifications: without channelID",
-			body: `{
-				"detailedMessage": {
-					"markdown": "mockMarkdown"
-					}
-				}`,
 			statusCode:       http.StatusBadRequest,
 			isValidChannelID: true,
 			webhookSecret:    "mockWebhookSecret",
@@ -1059,8 +1047,8 @@ func TestHandleSubscriptionNotifications(t *testing.T) {
 				return time.Time{}, testCase.parseTimeError
 			})
 
-			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifyEncryptedWebhookSecret", func(_ *Plugin, _ string) (int, error) {
-				return testCase.statusCode, testCase.err
+			monkey.PatchInstanceMethod(reflect.TypeOf(p), "VerifySubscriptionWebhookSecretAndGetChannelID", func(_ *Plugin, _, _ string) (string, int, error) {
+				return testCase.channelID, testCase.statusCode, testCase.err
 			})
 
 			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("%s?%s=%s&%s=%s", constants.PathSubscriptionNotifications, constants.AzureDevopsQueryParamChannelID, testCase.channelID, constants.AzureDevopsQueryParamWebhookSecret, testCase.webhookSecret), bytes.NewBufferString(testCase.body))
@@ -1136,6 +1124,7 @@ func TestHandleDeleteSubscriptions(t *testing.T) {
 				mockedClient.EXPECT().DeleteSubscription(gomock.Any(), gomock.Any(), gomock.Any()).Return(testCase.statusCode, testCase.err)
 				mockedStore.EXPECT().GetAllSubscriptions(testutils.MockMattermostUserID).Return(testCase.subscriptionList, nil)
 				mockedStore.EXPECT().DeleteSubscription(gomock.Any()).Return(nil)
+				mockedStore.EXPECT().DeleteSubscriptionAndChannelIDMap(gomock.Any()).Return(nil)
 			}
 
 			req := httptest.NewRequest(http.MethodDelete, "/subscriptions", bytes.NewBufferString(testCase.body))

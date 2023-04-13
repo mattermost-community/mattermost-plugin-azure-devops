@@ -5,17 +5,18 @@
     "icon_path": "public/assets/azurebot.svg",
     "homepage_url": "https://github.com/mattermost/mattermost-plugin-azure-devops",
     "support_url": "https://github.com/mattermost/mattermost-plugin-azure-devops/issues",
-    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-azure-devops/releases",
-    "version": "3.1.1",
+    "release_notes_url": "https://github.com/mattermost/mattermost-plugin-azure-devops/releases/3.2.0",
+    "version": "3.2.0",
     "min_server_version": "5.37.3",
     "server": {
         "executables": {
-            "linux-amd64": "server/dist/plugin-linux-amd64",
-            "linux-arm64": "server/dist/plugin-linux-arm64",
             "darwin-amd64": "server/dist/plugin-darwin-amd64",
             "darwin-arm64": "server/dist/plugin-darwin-arm64",
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "linux-arm64": "server/dist/plugin-linux-arm64",
             "windows-amd64": "server/dist/plugin-windows-amd64.exe"
-        }
+        },
+        "executable": ""
     },
     "webapp": {
         "bundle_path": "webapp/dist/main.js"
@@ -28,31 +29,33 @@
                 "key": "azureDevopsAPIBaseURL",
                 "display_name": "Azure DevOps API base URL",
                 "type": "text",
-                "help_text": "Enter the base URL for Azure DevOps API"
+                "help_text": "Enter the base URL for Azure DevOps API",
+                "placeholder": "",
+                "default": null
             },
             {
                 "key": "azureDevopsOAuthAppID",
                 "display_name": "Azure DevOps OAuth App ID",
                 "type": "text",
-                "help_text": "Enter the app ID for the OAuth app registered with Azure DevOps"
+                "help_text": "Enter the app ID for the OAuth app registered with Azure DevOps",
+                "placeholder": "",
+                "default": null
             },
             {
                 "key": "azureDevopsOAuthClientSecret",
                 "display_name": "Azure DevOps OAuth Client Secret",
                 "type": "text",
-                "help_text": "Enter the client secret for the OAuth app registered with Azure DevOps."
+                "help_text": "Enter the client secret for the OAuth app registered with Azure DevOps.",
+                "placeholder": "",
+                "default": null
             },
             {
                 "key": "EncryptionSecret",
                 "display_name": "Encryption Secret:",
                 "type": "generated",
-                "help_text": "The secret key used to encrypt and decrypt the OAuth token and webhook secret.\nRegenerating the secret will require all users to re-connect their accounts to Azure DevOps and create new subscriptions as existing ones will no longer be authenticated."
-            },
-            {
-                "key": "WebhookSecret",
-                "display_name": "Webhook Secret:",
-                "type": "generated",
-                "help_text": "The secret key used to authenticate incoming requests to notification webhook used for subscriptions.\nRegenerating the secret will require all users to create new subscriptions as existing ones will no longer be authenticated."
+                "help_text": "The secret key used to encrypt and decrypt the OAuth token.\nRegenerating the secret will require all users to re-connect their accounts to Azure DevOps.",
+                "placeholder": "",
+                "default": null
             }
         ]
     }

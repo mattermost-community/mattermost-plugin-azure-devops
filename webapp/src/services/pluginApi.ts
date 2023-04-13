@@ -60,7 +60,7 @@ export const azureDevOpsPluginApi = createApi({
         }),
         [Constants.pluginApiServiceConfigs.getSubscriptionList.apiServiceName]: builder.query<SubscriptionDetails[], FetchSubscriptionList>({
             query: (params) => ({
-                url: `${Constants.pluginApiServiceConfigs.getSubscriptionList.path}/${params.team_id}`,
+                url: `${Constants.pluginApiServiceConfigs.getSubscriptionList.path}/${params.team_id}/${params.organization}/${params.project}`,
                 method: Constants.pluginApiServiceConfigs.getSubscriptionList.method,
                 params: {...params},
             }),

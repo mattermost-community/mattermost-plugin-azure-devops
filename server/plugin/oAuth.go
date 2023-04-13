@@ -67,11 +67,6 @@ func (p *Plugin) GenerateOAuthConnectURL(mattermostUserID string) string {
 // OAuthConnect redirects to the OAuth authorization URL
 func (p *Plugin) OAuthConnect(w http.ResponseWriter, r *http.Request) {
 	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
-	// TODO: use checkAuth middleware for this
-	if mattermostUserID == "" {
-		http.Error(w, "Not authorized", http.StatusUnauthorized)
-		return
-	}
 
 	if isConnected := p.MattermostUserAlreadyConnected(mattermostUserID); isConnected {
 		p.CloseBrowserWindowWithHTTPResponse(w)
@@ -107,7 +102,8 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := p.GenerateOAuthToken(code, state); err != nil {
+	mattermostUserID := r.Header.Get(constants.HeaderMattermostUserID)
+	if err := p.GenerateOAuthToken(code, state, mattermostUserID); err != nil {
 		if strings.Contains(err.Error(), "already connected") {
 			p.API.LogError(constants.UnableToCompleteOAuth, "Error", constants.ErrorMessageAzureDevopsAccountAlreadyConnected)
 			http.Error(w, err.Error(), http.StatusForbidden)
@@ -122,13 +118,14 @@ func (p *Plugin) OAuthComplete(w http.ResponseWriter, r *http.Request) {
 }
 
 // GenerateOAuthToken generates OAuth token after successful authorization
-func (p *Plugin) GenerateOAuthToken(code, state string) error {
+func (p *Plugin) GenerateOAuthToken(code, state, authenticatedMattermostUserID string) error {
 	mattermostUserID := strings.Split(state, "_")[1]
 
+	if mattermostUserID != authenticatedMattermostUserID {
+		return errors.New("failed to complete oAuth, mattermost user is not authenticated")
+	}
+
 	if err := p.Store.VerifyOAuthState(mattermostUserID, state); err != nil {
-		if _, DMErr := p.DM(mattermostUserID, constants.GenericErrorMessage, false); DMErr != nil {
-			return DMErr
-		}
 		return errors.Wrap(err, "failed to verify oAuth state")
 	}
 
@@ -304,6 +301,7 @@ func (p *Plugin) CloseBrowserWindowWithHTTPResponse(w http.ResponseWriter) {
 	<html>
 		<head>
 			<script>
+				window.open('','_parent','');
 				window.close();
 			</script>
 		</head>

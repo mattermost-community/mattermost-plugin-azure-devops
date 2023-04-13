@@ -356,6 +356,68 @@ func TestGetPluginURL(t *testing.T) {
 	}
 }
 
+func TestSanitizeURLPath(t *testing.T) {
+	p := Plugin{}
+	for _, testCase := range []struct {
+		description           string
+		organization          string
+		project               string
+		otherPathInput        string
+		isAnyPathInputInvalid bool
+	}{
+		{
+			description:    "SanitizeURLPaths: valid organization, project and otherInputs",
+			organization:   "dummyOrg",
+			project:        "dummy_project",
+			otherPathInput: "dummy_path",
+		},
+		{
+			description:           "SanitizeURLPaths: invalid organization",
+			organization:          "dummy_org",
+			project:               "",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
+		},
+		{
+			description:           "SanitizeURLPaths: invalid project",
+			organization:          "",
+			project:               "../dummy_project",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
+		},
+		{
+			description:           "SanitizeURLPaths: invalid project with escaped chars",
+			organization:          "",
+			project:               "%5c..%5c..dummy_project",
+			otherPathInput:        "",
+			isAnyPathInputInvalid: true,
+		},
+		{
+			description:           "SanitizeURLPaths: invalid otherInputs",
+			organization:          "",
+			project:               "",
+			otherPathInput:        "dummy_path/../",
+			isAnyPathInputInvalid: true,
+		},
+		{
+			description:           "SanitizeURLPaths: invalid otherInputs with escaped chars",
+			organization:          "",
+			project:               "",
+			otherPathInput:        "dummy_path%2f%2e.",
+			isAnyPathInputInvalid: true,
+		},
+	} {
+		t.Run(testCase.description, func(t *testing.T) {
+			_, err := p.SanitizeURLPaths(testCase.organization, testCase.project, testCase.otherPathInput)
+			if testCase.isAnyPathInputInvalid {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestParseAuthToken(t *testing.T) {
 	defer monkey.UnpatchAll()
 	p := Plugin{}

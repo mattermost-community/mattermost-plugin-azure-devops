@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -455,25 +457,30 @@ func (p *Plugin) deleteSubscription(subscription *serializers.SubscriptionDetail
 		return http.StatusInternalServerError, deleteErr
 	}
 
+	if deleteErr := p.Store.DeleteSubscriptionAndChannelIDMap(subscription.SubscriptionID); deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
 	return http.StatusOK, nil
 }
 
-func (p *Plugin) VerifyEncryptedWebhookSecret(received string) (status int, err error) {
-	decodedWebhookSecret, err := p.Decode(received)
+func (p *Plugin) VerifySubscriptionWebhookSecretAndGetChannelID(subscriptionID, uniqueWebhookSecret string) (string, int, error) {
+	subscriptionWebhookSecretAndChannelIDMap, err := p.Store.GetSubscriptionAndChannelIDMap(subscriptionID)
 	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decode webhook secret")
+		return "", http.StatusInternalServerError, err
 	}
 
-	decryptedWebhookSecret, err := p.Decrypt(decodedWebhookSecret, []byte(p.getConfiguration().EncryptionSecret))
-	if err != nil {
-		return http.StatusInternalServerError, errors.New("failed to decrypt webhook secret")
+	if subscriptionWebhookSecretAndChannelIDMap == nil {
+		return "", http.StatusUnauthorized, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
-	if p.getConfiguration().WebhookSecret != string(decryptedWebhookSecret) {
-		return http.StatusForbidden, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
+	webhookSecretAndChannelIDMap := *subscriptionWebhookSecretAndChannelIDMap
+	channelID, ok := webhookSecretAndChannelIDMap[uniqueWebhookSecret]
+	if !ok {
+		return "", http.StatusUnauthorized, errors.New(constants.ErrorUnauthorisedSubscriptionsWebhookRequest)
 	}
 
-	return 0, nil
+	return channelID, http.StatusOK, nil
 }
 
 // A user can create subscription(s) only for accessible public and private channels
@@ -489,6 +496,60 @@ func (p *Plugin) CheckValidChannelForSubscription(channelID, userID string) (int
 
 	if _, err := p.API.GetChannelMember(channelID, userID); err != nil {
 		return err.StatusCode, err
+	}
+
+	return 0, nil
+}
+
+func (p *Plugin) SanitizeURLPaths(organization, project, otherPathInput string) (int, error) {
+	// replace escaped characters like `.`, `/`, etc
+	unescapedOrganization, err := url.PathUnescape(organization)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	unescapedProject, err := url.PathUnescape(project)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	unescapedPathInput, err := url.PathUnescape(otherPathInput)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	if unescapedOrganization != "" {
+		// regex to check valid organization name
+		regexToCheckOrganizationName := `^[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9]$`
+		validOrganization, err := regexp.MatchString(regexToCheckOrganizationName, unescapedOrganization)
+		if !validOrganization {
+			return http.StatusBadRequest, errors.New("invalid organization")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+	}
+
+	if unescapedProject != "" {
+		// regex to check invalid project name
+		regexToCheckInvalidProjectName := `^[\._]|[\._]$|[|\\@#$%&*+={}:;"'\[\],/?<>~]`
+		invalidProject, err := regexp.MatchString(regexToCheckInvalidProjectName, unescapedProject)
+		if invalidProject {
+			return http.StatusBadRequest, errors.New("invalid project")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+	}
+
+	if unescapedPathInput != "" {
+		// regex to check any other invalid path input
+		regexToCheckPathInput := `[./\\]`
+		invalidPathInput, err := regexp.MatchString(regexToCheckPathInput, unescapedPathInput)
+		if invalidPathInput {
+			return http.StatusBadRequest, errors.New("invalid path inputs")
+		}
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
 	}
 
 	return 0, nil

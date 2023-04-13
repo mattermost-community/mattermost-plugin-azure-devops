@@ -17,6 +17,7 @@ const (
 	MockServiceType       = "mockServiceType"
 	MockApproverID        = "mockApproverID"
 	MockAzureDevopsUserID = "mockAzureDevopsUserID"
+	MockTeamID            = "mockTeamID"
 )
 
 func GetMockArgumentsWithType(typeString string, num int) []interface{} {
@@ -52,4 +53,13 @@ func GetProjectDetailsPayload() []serializers.ProjectDetails {
 			ProjectID:        "mockProjectID",
 		},
 	}
+}
+
+func GenerateStringOfSize(sizeInByte int) string {
+	bytes := make([]byte, sizeInByte)
+	for i := range bytes {
+		bytes[i] = 'a'
+	}
+
+	return string(bytes)
 }

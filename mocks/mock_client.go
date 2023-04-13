@@ -36,20 +36,20 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// CreateSubscription mocks base method.
-func (m *MockClient) CreateSubscription(arg0 *serializers.CreateSubscriptionRequestPayload, arg1 *serializers.ProjectDetails, arg2, arg3, arg4 string) (*serializers.SubscriptionValue, int, error) {
+// CreateSubscription mocks base method
+func (m *MockClient) CreateSubscription(arg0 *serializers.CreateSubscriptionRequestPayload, arg1 *serializers.ProjectDetails, arg2, arg3, arg4, arg5 string) (*serializers.SubscriptionValue, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSubscription", arg0, arg1, arg2, arg3, arg4)
+	ret := m.ctrl.Call(m, "CreateSubscription", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*serializers.SubscriptionValue)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// CreateSubscription indicates an expected call of CreateSubscription.
-func (mr *MockClientMockRecorder) CreateSubscription(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+// CreateSubscription indicates an expected call of CreateSubscription
+func (mr *MockClientMockRecorder) CreateSubscription(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockClient)(nil).CreateSubscription), arg0, arg1, arg2, arg3, arg4)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSubscription", reflect.TypeOf((*MockClient)(nil).CreateSubscription), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // CreateTask mocks base method.

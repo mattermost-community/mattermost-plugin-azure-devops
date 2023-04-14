@@ -301,6 +301,7 @@ func (p *Plugin) CloseBrowserWindowWithHTTPResponse(w http.ResponseWriter) {
 	<html>
 		<head>
 			<script>
+				window.open('','_parent','');
 				window.close();
 			</script>
 		</head>

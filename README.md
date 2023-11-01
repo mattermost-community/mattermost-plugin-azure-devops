@@ -1,4 +1,9 @@
+# :warning: Disclaimer
+
+**This repository is community supported and not maintained by Mattermost. Mattermost disclaims any and all liability for integrations, including Third Party Integrations and Mattermost Integrations. All integrations are provided "AS IS", and may be used at your own risk. Integrations may be modified or discontinued at any time.**
+
 # Mattermost Azure DevOps Plugin
+
 ## Table of Contents
 - [License](#license)
 - [Overview](#overview)
@@ -6,7 +11,6 @@
 - [Installation](#installation)
 - [Setup](#setup)
 - [Connecting to Azure DevOps](#connecting-to-azure-devops)
-- [Development](#development)
 
 ## License
 

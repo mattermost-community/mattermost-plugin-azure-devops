@@ -6,7 +6,7 @@ type UserStore interface {
 	StoreAzureDevopsUserDetailsWithMattermostUserID(user *serializers.User) error
 	LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID string) (string, error)
 	LoadAzureDevopsUserDetails(userID string) (*serializers.User, error)
-	DeleteUser(mattermostUserID string) (bool, error)
+	DeleteUser(mattermostUserID string) error
 }
 
 func (s *Store) StoreAzureDevopsUserDetailsWithMattermostUserID(user *serializers.User) error {
@@ -38,19 +38,19 @@ func (s *Store) LoadAzureDevopsUserDetails(userID string) (*serializers.User, er
 	return &user, nil
 }
 
-func (s *Store) DeleteUser(mattermostUserID string) (bool, error) {
+func (s *Store) DeleteUser(mattermostUserID string) error {
 	azureDevopsUserID, err := s.LoadAzureDevopsUserIDFromMattermostUser(mattermostUserID)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if err := s.Delete(GetAzureDevopsUserKey(azureDevopsUserID)); err != nil {
-		return false, err
+		return err
 	}
 
 	if err := s.Delete(GetOAuthKey(mattermostUserID)); err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }

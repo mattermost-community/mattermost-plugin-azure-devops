@@ -453,10 +453,8 @@ func (c *client) Call(basePath, method, path, contentType string, mattermostUser
 		if isAccessTokenExpired, refreshToken := c.plugin.IsAccessTokenExpired(mattermostUserID); isAccessTokenExpired {
 			if errRefreshingToken := c.plugin.RefreshOAuthToken(mattermostUserID, refreshToken); errRefreshingToken != nil {
 				message := constants.SessionExpiredMessage
-				if isDeleted, dErr := c.plugin.Store.DeleteUser(mattermostUserID); !isDeleted {
-					if dErr != nil {
-						c.plugin.API.LogError(constants.UnableToDisconnectUser, "Error", dErr.Error())
-					}
+				if dErr := c.plugin.Store.DeleteUser(mattermostUserID); dErr != nil {
+					c.plugin.API.LogError(constants.UnableToDisconnectUser, "Error", dErr.Error())
 					message = constants.GenericErrorMessage
 				}
 

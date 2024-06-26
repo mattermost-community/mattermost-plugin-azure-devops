@@ -280,10 +280,8 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *mod
 	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		message = p.getConnectAccountFirstMessage()
 	} else {
-		if isDeleted, err := p.Store.DeleteUser(commandArgs.UserId); !isDeleted {
-			if err != nil {
-				p.API.LogError(constants.UnableToDisconnectUser, "Error", err.Error())
-			}
+		if err := p.Store.DeleteUser(commandArgs.UserId); err != nil {
+			p.API.LogError(constants.UnableToDisconnectUser, "Error", err.Error())
 			message = constants.GenericErrorMessage
 		}
 

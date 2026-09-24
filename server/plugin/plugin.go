@@ -95,7 +95,7 @@ func (p *Plugin) initBotUser() error {
 }
 
 // ServeHTTP demonstrates a plugin that handles HTTP requests.
-func (p *Plugin) ServeHTTP(c *plugin.Context, w http.ResponseWriter, r *http.Request) {
+func (p *Plugin) ServeHTTP(_ *plugin.Context, w http.ResponseWriter, r *http.Request) {
 	p.router.ServeHTTP(w, r)
 }
 
@@ -111,7 +111,7 @@ func IsLinkPresent(msg string, regex string) ([]string, string, bool) {
 	return data, link, true
 }
 
-func (p *Plugin) MessageWillBePosted(c *plugin.Context, post *model.Post) (*model.Post, string) {
+func (p *Plugin) MessageWillBePosted(_ *plugin.Context, post *model.Post) (*model.Post, string) {
 	// Check if a message contains a work item link.
 	if taskData, _, isValid := IsLinkPresent(post.Message, constants.TaskLinkRegex); isValid {
 		newPost, msg := p.PostTaskPreview(taskData, post.UserId, post.ChannelId)

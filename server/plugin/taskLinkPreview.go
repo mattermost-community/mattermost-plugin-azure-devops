@@ -110,7 +110,7 @@ func (p *Plugin) PostPullRequestPreview(linkData []string, link, userID, channel
 	return post, ""
 }
 
-func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {
+func (p *Plugin) PostBuildDetailsPreview(linkData []string, _, userID, channelID string) (*model.Post, string) {
 	organization := linkData[3]
 	project := linkData[4]
 	buildID := strings.Split(linkData[6], "&")[0][16:]
@@ -160,7 +160,7 @@ func (p *Plugin) PostBuildDetailsPreview(linkData []string, link, userID, channe
 	return post, ""
 }
 
-func (p *Plugin) PostReleaseDetailsPreview(linkData []string, link, userID, channelID string) (*model.Post, string) {
+func (p *Plugin) PostReleaseDetailsPreview(linkData []string, _, userID, channelID string) (*model.Post, string) {
 	organization := linkData[3]
 	project := linkData[4]
 	releaseID := strings.Split(linkData[5], "&")[1][10:]

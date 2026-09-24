@@ -29,7 +29,7 @@ import (
 type panicHandler struct {
 }
 
-func (ph panicHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (ph panicHandler) ServeHTTP(_ http.ResponseWriter, _ *http.Request) {
 	panic("bad handler")
 }
 
@@ -47,7 +47,7 @@ func setupMockPlugin(api *plugintest.API, store *mocks.MockKVStore, client *mock
 	return p
 }
 
-func TestInitRoutes(t *testing.T) {
+func TestInitRoutes(_ *testing.T) {
 	p := setupMockPlugin(&plugintest.API{}, nil, nil)
 	p.InitRoutes()
 }
@@ -489,7 +489,8 @@ func TestHandleUnlinkProject(t *testing.T) {
 
 			if testCase.statusCode == http.StatusOK {
 				mockedStore.EXPECT().GetAllProjects(testutils.MockMattermostUserID).Return(testCase.projectList, nil)
-				mockedStore.EXPECT().DeleteProject(&testCase.project).Return(nil)
+				project := testCase.project
+				mockedStore.EXPECT().DeleteProject(&project).Return(nil)
 			}
 
 			monkey.Patch(json.Marshal, func(interface{}) ([]byte, error) {

@@ -226,7 +226,7 @@ var publisherID = map[string]string{
 	constants.SubscriptionEventRunStateChanged:                    constants.PublisherIDPipelines,
 }
 
-func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, channelID, pluginURL, mattermostUserID, uuid string) (*serializers.SubscriptionValue, int, error) {
+func (c *client) CreateSubscription(body *serializers.CreateSubscriptionRequestPayload, project *serializers.ProjectDetails, _, pluginURL, mattermostUserID, uuid string) (*serializers.SubscriptionValue, int, error) {
 	if statusCode, err := c.plugin.SanitizeURLPaths(body.Organization, "", ""); err != nil {
 		return nil, statusCode, err
 	}
@@ -501,7 +501,7 @@ func (c *client) OpenDialogRequest(body *model.OpenDialogRequest, mattermostUser
 	return statusCode, err
 }
 
-func (c *client) parsePath(basePath, path, method string) (string, error) {
+func (c *client) parsePath(basePath, path, _ string) (string, error) {
 	pathURL, err := url.Parse(path)
 	if err != nil {
 		return "", err

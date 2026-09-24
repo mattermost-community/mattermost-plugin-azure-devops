@@ -118,7 +118,7 @@ func (p *Plugin) getCommand() (*model.Command, error) {
 	}, nil
 }
 
-func azureDevopsAccountConnectionCheck(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsAccountConnectionCheck(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, _ ...string) (*model.CommandResponse, *model.AppError) {
 	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		return p.sendEphemeralPostForCommand(commandArgs, p.getConnectAccountFirstMessage())
 	}
@@ -194,7 +194,7 @@ func azureDevopsPipelinesCommand(p *Plugin, c *plugin.Context, commandArgs *mode
 	return executeDefault(p, c, commandArgs, args...)
 }
 
-func azureDevopsDeleteCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsDeleteCommand(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, command string, args ...string) (*model.CommandResponse, *model.AppError) {
 	if len(args) < 3 {
 		return p.sendEphemeralPostForCommand(commandArgs, "Subscription ID is not provided")
 	}
@@ -263,11 +263,11 @@ func azureDevopsListSubscriptionsCommand(p *Plugin, c *plugin.Context, commandAr
 	return p.sendEphemeralPostForCommand(commandArgs, p.ParseSubscriptionsToCommandResponse(subscriptionList, showForChannelID, createdByArgument, commandArgs.UserId, command, commandArgs.TeamId))
 }
 
-func azureDevopsHelpCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsHelpCommand(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, _ ...string) (*model.CommandResponse, *model.AppError) {
 	return p.sendEphemeralPostForCommand(commandArgs, constants.HelpText)
 }
 
-func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsConnectCommand(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, _ ...string) (*model.CommandResponse, *model.AppError) {
 	message := fmt.Sprintf(constants.ConnectAccount, p.GetPluginURLPath(), constants.PathOAuthConnect)
 	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); isConnected {
 		message = constants.MattermostUserAlreadyConnected
@@ -275,7 +275,7 @@ func azureDevopsConnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.
 	return p.sendEphemeralPostForCommand(commandArgs, message)
 }
 
-func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func azureDevopsDisconnectCommand(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, _ ...string) (*model.CommandResponse, *model.AppError) {
 	message := constants.UserDisconnected
 	if isConnected := p.MattermostUserAlreadyConnected(commandArgs.UserId); !isConnected {
 		message = p.getConnectAccountFirstMessage()
@@ -296,7 +296,7 @@ func azureDevopsDisconnectCommand(p *Plugin, c *plugin.Context, commandArgs *mod
 	return p.sendEphemeralPostForCommand(commandArgs, message)
 }
 
-func executeDefault(p *Plugin, c *plugin.Context, commandArgs *model.CommandArgs, args ...string) (*model.CommandResponse, *model.AppError) {
+func executeDefault(p *Plugin, _ *plugin.Context, commandArgs *model.CommandArgs, _ ...string) (*model.CommandResponse, *model.AppError) {
 	out := constants.InvalidCommand + constants.HelpText
 
 	return p.sendEphemeralPostForCommand(commandArgs, out)
